@@ -1,0 +1,8 @@
+node_modules
+postgres_data
+Dockerfile
+.dockerignore
+.git
+.gitignore
+docker-compose*
+frontend

@@ -1,0 +1,58 @@
+version: "3"
+services:
+  maas-yoga-admin-panel-frontend:
+    restart: always
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.${NODE_ENV}
+      args: 
+        - PORT=${FRONTEND_PORT}
+        - REACT_APP_BACKEND_PORT=${BACKEND_PORT}
+        - REACT_APP_BACKEND_HOST=${BACKEND_HOST}
+    volumes:
+      - ./frontend:/app/
+      - /app/node_modules
+      - /app/build
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - REACT_APP_BACKEND_PORT=${BACKEND_PORT}
+      - REACT_APP_BACKEND_HOST=${BACKEND_HOST}
+  maas-yoga-admin-panel-api:
+    restart: always   
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.${NODE_ENV}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    depends_on:
+      - "db"
+    environment:
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - BACKEND_TOKEN_SECRET=${BACKEND_TOKEN_SECRET}
+      - BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS=${BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - BACKEND_HOST=${BACKEND_HOST}
+      - FRONTEND_HOST=${FRONTEND_HOST}
+    volumes:
+      - ./backend:/app/
+      - /app/node_modules
+  db:
+    restart: always
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+volumes:
+  dbdata:
