@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Banner from "./pages/banner";
 import Home from "./pages/home";
-import './globals.css';
+import './input.css';
 
 export default function App() {
   return (
