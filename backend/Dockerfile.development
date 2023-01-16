@@ -1,0 +1,10 @@
+FROM node:16
+WORKDIR /app
+COPY package.json .
+RUN npm install && npm install -g nodemon;
+ENV BACKEND_PORT 3000
+ENV ALLOWED_ORIGINS *
+ENV BACKEND_TOKEN_SECRET 123
+ENV BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS 86400
+EXPOSE $BACKEND_PORT
+ENTRYPOINT [ "nodemon", "--inspect=0.0.0.0", "--legacy-watch", "./index.js" ]
