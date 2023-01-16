@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useFormik } from 'formik';
-import authUser from '../../../../src/services/userService';
+import authUser from '../services/userService';
 
 export default function Banner() {   
     const [hideBanner, setHideBanner] = useState(false);

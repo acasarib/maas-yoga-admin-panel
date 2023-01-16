@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Banner from "../frontend/src/components/pages/banner";
-import Home from "../frontend/src/components/pages/home";
+import Banner from "./pages/banner";
+import Home from "./pages/home";
 import './input.css';
 
 export default function App() {
