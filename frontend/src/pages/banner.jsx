@@ -15,8 +15,8 @@ export default function Banner() {
         if (!values.userName) {
           errors.userName = 'Campo requerido';
           setDisabled(true);
-        } else if (values.password.length < 4) {
-          errors.password = 'Te falta completar los 4 dígitos';
+        } else if (values.password.length < 3) {
+          errors.password = 'Te falta completar los 3 dígitos';
           setDisabled(true);
         } else {
           setDisabled(false);

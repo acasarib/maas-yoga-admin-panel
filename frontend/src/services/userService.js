@@ -3,8 +3,9 @@ import axios from "axios";
 export default {
     authUser(userBody) {
         return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_BACKEND_HOST; 
             axios
-                .post(process.env.BACKEND_HOST, userBody)
+                .post(baseUrl + 'users/login', userBody)
                 .then((response) => {
                     resolve(response.data.token);
                 })
