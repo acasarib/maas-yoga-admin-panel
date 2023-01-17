@@ -10,6 +10,11 @@ export default function Banner() {
     const [showAlert, setShowAlert] = useState(false);
     let navigate = useNavigate();
 
+    const isAuthFail = {
+        title: 'Usuario o contraseña incorrectos',
+        message: 'Alguno de los campos indicados no posee los datos correctos'
+    };
+
     const validate = (values) => {
         const errors = {};
         if (!values.email) {
@@ -49,7 +54,7 @@ export default function Banner() {
     return(
         <>
             <div className="bg-gradient-to-b from-yellow-300 to-white h-screen w-screen grid content-center flex justify-center">
-                {showAlert && (<CommonAlert />)
+                {showAlert && (<CommonAlert title={isAuthFail.title} message={isAuthFail.message}/>)
                 }
                 {!hideBanner ? <><div>
                     <button className="transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-125" onClick={() => setHideBanner(true)}>
