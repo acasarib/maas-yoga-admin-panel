@@ -12,8 +12,8 @@ export default function Banner() {
 
     const validate = (values) => {
         const errors = {};
-        if (!values.userName) {
-          errors.userName = 'Campo requerido';
+        if (!values.email) {
+          errors.email = 'Campo requerido';
           setDisabled(true);
         } else if (values.password.length < 3) {
           errors.password = 'Te falta completar los 3 dígitos';
@@ -26,13 +26,13 @@ export default function Banner() {
     
       const formik = useFormik({
         initialValues: {
-          userName: '',
+          email: '',
           password: '',
         },
         validate,
         onSubmit: async (values) => {
           const body = {
-            userName: values.userName,
+            email: values.email,
             password: values.password,
           };
           try {
@@ -83,17 +83,17 @@ export default function Banner() {
                         onSubmit={formik.handleSubmit}
                     >
                         <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
                             Usuario
                         </label>
-                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Usuario" onChange={formik.handleChange}
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="Usuario" onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             value={formik.values.dni}
-                            name="userName"
-                            htmlFor="userName"
+                            name="email"
+                            htmlFor="email"
                         />
-                        {formik.touched.userName && formik.errors.userName ? (
-                            <div className="text-red-500">{formik.errors.userName}</div>
+                        {formik.touched.email && formik.errors.email ? (
+                            <div className="text-red-500">{formik.errors.email}</div>
                         ) : null}
                         </div>
                         <div class="mb-6">
