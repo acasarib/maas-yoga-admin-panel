@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from 'formik';
 import authUser from '../services/userService';
+import CommonAlert from "../components/commonAlert";
 
 export default function Banner() {   
     const [hideBanner, setHideBanner] = useState(false);
     const [disabled, setDisabled] = useState(true);
+    const [showAlert, setShowAlert] = useState(false);
+    let navigate = useNavigate();
 
     const validate = (values) => {
         const errors = {};
@@ -35,8 +38,10 @@ export default function Banner() {
           try {
             const token = await authUser.authUser(body);
             localStorage.setItem('accessToken', token);
+            navigate('/home');
           } catch (error) {
-            console.log(error)
+            setShowAlert(true);
+            console.log(error);
           }
         },
       });
@@ -44,6 +49,8 @@ export default function Banner() {
     return(
         <>
             <div className="bg-gradient-to-b from-yellow-300 to-white h-screen w-screen grid content-center flex justify-center">
+                {showAlert && (<CommonAlert />)
+                }
                 {!hideBanner ? <><div>
                     <button className="transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-125" onClick={() => setHideBanner(true)}>
                         <img
