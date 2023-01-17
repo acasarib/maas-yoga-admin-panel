@@ -9,6 +9,11 @@ const __dirname = path.dirname(__filename);
 const sequelize = new Sequelize(config.database, config.username, config.password, {
   host: config.host,
   dialect: config.dialect,
+  dialectOptions: {
+    ssl: {
+      require: true
+    }
+  },
   operatorsAliases: "0",
   //logging: false,
   define: {
@@ -31,7 +36,8 @@ const modelDefiners = [];
 const modelsFileNames = await fs.promises.readdir(path.join(__dirname, "/models"));
 const onlyJsFileNames = modelsFileNames.filter((file) => file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js");
 for (const modelName of onlyJsFileNames) {
-  const model = await import(path.join(__dirname, "/models", modelName));
+  const filePath = "file://" + path.join(__dirname, "/models", modelName);
+  const model = await import(filePath);
   modelDefiners.push(model.default);
 }
 
