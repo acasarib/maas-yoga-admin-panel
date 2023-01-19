@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from 'formik';
 import authUser from '../services/userService';
 import CommonAlert from "../components/commonAlert";
+import CommonInput from "../components/commonInput";
 
 export default function Banner() {   
     const [hideBanner, setHideBanner] = useState(false);
@@ -54,7 +55,7 @@ export default function Banner() {
     return(
         <>
             <div className="bg-gradient-to-b from-yellow-300 to-white h-screen w-screen grid content-center flex justify-center">
-                {showAlert && (<CommonAlert title={isAuthFail.title} message={isAuthFail.message}/>)
+                {showAlert && (<div className=""><CommonAlert title={isAuthFail.title} message={isAuthFail.message} color="red" /></div>)
                 }
                 {!hideBanner ? <><div>
                     <button className="transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-125" onClick={() => setHideBanner(true)}>
@@ -63,14 +64,14 @@ export default function Banner() {
                             width={594}
                             height={200}
                             alt="Maas Yoga logo"
-                            class="hidden md:block"
+                            className="hidden md:block"
                         />
                         <img
                             src="\assets\images\maas_3colores.png"
                             width={297}
                             height={100}
                             alt="Maas Yoga logo"
-                            class="md:hidden block"
+                            className="md:hidden block"
                         />
                     </button>
                 </div></> : <>
@@ -79,48 +80,51 @@ export default function Banner() {
                             width={297}
                             height={100}
                             alt="Maas Yoga logo"
-                            class="mb-8 mx-auto text-focus-in"
+                            className="mb-8 mx-auto text-focus-in"
                     />
-                <div class="scale-up-center w-80 md:w-96 h-auto">
-                    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"    
+                <div className="scale-up-center w-80 md:w-96 h-auto mx-auto">
+                    <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"    
                         method="POST"
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                        <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
-                            Usuario
-                        </label>
-                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="Usuario" onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.dni}
-                            name="email"
-                            htmlFor="email"
-                        />
+                        <div className="mb-4">
+                            <CommonInput 
+                                label="Usuario"    
+                                onBlur={formik.handleBlur}
+                                value={formik.values.email}
+                                name="email"
+                                htmlFor="email"
+                                id="email" 
+                                type="text" 
+                                placeholder="Usuario" 
+                                onChange={formik.handleChange}
+                            />
                         {formik.touched.email && formik.errors.email ? (
                             <div className="text-red-500">{formik.errors.email}</div>
                         ) : null}
                         </div>
-                        <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-                            Contraseña
-                        </label>
-                        <input class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************" 
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.password}
-                            name="password"
-                            htmlFor="password"
+                        <div className="mb-6">
+                        <CommonInput 
+                                label="Contraseña"    
+                                onBlur={formik.handleBlur}
+                                value={formik.values.password}
+                                name="password"
+                                htmlFor="password"
+                                id="password" 
+                                type="password" 
+                                placeholder="******************"
+                                onChange={formik.handleChange}
                         />
                         {formik.touched.password && formik.errors.password ? (
                             <div className="text-red-500">{formik.errors.password}</div>
                         ) : null}
                         </div>
-                        <div class="flex items-center justify-between">
-                        <button disabled={disabled} class={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "bg-purple-400 hover:bg-purple-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}  type="submit">
+                        <div className="flex items-center justify-between">
+                        <button disabled={disabled} className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "bg-purple-400 hover:bg-purple-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}  type="submit">
                             Ingresar
                         </button>
-                        <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
+                        <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
                             Olvidaste tu contraseña?
                         </a>
                         </div>
