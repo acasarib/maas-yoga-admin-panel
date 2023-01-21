@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -22,6 +22,7 @@ export default function Home() {
         calendar: false,
         newUser: false
     });
+    //let navigate = useNavigate();
 
     useEffect(() => {
         var dt = new Date();
@@ -52,6 +53,11 @@ export default function Home() {
         }
         setDay(days[day]);
     };
+
+    /*const closeSession = () => {
+        localStorage.removeItem('accessToken');
+        navigate('/');
+    };*/
 
     return(
         <>
@@ -128,11 +134,11 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="p-4">
-                        <button type="button" className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gray-900 text-gray-300 hover:text-white text-sm font-semibold transition">
+                        <Link to="/" className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gray-900 text-gray-300 hover:text-white text-sm font-semibold transition">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" className="" viewBox="0 0 16 16">
                             <path d="M12 1a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2a1 1 0 0 1 1-1h8zm-2 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
                         </svg>
-                        </button> <span className="font-bold text-sm ml-2">Salir</span>
+                        </Link> <span className="font-bold text-sm ml-2">Salir</span>
                     </div>
                     </div>
                 </aside>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from 'formik';
 import authUser from '../services/userService';
 import CommonAlert from "../components/commonAlert";
