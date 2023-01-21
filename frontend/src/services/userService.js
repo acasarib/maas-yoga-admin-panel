@@ -3,10 +3,9 @@ import axios from "axios";
 export default {
     authUser(userBody) {
         return new Promise((resolve, reject) => {
-            const baseUrl = process.env.REACT_BACKEND_HOST; 
-            console.log(baseUrl)
+            //const baseUrl = process.env.REACT_BACKEND_HOST; 
             axios
-                .post(baseUrl + 'users/login', userBody)
+                .post('https://maas-yoga-admin-panel.onrender.com/api/v1/users/login', userBody)
                 .then((response) => {
                     resolve(response.data.token);
                 })
