@@ -6,11 +6,15 @@ import PaidIcon from '@mui/icons-material/Paid';
 import BalanceIcon from '@mui/icons-material/Balance';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SchoolIcon from '@mui/icons-material/School';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import Payments from "./payments";
 import Balance from "./balance";
 import Tasks from "./tasks";
 import NewUser from "./newUser";
 import Calendar from "./calendar";
+import Colleges from "./colleges";
+import Students from "./students";
 
 export default function Home() {
     const [date, setDate] = useState('');
@@ -20,7 +24,9 @@ export default function Home() {
         tasks: false,
         balance: false,
         calendar: false,
-        newUser: false
+        newUser: false,
+        students: false,
+        colleges: false
     });
     //let navigate = useNavigate();
 
@@ -124,6 +130,20 @@ export default function Home() {
                                 </button>
                             </li>
                             <li className="grid place-content-stretch">
+                                <button onClick={() => switchOption('students')}>
+                                    <span className={options.students ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                        <SchoolIcon /><span className="ml-3">Alumnos</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li className="grid place-content-stretch">
+                                <button onClick={() => switchOption('colleges')}>
+                                    <span className={options.colleges ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                        <AccountBalanceIcon /><span className="ml-3">Sedes</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li className="grid place-content-stretch">
                                 <button onClick={() => switchOption('newUser')}>
                                     <span className={options.newUser ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
@@ -146,15 +166,13 @@ export default function Home() {
                 <main className="ml-60 pt-16 max-h-screen overflow-auto">
                     <div className="px-6 py-8">
                     <div className="max-w-4xl mx-auto">
-                        <div className="bg-white rounded-3xl p-8 mb-5 mt-6 md:mt-16">
                             {options.payments && (<><Payments /></>)}
                             {options.newUser && (<><NewUser /></>)}
                             {options.tasks && (<><Tasks /></>)}
                             {options.calendar && (<><Calendar /></>)}
                             {options.balance && (<><Balance /></>)}
-                        <hr className="my-10"/>
-
-                        </div>
+                            {options.colleges && (<><Colleges /></>)}
+                            {options.students && (<><Students /></>)}
                     </div>
                     </div>
                 </main>
