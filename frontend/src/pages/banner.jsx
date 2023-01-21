@@ -54,7 +54,7 @@ export default function Banner() {
     
     return(
         <>
-            <div className="bg-gradient-to-b from-yellow-300 to-white h-screen w-screen grid content-center flex justify-center">
+            <div className="bg-gradient-to-b from-orange-300 to-white h-screen w-screen grid content-center flex justify-center">
                 {showAlert && (<div className=""><CommonAlert title={isAuthFail.title} message={isAuthFail.message} color="red" /></div>)
                 }
                 {!hideBanner ? <><div>
