@@ -31,7 +31,7 @@ export default function Home() {
         let day   = dt.getDate().toString().padStart(2, "0");
         var date = day + '/' + month + '/' + year;
         setDate(date);
-        getDay();
+        getDay(); 
     }, []);
 
     const switchOption = (option) => {
