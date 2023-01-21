@@ -57,7 +57,7 @@ export default function Home() {
     const closeSession = () => {
         localStorage.removeItem('starWarsCharacters');
         localStorage.removeItem('accessToken');
-        navigate('/banner');
+        navigate('/');
     };
 
     return(
