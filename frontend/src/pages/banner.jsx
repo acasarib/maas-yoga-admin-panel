@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from 'formik';
 import authUser from '../services/userService';
@@ -6,6 +6,7 @@ import CommonAlert from "../components/commonAlert";
 import CommonInput from "../components/commonInput";
 
 export default function Banner() {   
+
     const [hideBanner, setHideBanner] = useState(false);
     const [disabled, setDisabled] = useState(true);
     const [showAlert, setShowAlert] = useState(false);
@@ -20,6 +21,9 @@ export default function Banner() {
         const errors = {};
         if (!values.email) {
           errors.email = 'Campo requerido';
+          setDisabled(true);
+        } else if (!values.password) {
+          errors.password = 'Campo requerido';
           setDisabled(true);
         } else if (values.password.length < 3) {
           errors.password = 'Te falta completar los 3 dígitos';
