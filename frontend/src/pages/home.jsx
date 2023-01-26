@@ -52,7 +52,7 @@ export default function Home() {
             Mon: 'Lunes',
             Tue: 'Martes',
             Wed: 'Miércoles',
-            thu: 'Jueves',
+            Thu: 'Jueves',
             Fri: 'Viernes',
             Sat: 'Sábado',
             Sun: 'Domingo'
