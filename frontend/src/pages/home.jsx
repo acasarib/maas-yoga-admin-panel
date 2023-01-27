@@ -8,6 +8,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SchoolIcon from '@mui/icons-material/School';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import Payments from "./payments";
 import Balance from "./balance";
 import Tasks from "./tasks";
@@ -15,6 +16,7 @@ import NewUser from "./newUser";
 import Calendar from "./calendar";
 import Colleges from "./colleges";
 import Students from "./students";
+import Courses from "./courses";
 
 export default function Home() {
     const [date, setDate] = useState('');
@@ -26,7 +28,8 @@ export default function Home() {
         calendar: false,
         newUser: false,
         students: false,
-        colleges: false
+        colleges: false,
+        courses: false
     });
     //let navigate = useNavigate();
 
@@ -144,6 +147,13 @@ export default function Home() {
                                 </button>
                             </li>
                             <li className="grid place-content-stretch">
+                                <button onClick={() => switchOption('courses')}>
+                                    <span className={options.courses ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                        <LocalLibraryIcon /><span className="ml-3">Cursos</span>
+                                    </span>
+                                </button>
+                            </li>
+                            <li className="grid place-content-stretch">
                                 <button onClick={() => switchOption('newUser')}>
                                     <span className={options.newUser ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
@@ -172,6 +182,7 @@ export default function Home() {
                             {options.calendar && (<><Calendar /></>)}
                             {options.balance && (<><Balance /></>)}
                             {options.colleges && (<><Colleges /></>)}
+                            {options.courses && (<><Courses /></>)}
                             {options.students && (<><Students /></>)}
                     </div>
                     </div>
