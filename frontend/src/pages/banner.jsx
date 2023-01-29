@@ -10,6 +10,7 @@ export default function Banner() {
     const [hideBanner, setHideBanner] = useState(false);
     const [disabled, setDisabled] = useState(true);
     const [showAlert, setShowAlert] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     let navigate = useNavigate();
 
     const isAuthFail = {
@@ -45,11 +46,14 @@ export default function Banner() {
             email: values.email,
             password: values.password,
           };
+          setIsLoading(true);
           try {
             const token = await authUser.authUser(body);
+            setIsLoading(false);
             localStorage.setItem('accessToken', token);
             navigate('/home');
           } catch (error) {
+            setIsLoading(false);
             setShowAlert(true);
             console.log(error);
           }
@@ -126,7 +130,7 @@ export default function Banner() {
                         </div>
                         <div className="flex items-center justify-between">
                         <button disabled={disabled} className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "bg-purple-400 hover:bg-purple-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}  type="submit">
-                            Ingresar
+                        {isLoading ? (<><i class="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Validando...</span></>) : <span>Ingresar</span>}
                         </button>
                         <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
                             Olvidaste tu contraseña?
