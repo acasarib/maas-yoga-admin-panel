@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from 'formik';
-import authUser from '../services/userService';
+import authUser, { getHealth } from '../services/userService';
 import CommonAlert from "../components/commonAlert";
 import CommonInput from "../components/commonInput";
 
@@ -9,13 +9,19 @@ export default function Banner() {
 
     const [hideBanner, setHideBanner] = useState(false);
     const [disabled, setDisabled] = useState(true);
-    const [showAlert, setShowAlert] = useState(false);
+    const [showNotAuthAlert, setShowNotAuthAlert] = useState(false);
+    const [healthAlert, setHealthAlert] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     let navigate = useNavigate();
 
     const isAuthFail = {
         title: 'Usuario o contraseña incorrectos',
-        message: 'Alguno de los campos indicados no posee los datos correctos'
+        message: 'Alguno de los campos indicados no posee los datos correctos. Por favor intentelo nuevamente.'
+    };
+
+    const isHealthFail = {
+      title: 'Servidor caído',
+      message: 'No fue posible establecer conexión con el servidor. Por favor inténtelo nuevamente.'
     };
 
     const validate = (values) => {
@@ -32,6 +38,7 @@ export default function Banner() {
         } else {
           setDisabled(false);
         }
+        setShowNotAuthAlert(false);
         return errors;
       };
     
@@ -54,17 +61,25 @@ export default function Banner() {
             navigate('/home');
           } catch (error) {
             setIsLoading(false);
-            setShowAlert(true);
-            console.log(error);
+            setShowNotAuthAlert(true);
           }
         },
       });
+
+      useEffect(() => {
+        const healthCheck = async () => {
+          const status = await getHealth();
+          if(!status.status || (status.status !== 'UP')) {
+            setHealthAlert(true)
+          }
+        }
+        healthCheck();
+      }, [])
     
     return(
         <>
             <div className="bg-gradient-to-b from-orange-300 to-white h-screen w-screen grid content-center flex justify-center">
-                {showAlert && (<div className=""><CommonAlert title={isAuthFail.title} message={isAuthFail.message} color="red" /></div>)
-                }
+              {healthAlert && (<div className="mt-3 md:mt-6"><CommonAlert title={isHealthFail.title} message={isHealthFail.message} color="yellow" /></div>)}
                 {!hideBanner ? <><div>
                     <button className="transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-125" onClick={() => setHideBanner(true)}>
                         <img
@@ -76,8 +91,8 @@ export default function Banner() {
                         />
                         <img
                             src="\assets\images\maas_3colores.png"
-                            width={297}
-                            height={100}
+                            width={198}
+                            height={67}
                             alt="Maas Yoga logo"
                             className="md:hidden block"
                         />
@@ -136,6 +151,8 @@ export default function Banner() {
                             Olvidaste tu contraseña?
                         </a>
                         </div>
+                        {showNotAuthAlert && (<div className="mt-3 md:mt-6"><CommonAlert title={isAuthFail.title} message={isAuthFail.message} color="red" /></div>)
+                        }
                     </form>
                 </div></>
                 } 

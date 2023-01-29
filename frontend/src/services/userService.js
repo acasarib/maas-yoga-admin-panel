@@ -13,6 +13,20 @@ export default {
                     reject(error.data)
                 })
         });
-    }
+    },
 };
+
+export const getHealth = async () => {
+    return new Promise((resolve, reject) => {
+        const healthUrl = process.env.REACT_APP_HEALTHCHECK;
+        axios
+            .get(healthUrl)
+            .then((response) => {
+                resolve(response.data);
+            })
+            .catch((error) => {
+                reject(error.data)
+            })
+    });
+}
 
