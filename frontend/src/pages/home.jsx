@@ -18,10 +18,10 @@ import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
 
-export default function Home() {
+export default function Home(props) {
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
-    const [options, setOptions] = useState({
+   /* const [options, setOptions] = useState({
         payments: true,
         tasks: false,
         balance: false,
@@ -30,7 +30,7 @@ export default function Home() {
         students: false,
         colleges: false,
         courses: false
-    });
+    });*/
     //let navigate = useNavigate();
 
     useEffect(() => {
@@ -43,9 +43,9 @@ export default function Home() {
         getDay(); 
     }, []);
 
-    const switchOption = (option) => {
+    /*const switchOption = (option) => {
         setOptions(Object.fromEntries(Object.entries(options).map(([key, value]) => [key, key === option ? true : false])))
-    };
+    };*/
 
     const getDay = () => {
         const date = new Date();
@@ -105,60 +105,60 @@ export default function Home() {
                         <div className="p-4">
                         <ul className="space-y-1">
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('payments')}>
-                                    <span className={options.payments ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/payments">
+                                    <span className={props.payments ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <PaidIcon /><span className="ml-3">Pagos</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('tasks')}>
-                                    <span className={options.tasks ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/tasks">
+                                    <span className={props.tasks ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <AssignmentIcon /><span className="ml-3">Tareas pendientes</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('balance')}>
-                                    <span className={options.balance ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/balance">
+                                    <span className={props.balance ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <BalanceIcon /><span className="ml-3">Balance</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('calendar')}>
-                                    <span className={options.calendar ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/calendar">
+                                    <span className={props.calendar ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <CalendarMonthIcon /><span className="ml-3">Calendario</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('students')}>
-                                    <span className={options.students ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/students">
+                                    <span className={props.students ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <SchoolIcon /><span className="ml-3">Alumnos</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('colleges')}>
-                                    <span className={options.colleges ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/colleges">
+                                    <span className={props.colleges ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <AccountBalanceIcon /><span className="ml-3">Sedes</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('courses')}>
-                                    <span className={options.courses ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/courses">
+                                    <span className={props.courses ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <LocalLibraryIcon /><span className="ml-3">Cursos</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <button onClick={() => switchOption('newUser')}>
-                                    <span className={options.newUser ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
+                                <Link to="/home/new-user">
+                                    <span className={props.newUser ? "flex items-center bg-orange-550 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100"}>
                                         <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
                                     </span>
-                                </button>
+                                </Link>
                             </li>
                         </ul>
                         </div>
@@ -176,14 +176,14 @@ export default function Home() {
                 <main className="ml-60 pt-16 max-h-screen overflow-auto">
                     <div className="px-6 py-8">
                     <div className="max-w-4xl mx-auto">
-                            {options.payments && (<><Payments /></>)}
-                            {options.newUser && (<><NewUser /></>)}
-                            {options.tasks && (<><Tasks /></>)}
-                            {options.calendar && (<><Calendar /></>)}
-                            {options.balance && (<><Balance /></>)}
-                            {options.colleges && (<><Colleges /></>)}
-                            {options.courses && (<><Courses /></>)}
-                            {options.students && (<><Students /></>)}
+                            {props.payments && (<><Payments /></>)}
+                            {props.newUser && (<><NewUser /></>)}
+                            {props.tasks && (<><Tasks /></>)}
+                            {props.calendar && (<><Calendar /></>)}
+                            {props.balance && (<><Balance /></>)}
+                            {props.colleges && (<><Colleges /></>)}
+                            {props.courses && (<><Courses /></>)}
+                            {props.students && (<><Students /></>)}
                     </div>
                     </div>
                 </main>
