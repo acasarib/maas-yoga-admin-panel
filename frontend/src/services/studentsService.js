@@ -14,7 +14,7 @@ export default {
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/student', data, { headers })
+                .post(baseUrl + 'api/v1/students', data, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -44,7 +44,7 @@ export default {
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/student/${studentId}`, { headers })
+                .get(baseUrl + `api/v1/students/${studentId}`, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -66,7 +66,7 @@ export default {
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/student/${studentId}`, data, { headers })
+                .put(baseUrl + `api/v1/students/${studentId}`, data, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })

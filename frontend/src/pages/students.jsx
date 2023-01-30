@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
 import Modal from "../components/modal";
@@ -6,25 +6,49 @@ import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import studentsService from "../services/studentsService";
+import DataTable from 'react-data-table-component';
 
 export default function Students(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [students, setStudents] = useState([]);
     const setDisplay = (value) => {
         setDisplayModal(value);
     }
+
+    const columns = [
+        {
+            name: 'Nombre',
+            selector: row => row.name,
+        },
+        {
+            name: 'Apellido',
+            selector: row => row.lastName,
+        },
+        {
+            name: 'Documento',
+            selector: row => row.document,
+        },
+        {
+            name: 'Email',
+            selector: row => row.email,
+        },
+        {
+            name: 'Numero de telefono',
+            selector: row => row.phoneNumber,
+        },
+    ];
 
     const formik = useFormik({
         initialValues: {
             name: '',
             surname: '',
-            document: null,
+            document: 0,
             email: '',
-            phoneNumber: null
+            phoneNumber: 0
         },
         onSubmit: async (values) => {
-            setDisplayModal(false);
           const body = {
             name: values.name,
             lastName: values.surname,
@@ -35,12 +59,24 @@ export default function Students(props) {
           setIsLoading(true);
           try {
             await studentsService.newStudent(body);
+            const response = await studentsService.getStudents();
+            setStudents(response);
             setIsLoading(false);
+            setDisplayModal(false);
           } catch (error) {
             setIsLoading(false);
+            setDisplayModal(false);
           }
         },
       });
+
+    useEffect(() => {
+        const getStudents = async () => {
+            const response = await studentsService.getStudents();
+            setStudents(response);
+        }
+        getStudents();
+      }, [])
 
     /*const white = orange[50];*/
 
@@ -48,6 +84,12 @@ export default function Students(props) {
         <>
             <div className="bg-white rounded-3xl p-8 mb-5 mt-6 md:mt-16">
                 <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Alumnos</h1>
+                <div className="my-6 md:my-12 mx-8 md:mx-4">
+                    <DataTable
+                        columns={columns}
+                        data={students}
+                    />
+                </div>
                 <div className="flex justify-end">
                     <button onClick={() => setDisplayModal(true)}
                             className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
