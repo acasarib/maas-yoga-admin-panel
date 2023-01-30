@@ -145,7 +145,7 @@ export default function Banner() {
                         </div>
                         <div className="flex items-center justify-between">
                         <button disabled={disabled} className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "bg-purple-400 hover:bg-purple-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}  type="submit">
-                        {isLoading ? (<><i class="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Validando...</span></>) : <span>Ingresar</span>}
+                        {isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Validando...</span></>) : <span>Ingresar</span>}
                         </button>
                         <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
                             Olvidaste tu contraseña?

@@ -50,7 +50,6 @@ export default function Home(props) {
     const getDay = () => {
         const date = new Date();
         const day = date.toString().slice(0, 3);
-        console.log(day)
         const days = {
             Mon: 'Lunes',
             Tue: 'Martes',
