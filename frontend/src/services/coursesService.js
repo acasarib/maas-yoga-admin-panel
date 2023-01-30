@@ -28,7 +28,7 @@ export default {
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/courses', data, { headers })
+                .get(baseUrl + 'api/v1/courses', { headers })
                 .then((response) => {
                     resolve(response.data);
                 })

@@ -21,22 +21,27 @@ export default function Students(props) {
         {
             name: 'Nombre',
             selector: row => row.name,
+            sortable: true,
         },
         {
             name: 'Apellido',
             selector: row => row.lastName,
+            sortable: true,
         },
         {
             name: 'Documento',
             selector: row => row.document,
+            sortable: true,
         },
         {
             name: 'Email',
             selector: row => row.email,
+            sortable: true,
         },
         {
             name: 'Numero de telefono',
             selector: row => row.phoneNumber,
+            sortable: true,
         },
     ];
 
@@ -88,6 +93,8 @@ export default function Students(props) {
                     <DataTable
                         columns={columns}
                         data={students}
+                        paginationPerPage={15}
+                        noDataComponent="Verificando alumnos..."
                     />
                 </div>
                 <div className="flex justify-end">
