@@ -46,9 +46,14 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { user } = sequelize.models;
+const { user, course, student } = sequelize.models;
+
+
+student.belongsToMany(course, { through: "course_student" });
 
 export {
   sequelize,
   user,
+  course,
+  student,
 };
