@@ -22,12 +22,12 @@ export default function Courses(props) {
 
     const columns = [
         {
-            name: 'Titulo',
+            name: 'Título',
             selector: row => row.title,
             sortable: true,
         },
         {
-            name: 'Descripcion',
+            name: 'Descripción',
             selector: row => row.description,
             sortable: true,
         },
@@ -37,7 +37,7 @@ export default function Courses(props) {
             sortable: true,
         },
         {
-            name: 'Duracion',
+            name: 'Duración',
             selector: row => row.duration,
             sortable: true,
         }
