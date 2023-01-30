@@ -12,8 +12,8 @@ export const create = async (userParam) => {
   return user.create(userParam);
 };
 
-export const deleteByEmail = async (userEmail) => {
-  user.destroy({ where: { email: userEmail } });
+export const deleteByEmail = async (email) => {
+  user.destroy({ where: { email } });
 };
 
 export const login = async (email, password) => {

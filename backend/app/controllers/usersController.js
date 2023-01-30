@@ -27,7 +27,7 @@ export default {
    */
   deleteByEmail: async (req, res, next) => {
     try {
-      await userService.deleteByEmail(req.params.id);
+      await userService.deleteByEmail(req.params.email);
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (e) {
       next(e);

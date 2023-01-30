@@ -7,7 +7,7 @@ import { PERMISSIONS } from "../utils/constants.js";
 const router = express.Router();
 
 router.post("/register", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), body("email").isEmail(), controller.register);
-router.delete("/:id", controller.deleteByEmail);
+router.delete("/:email", controller.deleteByEmail);
 router.post("/login", controller.login);
 
 export default router;
