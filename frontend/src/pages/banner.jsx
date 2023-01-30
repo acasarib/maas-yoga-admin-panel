@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from 'formik';
-import authUser, { getHealth } from '../services/userService';
+import authUser from '../services/userService';
 import CommonAlert from "../components/commonAlert";
 import CommonInput from "../components/commonInput";
 
@@ -68,7 +68,7 @@ export default function Banner() {
 
       useEffect(() => {
         const healthCheck = async () => {
-          const status = await getHealth();
+          const status = await authUser.getHealth();
           if(!status.status || (status.status !== 'UP')) {
             setHealthAlert(true)
           }
