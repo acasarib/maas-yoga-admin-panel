@@ -1,39 +1,117 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
 import Modal from "../components/modal";
 import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
+import studentsService from "../services/studentsService";
+import DataTable from 'react-data-table-component';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Students(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [students, setStudents] = useState([]);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [studentId, setStudentId] = useState(null);
+    const [opResult, setOpResult] = useState('Verificando alumnos...')
     const setDisplay = (value) => {
         setDisplayModal(value);
+        setDeleteModal(value);
     }
+
+    const openDeleteModal = (id) => {
+        setDeleteModal(true);
+        setStudentId(id);
+    }
+
+    const deleteStudent = async () => {
+        setIsLoading(true);
+        await studentsService.deleteStudent(studentId);
+        setIsLoading(false);
+        setDeleteModal(false);
+        const response = await studentsService.getStudents();
+        setStudents(response);
+    }
+
+    const columns = [
+        {
+            name: 'Nombre',
+            selector: row => row.name,
+            sortable: true,
+        },
+        {
+            name: 'Apellido',
+            selector: row => row.lastName,
+            sortable: true,
+        },
+        {
+            name: 'Documento',
+            selector: row => row.document,
+            sortable: true,
+        },
+        {
+            name: 'Email',
+            selector: row => row.email,
+            sortable: true,
+        },
+        {
+            name: 'Numero de telefono',
+            selector: row => row.phoneNumber,
+            sortable: true,
+        },
+        {
+            name: 'Acciones',
+            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1"><EditIcon /></button></div>)
+        },
+            sortable: true,
+        },
+    ];
 
     const formik = useFormik({
         initialValues: {
-          email: '',
-          password: '',
+            name: '',
+            surname: '',
+            document: null,
+            email: '',
+            phoneNumber: null
         },
         onSubmit: async (values) => {
           const body = {
+            name: values.name,
+            lastName: values.surname,
+            document: values.document,
             email: values.email,
-            password: values.password,
+            phoneNumber: values.phoneNumber
           };
           setIsLoading(true);
           try {
-           // const response = await authUser.authUser(body);
-           console.log(body)
-            setIsLoading(true);
+            await studentsService.newStudent(body);
+            const response = await studentsService.getStudents();
+            setStudents(response);
+            setIsLoading(false);
+            setDisplayModal(false);
           } catch (error) {
             setIsLoading(false);
+            setDisplayModal(false);
           }
         },
       });
+
+    useEffect(() => {
+        const getStudents = async () => {
+            try{
+                const response = await studentsService.getStudents();
+                setStudents(response);
+            }catch {
+                setOpResult('No fue posible obtener los alumnos, por favor recargue la página...')
+            }
+        }
+        getStudents();
+      }, [])
 
     /*const white = orange[50];*/
 
@@ -41,12 +119,21 @@ export default function Students(props) {
         <>
             <div className="bg-white rounded-3xl p-8 mb-5 mt-6 md:mt-16">
                 <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Alumnos</h1>
+                <div className="my-6 md:my-12 mx-8 md:mx-4">
+                    <DataTable
+                        columns={columns}
+                        data={students}
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                        responsive
+                        noDataComponent={opResult}
+                    />
+                </div>
                 <div className="flex justify-end">
                     <button onClick={() => setDisplayModal(true)}
                             className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
                     </button>
                 </div>
-                <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title="Agregar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} children={<>
+                <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title="Agregar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} onClick={formik.handleSubmit} children={<>
                     <form className="pr-8 pt-6 mb-4"    
                         method="POST"
                         id="form"
@@ -122,6 +209,7 @@ export default function Students(props) {
                     </form>
                 </>
                 } />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteStudent()} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
             </div>    
         </>
     );
