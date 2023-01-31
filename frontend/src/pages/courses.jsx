@@ -9,6 +9,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import coursesService from "../services/coursesService";
 import DataTable from 'react-data-table-component';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Courses(props) {
 
@@ -16,8 +18,26 @@ export default function Courses(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(new Date());
     const [courses, setCourses] = useState([]);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [courseId, setCourseId] = useState(null);
+    const [opResult, setOpResult] = useState('Verificando cursos...')
     const setDisplay = (value) => {
         setDisplayModal(value);
+        setDeleteModal(value);
+    }
+
+    const openDeleteModal = (id) => {
+        setDeleteModal(true);
+        setCourseId(id);
+    }
+
+    const deleteCourse = async () => {
+        setIsLoading(true);
+        await coursesService.deleteCourse(courseId);
+        setIsLoading(false);
+        setDeleteModal(false);
+        const response = await coursesService.getCourses();
+        setCourses(response);
     }
 
     const columns = [
@@ -28,19 +48,38 @@ export default function Courses(props) {
         },
         {
             name: 'Descripción',
-            selector: row => row.description,
+            cell: row => {return (<><div class="flex flex-col justify-center">
+            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div class="group cursor-pointer relative inline-block">{row.description}
+                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.description}
+                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
             sortable: true,
         },
         {
             name: 'Fecha de inicio',
-            selector: row => row.startAt,
+            selector: row => {var dt = new Date(row.startAt);
+                let year  = dt.getFullYear();
+                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                let day   = dt.getDate().toString().padStart(2, "0");
+                var date = day + '/' + month + '/' + year; return date},
             sortable: true,
         },
         {
             name: 'Duración',
             selector: row => row.duration,
             sortable: true,
-        }
+        },
+        {
+            name: 'Acciones',
+            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1"><EditIcon /></button></div>)
+        },
+            sortable: true,
+        },
     ];
 
     const formik = useFormik({
@@ -73,8 +112,12 @@ export default function Courses(props) {
 
       useEffect(() => {
         const getCourses = async () => {
-            const response = await coursesService.getCourses();
-            setCourses(response);
+            try{
+                const response = await coursesService.getCourses();
+                setCourses(response);
+            }catch {
+                setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
+            }
         }
         getCourses();
       }, []);
@@ -89,7 +132,8 @@ export default function Courses(props) {
                     <DataTable
                         columns={columns}
                         data={courses}
-                        noDataComponent="Verificando cursos..."
+                        noDataComponent={opResult}
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     />
                 </div>
                 <div className="flex justify-end">
@@ -153,6 +197,7 @@ export default function Courses(props) {
                     </form>
                 </>
                 } />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCourse()} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
             </div>    
         </>
     );

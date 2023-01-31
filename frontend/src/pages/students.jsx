@@ -7,14 +7,34 @@ import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import studentsService from "../services/studentsService";
 import DataTable from 'react-data-table-component';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Students(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [students, setStudents] = useState([]);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [studentId, setStudentId] = useState(null);
+    const [opResult, setOpResult] = useState('Verificando alumnos...')
     const setDisplay = (value) => {
         setDisplayModal(value);
+        setDeleteModal(value);
+    }
+
+    const openDeleteModal = (id) => {
+        setDeleteModal(true);
+        setStudentId(id);
+    }
+
+    const deleteStudent = async () => {
+        setIsLoading(true);
+        await studentsService.deleteStudent(studentId);
+        setIsLoading(false);
+        setDeleteModal(false);
+        const response = await studentsService.getStudents();
+        setStudents(response);
     }
 
     const columns = [
@@ -43,15 +63,21 @@ export default function Students(props) {
             selector: row => row.phoneNumber,
             sortable: true,
         },
+        {
+            name: 'Acciones',
+            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1"><EditIcon /></button></div>)
+        },
+            sortable: true,
+        },
     ];
 
     const formik = useFormik({
         initialValues: {
             name: '',
             surname: '',
-            document: 0,
+            document: null,
             email: '',
-            phoneNumber: 0
+            phoneNumber: null
         },
         onSubmit: async (values) => {
           const body = {
@@ -77,8 +103,12 @@ export default function Students(props) {
 
     useEffect(() => {
         const getStudents = async () => {
-            const response = await studentsService.getStudents();
-            setStudents(response);
+            try{
+                const response = await studentsService.getStudents();
+                setStudents(response);
+            }catch {
+                setOpResult('No fue posible obtener los alumnos, por favor recargue la página...')
+            }
         }
         getStudents();
       }, [])
@@ -93,8 +123,9 @@ export default function Students(props) {
                     <DataTable
                         columns={columns}
                         data={students}
-                        paginationPerPage={15}
-                        noDataComponent="Verificando alumnos..."
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                        responsive
+                        noDataComponent={opResult}
                     />
                 </div>
                 <div className="flex justify-end">
@@ -178,6 +209,7 @@ export default function Students(props) {
                     </form>
                 </>
                 } />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteStudent()} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
             </div>    
         </>
     );
