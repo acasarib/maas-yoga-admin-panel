@@ -11,7 +11,8 @@ const sslConfig = config.sslConnection ? {
     ssl: {
       require: true
     }
-  }
+  },
+  ssl: true,
 } : {};
 
 const sequelize = new Sequelize(config.database, config.username, config.password, {
