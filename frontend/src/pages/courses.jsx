@@ -11,6 +11,7 @@ import coursesService from "../services/coursesService";
 import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import Edit from "@mui/icons-material/Edit";
 
 export default function Courses(props) {
 
@@ -20,10 +21,13 @@ export default function Courses(props) {
     const [courses, setCourses] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
-    const [opResult, setOpResult] = useState('Verificando cursos...')
+    const [opResult, setOpResult] = useState('Verificando cursos...');
+    const [edit, setEdit] = useState(false);
+    const [courseToEdit, setCourseToEdit] = useState({});
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
+        setEdit(false);
     }
 
     const openDeleteModal = (id) => {
@@ -38,6 +42,13 @@ export default function Courses(props) {
         setDeleteModal(false);
         const response = await coursesService.getCourses();
         setCourses(response);
+    }
+
+    const openEditModal = (course) => {
+        setEdit(true);
+        setDisplayModal(true);
+        setCourseId(course.id);
+        setCourseToEdit(course);
     }
 
     const columns = [
@@ -76,18 +87,19 @@ export default function Courses(props) {
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1"><EditIcon /></button></div>)
+            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
         },
             sortable: true,
         },
     ];
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            title: '',
-            description: '',
-            startAt: startAt,
-            duration: ''
+            title: edit ? courseToEdit.title : '',
+            description: edit ? courseToEdit.description : '',
+            startAt: edit ? courseToEdit.startAt : startAt,
+            duration: edit ? courseToEdit.duration : ''
         },
         onSubmit: async (values) => {
           const body = {
@@ -98,7 +110,12 @@ export default function Courses(props) {
           };
           setIsLoading(true);
           try {
-            await coursesService.newCourse(body);
+            if(edit) {
+                await coursesService.editCourse(courseId, body);
+                setEdit(false);
+            }else{
+                await coursesService.newCourse(body);
+            }
             const response = await coursesService.getCourses();
             setCourses(response);
             setIsLoading(false);
@@ -141,7 +158,7 @@ export default function Courses(props) {
                             className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
                     </button>
                 </div>
-                <Modal icon={<LocalLibraryIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title="Agregar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} children={<>
+                <Modal icon={<LocalLibraryIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar curso' : 'Agregar curso'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
                     <form className="pr-8 pt-6 mb-4"    
                         method="POST"
                         id="form"

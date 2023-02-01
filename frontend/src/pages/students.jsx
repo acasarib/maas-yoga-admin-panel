@@ -9,6 +9,8 @@ import studentsService from "../services/studentsService";
 import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import Select from 'react-select';
+import coursesService from '../services/coursesService';
 
 export default function Students(props) {
 
@@ -17,15 +19,26 @@ export default function Students(props) {
     const [students, setStudents] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [studentId, setStudentId] = useState(null);
-    const [opResult, setOpResult] = useState('Verificando alumnos...')
+    const [opResult, setOpResult] = useState('Verificando alumnos...');
+    const [edit, setEdit] = useState(false);
+    const [studentToEdit, setStudentToEdit] = useState({});
+    const [courses, setCourses] = useState([]);
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
+        setEdit(false);
     }
 
     const openDeleteModal = (id) => {
         setDeleteModal(true);
         setStudentId(id);
+    }
+
+    const openEditModal = async (student) => {
+        await setStudentToEdit(student);
+        setEdit(true);
+        setDisplayModal(true);
+        setStudentId(student.id);
     }
 
     const deleteStudent = async () => {
@@ -36,6 +49,13 @@ export default function Students(props) {
         const response = await studentsService.getStudents();
         setStudents(response);
     }
+
+    const [selectedOption, setSelectedOption] = useState("");
+
+    var handleChange = (selectedOption) => {
+        setSelectedOption(selectedOption.value);
+        console.log(selectedOption);
+      };
 
     const columns = [
         {
@@ -65,19 +85,20 @@ export default function Students(props) {
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1"><EditIcon /></button></div>)
+            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
         },
             sortable: true,
         },
     ];
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            name: '',
-            surname: '',
-            document: null,
-            email: '',
-            phoneNumber: null
+            name: edit ? studentToEdit.name : '',
+            surname: edit ? studentToEdit.lastName : '',
+            document: edit ? studentToEdit.document : null,
+            email: edit ? studentToEdit.email : '',
+            phoneNumber: edit ? studentToEdit.phoneNumber : null
         },
         onSubmit: async (values) => {
           const body = {
@@ -89,7 +110,12 @@ export default function Students(props) {
           };
           setIsLoading(true);
           try {
-            await studentsService.newStudent(body);
+            if(edit) {
+                await studentsService.editStudent(studentId, body);
+                setEdit(false);
+            }else {
+                await studentsService.newStudent(body);
+            }
             const response = await studentsService.getStudents();
             setStudents(response);
             setIsLoading(false);
@@ -113,6 +139,18 @@ export default function Students(props) {
         getStudents();
       }, [])
 
+      useEffect(() => {
+        const getCourses = async () => {
+            const coursesList = await coursesService.getCourses();
+            console.log(coursesList)
+            coursesList.forEach(course => {
+                course.label = course.title;
+                course.value = course.id;
+            })
+            setCourses(coursesList);
+        }
+        getCourses();
+      }, [])
     /*const white = orange[50];*/
 
     return(
@@ -133,7 +171,7 @@ export default function Students(props) {
                             className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
                     </button>
                 </div>
-                <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title="Agregar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} onClick={formik.handleSubmit} children={<>
+                <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                     <form className="pr-8 pt-6 mb-4"    
                         method="POST"
                         id="form"
@@ -205,6 +243,12 @@ export default function Students(props) {
                                     onChange={formik.handleChange}
                             />
                             </div>
+                        </div>
+                        <div className="mb-4">
+                                <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
+                                    Asignar cursos
+                                </label>
+                                <Select isMulti onChange={handleChange} options={courses} />
                         </div>
                     </form>
                 </>
