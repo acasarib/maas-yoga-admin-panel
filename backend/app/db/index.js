@@ -9,7 +9,11 @@ const __dirname = path.dirname(__filename);
 const sequelize = new Sequelize(config.database, config.username, config.password, {
   host: config.host,
   dialect: config.dialect,
-
+  dialectOptions: {
+    ssl: {
+      require: true
+    }
+  },
   operatorsAliases: "0",
   //logging: false,
   define: {
