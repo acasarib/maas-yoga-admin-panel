@@ -8,8 +8,10 @@ const __dirname = path.dirname(__filename);
 
 const sslConfig = config.sslConnection ? {
   dialectOptions: {
+    encrypt: true,
     ssl: {
-      require: true
+      require: true,
+      rejectUnauthorized: false
     }
   },
   ssl: true,
