@@ -6,14 +6,18 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const sequelize = new Sequelize(config.database, config.username, config.password, {
-  host: config.host,
-  dialect: config.dialect,
+const sslConfig = config.sslConnection ? {
   dialectOptions: {
     ssl: {
       require: true
     }
-  },
+  }
+} : {};
+
+const sequelize = new Sequelize(config.database, config.username, config.password, {
+  host: config.host,
+  dialect: config.dialect,
+  ...sslConfig,
   operatorsAliases: "0",
   //logging: false,
   define: {

@@ -2,10 +2,10 @@ version: "3"
 services:
   maas-yoga-admin-panel-frontend:
     restart: always
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile.${NODE_ENV}
-      args: 
+      args:
         - PORT=${FRONTEND_PORT}
         - REACT_APP_BACKEND_PORT=${BACKEND_PORT}
         - REACT_APP_BACKEND_HOST=${BACKEND_HOST}
@@ -20,8 +20,8 @@ services:
       - REACT_APP_BACKEND_PORT=${BACKEND_PORT}
       - REACT_APP_BACKEND_HOST=${BACKEND_HOST}
   maas-yoga-admin-panel-api:
-    restart: always   
-    build: 
+    restart: always
+    build:
       context: ./backend
       dockerfile: Dockerfile.${NODE_ENV}
     ports:
@@ -39,6 +39,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - BACKEND_PORT=${BACKEND_PORT}
       - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_SSL_DB_CONNECTION=${BACKEND_SSL_DB_CONNECTION}
       - FRONTEND_HOST=${FRONTEND_HOST}
     volumes:
       - ./backend:/app/
