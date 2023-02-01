@@ -70,4 +70,17 @@ export default {
     }
   },
 
+  /**
+   * /courses/{id}/students [POST]
+   * @returns HttpStatus ok and @Course
+   */
+  addStudentsToCourse: async (req, res, next) => {
+    try {
+      const course = await courseService.addStudentsToCourse(req.body, req.params.id);
+      res.status(StatusCodes.OK).json(course);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };

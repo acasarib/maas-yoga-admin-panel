@@ -6,14 +6,21 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const sslConfig = config.sslConnection ? {
+  dialectOptions: {
+    encrypt: true,
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  },
+  ssl: true,
+} : {};
+
 const sequelize = new Sequelize(config.database, config.username, config.password, {
   host: config.host,
   dialect: config.dialect,
-  dialectOptions: {
-    ssl: {
-      require: true
-    }
-  },
+  ...sslConfig,
   operatorsAliases: "0",
   //logging: false,
   define: {
@@ -50,6 +57,7 @@ const { user, course, student } = sequelize.models;
 
 
 student.belongsToMany(course, { through: "course_student" });
+course.belongsToMany(student, { through: "course_student" });
 
 export {
   sequelize,

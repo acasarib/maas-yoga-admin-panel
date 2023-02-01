@@ -1,4 +1,4 @@
-import { course } from "../db/index.js";
+import { course, student } from "../db/index.js";
 
 export const create = async (courseParam) => {
   return course.create(courseParam);
@@ -13,9 +13,16 @@ export const editById = async (courseParam, id) => {
 };
 
 export const getById = async (id) => {
-  return course.findByPk(id);
+  return course.findByPk(id, { include: [student] });
 };
 
 export const getAll = async () => {
-  return course.findAll();
+  return course.findAll({ include: [student] });
+};
+
+export const addStudentsToCourse = async (students, courseId) => {
+  const courseDb = await course.findByPk(courseId);
+  const studentsDb = await student.findAll({ where: { id: students } });
+  await courseDb.setStudents(studentsDb, { through: "course_student" });
+  return course.findByPk(courseId, { include: [student] });
 };
