@@ -44,10 +44,11 @@ export default function Students(props) {
     }
 
     
-    const openCoursesModal = (courses, studentName) => {
+    const openCoursesModal = (courses, studentName, studentSurname) => {
         setDisplayCoursesModal(true);
         setCoursesLists(courses);
-        setStudentName(studentName);
+        const name = studentName + ' ' + studentSurname;
+        setStudentName(name);
     }
 
     const deleteStudent = async () => {
@@ -96,7 +97,7 @@ export default function Students(props) {
         },
         {
             name: 'Cursos',
-            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name)}>Ver cursos</button></div>)},
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name, row.lastName)}>Ver cursos</button></div>)},
             sortable: true,
         },
         {
