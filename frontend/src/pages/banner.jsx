@@ -58,7 +58,9 @@ export default function Banner() {
             const token = await authUser.authUser(body);
             setIsLoading(false);
             localStorage.setItem('accessToken', token);
-            navigate('/home');
+            if(token) {
+              navigate('/home');
+            }
           } catch (error) {
             setIsLoading(false);
             setShowNotAuthAlert(true);
