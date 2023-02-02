@@ -88,5 +88,21 @@ export default {
                 })
         });
     },
+    addStudent(courseId, list) {
+        return new Promise((resolve, reject) => {
+            const accessToken = localStorage.getItem('accessToken')
+            let headers = { Authorization: `Bearer ${accessToken}` }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            console.log(list)
+            axios
+                .put(baseUrl + `api/v1/courses/${courseId}/students`, list, { headers })
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    }
 };
 

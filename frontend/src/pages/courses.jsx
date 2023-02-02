@@ -11,7 +11,9 @@ import coursesService from "../services/coursesService";
 import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import Edit from "@mui/icons-material/Edit";
+import Select from 'react-select';
+import studentsService from '../services/studentsService';
+import SchoolIcon from '@mui/icons-material/School';
 
 export default function Courses(props) {
 
@@ -24,10 +26,16 @@ export default function Courses(props) {
     const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
     const [courseToEdit, setCourseToEdit] = useState({});
+    const [students, setStudents] = useState([]);
+    const [selectedOption, setSelectedOption] = useState([]);
+    const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
+    const [studentsLists, setStudentsLists] = useState([]);
+    const [courseName, setCourseName] = useState("");
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
         setEdit(false);
+        setDisplayStudentsModal(value);
     }
 
     const openDeleteModal = (id) => {
@@ -50,6 +58,20 @@ export default function Courses(props) {
         setCourseId(course.id);
         setCourseToEdit(course);
     }
+
+    const openStudentsModal = (students, courseName) => {
+        setDisplayStudentsModal(true);
+        setStudentsLists(students);
+        setCourseName(courseName);
+    }
+
+    var handleChange = (selectedOpt) => {
+        let arr = [];
+        selectedOpt.forEach(opt => {
+            arr.push(opt.id);
+        })
+        setSelectedOption(arr)
+    };
 
     const columns = [
         {
@@ -86,9 +108,51 @@ export default function Courses(props) {
             sortable: true,
         },
         {
+            name: 'Alumnos',
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title)}>Ver alumnos</button></div>)},
+            sortable: true,
+        },
+        {
             name: 'Acciones',
             cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
         },
+            sortable: true,
+        },
+    ];
+
+    const studentsColumns = [
+        {
+            name: 'Nombre',
+            selector: row => row.name,
+            sortable: true,
+        },
+        {
+            name: 'Apellido',
+            selector: row => row.lastName,
+            sortable: true,
+        },
+        {
+            name: 'Documento',
+            selector: row => row.document,
+            sortable: true,
+        },
+        {
+            name: 'Email',
+            cell: row => {return (<><div class="flex flex-col justify-center">
+            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div class="group cursor-pointer relative inline-block">{row.email}
+                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.email}
+                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
+            sortable: true,
+        },
+        {
+            name: 'Numero de telefono',
+            selector: row => row.phoneNumber,
             sortable: true,
         },
     ];
@@ -116,6 +180,9 @@ export default function Courses(props) {
             }else{
                 await coursesService.newCourse(body);
             }
+            if(selectedOption.length > 0) {
+                await coursesService.addStudent(courseId, selectedOption);
+            }
             const response = await coursesService.getCourses();
             setCourses(response);
             setIsLoading(false);
@@ -126,6 +193,10 @@ export default function Courses(props) {
           }
         },
       });
+
+    useEffect(() => {
+        console.log('Cantidad seleccionada ' + selectedOption.length + '...');
+    }, [selectedOption])
 
       useEffect(() => {
         const getCourses = async () => {
@@ -138,6 +209,18 @@ export default function Courses(props) {
         }
         getCourses();
       }, []);
+
+      useEffect(() => {
+        const getStudents = async () => {
+            const studentsList = await studentsService.getStudents();
+            studentsList.forEach(student => {
+                student.label = student.name;
+                student.value = student.id;
+            })
+            setStudents(studentsList);
+        }
+        getStudents();
+      }, [])
 
     /*const white = orange[50];*/
 
@@ -211,10 +294,22 @@ export default function Courses(props) {
                                 />
                             </div>
                         </div>
+                        <div className="mb-4">
+                                <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
+                                    Asignar alumnos
+                                </label>
+                                <Select isMulti onChange={handleChange} options={students} />
+                        </div>
                     </form>
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCourse()} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
+                <Modal hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + courseName} children={<><div>   <DataTable
+                        columns={studentsColumns}
+                        data={studentsLists}
+                        noDataComponent="Este curso aun no posee alumnos"
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    /></div></>} />
             </div>    
         </>
     );

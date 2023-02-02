@@ -9,8 +9,7 @@ import studentsService from "../services/studentsService";
 import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import Select from 'react-select';
-import coursesService from '../services/coursesService';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
 export default function Students(props) {
 
@@ -22,11 +21,14 @@ export default function Students(props) {
     const [opResult, setOpResult] = useState('Verificando alumnos...');
     const [edit, setEdit] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState({});
-    const [courses, setCourses] = useState([]);
+    const [displayCoursesModal, setDisplayCoursesModal] = useState(false);
+    const [coursesLists, setCoursesLists] = useState([]);
+    const [studentName, setStudentName] = useState("");
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
         setEdit(false);
+        setDisplayCoursesModal(value);
     }
 
     const openDeleteModal = (id) => {
@@ -41,6 +43,13 @@ export default function Students(props) {
         setStudentId(student.id);
     }
 
+    
+    const openCoursesModal = (courses, studentName) => {
+        setDisplayCoursesModal(true);
+        setCoursesLists(courses);
+        setStudentName(studentName);
+    }
+
     const deleteStudent = async () => {
         setIsLoading(true);
         await studentsService.deleteStudent(studentId);
@@ -49,13 +58,6 @@ export default function Students(props) {
         const response = await studentsService.getStudents();
         setStudents(response);
     }
-
-    const [selectedOption, setSelectedOption] = useState("");
-
-    var handleChange = (selectedOption) => {
-        setSelectedOption(selectedOption.value);
-        console.log(selectedOption);
-      };
 
     const columns = [
         {
@@ -75,7 +77,16 @@ export default function Students(props) {
         },
         {
             name: 'Email',
-            selector: row => row.email,
+            cell: row => {return (<><div class="flex flex-col justify-center">
+            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div class="group cursor-pointer relative inline-block">{row.email}
+                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.email}
+                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
             sortable: true,
         },
         {
@@ -84,9 +95,59 @@ export default function Students(props) {
             sortable: true,
         },
         {
+            name: 'Cursos',
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name)}>Ver cursos</button></div>)},
+            sortable: true,
+        },
+        {
             name: 'Acciones',
             cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
         },
+            sortable: true,
+        },
+    ];
+
+    const coursesColumns = [
+        {
+            name: 'Título',
+            cell: row => {return (<><div class="flex flex-col justify-center">
+            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div class="group cursor-pointer relative inline-block">{row.title}
+                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.title}
+                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
+            sortable: true,
+        },
+        {
+            name: 'Descripción',
+            cell: row => {return (<><div class="flex flex-col justify-center">
+            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div class="group cursor-pointer relative inline-block">{row.description}
+                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.description}
+                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
+            sortable: true,
+        },
+        {
+            name: 'Fecha de inicio',
+            selector: row => {var dt = new Date(row.startAt);
+                let year  = dt.getFullYear();
+                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                let day   = dt.getDate().toString().padStart(2, "0");
+                var date = day + '/' + month + '/' + year; return date},
+            sortable: true,
+        },
+        {
+            name: 'Duración',
+            selector: row => row.duration,
             sortable: true,
         },
     ];
@@ -139,18 +200,6 @@ export default function Students(props) {
         getStudents();
       }, [])
 
-      useEffect(() => {
-        const getCourses = async () => {
-            const coursesList = await coursesService.getCourses();
-            console.log(coursesList)
-            coursesList.forEach(course => {
-                course.label = course.title;
-                course.value = course.id;
-            })
-            setCourses(coursesList);
-        }
-        getCourses();
-      }, [])
     /*const white = orange[50];*/
 
     return(
@@ -244,16 +293,16 @@ export default function Students(props) {
                             />
                             </div>
                         </div>
-                        <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
-                                    Asignar cursos
-                                </label>
-                                <Select isMulti onChange={handleChange} options={courses} />
-                        </div>
                     </form>
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteStudent()} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
+                <Modal hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><DataTable
+                        columns={coursesColumns}
+                        data={coursesLists}
+                        noDataComponent="Este alumno no esta asociado a ningun curso"
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                /></div></>} />
             </div>    
         </>
     );
