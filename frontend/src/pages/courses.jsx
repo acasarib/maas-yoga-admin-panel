@@ -81,12 +81,12 @@ export default function Courses(props) {
         },
         {
             name: 'Descripción',
-            cell: row => {return (<><div class="flex flex-col justify-center">
-            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
-              <div class="group cursor-pointer relative inline-block">{row.description}
-                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+            cell: row => {return (<><div className="flex flex-col justify-center">
+            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div className="group cursor-pointer relative inline-block">{row.description}
+                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                   {row.description}
-                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                 </div>
               </div>
             </div>
@@ -138,12 +138,12 @@ export default function Courses(props) {
         },
         {
             name: 'Email',
-            cell: row => {return (<><div class="flex flex-col justify-center">
-            <div class="relative py-3 sm:max-w-xl sm:mx-auto">
-              <div class="group cursor-pointer relative inline-block">{row.email}
-                <div class="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+            cell: row => {return (<><div className="flex flex-col justify-center">
+            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div className="group cursor-pointer relative inline-block">{row.email}
+                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                   {row.email}
-                  <svg class="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                 </div>
               </div>
             </div>
@@ -191,6 +191,7 @@ export default function Courses(props) {
             setIsLoading(false);
             setDisplayModal(false);
           }
+          formik.values = {};
         },
       });
 
@@ -304,7 +305,7 @@ export default function Courses(props) {
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCourse()} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
-                <Modal hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + courseName} children={<><div>   <DataTable
+                <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + courseName} children={<><div>   <DataTable
                         columns={studentsColumns}
                         data={studentsLists}
                         noDataComponent="Este curso aun no posee alumnos"
