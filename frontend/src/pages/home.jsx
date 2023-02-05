@@ -173,8 +173,7 @@ export default function Home(props) {
                 </aside>
 
                 <main className="ml-60 pt-16 max-h-screen overflow-auto">
-                    <div className="px-6 py-8">
-                    <div className="max-w-6xl mx-auto">
+                 
                             {props.payments && (<><Payments /></>)}
                             {props.newUser && (<><NewUser /></>)}
                             {props.tasks && (<><Tasks /></>)}
@@ -183,8 +182,7 @@ export default function Home(props) {
                             {props.colleges && (<><Colleges /></>)}
                             {props.courses && (<><Courses /></>)}
                             {props.students && (<><Students /></>)}
-                    </div>
-                    </div>
+                 
                 </main>
                 </body>
             </div>
