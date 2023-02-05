@@ -17,7 +17,7 @@ export const deleteByEmail = async (email) => {
 };
 
 export const login = async (email, password) => {
-  const userDb = await user.findOne({ where: { email } });
+  const userDb = await user.scope("withPassword").findOne({ where: { email } });
   if (!userDb)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
   const result = bcrypt.compareSync(password, userDb.password);

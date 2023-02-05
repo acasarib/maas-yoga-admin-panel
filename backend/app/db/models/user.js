@@ -17,6 +17,13 @@ const user = (sequelize) => {
       attributes: {
         exclude: ["password"]
       }
+    },
+    scopes: {
+      withPassword: {
+        attributes: {
+          include: ["password"]
+        }
+      }
     }
   });
   user.associate = function (models) {
