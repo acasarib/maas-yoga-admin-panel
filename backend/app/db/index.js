@@ -53,15 +53,24 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { user, course, student } = sequelize.models;
+const { user, course, student, payment, file } = sequelize.models;
 
 
 student.belongsToMany(course, { through: "course_student" });
 course.belongsToMany(student, { through: "course_student" });
+file.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
+student.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
+course.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
+user.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
+payment.belongsTo(user);
+payment.belongsTo(student);
+payment.belongsTo(course);
 
 export {
   sequelize,
   user,
   course,
   student,
+  payment,
+  file,
 };
