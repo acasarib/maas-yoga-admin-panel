@@ -12,8 +12,14 @@ const user = (sequelize) => {
     lastName: Sequelize.STRING,
     password: Sequelize.STRING,
     permissionCreateUser: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
-  }, {});
-  user.associate = function(models) {
+  }, {
+    defaultScope: {
+      attributes: {
+        exclude: ["password"]
+      }
+    }
+  });
+  user.associate = function (models) {
     // associations can be defined here
   };
   return user;
