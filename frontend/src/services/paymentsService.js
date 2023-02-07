@@ -34,7 +34,7 @@ export default {
                 })
         });
     },
-    informPayment(studentId, paymentInfo) {
+    informPayment(paymentInfo) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
@@ -46,7 +46,7 @@ export default {
                 "value": paymentInfo.paymentValue
             }                
             axios
-                .post(baseUrl + `api/v1/payments/students/${studentId}`, data, { headers })
+                .post(baseUrl + `api/v1/payments/students/${paymentInfo.studentId}`, data, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })

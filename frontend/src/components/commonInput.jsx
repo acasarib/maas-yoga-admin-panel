@@ -4,7 +4,7 @@ export default function CommonInput(props) {
 
     return(
         <>
-            <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
+            <label className={props.className ? props.className : "block text-gray-700 text-sm font-bold mb-2"} for="email">
                 {props.label}
             </label>
             <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
