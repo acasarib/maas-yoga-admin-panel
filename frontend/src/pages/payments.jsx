@@ -87,7 +87,6 @@ export default function Payments(props) {
     }*/
 
     const informPayment = async () => {
-        console.log('me ejecute')
         const data = {
             courseId: selectedCourse,
             paymentType: paymentMethod,
