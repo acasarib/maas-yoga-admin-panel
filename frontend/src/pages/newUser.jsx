@@ -49,6 +49,7 @@ export default function NewUser(props) {
 
     return(
         <>
+        <div className="px-6 py-8 max-w-6xl mx-auto">
             <div className="md:mx-32 bg-white rounded-3xl p-8 mb-5 mt-6 md:mt-16">
                 <div className="flex-row">
                     <span className="mx-auto h-12 w-12 p-2 rounded-full bg-orange-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -97,6 +98,7 @@ export default function NewUser(props) {
                             </button>
                     </form>
             </div>
+          </div>
         </>
     );
 } 
