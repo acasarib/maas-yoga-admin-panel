@@ -107,12 +107,18 @@ export default function Payments(props) {
         },
         {
             name: 'Importe',
-            selector: row => '$' + row.value,
+            cell: row => <span className="w-16">{'$' + row.value}</span>,
             sortable: true,
+            //maxWidth: '80px'
         },
         {
             name: 'Abonado por',
             selector: row => row.student.name + ' ' + row.student.lastName,
+            sortable: true,
+        },
+        {
+            name: 'Informado por',
+            selector: row => row.user.firstName + ' ' + row.user.lastName,
             sortable: true,
         },
         {
@@ -123,11 +129,12 @@ export default function Payments(props) {
                 let day   = dt.getDate().toString().padStart(2, "0");
                 var date = day + '/' + month + '/' + year; return date},
             sortable: true,
+            maxWidth: '80px'
         },
         {
             name: 'Comprobante',
-            cell: row => {return (<><button className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550">Obtener comprobante
-            </button></>)},
+            cell: row => {return (<><a href={`https://maas-yoga-admin-panel.onrender.com/api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
+            </a></>)},
             sortable: true,
         },
     ];
@@ -143,6 +150,8 @@ export default function Payments(props) {
         }  
         try{
             await paymentsService.informPayment(data);
+            const response= await paymentsService.getAllPayments();
+            setPayments(response);
             setIsLoadingPayment(false);
             setOpenModal(false);
         }catch(err) {
@@ -163,7 +172,6 @@ export default function Payments(props) {
         const getPayments = async () => {
            const response= await paymentsService.getAllPayments();
            setPayments(response);
-           console.log(response)
         }
         getPayments();
       }, [props.students, props.courses]);
