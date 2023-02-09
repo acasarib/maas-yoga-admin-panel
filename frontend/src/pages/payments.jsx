@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import paymentsService from "../services/paymentsService";
 import Select from 'react-select';
-import studentsService from '../services/studentsService';
-import coursesService from "../services/coursesService";
 import CommonInput from "../components/commonInput";
+import Modal from "../components/modal";
+import PaidIcon from '@mui/icons-material/Paid';
+import AddIcon from '@mui/icons-material/Add';
+import { orange } from '@mui/material/colors';
+import DataTable from 'react-data-table-component';
 
 export default function Payments(props) {
 
@@ -18,6 +21,10 @@ export default function Payments(props) {
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [disabled, setDisabled] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [payments, setPayments] = useState([]);
     const handleFileChange = (e) => {
         if (e.target.files) {
           setFile([...file, e.target.files[0]]);
@@ -41,13 +48,19 @@ export default function Payments(props) {
         }
     ]
 
-    const uploadFile = async (file, fileName) => {
-        const response = await paymentsService.uploadFile(file, fileName);
+    const uploadFile = async (file) => {
+        setIsLoading(true);
+        const response = await paymentsService.uploadFile(file);
         setFileId(response.id);
         setFile([]);
         setHaveFile(false);
         //checkValues();
         setFilename("");
+        setIsLoading(true);
+    }
+
+    const setDisplay = (value) => {
+        setOpenModal(value);
     }
 
     const deleteSelection = () => {
@@ -86,7 +99,41 @@ export default function Payments(props) {
         }
     }*/
 
+    const columns = [
+        {
+            name: 'Proveniente de',
+            selector: row => row.type,
+            sortable: true,
+        },
+        {
+            name: 'Importe',
+            selector: row => '$' + row.value,
+            sortable: true,
+        },
+        {
+            name: 'Abonado por',
+            selector: row => row.student.name + ' ' + row.student.lastName,
+            sortable: true,
+        },
+        {
+            name: 'Fecha',
+            selector: row => {var dt = new Date(row.createdAt);
+                let year  = dt.getFullYear();
+                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                let day   = dt.getDate().toString().padStart(2, "0");
+                var date = day + '/' + month + '/' + year; return date},
+            sortable: true,
+        },
+        {
+            name: 'Comprobante',
+            cell: row => {return (<><button className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550">Obtener comprobante
+            </button></>)},
+            sortable: true,
+        },
+    ];
+
     const informPayment = async () => {
+        setIsLoadingPayment(true);
         const data = {
             courseId: selectedCourse,
             paymentType: paymentMethod,
@@ -94,63 +141,79 @@ export default function Payments(props) {
             paymentValue: ammount,
             studentId: selectedStudent
         }  
-        await paymentsService.informPayment(data);
+        try{
+            await paymentsService.informPayment(data);
+            setIsLoadingPayment(false);
+            setOpenModal(false);
+        }catch(err) {
+            console.log(err);
+        }
+        setAmmount(null);
+        setPaymentMethod('');
+        setFileId('');
+        setSelectedCourse('');
+        setSelectedStudent('');
+        setOpenModal(false);
+        
     }
 
     useEffect(() => {
-        const getStudents = async () => {
-            const studentsList = await studentsService.getStudents();
-            studentsList.forEach(student => {
-                student.label = student.name;
-                student.value = student.id;
-            })
-            setStudents(studentsList);
+        setStudents(props.students);
+        setCourses(props.courses);
+        const getPayments = async () => {
+           const response= await paymentsService.getAllPayments();
+           setPayments(response);
+           console.log(response)
         }
-        const getCourses = async () => {
-            const coursesList = await coursesService.getCourses();
-            coursesList.forEach(course => {
-                course.label = course.title;
-                course.value = course.id;
-            })
-            setCourses(coursesList);
-        }
-        getStudents();
-        getCourses();
-      }, [])
+        getPayments();
+      }, [props.students, props.courses]);
 
     return(
         <>
             <div className="px-6 py-8 max-w-6xl mx-auto">
                 <div className="bg-white rounded-3xl p-8 mb-5 mt-6 md:mt-16">
                 <h1 className="text-2xl md:text-3xl text-center font-bold mb-12 text-yellow-900">Pagos</h1>
-                <div className="grid grid-cols-2 gap-10">
-                    <div className="col-span-2 md:col-span-1 pb-6">
-                        <span className="text-gray-700 text-lg mt-6">Seleccione la persona que realizó el pago</span>
+                <div className="my-6 md:my-12 mx-8 md:mx-4">
+                    <DataTable
+                        columns={columns}
+                        data={payments}
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    />
+                </div>
+                <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar pago</span>} onClick={informPayment} title="Informar pago" children={<>
+                <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
+                    <div className="col-span-2 md:col-span-1">
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                         <div className="mt-4"><Select onChange={handleChangeStudent} options={students} /></div>
                     </div>
-                    <div className="col-span-2 md:col-span-1 pb-6">
-                        <span className="text-gray-700 text-lg mt-6">Seleccione el curso que fue abonado</span>
+                    <div className="col-span-2 md:col-span-1">
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                         <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} /></div>
                     </div>
                     <div className="col-span-2 md:col-span-1 pb-6">
                         <CommonInput 
                             label="Importe"
                             name="title"
-                            className="block text-lg text-gray-700 mb-4"
+                            className="block font-bold text-sm text-gray-700 mb-4"
                             type="number" 
                             placeholder="Importe" 
                             onChange={handleChangeAmmount}
                         />
                     </div>
                     <div className="col-span-2 md:col-span-1 pb-6">
-                        <span className="text-gray-700 text-lg mt-6">Origen del pago</span>
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={paymentOptions} /></div>
                     </div>
                 </div>
-               {!haveFile ? (<><span className="text-gray-700 text-lg mt-6">Seleccionar comprobante para respaldar una operación</span><label for="fileUpload" className="mt-6 bg-yellow-900 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
+                {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar una operación</span><label for="fileUpload" className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
                 <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :
-                (<><span className="text-gray-700 text-lg mt-6">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file, 'Alfonso')} className="mt-6 bg-yellow-900 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Subir archivo</button><button onClick={() => deleteSelection()} className="mt-6 bg-yellow-900 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115">Eliminar selección</button></div></>)}
-                <div className="grid justify-items-center"><button onClick={informPayment} className={`mt-6 bg-${disabled ? 'yellow-900' : 'gray-200'} w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550`}>Informar pago</button></div>
+                (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
+                </>} />
+                <div className="flex justify-end">
+                    <button onClick={() => setOpenModal(true)}
+                        className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
+                    </button>
+                </div>
               </div>
             </div>
         </>

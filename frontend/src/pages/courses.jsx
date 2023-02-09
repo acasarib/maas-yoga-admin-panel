@@ -12,7 +12,6 @@ import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Select from 'react-select';
-import studentsService from '../services/studentsService';
 import SchoolIcon from '@mui/icons-material/School';
 
 export default function Courses(props) {
@@ -199,29 +198,13 @@ export default function Courses(props) {
         console.log('Cantidad seleccionada ' + selectedOption.length + '...');
     }, [selectedOption])
 
-      useEffect(() => {
-        const getCourses = async () => {
-            try{
-                const response = await coursesService.getCourses();
-                setCourses(response);
-            }catch {
-                setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
-            }
+    useEffect(() => {
+        setStudents(props.students);
+        setCourses(props.courses);
+        if(courses.length === 0) {
+            setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
         }
-        getCourses();
-      }, []);
-
-      useEffect(() => {
-        const getStudents = async () => {
-            const studentsList = await studentsService.getStudents();
-            studentsList.forEach(student => {
-                student.label = student.name;
-                student.value = student.id;
-            })
-            setStudents(studentsList);
-        }
-        getStudents();
-      }, [])
+    }, [props.students, props.courses]);
 
     /*const white = orange[50];*/
 

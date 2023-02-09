@@ -1,14 +1,14 @@
 import axios from "axios";
 
 export default {
-    uploadFile(file, userName) {
+    uploadFile(file) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const fd = new FormData();
             console.log(file)
-            fd.append('file', file[0], `${userName}.jpg`);
+            fd.append('file', file[0]);
             axios
                 .post(baseUrl + 'api/v1/files', fd, { headers })
                 .then((response) => {
@@ -25,7 +25,7 @@ export default {
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/files${fileId}`, { headers })
+                .get(baseUrl + `api/v1/files/${fileId}`, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })

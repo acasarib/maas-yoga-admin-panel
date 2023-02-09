@@ -191,16 +191,11 @@ export default function Students(props) {
       });
 
     useEffect(() => {
-        const getStudents = async () => {
-            try{
-                const response = await studentsService.getStudents();
-                setStudents(response);
-            }catch {
-                setOpResult('No fue posible obtener los alumnos, por favor recargue la página...')
-            }
+        setStudents(props.students);
+        if(students.length === 0) {
+            setOpResult('No fue posible obtener los alumnos, por favor recargue la página...')
         }
-        getStudents();
-      }, [])
+    }, [props.students]);
 
     /*const white = orange[50];*/
 

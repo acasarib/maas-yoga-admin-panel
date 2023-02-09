@@ -17,20 +17,14 @@ import Calendar from "./calendar";
 import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
+import studentsService from "../services/studentsService";
+import coursesService from "../services/coursesService";
 
 export default function Home(props) {
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
-   /* const [options, setOptions] = useState({
-        payments: true,
-        tasks: false,
-        balance: false,
-        calendar: false,
-        newUser: false,
-        students: false,
-        colleges: false,
-        courses: false
-    });*/
+    const [students, setStudents] = useState([]);
+    const [courses, setCourses] = useState([]);
     let navigate = useNavigate();
 
     useEffect(() => {
@@ -43,9 +37,26 @@ export default function Home(props) {
         getDay(); 
     }, []);
 
-    /*const switchOption = (option) => {
-        setOptions(Object.fromEntries(Object.entries(options).map(([key, value]) => [key, key === option ? true : false])))
-    };*/
+    useEffect(() => {
+        const getStudents = async () => {
+            const studentsList = await studentsService.getStudents();
+            studentsList.forEach(student => {
+                student.label = student.name;
+                student.value = student.id;
+            })
+            setStudents(studentsList);
+        }
+        const getCourses = async () => {
+            const coursesList = await coursesService.getCourses();
+            coursesList.forEach(course => {
+                course.label = course.title;
+                course.value = course.id;
+            })
+            setCourses(coursesList);
+        }
+        getStudents();
+        getCourses();
+      }, [])
 
     const getDay = () => {
         const date = new Date();
@@ -174,14 +185,14 @@ export default function Home(props) {
 
                 <main className="ml-60 pt-16 max-h-screen overflow-auto">
                  
-                            {props.payments && (<><Payments /></>)}
+                            {props.payments && (<><Payments students={students} courses={courses}/></>)}
                             {props.newUser && (<><NewUser /></>)}
                             {props.tasks && (<><Tasks /></>)}
                             {props.calendar && (<><Calendar /></>)}
                             {props.balance && (<><Balance /></>)}
                             {props.colleges && (<><Colleges /></>)}
-                            {props.courses && (<><Courses /></>)}
-                            {props.students && (<><Students /></>)}
+                            {props.courses && (<><Courses students={students} courses={courses} /></>)}
+                            {props.students && (<><Students students={students} /></>)}
                  
                 </main>
                 </body>
