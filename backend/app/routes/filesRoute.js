@@ -5,6 +5,6 @@ import upload from "../config/multer.config.js";
 const router = express.Router();
 
 router.post("/", verifyToken, upload.single("file"), controller.create);
-router.get("/:id", verifyToken, controller.getById);
+router.get("/:id", controller.getById);
 
 export default router;
