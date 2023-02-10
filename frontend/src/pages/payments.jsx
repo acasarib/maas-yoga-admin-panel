@@ -173,11 +173,11 @@ export default function Payments(props) {
         const getPayments = async () => {
            const response= await paymentsService.getAllPayments();
            setPayments(response);
+           if(response.length === 0) {
+                setOpResult('No fue posible obtener los pagos, por favor recargue la página...')
+            }
         }
         getPayments();
-        if(payments.length === 0) {
-            setOpResult('No fue posible obtener los pagos, por favor recargue la página...')
-        }
       }, [props.students, props.courses]);
 
     return(
@@ -189,6 +189,7 @@ export default function Payments(props) {
                     <DataTable
                         columns={columns}
                         data={payments}
+                        noDataComponent={opResult}
                         pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     />
                 </div>
