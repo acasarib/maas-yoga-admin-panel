@@ -22,6 +22,7 @@ export default function Payments(props) {
     const [paymentMethod, setPaymentMethod] = useState('');
     const [disabled, setDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const [opResult, setOpResult] = useState('Verificando pagos...');
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [payments, setPayments] = useState([]);
@@ -174,12 +175,15 @@ export default function Payments(props) {
            setPayments(response);
         }
         getPayments();
+        if(payments.length === 0) {
+            setOpResult('No fue posible obtener los pagos, por favor recargue la página...')
+        }
       }, [props.students, props.courses]);
 
     return(
         <>
             <div className="px-6 py-8 max-w-6xl mx-auto">
-                <div className="bg-white rounded-3xl p-8 mb-5 mt-6 md:mt-16">
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
                 <h1 className="text-2xl md:text-3xl text-center font-bold mb-12 text-yellow-900">Pagos</h1>
                 <div className="my-6 md:my-12 mx-8 md:mx-4">
                     <DataTable
