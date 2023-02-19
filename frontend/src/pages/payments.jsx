@@ -7,6 +7,8 @@ import PaidIcon from '@mui/icons-material/Paid';
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
 import DataTable from 'react-data-table-component';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Payments(props) {
 
@@ -26,6 +28,7 @@ export default function Payments(props) {
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [payments, setPayments] = useState([]);
+    const [paymentAt, setPaymentAt] = useState(new Date());
     const handleFileChange = (e) => {
         if (e.target.files) {
           setFile([...file, e.target.files[0]]);
@@ -147,7 +150,8 @@ export default function Payments(props) {
             paymentType: paymentMethod,
             fileId: fileId,
             paymentValue: ammount,
-            studentId: selectedStudent
+            studentId: selectedStudent,
+            at: paymentAt.getTime()
         }  
         try{
             await paymentsService.informPayment(data);
@@ -163,6 +167,7 @@ export default function Payments(props) {
         setFileId('');
         setSelectedCourse('');
         setSelectedStudent('');
+        setPaymentAt(new Date());
         setOpenModal(false);
         
     }
@@ -216,6 +221,10 @@ export default function Payments(props) {
                     <div className="col-span-2 md:col-span-1 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={paymentOptions} /></div>
+                    </div>
+                    <div className="col-span-2 pb-6">
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
+                        <div className="mt-4"><DatePicker selected={paymentAt} onChange={(date) => setPaymentAt(date)} /></div>
                     </div>
                 </div>
                 {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar una operación</span><label for="fileUpload" className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>

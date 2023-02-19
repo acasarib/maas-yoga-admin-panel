@@ -43,7 +43,8 @@ export default {
                 "courseId": paymentInfo.courseId,
                 "type": paymentInfo.paymentType,
                 "fileId": paymentInfo.fileId,
-                "value": paymentInfo.paymentValue
+                "value": paymentInfo.paymentValue,
+                "at": paymentInfo.at
             }                
             axios
                 .post(baseUrl + `api/v1/payments/students/${paymentInfo.studentId}`, data, { headers })
