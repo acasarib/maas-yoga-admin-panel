@@ -1,5 +1,7 @@
 import * as paymentService from "../services/paymentService.js";
 import { StatusCodes } from "http-status-codes";
+import Specification from "../models/Specification.js";
+import { payment } from "../db/index.js";
 
 export default {
   /**
@@ -49,7 +51,9 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const payments = await paymentService.getAll();
+      const querySpecification = req.query.q;
+      const specification = new Specification(querySpecification, payment);
+      const payments = await paymentService.getAll(specification);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
       next(e);

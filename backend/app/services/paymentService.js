@@ -12,6 +12,9 @@ export const getAllByCourseId = async (courseId) => {
   return payment.findAll({ where: { courseId }, include: [user, student, course] });
 };
 
-export const getAll = async () => {
-  return payment.findAll({ include: [user, student, course] });
+export const getAll = async (specification) => {
+  return payment.findAll({
+    where: specification.getSequelizeSpecification(),
+    include: [user, student, course]
+  });
 };

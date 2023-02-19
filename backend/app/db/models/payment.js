@@ -15,6 +15,10 @@ const payment = (sequelize) => {
       type: Sequelize.FLOAT,
       allowNull: false,
     },
+    at: {
+      type: Sequelize.DataTypes.DATE,
+      allowNull: false,
+    }
   }, {});
   payment.associate = function (models) {
     // associations can be defined here
