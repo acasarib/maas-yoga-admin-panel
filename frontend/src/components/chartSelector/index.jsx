@@ -14,6 +14,7 @@ export default function ChartSelector({ currentChartSelected, onChange }) {
             <Item selected={currentChartSelected === "year"} title="Anual" onSelect={() => onChange("year")}/>
             <Item selected={currentChartSelected === "month"} title="Mensual" onSelect={() => onChange("month")}/>
             <Item selected={currentChartSelected === "week"} title="Semanal" onSelect={() => onChange("week")}/>
+            <Item selected={currentChartSelected === "custom"} title="Personalizado" onSelect={() => onChange("custom")}/>
         </div>
         </>
     );
