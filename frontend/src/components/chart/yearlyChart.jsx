@@ -7,21 +7,21 @@ export default function YearlyChart({ data, height }) {
     const getMaxValue = (data) => Math.max(...Object.keys(data).map(month => data[month].value));
 
     useEffect(() => {
-        if (data) {
-            const parsedData = {
-                "Ene": { value: 0, percentage: 0 },
-                "Feb": { value: 0, percentage: 0 },
-                "Mar": { value: 0, percentage: 0 },
-                "Abr": { value: 0, percentage: 0 },
-                "May": { value: 0, percentage: 0 },
-                "Jun": { value: 0, percentage: 0 },
-                "Jul": { value: 0, percentage: 0 },
-                "Ago": { value: 0, percentage: 0 },
-                "Sep": { value: 0, percentage: 0 },
-                "Oct": { value: 0, percentage: 0 },
-                "Nov": { value: 0, percentage: 0 },
-                "Dic": { value: 0, percentage: 0 },
-            };
+        const parsedData = {
+            "Ene": { value: 0, percentage: 0 },
+            "Feb": { value: 0, percentage: 0 },
+            "Mar": { value: 0, percentage: 0 },
+            "Abr": { value: 0, percentage: 0 },
+            "May": { value: 0, percentage: 0 },
+            "Jun": { value: 0, percentage: 0 },
+            "Jul": { value: 0, percentage: 0 },
+            "Ago": { value: 0, percentage: 0 },
+            "Sep": { value: 0, percentage: 0 },
+            "Oct": { value: 0, percentage: 0 },
+            "Nov": { value: 0, percentage: 0 },
+            "Dic": { value: 0, percentage: 0 },
+        };
+        if (data && data.length > 0) {
             data.sort((a, b) => new Date(a.at) < new Date(b.at) ? -1 : 1);
             data.forEach(payment => {
                 const paymentAt = new Date(payment.at);
@@ -31,8 +31,8 @@ export default function YearlyChart({ data, height }) {
             const maxValue = getMaxValue(parsedData);
             Object.keys(parsedData).forEach(month => 
                 parsedData[month].percentage = parsedData[month].value / maxValue * 100);
-            setParsedData(parsedData);
         }
+        setParsedData(parsedData);
     }, [data]);
     
 

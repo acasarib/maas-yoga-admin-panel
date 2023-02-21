@@ -116,23 +116,31 @@ export default {
                 })
         });
     },
-    getAllByYear() {
-        const startOfYear = new Date(new Date().getFullYear(), 0, 1).getTime();
-        const endOfYear = new Date(new Date().getFullYear(), 11, 31).getTime();
-        return this.getByQuery(`at between ${startOfYear}:${endOfYear}`);
+    getAllByYear(from = new Date()) {
+        const startOfYear = new Date(from.getFullYear(), 0, 1).getTime();
+        const endOfYear = new Date(from.getFullYear(), 11, 31).getTime();
+        return this.getByQuery(`at between ${startOfYear}:${endOfYear}`)
+            .then(data => ({ data, period: { from: startOfYear, to: endOfYear } }));
     },
-    getAllByMonth() {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getTime();
+    getAllByMonth(from = new Date()) {
+        const startOfMonth = new Date(from.getFullYear(), from.getMonth(), 1).getTime();
+        const endOfMonth = new Date(from.getFullYear(), from.getMonth() + 1, 0).getTime();
         return this.getByQuery(`at between ${startOfMonth}:${endOfMonth}`)
+            .then(data => ({ data, period: { from: startOfMonth, to: endOfMonth } }));
     },
-    getAllByWeek() {
-        let prevMonday = new Date();
+    getAllByWeek(from = new Date()) {
+        let prevMonday = from;
         prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() == 1 ? 7 : (prevMonday.getDay() + (7 - 1)) % 7 ));
-        const now = new Date().getTime();
+        prevMonday.setHours(0);
+        prevMonday.setMinutes(0);
+        let until = new Date();
+        until.setDate(prevMonday.getDate() + 6);
+        until.setHours(23);
+        until.setMinutes(59);
+        until = until.getTime();
         prevMonday = prevMonday.getTime();
-        return this.getByQuery(`at between ${prevMonday}:${now}`);
+        return this.getByQuery(`at between ${prevMonday}:${until}`)
+            .then(data => ({ data, period: { from: prevMonday, to: until } }));
     },
 };
 
