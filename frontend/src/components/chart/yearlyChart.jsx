@@ -8,7 +8,6 @@ export default function YearlyChart({ data, height }) {
 
     useEffect(() => {
         if (data) {
-            console.log(data);
             const parsedData = {
                 "Ene": { value: 0, percentage: 0 },
                 "Feb": { value: 0, percentage: 0 },

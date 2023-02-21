@@ -61,9 +61,9 @@ export default function Chart({ currentChartSelected }) {
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500">{chartPeriod}</span>
                 
-                {currentChartSelected === "year" && <YearlyChart data={data} height={"302px"}/>}
-                {currentChartSelected === "month" && <MonthlyChart data={data}/>}
-                {currentChartSelected === "week" && <WeeklyChart data={data}/>}
+                {currentChartSelected === "year" && <YearlyChart data={data} height={"300px"} />}
+                {currentChartSelected === "month" && <MonthlyChart data={data}height={"300px"} />}
+                {currentChartSelected === "week" && <WeeklyChart data={data} height={"300px"}/>}
 
                 <div className="flex w-full mt-3">
                     <div className="flex items-center ml-auto">
