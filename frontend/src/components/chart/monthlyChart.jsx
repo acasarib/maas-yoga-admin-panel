@@ -35,8 +35,8 @@ export default function MonthlyChart({ data, height }) {
 
     return (
         <div style={{height}} className="flex items-end flex-grow w-full mt-2 space-x-2 sm:space-x-3">
-            {Object.keys(parsedData).map((month, i) => 
-                <BarChart key={i} percentage={parsedData[month].percentage} value={parsedData[month].value} title={month}/>
+            {Object.keys(parsedData).map((day, i) => 
+                <BarChart key={i} percentage={parsedData[day].percentage} value={parsedData[day].value} title={day}/>
             )}
         </div>
     );
