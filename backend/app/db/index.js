@@ -53,7 +53,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { user, course, student, payment, file } = sequelize.models;
+const { user, course, student, payment, file, task } = sequelize.models;
 
 
 student.belongsToMany(course, { through: "course_student" });
@@ -73,4 +73,5 @@ export {
   student,
   payment,
   file,
+  task,
 };
