@@ -7,6 +7,10 @@ import WeeklyChart from "./weeklyChart";
 import { capitalizeFirstCharacter, dateDiffInDays, formatDateDDMMYY } from "../../utils";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import InfoIcon from '@mui/icons-material/Info';
+import Modal from "../modal";
+import ButtonPrimary from "../button/primary";
+import PaymentInfo from "../paymentInfo";
 
 export default function Chart({ currentChartSelected, customChainFilters }) {
 
@@ -15,6 +19,8 @@ export default function Chart({ currentChartSelected, customChainFilters }) {
     const [chartTitle, setChartTitle] = useState("anual");
     const [chartPeriod, setChartPeriod] = useState(new Date().getFullYear());
     const [chartPeriodIterator, setChartPeriodIterator] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const switchModal = () => setIsModalOpen(!isModalOpen);
 
     const onClickPreviousArrow = () => setChartPeriodIterator((chartPeriodIterator || 0) - 1);
     const onClickNextArrow = () => setChartPeriodIterator((chartPeriodIterator || 0) + 1);
@@ -125,7 +131,6 @@ export default function Chart({ currentChartSelected, customChainFilters }) {
             }
         }
     }, [data, currentChartSelected]);
-    
 
     return (
         <>
@@ -138,20 +143,20 @@ export default function Chart({ currentChartSelected, customChainFilters }) {
                 {currentChartBy === "month" && <MonthlyChart data={data} height={"300px"} />}
                 {currentChartBy === "week" && <WeeklyChart data={data} height={"300px"}/>}
 
-                <div className="flex w-full mt-3">
-                    <div className="flex items-center ml-auto">
-                        <span className="block w-4 h-4 bg-orange-400"></span>
-                        <span className="ml-1 text-xs font-medium">Existing</span>
-                    </div>
-                    <div className="flex items-center ml-4">
-                        <span className="block w-4 h-4 bg-orange-300"></span>
-                        <span className="ml-1 text-xs font-medium">Upgrades</span>
-                    </div>
-                    <div className="flex items-center ml-4">
-                        <span className="block w-4 h-4 bg-orange-200"></span>
-                        <span className="ml-1 text-xs font-medium">New</span>
-                    </div>
+                <div className="w-full mt-4">
+                    <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon/></ButtonPrimary>
                 </div>
+                <Modal
+                    open={isModalOpen}
+                    setDisplay={switchModal}
+                    style={{maxWidth: "50%"}}
+                    buttonText={"Cerrar"}
+                    icon={<InfoIcon/>}
+                    title="Informacion del grafico"
+                    onClick={switchModal}
+                >
+                    {data !== null && data.map(payment => <PaymentInfo key={payment.id} payment={payment} />)}
+                </Modal>
             </div>
         </div>
         </>
