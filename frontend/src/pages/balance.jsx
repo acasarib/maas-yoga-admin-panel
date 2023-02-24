@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
-import { useEffect } from "react";
 
 export default function Balance(props) {
 
     const [currentChartSelected, setCurrentChartSelected] = useState("year");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [customChainFilters, setCustomChainFilters] = useState([]);
 
     const switchModal = () => setIsModalOpen(!isModalOpen);
 
@@ -18,16 +18,11 @@ export default function Balance(props) {
             setCurrentChartSelected(selection);
     }
 
-    const onApplyFilter = () => {
+    const onApplyFilter = (chainFilters) => {
+        setCustomChainFilters(chainFilters);
         setCurrentChartSelected("custom");
         switchModal();
     }
-
-    useEffect(() => {
-        console.log(isModalOpen);
-    }, [isModalOpen])
-    
-
 
     return(
         <>
@@ -39,7 +34,7 @@ export default function Balance(props) {
                             <ChartSelector currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
                         </div>
                         <div className="col-span-3">
-                            <Chart currentChartSelected={currentChartSelected}/>
+                            <Chart customChainFilters={customChainFilters} currentChartSelected={currentChartSelected}/>
                         </div>
                     </div>
                 </div>

@@ -9,6 +9,7 @@ import { orange } from '@mui/material/colors';
 import DataTable from 'react-data-table-component';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { PAYMENT_OPTIONS } from "../constants";
 
 export default function Payments(props) {
 
@@ -36,21 +37,6 @@ export default function Payments(props) {
           setHaveFile(true);
         }
     };
-
-    const paymentOptions = [
-        {
-            label: 'Mercado pago',
-            value: 'Mercado pago'
-        },
-        {
-            label: 'Paypal',
-            value: 'Paypal'
-        },
-        {
-            label: 'Efectivo',
-            value: 'Efectivo'
-        }
-    ]
 
     const uploadFile = async (file) => {
         setIsLoading(true);
@@ -220,7 +206,7 @@ export default function Payments(props) {
                     </div>
                     <div className="col-span-2 md:col-span-1 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
-                        <div className="mt-4"><Select onChange={handleChangePayments} options={paymentOptions} /></div>
+                        <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
                     </div>
                     <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>

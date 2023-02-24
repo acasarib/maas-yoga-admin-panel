@@ -68,3 +68,7 @@
 .group:hover .group-hover\:block {
 	display: block;
 }
+
+.payment-filter-width {
+  width: 200px;
+}
