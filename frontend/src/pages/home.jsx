@@ -19,12 +19,14 @@ import Students from "./students";
 import Courses from "./courses";
 import studentsService from "../services/studentsService";
 import coursesService from "../services/coursesService";
+import tasksService from "../services/tasksService";
 
 export default function Home(props) {
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [tasks, setTasks] = useState([]);
     let navigate = useNavigate();
 
     useEffect(() => {
@@ -54,8 +56,13 @@ export default function Home(props) {
             })
             setCourses(coursesList);
         }
+        const getTasks = async () => {
+            const tasksList = await tasksService.getTasks();
+            setTasks(tasksList);
+        }
         getStudents();
         getCourses();
+        getTasks();
       }, [])
 
     const getDay = () => {
@@ -187,7 +194,7 @@ export default function Home(props) {
                  
                             {props.payments && (<><Payments students={students} courses={courses}/></>)}
                             {props.newUser && (<><NewUser /></>)}
-                            {props.tasks && (<><Tasks /></>)}
+                            {props.tasks && (<><Tasks tasks={tasks}/></>)}
                             {props.calendar && (<><Calendar /></>)}
                             {props.balance && (<><Balance /></>)}
                             {props.colleges && (<><Colleges /></>)}

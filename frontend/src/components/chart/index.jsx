@@ -144,7 +144,7 @@ export default function Chart({ currentChartSelected, customChainFilters }) {
                 {currentChartBy === "week" && <WeeklyChart data={data} height={"300px"}/>}
 
                 <div className="w-full mt-4">
-                    <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon/></ButtonPrimary>
+                    <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
                 </div>
                 <Modal
                     open={isModalOpen}
