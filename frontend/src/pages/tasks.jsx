@@ -13,13 +13,13 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 export default function Tasks(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
     const [tasks, setTasks] = useState([]);
-    const [taskId, setTaskId] = useState("");
+    const [taskId, setTaskId] = useState(null);
     const [taskToEdit, setTaskToEdit] = useState({});
     const [deleteModal, setDeleteModal] = useState(false);
     const [edit, setEdit] = useState(false);
@@ -38,6 +38,19 @@ export default function Tasks(props) {
         setValue(newValue);
     };
 
+    const theme = createTheme({
+        palette: {
+          primary: {
+            // Purple and green play nicely together.
+            main: orange[500],
+          },
+          secondary: {
+            // This is green.A700 as hex.
+            main: '#11cb5f',
+          },
+        },
+    });
+
     const openEditModal = (task) => {
         setEdit(true);
         setDisplayModal(true);
@@ -53,25 +66,12 @@ export default function Tasks(props) {
     const resolveTask = async (task) => {
         setIsLoading(true);
         task.completed = true;
-        task.id = taskId;
         await tasksService.editTask(task);
         setIsLoading(false);
         setDeleteModal(false);
         const response = await tasksService.getTasks();
         setTasks(response);
     }
-
-
-    const theme = createTheme({
-    palette: {
-        primary: {
-            light: '#ea8215',
-            main: '#ea8215',
-            dark: '#ea8215',
-            contrastText: '#fff',
-        },
-    },
-    });
 
     const deleteTask = async () => {
         setIsLoading(true);
@@ -81,17 +81,6 @@ export default function Tasks(props) {
         const response = await tasksService.getTasks();
         setTasks(response);
     }
-
-
-    const tasksList = (tasksList) => {
-        if(tasksList.length > 0) {
-            tasksList.map((task) =>
-            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-        )}else {
-            return 'No hay tareas pendientes';
-        }
-    } 
-
     
     const formik = useFormik({
         enableReinitialize: true,
@@ -110,12 +99,14 @@ export default function Tasks(props) {
                 body.completed = false;
                 body.id = taskId;
                 await tasksService.editTask(body);
+                const response = await tasksService.getTasks();
+                setTasks(response);
                 setEdit(false);
             }else{
                 await tasksService.createTask(body);
+                const response = await tasksService.getTasks();
+                setTasks(response);
             }
-            const response = await tasksService.getTasks();
-            setTasks(response);
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
@@ -128,11 +119,19 @@ export default function Tasks(props) {
 
     useEffect(() => {
         setTasks(props.tasks);
-        const pendingList = tasks.filter(task => task.completed === false);
+        const pendingList = props.tasks.filter(task => task.completed === false);
         setPendingTasks(pendingList);
-        const completedList = tasks.filter(task => task.completed === true);
+        const completedList = props.tasks.filter(task => task.completed === true);
         setCompletedTasks(completedList);
     }, [props.tasks])
+
+    
+    useEffect(() => {
+        const pendingList = props.tasks.filter(task => task.completed === false);
+        setPendingTasks(pendingList);
+        const completedList = props.tasks.filter(task => task.completed === true);
+        setCompletedTasks(completedList);
+    }, [tasks])
 
     return(
         <>
@@ -140,35 +139,37 @@ export default function Tasks(props) {
                 <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
                 <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Tareas pendientes</h1>
                 <div className="my-6 md:my-12 mx-8 md:mx-4">
-                <Box sx={{ width: '100%', typography: 'body1' }}>
-                    <TabContext value={value}>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <TabList onChange={handleChange} aria-label="lab API tabs example" textColor="primary" indicatorColor="primary">
-                            <Tab label="Todas" value="1"/>
-                            <Tab label="Pendientes" value="2" />
-                            <Tab label="Completadas" value="3" />
-                        </TabList>
-                        </Box>
-                        <TabPanel value="1">{(tasks.length > 0) ? 
-                            tasks.map((task) =>
-                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-                        ) :
-                            'No hay tareas'
-                        }</TabPanel>
-                        <TabPanel value="2">{(pendingTasks.length > 0) ? 
-                            pendingTasks.map((task) =>
-                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-                        ) :
-                            'No hay tareas pendientes'
-                        }</TabPanel>
-                        <TabPanel value="3">{(completedTasks.length > 0) ?
-                            completedTasks.map((task) =>
-                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-                        ) :
-                            'No hay tareas completadas'
-                        }</TabPanel>
-                    </TabContext>
-                </Box>
+                <ThemeProvider theme={theme}>
+                    <Box sx={{ width: '100%', typography: 'body1' }}>
+                        <TabContext value={value}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                            <TabList onChange={handleChange} aria-label="lab API tabs example" textColor="primary" indicatorColor="primary">
+                                <Tab label="Todas" value="1"/>
+                                <Tab label="Pendientes" value="2" />
+                                <Tab label="Completadas" value="3" />
+                            </TabList>
+                            </Box>
+                            <TabPanel value="1">{(tasks.length > 0) ? 
+                                tasks.map((task) =>
+                                <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            ) :
+                                'No hay tareas'
+                            }</TabPanel>
+                            <TabPanel value="2">{(pendingTasks.length > 0) ? 
+                                pendingTasks.map((task) =>
+                                <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            ) :
+                                'No hay tareas pendientes'
+                            }</TabPanel>
+                            <TabPanel value="3">{(completedTasks.length > 0) ?
+                                completedTasks.map((task) =>
+                                <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            ) :
+                                'No hay tareas completadas'
+                            }</TabPanel>
+                        </TabContext>
+                    </Box>
+                </ThemeProvider>
                 </div>
                 <div className="flex justify-end">
                         <button onClick={() => setDisplayModal(true)}
