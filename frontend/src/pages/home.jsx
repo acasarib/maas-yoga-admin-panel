@@ -85,6 +85,12 @@ export default function Home(props) {
         navigate('/');
     };
 
+    useEffect(() => {
+        if(!localStorage.getItem('accessToken')) {
+            navigate('/');
+        }
+    }, [])
+
     return(
         <>
             <div>
@@ -107,7 +113,7 @@ export default function Home(props) {
                     </div>
                 </header>
 
-                <aside className="fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen w-60">
+                <aside className="fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen w-64">
                     <div className="flex flex-col justify-between h-full">
                     <div className="flex-grow">
                         <div className="px-4 py-8 text-center border-b bg-orange-100">
