@@ -123,56 +123,56 @@ export default function Home(props) {
                         <ul className="space-y-1">
                             <li className="grid place-content-stretch">
                                 <Link to="/home/payments">
-                                    <span className={props.payments ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.payments ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <PaidIcon /><span className="ml-3">Pagos</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/tasks">
-                                    <span className={props.tasks ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.tasks ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <AssignmentIcon /><span className="ml-3">Tareas pendientes</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/balance">
-                                    <span className={props.balance ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.balance ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <BalanceIcon /><span className="ml-3">Balance</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/calendar">
-                                    <span className={props.calendar ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.calendar ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <CalendarMonthIcon /><span className="ml-3">Calendario</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/students">
-                                    <span className={props.students ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.students ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <SchoolIcon /><span className="ml-3">Alumnos</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/colleges"> 
-                                    <span className={props.colleges ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.colleges ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <AccountBalanceIcon /><span className="ml-3">Sedes</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/courses">
-                                    <span className={props.courses ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.courses ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <LocalLibraryIcon /><span className="ml-3">Cursos</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/new-user">
-                                    <span className={props.newUser ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.newUser ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
                                     </span>
                                 </Link>

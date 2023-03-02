@@ -9,15 +9,15 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Banner />} />
-          <Route path="/home" element={<Home payments={true} />} />
-          <Route path="/home/payments" element={<Home payments={true} />} />
-          <Route path="/home/new-user" element={<Home newUser={true} />} />
-          <Route path="/home/calendar" element={<Home calendar={true} />} />
-          <Route path="/home/tasks" element={<Home tasks={true} />} />
-          <Route path="/home/balance" element={<Home balance={true} />} />
-          <Route path="/home/courses" element={<Home courses={true} />} />
-          <Route path="/home/students" element={<Home students={true} />} />
-          <Route path="/home/colleges" element={<Home colleges={true} />} />
+          <Route path="/home" element={<Home payments />} />
+          <Route path="/home/payments" element={<Home payments />} />
+          <Route path="/home/new-user" element={<Home newUser />} />
+          <Route path="/home/calendar" element={<Home calendar />} />
+          <Route path="/home/tasks" element={<Home tasks />} />
+          <Route path="/home/balance" element={<Home balance />} />
+          <Route path="/home/courses" element={<Home courses />} />
+          <Route path="/home/students" element={<Home students />} />
+          <Route path="/home/colleges" element={<Home colleges />} />
         </Routes>
       </Router>
   );
