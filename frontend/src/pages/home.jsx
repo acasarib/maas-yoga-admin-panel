@@ -27,6 +27,8 @@ export default function Home(props) {
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
     const [tasks, setTasks] = useState([]);
+    const [isMasterAdmin, setIsMasterAdmin] = useState(false);
+    
     let navigate = useNavigate();
 
     useEffect(() => {
@@ -88,6 +90,12 @@ export default function Home(props) {
     useEffect(() => {
         if(!localStorage.getItem('accessToken')) {
             navigate('/');
+        }
+        if(localStorage.getItem('userInfo')) {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            if(userInfo.permissions[0] === 'PERMISSION_CREATE_USER') {
+                setIsMasterAdmin(true);
+            }
         }
     }, [])
 
@@ -176,13 +184,13 @@ export default function Home(props) {
                                     </span>
                                 </Link>
                             </li>
-                            <li className="grid place-content-stretch">
+                            {isMasterAdmin && (<><li className="grid place-content-stretch">
                                 <Link to="/home/new-user">
                                     <span className={props.newUser ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
                                     </span>
                                 </Link>
-                            </li>
+                            </li></>)}
                         </ul>
                         </div>
                     </div>
