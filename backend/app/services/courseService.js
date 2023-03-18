@@ -13,11 +13,11 @@ export const editById = async (courseParam, id) => {
 };
 
 export const getById = async (id) => {
-  return course.findByPk(id, { include: [student] });
+  return course.findByPk(id, { include: [student, courseTask] });
 };
 
 export const getAll = async () => {
-  return course.findAll({ include: [student] });
+  return course.findAll({ include: [student, courseTask] });
 };
 
 export const setStudentsToCourse = async (students, courseId) => {

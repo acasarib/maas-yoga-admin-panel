@@ -68,7 +68,7 @@ payment.belongsTo(user);
 payment.belongsTo(student);
 payment.belongsTo(course);
 courseTask.belongsTo(course);
-course.hasOne(courseTask, { foreignKey: { allowNull: false }, targetKey: "id" });
+course.hasMany(courseTask, { foreignKey: { allowNull: false }, targetKey: "id" });
 
 export {
   sequelize,
