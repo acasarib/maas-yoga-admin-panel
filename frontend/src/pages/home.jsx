@@ -19,12 +19,16 @@ import Students from "./students";
 import Courses from "./courses";
 import studentsService from "../services/studentsService";
 import coursesService from "../services/coursesService";
+import tasksService from "../services/tasksService";
 
 export default function Home(props) {
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [isMasterAdmin, setIsMasterAdmin] = useState(false);
+    
     let navigate = useNavigate();
 
     useEffect(() => {
@@ -54,8 +58,13 @@ export default function Home(props) {
             })
             setCourses(coursesList);
         }
+        const getTasks = async () => {
+            const tasksList = await tasksService.getTasks();
+            setTasks(tasksList);
+        }
         getStudents();
         getCourses();
+        getTasks();
       }, [])
 
     const getDay = () => {
@@ -77,6 +86,18 @@ export default function Home(props) {
         localStorage.removeItem('accessToken');
         navigate('/');
     };
+
+    useEffect(() => {
+        if(!localStorage.getItem('accessToken')) {
+            navigate('/');
+        }
+        if(localStorage.getItem('userInfo')) {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            if(userInfo.permissions[0] === 'PERMISSION_CREATE_USER') {
+                setIsMasterAdmin(true);
+            }
+        }
+    }, [])
 
     return(
         <>
@@ -100,7 +121,7 @@ export default function Home(props) {
                     </div>
                 </header>
 
-                <aside className="fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen w-60">
+                <aside className="fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen w-64">
                     <div className="flex flex-col justify-between h-full">
                     <div className="flex-grow">
                         <div className="px-4 py-8 text-center border-b bg-orange-100">
@@ -116,60 +137,60 @@ export default function Home(props) {
                         <ul className="space-y-1">
                             <li className="grid place-content-stretch">
                                 <Link to="/home/payments">
-                                    <span className={props.payments ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.payments ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <PaidIcon /><span className="ml-3">Pagos</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/tasks">
-                                    <span className={props.tasks ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.tasks ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <AssignmentIcon /><span className="ml-3">Tareas pendientes</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/balance">
-                                    <span className={props.balance ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.balance ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <BalanceIcon /><span className="ml-3">Balance</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/calendar">
-                                    <span className={props.calendar ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.calendar ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <CalendarMonthIcon /><span className="ml-3">Calendario</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/students">
-                                    <span className={props.students ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.students ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <SchoolIcon /><span className="ml-3">Alumnos</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/colleges"> 
-                                    <span className={props.colleges ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.colleges ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <AccountBalanceIcon /><span className="ml-3">Sedes</span>
                                     </span>
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
                                 <Link to="/home/courses">
-                                    <span className={props.courses ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.courses ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <LocalLibraryIcon /><span className="ml-3">Cursos</span>
                                     </span>
                                 </Link>
                             </li>
-                            <li className="grid place-content-stretch">
+                            {isMasterAdmin && (<><li className="grid place-content-stretch">
                                 <Link to="/home/new-user">
-                                    <span className={props.newUser ? "flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                    <span className={props.newUser ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
                                     </span>
                                 </Link>
-                            </li>
+                            </li></>)}
                         </ul>
                         </div>
                     </div>
@@ -187,7 +208,7 @@ export default function Home(props) {
                  
                             {props.payments && (<><Payments students={students} courses={courses}/></>)}
                             {props.newUser && (<><NewUser /></>)}
-                            {props.tasks && (<><Tasks /></>)}
+                            {props.tasks && (<><Tasks tasks={tasks}/></>)}
                             {props.calendar && (<><Calendar /></>)}
                             {props.balance && (<><Balance /></>)}
                             {props.colleges && (<><Colleges /></>)}

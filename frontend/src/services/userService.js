@@ -1,4 +1,5 @@
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 
 export default {
     authUser(userBody) {
@@ -7,6 +8,9 @@ export default {
             axios
                 .post(baseUrl + 'api/v1/users/login', userBody)
                 .then((response) => {
+                    var token = response.data.token;
+                    var decoded = jwt_decode(token);
+                    localStorage.setItem('userInfo', JSON.stringify(decoded));
                     resolve(response.data.token);
                 })
                 .catch((error) => {
