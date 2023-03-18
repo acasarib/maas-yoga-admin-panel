@@ -1,4 +1,4 @@
-import { course, student } from "../db/index.js";
+import { course, student, courseTask } from "../db/index.js";
 
 export const create = async (courseParam) => {
   return course.create(courseParam);
@@ -25,4 +25,26 @@ export const setStudentsToCourse = async (students, courseId) => {
   const studentsDb = await student.findAll({ where: { id: students } });
   await courseDb.setStudents(studentsDb, { through: "course_student" });
   return course.findByPk(courseId, { include: [student] });
+};
+
+export const addCourseTask = async (courseTaskParam, courseId) => {
+  courseTaskParam.courseId = courseId;
+  return courseTask.create(courseTaskParam);
+};
+
+export const getTasksByCourseId = async (courseId, specification) => {
+  return courseTask.findAll({
+    where: {
+      ...specification.getSequelizeSpecification(),
+      courseId
+    },
+  });
+};
+
+export const editCourseTask = async (courseTaskParam, id) => {
+  return courseTask.update(courseTaskParam, { where: { id } });
+};
+
+export const deleteCourseTask = async (id) => {
+  courseTask.destroy({ where: { id } });
 };
