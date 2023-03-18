@@ -6,10 +6,12 @@ import studentsRoute from "./studentsRoute.js";
 import paymentsRoute from "./paymentsRoute.js";
 import filesRoute from "./filesRoute.js";
 import tasksRoute from "./tasksRoute.js";
+import headquartersRoute from "./headquartersRoute.js";
 
 const router = Router();
 
 router.use("/healthcheck", healthcheckRouter);
+router.use("/headquarters", headquartersRoute);
 router.use("/users", usersRoute);
 router.use("/courses", coursesRoute);
 router.use("/students", studentsRoute);
