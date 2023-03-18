@@ -71,12 +71,12 @@ export default {
   },
 
   /**
-   * /courses/{id}/students [POST]
+   * /courses/{id}/students [PUT]
    * @returns HttpStatus ok and @Course
    */
-  addStudentsToCourse: async (req, res, next) => {
+  setStudentsToCourse: async (req, res, next) => {
     try {
-      const course = await courseService.addStudentsToCourse(req.body, req.params.id);
+      const course = await courseService.setStudentsToCourse(req.body, req.params.id);
       res.status(StatusCodes.OK).json(course);
     } catch (e) {
       next(e);

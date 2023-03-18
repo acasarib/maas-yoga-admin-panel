@@ -20,7 +20,7 @@ export const getAll = async () => {
   return course.findAll({ include: [student] });
 };
 
-export const addStudentsToCourse = async (students, courseId) => {
+export const setStudentsToCourse = async (students, courseId) => {
   const courseDb = await course.findByPk(courseId);
   const studentsDb = await student.findAll({ where: { id: students } });
   await courseDb.setStudents(studentsDb, { through: "course_student" });

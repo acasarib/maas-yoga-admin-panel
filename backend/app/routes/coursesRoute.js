@@ -8,6 +8,6 @@ router.delete("/:id", verifyToken, controller.deleteById);
 router.put("/:id", verifyToken, controller.editById);
 router.get("/:id", verifyToken, controller.getById);
 router.get("/", verifyToken, controller.getAll);
-router.put("/:id/students", verifyToken, controller.addStudentsToCourse);
+router.put("/:id/students", verifyToken, controller.setStudentsToCourse);
 
 export default router;
