@@ -142,8 +142,8 @@ export default function Colleges(props) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            title: edit ? collegeToEdit.title : '',
-            description: edit ? collegeToEdit.description : '',
+            name: edit ? collegeToEdit.name : '',
+            location: edit ? collegeToEdit.location : '',
         },
             onSubmit: async (values) => {
                 const body = {
