@@ -17,6 +17,8 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import TaskModal from "../components/courses/taskModal";
 
 export default function Courses(props) {
 
@@ -32,18 +34,36 @@ export default function Courses(props) {
     const [students, setStudents] = useState([]);
     const [selectedOption, setSelectedOption] = useState([]);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
+    const [displayTasksModal, setDisplayTasksModal] = useState(false);
     const [studentsLists, setStudentsLists] = useState([]);
+    const [tasksLists, setTasksList] = useState([]);
     const [courseName, setCourseName] = useState("");
+    const [addTaskModal, setAddTaskModal] = useState(false);
+
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
         setEdit(false);
         setDisplayStudentsModal(value);
+        setAddTaskModal(value);
+        setDisplayTasksModal(value);
     }
 
+    const setDisplayTask = async (value) => {
+        setAddTaskModal(value);
+        const response = await coursesService.getCourses();
+        setCourses(response);
+    }
+    
     const openDeleteModal = (id) => {
         setDeleteModal(true);
         setCourseId(id);
+    }
+    
+    const openAddTaskmodal = (id, name) => {
+        setAddTaskModal(true);
+        setCourseId(id);
+        setCourseName(name);
     }
 
     const deleteCourse = async () => {
@@ -66,6 +86,13 @@ export default function Courses(props) {
     const openStudentsModal = (students, courseName) => {
         setDisplayStudentsModal(true);
         setStudentsLists(students);
+        setCourseName(courseName);
+    }
+
+    
+    const openTasksModal = (tasks, courseName) => {
+        setDisplayTasksModal(true);
+        setTasksList(tasks);
         setCourseName(courseName);
     }
 
@@ -117,8 +144,13 @@ export default function Courses(props) {
             sortable: true,
         },
         {
+            name: 'Tareas',
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title)}>Ver tareas</button></div>)},
+            sortable: true,
+        },
+        {
             name: 'Acciones',
-            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
+            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-green-300 hover:bg-green-400 mx-1" onClick={() => openAddTaskmodal(row.id, row.title)}><AddTaskIcon /></button><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
         },
             sortable: true,
         },
@@ -157,6 +189,42 @@ export default function Courses(props) {
         {
             name: 'Numero de telefono',
             selector: row => row.phoneNumber,
+            sortable: true,
+        },
+    ];
+
+    const taskColumn = [
+        {
+            name: 'Título',
+            selector: row => row.title,
+            sortable: true,
+        },
+        {
+            name: 'Descripción',
+            selector: row => row.description,
+            sortable: true,
+        },
+        {
+            name: 'Comentarios',
+            cell: row => {return (<><div className="flex flex-col justify-center">
+            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div className="group cursor-pointer relative inline-block">{row.comment}
+                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.comment}
+                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
+            sortable: true,
+        },
+        {
+            name: 'Fecha limite',
+            selector: row => {var dt = new Date(row.limitDate);
+                let year  = dt.getFullYear();
+                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                let day   = dt.getDate().toString().padStart(2, "0");
+                var date = day + '/' + month + '/' + year; return date},
             sortable: true,
         },
     ];
@@ -215,7 +283,6 @@ export default function Courses(props) {
         }
     }, [props.students, props.courses]);
 
-    /*const white = orange[50];*/
 
     return(
         <>
@@ -305,6 +372,7 @@ export default function Courses(props) {
                         </form>
                     </>
                     } />
+                    <TaskModal isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
                     <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCourse()} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
                     <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <DataTable
                             columns={studentsColumns}
@@ -312,6 +380,12 @@ export default function Courses(props) {
                             noDataComponent="Este curso aun no posee alumnos"
                             pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                         /></div></>} />
+                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <DataTable
+                        columns={taskColumn}
+                        data={tasksLists}
+                        noDataComponent="Este curso aun no posee tareas"
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    /></div></>} />
                 </div>    
             </div>
         </>

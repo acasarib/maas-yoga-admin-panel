@@ -103,6 +103,27 @@ export default {
                     reject(error.data)
                 })
         });
-    }
+    },
+    associateTask(courseId, task) {
+        return new Promise((resolve, reject) => {
+            const data = {
+                "title": task.title,
+                "description": task.description,
+                "comment": task.comment,
+                "limitDate": task.limitDate
+            }
+            const accessToken = localStorage.getItem('accessToken')
+            let headers = { Authorization: `Bearer ${accessToken}` }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + `api/v1/courses/${courseId}/tasks`, data, { headers })
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
 };
 
