@@ -20,12 +20,14 @@ import Courses from "./courses";
 import studentsService from "../services/studentsService";
 import coursesService from "../services/coursesService";
 import tasksService from "../services/tasksService";
+import collegesService from "../services/collegesService";
 
 export default function Home(props) {
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [colleges, setColleges] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [isMasterAdmin, setIsMasterAdmin] = useState(false);
     
@@ -62,9 +64,14 @@ export default function Home(props) {
             const tasksList = await tasksService.getTasks();
             setTasks(tasksList);
         }
+        const getColleges = async () => {
+            const collegesList = await collegesService.getColleges();
+            setColleges(collegesList);
+        }
         getStudents();
         getCourses();
         getTasks();
+        getColleges();
       }, [])
 
     const getDay = () => {
@@ -211,7 +218,7 @@ export default function Home(props) {
                             {props.tasks && (<><Tasks tasks={tasks}/></>)}
                             {props.calendar && (<><Calendar /></>)}
                             {props.balance && (<><Balance /></>)}
-                            {props.colleges && (<><Colleges /></>)}
+                            {props.colleges && (<><Colleges colleges={colleges} courses={courses} /></>)}
                             {props.courses && (<><Courses students={students} courses={courses} /></>)}
                             {props.students && (<><Students students={students} /></>)}
                  

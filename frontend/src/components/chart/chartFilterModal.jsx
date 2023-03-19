@@ -66,7 +66,7 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
     return (
     <Modal
         icon={<BalanceIcon />}
-        style={{maxWidth: "50%"}}
+        style={{maxWidth: "70%"}}
         open={isOpen}
         setDisplay={closeModal}
         buttonText={"Aplicar"}

@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
 import Select from "react-select";
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 export default function FilterPaymentAt({ onChange }) {
 
     const [typeCriteriaSelected, setTypeCriteriaSelected] = useState(null);
     const isBetween = typeCriteriaSelected !== null && typeCriteriaSelected.value === "between";
-    const [at, setAt] = useState(new Date());
-    const [at2, setAt2] = useState(new Date());
+    const [at, setAt] = useState(dayjs(new Date()));
+    const [at2, setAt2] = useState(dayjs(new Date()));
     const typeCriterias = [{
         label: "Despues de",
         value: "gte"
@@ -24,11 +28,11 @@ export default function FilterPaymentAt({ onChange }) {
     useEffect(() => {
         if (typeCriteriaSelected !== null && at !== null && at2 !== null) {
             const isBetween = typeCriteriaSelected.value === "between";
-            at.setHours(0);
-            at.setMinutes(0);
-            at2.setHours(23);
-            at2.setMinutes(59);
-            onChange(`at ${typeCriteriaSelected.value} ${at.getTime()}${isBetween ? ":" + at2.getTime() : ""}`);
+            at.$d.setHours(0);
+            at.$d.setMinutes(0);
+            at2.$d.setHours(23);
+            at2.$d.setMinutes(59);
+            onChange(`at ${typeCriteriaSelected.value} ${at.$d.getTime()}${isBetween ? ":" + at2.$d.getTime() : ""}`);
         }
     }, [typeCriteriaSelected, at, at2]);
     
@@ -36,29 +40,32 @@ export default function FilterPaymentAt({ onChange }) {
 
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2">Fecha del pago</span>
+        <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Fecha del pago</span>
         <div className="flex">
-            <Select placeholder="Seleccionar" className="payment-filter-width" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
+            <Select placeholder="Seleccionar" className="payment-filter-width mt-3  mr-8" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
             <div className="my-auto flex">
                 {typeCriteriaSelected !== null && 
                     <>
-                    <DatePicker
-                        className="ml-2"
-                        selected={at}
-                        onChange={setAt}
-                        selectsStart={isBetween}
-                        startDate={isBetween ? at : null}
-                        endDate={isBetween ? at2 : null}
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                            <DateTimePicker
+                            label="Seleccionar fecha"
+                            value={at}
+                            onChange={(newValue) => setAt(newValue)}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
                     {typeCriteriaSelected.value === "between" &&
                     <><span className="mx-2">y</span>
-                    <DatePicker
-                        selected={at2}
-                        onChange={setAt2}
-                        selectsEnd
-                        startDate={at}
-                        endDate={at2}
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                            <DateTimePicker
+                            label="Seleccionar fecha"
+                            value={at2}
+                            onChange={(newValue) => setAt2(newValue)}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
                     </>
                     }
                     </>

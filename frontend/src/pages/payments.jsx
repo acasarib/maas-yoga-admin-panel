@@ -7,9 +7,13 @@ import PaidIcon from '@mui/icons-material/Paid';
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
 import DataTable from 'react-data-table-component';
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { PAYMENT_OPTIONS } from "../constants";
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 export default function Payments(props) {
 
@@ -29,7 +33,7 @@ export default function Payments(props) {
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [payments, setPayments] = useState([]);
-    const [paymentAt, setPaymentAt] = useState(new Date());
+    const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
     const handleFileChange = (e) => {
         if (e.target.files) {
           setFile([...file, e.target.files[0]]);
@@ -51,6 +55,7 @@ export default function Payments(props) {
 
     const setDisplay = (value) => {
         setOpenModal(value);
+        setIsLoadingPayment(false);
     }
 
     const deleteSelection = () => {
@@ -137,8 +142,9 @@ export default function Payments(props) {
             fileId: fileId,
             paymentValue: ammount,
             studentId: selectedStudent,
-            at: paymentAt.getTime()
+            at: paymentAt.$d.getTime()
         }  
+        console.log(data.at)
         try{
             await paymentsService.informPayment(data);
             const response= await paymentsService.getAllPayments();
@@ -147,13 +153,14 @@ export default function Payments(props) {
             setOpenModal(false);
         }catch(err) {
             console.log(err);
+            setIsLoadingPayment(false);
         }
         setAmmount(null);
         setPaymentMethod('');
         setFileId('');
         setSelectedCourse('');
         setSelectedStudent('');
-        setPaymentAt(new Date());
+        setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
         
     }
@@ -210,7 +217,15 @@ export default function Payments(props) {
                     </div>
                     <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
-                        <div className="mt-4"><DatePicker selected={paymentAt} onChange={(date) => setPaymentAt(date)} /></div>
+                        <div className="mt-4">    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                            <DateTimePicker
+                            label="Seleccionar fecha"
+                            value={paymentAt}
+                            onChange={(newValue) => setPaymentAt(newValue)}
+                            />
+                        </DemoContainer>
+                        </LocalizationProvider></div>
                     </div>
                 </div>
                 {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label for="fileUpload" className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>

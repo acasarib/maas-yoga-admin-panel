@@ -5,7 +5,6 @@ import { orange } from '@mui/material/colors';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import coursesService from "../services/coursesService";
 import DataTable from 'react-data-table-component';
@@ -13,12 +12,17 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Select from 'react-select';
 import SchoolIcon from '@mui/icons-material/School';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 export default function Courses(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [startAt, setStartAt] = useState(new Date());
+    const [startAt, setStartAt] = useState(dayjs(new Date()));
     const [courses, setCourses] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
@@ -49,6 +53,7 @@ export default function Courses(props) {
         setDeleteModal(false);
         const response = await coursesService.getCourses();
         setCourses(response);
+        setCourseId(null);
     }
 
     const openEditModal = (course) => {
@@ -164,34 +169,38 @@ export default function Courses(props) {
             startAt: edit ? courseToEdit.startAt : startAt,
             duration: edit ? courseToEdit.duration : ''
         },
-        onSubmit: async (values) => {
-          const body = {
-            title: values.title,
-            description: values.description,
-            startAt: startAt,
-            duration: values.duration
-          };
-          setIsLoading(true);
-          try {
-            if(edit) {
-                await coursesService.editCourse(courseId, body);
-                setEdit(false);
-            }else{
-                await coursesService.newCourse(body);
-            }
-            if(selectedOption.length > 0) {
-                await coursesService.addStudent(courseId, selectedOption);
-            }
-            const response = await coursesService.getCourses();
-            setCourses(response);
-            setIsLoading(false);
-            setDisplayModal(false);
-          } catch (error) {
-            setIsLoading(false);
-            setDisplayModal(false);
-          }
-          formik.values = {};
-        },
+            onSubmit: async (values) => {
+                const body = {
+                  title: values.title,
+                  description: values.description,
+                  startAt: startAt,
+                  duration: values.duration
+                };
+                setIsLoading(true);
+                try {
+                  if(edit) {
+                        await coursesService.editCourse(courseId, body);
+                        setEdit(false);
+                        if(selectedOption.length > 0) {
+                            await coursesService.addStudent(courseId, selectedOption);
+                        }
+                  }else{
+                        const response = await coursesService.newCourse(body);
+                        setCourseId(response.id);
+                        if(selectedOption.length > 0) {
+                            await coursesService.addStudent(response.id, selectedOption);
+                        }
+                  }
+                  const response = await coursesService.getCourses();
+                  setCourses(response);
+                  setIsLoading(false);
+                  setDisplayModal(false);
+                } catch (error) {
+                  setIsLoading(false);
+                  setDisplayModal(false);
+                }
+                formik.values = {};
+              },
       });
 
     useEffect(() => {
@@ -259,13 +268,22 @@ export default function Courses(props) {
                                         onChange={formik.handleChange}
                                 />
                                 </div>
-                                <div className="mb-4 relative">
+                                <div className="mb-4 relative col-span-2">
                                     <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
                                         Fecha de inicio
                                     </label>
-                                    <DatePicker selected={startAt} onChange={(date) => setStartAt(date)} />
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                                            <DateTimePicker
+                                            label="Seleccionar fecha"
+                                            value={startAt}
+                                            onChange={(newValue) => setStartAt(newValue)}
+                                            />
+                                        </DemoContainer>
+                                    </LocalizationProvider>
                                 </div>
-                                <div className="mb-4">
+                            </div>
+                            <div className="mb-4 w-3/6">
                                     <CommonInput 
                                         label="Duración"    
                                         onBlur={formik.handleBlur}
@@ -277,7 +295,6 @@ export default function Courses(props) {
                                         placeholder="Duración" 
                                         onChange={formik.handleChange}
                                     />
-                                </div>
                             </div>
                             <div className="mb-4">
                                     <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
