@@ -18,7 +18,8 @@ export const getById = async (id) => {
 
 export const getAll = async (specification) => {
   return headquarter.findAll({
-    where: specification.getSequelizeSpecification()
+    where: specification.getSequelizeSpecification(),
+    include: [course]
   });
 };
 
