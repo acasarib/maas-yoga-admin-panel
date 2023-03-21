@@ -15,4 +15,8 @@ router.put("/tasks/:id", verifyToken, controller.editCourseTask);
 router.delete("/tasks/:id", verifyToken, controller.deleteCourseTask);
 router.get("/:courseId/tasks", verifyToken, controller.getCourseTasks);
 
+router.put("/tasks/:courseTaskId/students", verifyToken, controller.setStudentsToTask);
+router.get("/tasks/:courseTaskId/students", verifyToken, controller.getStudentsTasks);
+router.put("/tasks/:courseTaskId/students/:studentId", verifyToken, controller.setCompletedStudentTask);
+
 export default router;

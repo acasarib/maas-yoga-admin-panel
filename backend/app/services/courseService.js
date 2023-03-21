@@ -1,4 +1,4 @@
-import { course, student, courseTask } from "../db/index.js";
+import { course, student, courseTask, studentCourseTask } from "../db/index.js";
 
 export const create = async (courseParam) => {
   return course.create(courseParam);
@@ -47,4 +47,19 @@ export const editCourseTask = async (courseTaskParam, id) => {
 
 export const deleteCourseTask = async (id) => {
   courseTask.destroy({ where: { id } });
+};
+
+export const setStudentsToTask = async (students, courseTaskId) => {
+  const courseTaskDb = await courseTask.findByPk(courseTaskId);
+  await courseTaskDb.setStudents(students, { through: studentCourseTask });
+};
+
+export const getStudentsByCourseTask = async (courseTaskId) => {
+  return studentCourseTask.findAll({
+    where: { courseTaskId }
+  })
+};
+
+export const setCompletedStudentTask = async (studentCourseTaskParam, courseTaskId, studentId) => {
+  studentCourseTask.update(studentCourseTaskParam, { where: { courseTaskId, studentId } })
 };

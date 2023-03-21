@@ -11,10 +11,6 @@ const courseTask = (sequelize) => {
     description: Sequelize.STRING,
     comment: Sequelize.STRING,
     limitDate: Sequelize.DataTypes.DATE,
-    completed: {
-      type: Sequelize.BOOLEAN,
-      defaultValue: false,
-    },
   }, { tableName: "course_task" });
   courseTask.associate = function (models) {
     // associations can be defined here

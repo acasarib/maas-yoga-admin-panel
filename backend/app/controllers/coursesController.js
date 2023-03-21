@@ -152,4 +152,43 @@ export default {
     }
   },
 
+  /**
+   * /courses/tasks/{courseTaskId}/students [PUT]
+   * @returns HttpStatus ok
+   */
+  setStudentsToTask: async (req, res, next) => {
+    try {
+      await courseService.setStudentsToTask(req.body, req.params.courseTaskId);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /courses/tasks/{courseTaskId}/students [GET]
+   * @returns HttpStatus ok
+   */
+  getStudentsTasks: async (req, res, next) => {
+    try {
+      const students = await courseService.getStudentsByCourseTask(req.params.courseTaskId);
+      res.status(StatusCodes.OK).json(students);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /courses/tasks/{courseTaskId}/students/{studentId} [PUT]
+   * @returns HttpStatus ok
+   */
+  setCompletedStudentTask: async (req, res, next) => {
+    try {
+      const course = await courseService.setCompletedStudentTask(req.body, req.params.courseTaskId, req.params.studentId);
+      res.status(StatusCodes.OK).json(course);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };
