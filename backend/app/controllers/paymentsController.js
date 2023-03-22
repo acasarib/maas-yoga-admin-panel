@@ -5,12 +5,11 @@ import { payment } from "../db/index.js";
 
 export default {
   /**
-   * /payments/students/{studentId} [POST]
+   * /payments [POST]
    * @returns HttpStatus created and @Payment
    */
   create: async (req, res, next) => {
     try {
-      req.body.studentId = req.params.studentId;
       req.body.userId = req.user.id;
       const createdPayment = await paymentService.create(req.body);
       res.status(StatusCodes.CREATED).json(createdPayment);
