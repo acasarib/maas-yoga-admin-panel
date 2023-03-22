@@ -17,7 +17,10 @@ export const getById = async (id) => {
 };
 
 export const getAll = async () => {
-  return course.findAll({ include: [student, courseTask] });
+  return course.findAll({ include: [
+    student,
+    { model: courseTask, include:[student] },
+  ]});
 };
 
 export const setStudentsToCourse = async (students, courseId) => {
@@ -38,6 +41,7 @@ export const getTasksByCourseId = async (courseId, specification) => {
       ...specification.getSequelizeSpecification(),
       courseId
     },
+    include: [student],
   });
 };
 
