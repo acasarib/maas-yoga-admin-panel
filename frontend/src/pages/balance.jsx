@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
+import PaymentsTable from "../components/paymentsTable";
 
 export default function Balance(props) {
 
     const [currentChartSelected, setCurrentChartSelected] = useState("year");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [customChainFilters, setCustomChainFilters] = useState([]);
+    const [payments, setPayments] = useState([]);
 
     const switchModal = () => setIsModalOpen(!isModalOpen);
 
@@ -23,7 +25,7 @@ export default function Balance(props) {
         setCurrentChartSelected("custom");
         switchModal();
     }
-
+    
     return(
         <>
             <div className="px-6 py-8 max-w-6xl mx-auto">
@@ -34,9 +36,14 @@ export default function Balance(props) {
                             <ChartSelector currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
                         </div>
                         <div className="col-span-3">
-                            <Chart customChainFilters={customChainFilters} currentChartSelected={currentChartSelected}/>
+                            <Chart
+                                customChainFilters={customChainFilters}
+                                currentChartSelected={currentChartSelected}
+                                onChangeData={data => setPayments(data)}    
+                            />
                         </div>
                     </div>
+                    <PaymentsTable className="mt-4" payments={payments} isLoading={false}/>
                 </div>
                 <ChartFilterModal isOpen={isModalOpen} closeModal={switchModal} onApplyFilter={onApplyFilter} />
             </div>
