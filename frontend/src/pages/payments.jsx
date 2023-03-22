@@ -24,7 +24,7 @@ export default function Payments(props) {
     const [courses, setCourses] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
-    const [fileId, setFileId] = useState('');
+    const [fileId, setFileId] = useState(null);
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [disabled, setDisabled] = useState(true);
@@ -108,7 +108,7 @@ export default function Payments(props) {
         },
         {
             name: 'Abonado por',
-            selector: row => row.student.name + ' ' + row.student.lastName,
+            selector: row => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "",
             sortable: true,
         },
         {
@@ -128,8 +128,8 @@ export default function Payments(props) {
         },
         {
             name: 'Comprobante',
-            cell: row => {return (<><a href={`https://maas-yoga-admin-panel.onrender.com/api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
-            </a></>)},
+            cell: row => (<>{row.fileId !== null &&<a href={`https://maas-yoga-admin-panel.onrender.com/api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
+            </a>}</>),
             sortable: true,
         },
     ];
