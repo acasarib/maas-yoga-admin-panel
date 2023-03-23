@@ -7,7 +7,6 @@ import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import "react-datepicker/dist/react-datepicker.css";
 import coursesService from "../services/coursesService";
-import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Select from 'react-select';
@@ -19,6 +18,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import TaskModal from "../components/courses/taskModal";
+import Table from "../components/table";
 
 export default function Courses(props) {
 
@@ -290,7 +290,7 @@ export default function Courses(props) {
                 <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
                     <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Cursos</h1>
                     <div className="my-6 md:my-12 mx-8 md:mx-4">
-                        <DataTable
+                        <Table
                             columns={columns}
                             data={courses}
                             noDataComponent={opResult}
@@ -374,13 +374,13 @@ export default function Courses(props) {
                     } />
                     <TaskModal isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
                     <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCourse()} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
-                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <DataTable
+                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                             columns={studentsColumns}
                             data={studentsLists}
                             noDataComponent="Este curso aun no posee alumnos"
                             pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                         /></div></>} />
-                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <DataTable
+                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                         columns={taskColumn}
                         data={tasksLists}
                         noDataComponent="Este curso aun no posee tareas"

@@ -1,5 +1,5 @@
 import React from "react";
-import DataTable from 'react-data-table-component';
+import Table from "../table";
 
 export default function PaymentsTable({ className = "", payments, isLoading }) {
 
@@ -44,7 +44,7 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
     ];
 
     return(
-        <DataTable
+        <Table
             className={`rounded-3xl shadow-lg ${className}`}
             columns={columns}
             data={payments}
