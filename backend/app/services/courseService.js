@@ -24,15 +24,20 @@ export const getAll = async () => {
 };
 
 export const setStudentsToCourse = async (students, courseId) => {
-  const courseDb = await course.findByPk(courseId);
+  const courseDb = await course.findByPk(courseId, { include: [student] });
   const studentsDb = await student.findAll({ where: { id: students } });
   await courseDb.setStudents(studentsDb, { through: "course_student" });
+  const courseTasks = await courseTask.findAll({ where: { courseId } });
+  courseTasks.forEach(cTask => cTask.setStudents(studentsDb));
   return course.findByPk(courseId, { include: [student] });
 };
 
 export const addCourseTask = async (courseTaskParam, courseId) => {
   courseTaskParam.courseId = courseId;
-  return courseTask.create(courseTaskParam);
+  const courseDb = await course.findByPk(courseId, { include: [student] });
+  const courseTaskCreated = await courseTask.create(courseTaskParam);
+  await courseTaskCreated.setStudents(courseDb.students, { through: studentCourseTask });
+  return courseTaskCreated;
 };
 
 export const getTasksByCourseId = async (courseId, specification) => {
