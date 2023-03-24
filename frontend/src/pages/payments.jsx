@@ -24,6 +24,7 @@ export default function Payments(props) {
     const [courses, setCourses] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
+    const [selectedCollege, setSelectedCollege] = useState(null);
     const [fileId, setFileId] = useState(null);
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
@@ -97,6 +98,7 @@ export default function Payments(props) {
     const informPayment = async () => {
         setIsLoadingPayment(true);
         const data = {
+            headquarterId: selectedCollege?.value,
             courseId: selectedCourse,
             paymentType: paymentMethod,
             fileId: fileId,
@@ -115,8 +117,9 @@ export default function Payments(props) {
             setIsLoadingPayment(false);
         }
         setAmmount(null);
+        setSelectedCollege(null);
         setPaymentMethod('');
-        setFileId('');
+        setFileId(null);
         setSelectedCourse('');
         setSelectedStudent('');
         setPaymentAt(dayjs(new Date()));
@@ -133,7 +136,9 @@ export default function Payments(props) {
            setIsLoadingPaymentsTable(false);
         }
         getPayments();
-      }, [props.students, props.courses]);
+    }, [props.students, props.courses]);
+
+    useEffect(() => setSelectedCollege(null), [paymentMethod]);
 
     return(
         <>
@@ -153,7 +158,7 @@ export default function Payments(props) {
                         <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                         <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} /></div>
                     </div>
-                    <div className="col-span-2 md:col-span-1 pb-6">
+                    <div className="col-span-2 md:col-span-1 pb-3">
                         <CommonInput 
                             label="Importe"
                             name="title"
@@ -163,10 +168,23 @@ export default function Payments(props) {
                             onChange={handleChangeAmmount}
                         />
                     </div>
-                    <div className="col-span-2 md:col-span-1 pb-6">
+                    <div className="col-span-2 md:col-span-1 pb-3">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
                     </div>
+                    {paymentMethod === "Efectivo" &&
+                        <div className="col-span-2 md:col-span-2 pb-3">
+                            <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
+                            <div className="mt-4">
+                                <Select
+                                    value={selectedCollege}
+                                    onChange={setSelectedCollege}
+                                    options={props.colleges.map(c => ({ label: c.name, value: c.id }))}
+                                    styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                                />
+                            </div>
+                        </div>
+                    }
                     <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                         <div className="mt-4">    <LocalizationProvider dateAdapter={AdapterDayjs}>

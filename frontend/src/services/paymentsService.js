@@ -41,6 +41,7 @@ export default {
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const data = {
+                "headquarterId": paymentInfo.headquarterId,
                 "courseId": paymentInfo.courseId,
                 "studentId": paymentInfo.studentId,
                 "type": paymentInfo.paymentType,
