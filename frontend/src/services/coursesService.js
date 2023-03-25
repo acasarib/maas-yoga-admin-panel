@@ -125,5 +125,41 @@ export default {
                 })
         });
     },
+    associateStudentToTask(courseId, task) {
+        return new Promise((resolve, reject) => {
+            const data = {
+                "title": task.title,
+                "description": task.description,
+                "comment": task.comment,
+                "limitDate": task.limitDate
+            }
+            const accessToken = localStorage.getItem('accessToken')
+            let headers = { Authorization: `Bearer ${accessToken}` }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + `api/v1/courses/${courseId}/tasks`, data, { headers })
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    associateStudentToTask(taskId, list) {
+        return new Promise((resolve, reject) => {
+            const accessToken = localStorage.getItem('accessToken')
+            let headers = { Authorization: `Bearer ${accessToken}` }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .put(baseUrl + `api/v1/courses/tasks/${taskId}/students`, list, { headers })
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
 };
 

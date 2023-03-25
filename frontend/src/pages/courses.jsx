@@ -219,6 +219,11 @@ export default function Courses(props) {
             sortable: true,
         },
         {
+            name: 'Alumnos',
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title)}>Ver alumnos</button></div>)},
+            sortable: true,
+        },
+        {
             name: 'Fecha limite',
             selector: row => {var dt = new Date(row.limitDate);
                 let year  = dt.getFullYear();
