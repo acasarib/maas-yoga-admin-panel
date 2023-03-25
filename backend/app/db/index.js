@@ -53,22 +53,26 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { user, course, student, payment, file, task, headquarter, courseTask } = sequelize.models;
+const { user, course, student, payment, file, task, headquarter, courseTask, studentCourseTask } = sequelize.models;
 
 
 course.belongsToMany(headquarter, { through: "headquarter_course" });
 headquarter.belongsToMany(course, { through: "headquarter_course" });
 student.belongsToMany(course, { through: "course_student" });
 course.belongsToMany(student, { through: "course_student" });
-file.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
-student.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
-course.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
+file.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
+student.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
+course.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
+headquarter.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 user.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
 payment.belongsTo(user);
-payment.belongsTo(student);
-payment.belongsTo(course);
+payment.belongsTo(student, { foreignKey: { allowNull: true } });
+payment.belongsTo(course, { foreignKey: { allowNull: true } });
+payment.belongsTo(headquarter, { foreignKey: { allowNull: true } });
 courseTask.belongsTo(course);
 course.hasMany(courseTask, { foreignKey: { allowNull: false }, targetKey: "id" });
+student.belongsToMany(courseTask, { through: studentCourseTask });
+courseTask.belongsToMany(student, { through: studentCourseTask });
 
 export {
   sequelize,
@@ -80,4 +84,5 @@ export {
   task,
   headquarter,
   courseTask,
+  studentCourseTask,
 };

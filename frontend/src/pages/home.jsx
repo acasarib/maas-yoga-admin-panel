@@ -213,7 +213,7 @@ export default function Home(props) {
 
                 <main className="ml-60 pt-16 max-h-screen overflow-auto">
                  
-                            {props.payments && (<><Payments students={students} courses={courses}/></>)}
+                            {props.payments && (<><Payments colleges={colleges} students={students} courses={courses}/></>)}
                             {props.newUser && (<><NewUser /></>)}
                             {props.tasks && (<><Tasks tasks={tasks}/></>)}
                             {props.calendar && (<><Calendar /></>)}

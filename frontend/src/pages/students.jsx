@@ -6,10 +6,10 @@ import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import studentsService from "../services/studentsService";
-import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import Table from "../components/table";
 
 export default function Students(props) {
 
@@ -205,7 +205,7 @@ export default function Students(props) {
                 <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
                     <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Alumnos</h1>
                     <div className="my-6 md:my-12 mx-8 md:mx-4">
-                        <DataTable
+                        <Table
                             columns={columns}
                             data={students}
                             pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -295,7 +295,7 @@ export default function Students(props) {
                     </>
                     } />
                     <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteStudent()} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
-                    <Modal style={{ minWidth: '600px' }} hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><DataTable
+                    <Modal style={{ minWidth: '600px' }} hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><Table
                             columns={coursesColumns}
                             data={coursesLists}
                             noDataComponent="Este alumno no esta asociado a ningun curso"

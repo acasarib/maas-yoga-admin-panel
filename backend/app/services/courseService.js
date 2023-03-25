@@ -1,4 +1,4 @@
-import { course, student, courseTask } from "../db/index.js";
+import { course, student, courseTask, studentCourseTask } from "../db/index.js";
 
 export const create = async (courseParam) => {
   return course.create(courseParam);
@@ -17,19 +17,27 @@ export const getById = async (id) => {
 };
 
 export const getAll = async () => {
-  return course.findAll({ include: [student, courseTask] });
+  return course.findAll({ include: [
+    student,
+    { model: courseTask, include:[student] },
+  ]});
 };
 
 export const setStudentsToCourse = async (students, courseId) => {
-  const courseDb = await course.findByPk(courseId);
+  const courseDb = await course.findByPk(courseId, { include: [student] });
   const studentsDb = await student.findAll({ where: { id: students } });
   await courseDb.setStudents(studentsDb, { through: "course_student" });
+  const courseTasks = await courseTask.findAll({ where: { courseId } });
+  courseTasks.forEach(cTask => cTask.setStudents(studentsDb));
   return course.findByPk(courseId, { include: [student] });
 };
 
 export const addCourseTask = async (courseTaskParam, courseId) => {
   courseTaskParam.courseId = courseId;
-  return courseTask.create(courseTaskParam);
+  const courseDb = await course.findByPk(courseId, { include: [student] });
+  const courseTaskCreated = await courseTask.create(courseTaskParam);
+  await courseTaskCreated.setStudents(courseDb.students, { through: studentCourseTask });
+  return courseTaskCreated;
 };
 
 export const getTasksByCourseId = async (courseId, specification) => {
@@ -38,6 +46,7 @@ export const getTasksByCourseId = async (courseId, specification) => {
       ...specification.getSequelizeSpecification(),
       courseId
     },
+    include: [student],
   });
 };
 
@@ -47,4 +56,19 @@ export const editCourseTask = async (courseTaskParam, id) => {
 
 export const deleteCourseTask = async (id) => {
   courseTask.destroy({ where: { id } });
+};
+
+export const setStudentsToTask = async (students, courseTaskId) => {
+  const courseTaskDb = await courseTask.findByPk(courseTaskId);
+  await courseTaskDb.setStudents(students, { through: studentCourseTask });
+};
+
+export const getStudentsByCourseTask = async (courseTaskId) => {
+  return studentCourseTask.findAll({
+    where: { courseTaskId }
+  })
+};
+
+export const setCompletedStudentTask = async (studentCourseTaskParam, courseTaskId, studentId) => {
+  studentCourseTask.update(studentCourseTaskParam, { where: { courseTaskId, studentId } })
 };

@@ -12,7 +12,7 @@ import Modal from "../modal";
 import ButtonPrimary from "../button/primary";
 import PaymentInfo from "../paymentInfo";
 
-export default function Chart({ currentChartSelected, customChainFilters }) {
+export default function Chart({ currentChartSelected, customChainFilters, onChangeData }) {
 
     const [data, setData] = useState(null);
     const [currentChartBy, setCurrentChartBy] = useState("year")
@@ -130,6 +130,7 @@ export default function Chart({ currentChartSelected, customChainFilters }) {
                 setCurrentChartBy("year");
             }
         }
+        onChangeData(data !== null ? data : []);
     }, [data, currentChartSelected]);
 
     return (

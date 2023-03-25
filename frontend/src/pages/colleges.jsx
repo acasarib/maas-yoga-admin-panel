@@ -6,11 +6,11 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import collegesService from "../services/collegesService";
-import DataTable from 'react-data-table-component';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Select from 'react-select';
 import SchoolIcon from '@mui/icons-material/School';
+import Table from "../components/table";
 
 export default function Colleges(props) {
 
@@ -198,7 +198,7 @@ export default function Colleges(props) {
                 <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
                     <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Sedes</h1>
                     <div className="my-6 md:my-12 mx-8 md:mx-4">
-                        <DataTable
+                        <Table
                             columns={columns}
                             data={colleges}
                             noDataComponent={opResult}
@@ -254,7 +254,7 @@ export default function Colleges(props) {
                     </>
                     } />
                     <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCollege()} children={<><div>Esta a punto de elimnar esta sede. ¿Desea continuar?</div></>} />
-                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos de la sede ' + '"' + collegeName + '"'} children={<><div>   <DataTable
+                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos de la sede ' + '"' + collegeName + '"'} children={<><div>   <Table
                             columns={coursesColumns}
                             data={coursesList}
                             noDataComponent="Este sede aun no posee cursos"
