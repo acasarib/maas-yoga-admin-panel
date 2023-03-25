@@ -32,6 +32,7 @@ export default function Payments(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingPaymentsTable, setIsLoadingPaymentsTable] = useState(true);
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+    const [isDischarge, setIsDischarge] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [payments, setPayments] = useState([]);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
@@ -54,9 +55,15 @@ export default function Payments(props) {
         setIsLoading(true);
     }
 
+    const informDischarge = () => {
+        setOpenModal(true);
+        setIsDischarge(true);
+    }
+
     const setDisplay = (value) => {
         setOpenModal(value);
         setIsLoadingPayment(false);
+        setIsDischarge(value);
     }
 
     const deleteSelection = () => {
@@ -99,21 +106,23 @@ export default function Payments(props) {
         setIsLoadingPayment(true);
         const data = {
             headquarterId: selectedCollege?.value,
-            courseId: selectedCourse,
+            courseId: isDischarge ? null : selectedCourse,
             paymentType: paymentMethod,
             fileId: fileId,
-            paymentValue: ammount,
-            studentId: selectedStudent,
+            paymentValue: isDischarge ? (ammount * -1) : ammount,
+            studentId: isDischarge ? null : selectedStudent,
             at: paymentAt.$d.getTime()
         }  
         try{
             await paymentsService.informPayment(data);
-            const response= await paymentsService.getAllPayments();
+            const response = await paymentsService.getAllPayments();
             setPayments(response);
             setIsLoadingPayment(false);
+            setIsDischarge(false);
             setOpenModal(false);
         }catch(err) {
             console.log(err);
+            setIsDischarge(false);
             setIsLoadingPayment(false);
         }
         setAmmount(null);
@@ -124,7 +133,7 @@ export default function Payments(props) {
         setSelectedStudent('');
         setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
-        
+        setIsDischarge(false);
     }
 
     useEffect(() => {
@@ -148,16 +157,16 @@ export default function Payments(props) {
                 <div className="my-6 md:my-12 mx-8 md:mx-4">
                     <PaymentsTable payments={payments} isLoading={isLoadingPaymentsTable}/>
                 </div>
-                <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar pago</span>} onClick={informPayment} title="Informar pago" children={<>
+                <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar</span>} onClick={informPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
                 <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
-                    <div className="col-span-2 md:col-span-1">
+                {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                         <div className="mt-4"><Select onChange={handleChangeStudent} options={students} /></div>
                     </div>
                     <div className="col-span-2 md:col-span-1">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                         <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} /></div>
-                    </div>
+                    </div></>)}
                     <div className="col-span-2 md:col-span-1 pb-3">
                         <CommonInput 
                             label="Importe"
@@ -172,7 +181,7 @@ export default function Payments(props) {
                         <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
                     </div>
-                    {paymentMethod === "Efectivo" &&
+                    {((paymentMethod === "Efectivo") && !isDischarge) &&
                         <div className="col-span-2 md:col-span-2 pb-3">
                             <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                             <div className="mt-4">
@@ -187,7 +196,7 @@ export default function Payments(props) {
                     }
                     <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
-                        <div className="mt-4">    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <div className="mt-4"><LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                             <DateTimePicker
                             label="Seleccionar fecha"
@@ -202,10 +211,17 @@ export default function Payments(props) {
                 <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :
                 (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
                 </>} />
-                <div className="flex justify-end">
-                    <button onClick={() => setOpenModal(true)}
-                        className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-                    </button>
+                <div className="flex flex-row justify-end">
+                    <div>
+                        <button onClick={informDischarge}
+                            className="mr-4 mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Informar egreso</span>
+                        </button>
+                    </div>
+                    <div>
+                        <button onClick={() => setOpenModal(true)}
+                            className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Informar ingreso</span>
+                        </button>
+                    </div>
                 </div>
               </div>
             </div>

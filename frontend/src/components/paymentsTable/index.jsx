@@ -1,17 +1,46 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Table from "../table";
 
 export default function PaymentsTable({ className = "", payments, isLoading }) {
+
+    const getBalanceForAllPayments = () => {
+        let value = 0;
+        payments.forEach(payment => {
+            value = value + payment.value;
+        });
+        return value;
+    }
+
+    const getPayments = () => {
+        let value = 0;
+        payments.forEach(payment => {
+            if(payment.value >= 0) {
+                value = value + payment.value;
+            }
+        });
+        return value;
+    }
+
+    const getDischarges = () => {
+        let value = 0;
+        payments.forEach(payment => {
+            if(payment.value < 0) {
+                value = value + payment.value;
+            }
+        });
+        return value * -1;
+    }
 
     const columns = [
         {
             name: 'Proveniente de',
             selector: row => row.type,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Importe',
-            cell: row => <span className="w-16">{'$' + row.value}</span>,
+            cell: row => <span className={(row.value >= 0) ? "w-16 text-gray-800 font-bold" : "w-16 text-red-800 font-bold"}>{'$' + row.value}</span>,
             sortable: true,
             //maxWidth: '80px'
         },
@@ -19,11 +48,13 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
             name: 'Abonado por',
             selector: row => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "",
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Informado por',
             selector: row => row.user.firstName + ' ' + row.user.lastName,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Fecha',
@@ -43,13 +74,24 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
         },
     ];
 
+    useEffect(() => {
+        getBalanceForAllPayments();
+    }, [payments])
+
     return(
-        <Table
-            className={`rounded-3xl shadow-lg ${className}`}
-            columns={columns}
-            data={payments}
-            noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
-            pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-        />
+        <>
+            <Table
+                className={`rounded-3xl shadow-lg ${className}`}
+                columns={columns}
+                data={payments}
+                noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
+                pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+            />
+            <div className="bg-orange-200 rounded-2xl px-8 py-4 mt-8 flex flex-row">
+                <div className="mr-12">Total: <span className={(getBalanceForAllPayments() >= 0) ? 'text-gray-800 font-bold bg-white rounded-2xl py-2 px-3' : 'text-red-800 font-bold bg-white rounded-2xl py-2 px-3'}>${getBalanceForAllPayments()}</span></div>
+                <div className="mx-12">Ingresos: <span className="text-gray-800 font-bold bg-white rounded-2xl py-2 px-3">${getPayments()}</span></div>
+                <div className="mx-12">Egresos: <span className="text-red-800 font-bold bg-white rounded-2xl py-2 px-3">${getDischarges()}</span></div>
+            </div>
+        </>
     );
 } 

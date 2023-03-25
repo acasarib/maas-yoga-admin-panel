@@ -65,11 +65,13 @@ export default function Students(props) {
             name: 'Nombre',
             selector: row => row.name,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Apellido',
             selector: row => row.lastName,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Documento',
@@ -89,6 +91,8 @@ export default function Students(props) {
             </div>
           </div></>)},
             sortable: true,
+            searchable: true,
+            selector: row => row.email,
         },
         {
             name: 'Numero de telefono',
@@ -122,6 +126,8 @@ export default function Students(props) {
             </div>
           </div></>)},
             sortable: true,
+            searchable: true,
+            selector: row => row.title,
         },
         {
             name: 'Descripción',

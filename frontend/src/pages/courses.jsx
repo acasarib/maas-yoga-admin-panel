@@ -109,6 +109,7 @@ export default function Courses(props) {
             name: 'Título',
             selector: row => row.title,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Descripción',
@@ -161,11 +162,13 @@ export default function Courses(props) {
             name: 'Nombre',
             selector: row => row.name,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Apellido',
             selector: row => row.lastName,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Documento',
@@ -198,6 +201,7 @@ export default function Courses(props) {
             name: 'Título',
             selector: row => row.title,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Descripción',

@@ -75,6 +75,7 @@ export default function Colleges(props) {
             name: 'Nombre',
             selector: row => row.name,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Ubicación',
@@ -108,6 +109,7 @@ export default function Colleges(props) {
             name: 'Título',
             selector: row => row.title,
             sortable: true,
+            searchable: true,
         },
         {
             name: 'Descripción',
