@@ -7,6 +7,7 @@ import paymentsRoute from "./paymentsRoute.js";
 import filesRoute from "./filesRoute.js";
 import tasksRoute from "./tasksRoute.js";
 import headquartersRoute from "./headquartersRoute.js";
+import templatesRoute from "./templatesRoute.js";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/students", studentsRoute);
 router.use("/payments", paymentsRoute);
 router.use("/files", filesRoute);
 router.use("/tasks", tasksRoute);
+router.use("/templates", templatesRoute);
 
 export default router;
