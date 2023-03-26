@@ -19,6 +19,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import TaskModal from "../components/courses/taskModal";
 import Table from "../components/table";
+import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 
 export default function Courses(props) {
 
@@ -34,11 +36,13 @@ export default function Courses(props) {
     const [students, setStudents] = useState([]);
     const [selectedOption, setSelectedOption] = useState([]);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
+    const [isTaskStudentModal, setIsTaskStudentModal] = useState(false);
     const [displayTasksModal, setDisplayTasksModal] = useState(false);
     const [studentsLists, setStudentsLists] = useState([]);
     const [tasksLists, setTasksList] = useState([]);
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
+    const [taskId, setTaskId] = useState(null);
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -47,6 +51,7 @@ export default function Courses(props) {
         setDisplayStudentsModal(value);
         setAddTaskModal(value);
         setDisplayTasksModal(value);
+        setIsTaskStudentModal(value);
     }
 
     const setDisplayTask = async (value) => {
@@ -88,8 +93,15 @@ export default function Courses(props) {
         setStudentsLists(students);
         setCourseName(courseName);
     }
-
     
+    const openStudentsTaskModal = (students, courseName, id) => {
+        setStudentsLists(students);
+        setCourseName(courseName);
+        setDisplayTasksModal(false);
+        setIsTaskStudentModal(true);
+        setTaskId(id);
+    }
+
     const openTasksModal = (tasks, courseName) => {
         setDisplayTasksModal(true);
         setTasksList(tasks);
@@ -103,6 +115,17 @@ export default function Courses(props) {
         })
         setSelectedOption(arr)
     };
+
+    const changeTaskStatus = async (studentId, taskStatus) => {
+        try {
+            await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
+            const response = await coursesService.getCourses();
+            setCourses(response);
+            setIsTaskStudentModal(false);
+        } catch(error) {
+            console.log(error);
+        }
+    }
 
     const columns = [
         {
@@ -224,7 +247,7 @@ export default function Courses(props) {
         },
         {
             name: 'Alumnos',
-            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title)}>Ver alumnos</button></div>)},
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsTaskModal(row.students, row.title, row.id)}>Ver alumnos</button></div>)},
             sortable: true,
         },
         {
@@ -234,6 +257,50 @@ export default function Courses(props) {
                 let month = (dt.getMonth() + 1).toString().padStart(2, "0");
                 let day   = dt.getDate().toString().padStart(2, "0");
                 var date = day + '/' + month + '/' + year; return date},
+            sortable: true,
+        },
+    ];
+
+    const taskStudentsColumns = [
+        {
+            name: 'Nombre',
+            selector: row => row.name,
+            sortable: true,
+            searchable: true,
+        },
+        {
+            name: 'Apellido',
+            selector: row => row.lastName,
+            sortable: true,
+            searchable: true,
+        },
+        {
+            name: 'Email',
+            cell: row => {return (<><div className="flex flex-col justify-center">
+            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div className="group cursor-pointer relative inline-block">{row.email}
+                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.email}
+                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+          </div></>)},
+            sortable: true,
+        },
+        {
+            name: 'Estado de la tarea',
+            selector: row => {if(row.studentCourseTask.completed) {
+                return 'Completada'
+            }else {
+                return 'No completada'
+            }
+            },
+        },
+        {
+            name: 'Acciones',
+            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-300 hover:bg-red-400 mx-1" onClick={() => changeTaskStatus(row.id, false)}><RemoveDoneIcon /></button><button className="rounded-full p-1 bg-green-300 hover:bg-green-400 mx-1" onClick={() => changeTaskStatus(row.id, true)}><DoneOutlineIcon /></button></div>)
+        },
             sortable: true,
         },
     ];
@@ -389,6 +456,12 @@ export default function Courses(props) {
                             noDataComponent="Este curso aun no posee alumnos"
                             pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                         /></div></>} />
+                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={isTaskStudentModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos de la tarea ' + '"' + courseName + '"'} children={<><div>   <Table
+                        columns={taskStudentsColumns}
+                        data={studentsLists}
+                        noDataComponent="Esta tarea aun no posee alumnos"
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    /></div></>} />
                     <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                         columns={taskColumn}
                         data={tasksLists}
