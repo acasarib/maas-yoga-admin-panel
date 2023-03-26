@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Modal from "../components/modal";
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
@@ -19,19 +19,18 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import TaskModal from "../components/courses/taskModal";
 import Table from "../components/table";
+import { Context } from "../context/Context";
 
 export default function Courses(props) {
-
+    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
-    const [courses, setCourses] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
     const [courseToEdit, setCourseToEdit] = useState({});
-    const [students, setStudents] = useState([]);
     const [selectedOption, setSelectedOption] = useState([]);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
     const [displayTasksModal, setDisplayTasksModal] = useState(false);
@@ -51,8 +50,6 @@ export default function Courses(props) {
 
     const setDisplayTask = async (value) => {
         setAddTaskModal(value);
-        const response = await coursesService.getCourses();
-        setCourses(response);
     }
     
     const openDeleteModal = (id) => {
@@ -66,13 +63,11 @@ export default function Courses(props) {
         setCourseName(name);
     }
 
-    const deleteCourse = async () => {
+    const handleDeleteCourse = async () => {
         setIsLoading(true);
-        await coursesService.deleteCourse(courseId);
+        await deleteCourse(courseId);
         setIsLoading(false);
         setDeleteModal(false);
-        const response = await coursesService.getCourses();
-        setCourses(response);
         setCourseId(null);
     }
 
@@ -85,6 +80,7 @@ export default function Courses(props) {
 
     const openStudentsModal = (students, courseName) => {
         setDisplayStudentsModal(true);
+        setDisplayTasksModal(false);
         setStudentsLists(students);
         setCourseName(courseName);
     }
@@ -259,17 +255,15 @@ export default function Courses(props) {
                         await coursesService.editCourse(courseId, body);
                         setEdit(false);
                         if(selectedOption.length > 0) {
-                            await coursesService.addStudent(courseId, selectedOption);
+                            await addStudent(courseId, selectedOption);
                         }
                   }else{
-                        const response = await coursesService.newCourse(body);
+                        const response = await newCourse(body);
                         setCourseId(response.id);
                         if(selectedOption.length > 0) {
-                            await coursesService.addStudent(response.id, selectedOption);
+                            await addStudent(response.id, selectedOption);
                         }
                   }
-                  const response = await coursesService.getCourses();
-                  setCourses(response);
                   setIsLoading(false);
                   setDisplayModal(false);
                 } catch (error) {
@@ -285,13 +279,9 @@ export default function Courses(props) {
     }, [selectedOption])
 
     useEffect(() => {
-        setStudents(props.students);
-        setCourses(props.courses);
-        if(courses.length === 0) {
+        if(students.length === 0 && !isLoadingStudents)
             setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
-        }
-    }, [props.students, props.courses]);
-
+    }, [students, isLoadingStudents]);
 
     return(
         <>
@@ -382,7 +372,7 @@ export default function Courses(props) {
                     </>
                     } />
                     <TaskModal isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
-                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCourse()} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
+                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
                     <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                             columns={studentsColumns}
                             data={studentsLists}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import TaskCard from "../components/taskCard";
 import Modal from "../components/modal";
 import AddIcon from '@mui/icons-material/Add';
@@ -14,11 +14,12 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Context } from "../context/Context";
 
 export default function Tasks(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
-    const [tasks, setTasks] = useState([]);
+    const { tasks, editTask, deleteTask, createTask } = useContext(Context);
     const [taskId, setTaskId] = useState(null);
     const [taskToEdit, setTaskToEdit] = useState({});
     const [deleteModal, setDeleteModal] = useState(false);
@@ -66,20 +67,16 @@ export default function Tasks(props) {
     const resolveTask = async (task) => {
         setIsLoading(true);
         task.completed = true;
-        await tasksService.editTask(task);
+        await editTask(task);
         setIsLoading(false);
         setDeleteModal(false);
-        const response = await tasksService.getTasks();
-        setTasks(response);
     }
 
-    const deleteTask = async () => {
+    const handleDeleteTask = async () => {
         setIsLoading(true);
-        await tasksService.deleteTask(taskId);
+        await deleteTask(taskId);
         setIsLoading(false);
         setDeleteModal(false);
-        const response = await tasksService.getTasks();
-        setTasks(response);
     }
     
     const formik = useFormik({
@@ -98,14 +95,10 @@ export default function Tasks(props) {
             if(edit) {
                 body.completed = false;
                 body.id = taskId;
-                await tasksService.editTask(body);
-                const response = await tasksService.getTasks();
-                setTasks(response);
+                await editTask(body);
                 setEdit(false);
             }else{
-                await tasksService.createTask(body);
-                const response = await tasksService.getTasks();
-                setTasks(response);
+                await createTask(body);
             }
             setIsLoading(false);
             setDisplayModal(false);
@@ -118,20 +111,11 @@ export default function Tasks(props) {
       });
 
     useEffect(() => {
-        setTasks(props.tasks);
-        const pendingList = props.tasks.filter(task => task.completed === false);
+        const pendingList = tasks.filter(task => task.completed === false);
         setPendingTasks(pendingList);
-        const completedList = props.tasks.filter(task => task.completed === true);
+        const completedList = tasks.filter(task => task.completed === true);
         setCompletedTasks(completedList);
-    }, [props.tasks])
-
-    
-    useEffect(() => {
-        const pendingList = props.tasks.filter(task => task.completed === false);
-        setPendingTasks(pendingList);
-        const completedList = props.tasks.filter(task => task.completed === true);
-        setCompletedTasks(completedList);
-    }, [tasks])
+    }, [tasks]);
 
     return(
         <>
@@ -213,7 +197,7 @@ export default function Tasks(props) {
                         </form>
                     </>
                     } />
-                    <Modal icon={<Delete />} open={deleteModal} setDisplay={setDisplay} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteTask()} children={<><div>Esta a punto de elimnar esta tarea. ¿Desea continuar?</div></>} />
+                    <Modal icon={<Delete />} open={deleteModal} setDisplay={setDisplay} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>Esta a punto de elimnar esta tarea. ¿Desea continuar?</div></>} />
               </div>
             </div>
         </>

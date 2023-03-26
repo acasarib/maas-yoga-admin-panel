@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Modal from "../components/modal";
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
@@ -11,18 +11,17 @@ import EditIcon from '@mui/icons-material/Edit';
 import Select from 'react-select';
 import SchoolIcon from '@mui/icons-material/School';
 import Table from "../components/table";
+import { Context } from "../context/Context";
 
 export default function Colleges(props) {
-
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [colleges, setColleges] = useState([]);
+    const { courses, colleges, isLoadingColleges, deleteCollege, editCollege, addCoursesToCollege, newCollege } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
     const [collegeToEdit, setCollegeToEdit] = useState({});
-    const [courses, setCourses] = useState([]);
     const [selectedOption, setSelectedOption] = useState([]);
     const [displayCoursesModal, setDisplayCoursesModal] = useState(false);
     const [coursesList, setCoursesList] = useState([]);
@@ -39,13 +38,11 @@ export default function Colleges(props) {
         setCollegeId(id);
     }
 
-    const deleteCollege = async () => {
+    const handleDeleteCollege = async () => {
         setIsLoading(true);
-        await collegesService.deleteCollege(collegeId);
+        await deleteCollege(collegeId);
         setIsLoading(false);
         setDeleteModal(false);
-        const response = await collegesService.getColleges();
-        setColleges(response);
         setCollegeId(null);
     }
 
@@ -159,17 +156,15 @@ export default function Colleges(props) {
                         await collegesService.editCollege(collegeId, body);
                         setEdit(false);
                         if(selectedOption.length > 0) {
-                            await collegesService.addCourses(collegeId, selectedOption);
+                            await addCoursesToCollege(collegeId, selectedOption);
                         }
                   }else{
-                        const response = await collegesService.newCollege(body);
-                        setCollegeId(response.id);
+                        const createdCollege = await newCollege(body);
+                        setCollegeId(createdCollege.id);
                         if(selectedOption.length > 0) {
-                            await collegesService.addCourses(response.id, selectedOption);
+                            await addCoursesToCollege(createdCollege.id, selectedOption);
                         }
                   }
-                  const response = await collegesService.getColleges();
-                  setColleges(response);
                   setIsLoading(false);
                   setDisplayModal(false);
                 } catch (error) {
@@ -185,12 +180,9 @@ export default function Colleges(props) {
     }, [selectedOption])
 
     useEffect(() => {
-        setCourses(props.courses);
-        setColleges(props.colleges);
-        if(colleges.length === 0) {
+        if (colleges.length === 0 && !isLoadingColleges)
             setOpResult('No fue posible obtener las sedes, por favor recargue la página...')
-        }
-    }, [props.courses, props.colleges]);
+    }, [colleges, isLoadingColleges]);
 
     /*const white = orange[50];*/
 
@@ -255,7 +247,7 @@ export default function Colleges(props) {
                         </form>
                     </>
                     } />
-                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteCollege()} children={<><div>Esta a punto de elimnar esta sede. ¿Desea continuar?</div></>} />
+                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCollege} children={<><div>Esta a punto de elimnar esta sede. ¿Desea continuar?</div></>} />
                     <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos de la sede ' + '"' + collegeName + '"'} children={<><div>   <Table
                             columns={coursesColumns}
                             data={coursesList}

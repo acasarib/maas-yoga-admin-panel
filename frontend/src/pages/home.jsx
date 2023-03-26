@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -17,20 +17,15 @@ import Calendar from "./calendar";
 import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
-import studentsService from "../services/studentsService";
-import coursesService from "../services/coursesService";
-import tasksService from "../services/tasksService";
-import collegesService from "../services/collegesService";
+import { Context } from "../context/Context";
+
 
 export default function Home(props) {
+    const { setUser } = useContext(Context);
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
-    const [students, setStudents] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [colleges, setColleges] = useState([]);
-    const [tasks, setTasks] = useState([]);
     const [isMasterAdmin, setIsMasterAdmin] = useState(false);
-    
+
     let navigate = useNavigate();
 
     useEffect(() => {
@@ -42,37 +37,6 @@ export default function Home(props) {
         setDate(date);
         getDay(); 
     }, []);
-
-    useEffect(() => {
-        const getStudents = async () => {
-            const studentsList = await studentsService.getStudents();
-            studentsList.forEach(student => {
-                student.label = student.name;
-                student.value = student.id;
-            })
-            setStudents(studentsList);
-        }
-        const getCourses = async () => {
-            const coursesList = await coursesService.getCourses();
-            coursesList.forEach(course => {
-                course.label = course.title;
-                course.value = course.id;
-            })
-            setCourses(coursesList);
-        }
-        const getTasks = async () => {
-            const tasksList = await tasksService.getTasks();
-            setTasks(tasksList);
-        }
-        const getColleges = async () => {
-            const collegesList = await collegesService.getColleges();
-            setColleges(collegesList);
-        }
-        getStudents();
-        getCourses();
-        getTasks();
-        getColleges();
-      }, [])
 
     const getDay = () => {
         const date = new Date();
@@ -100,6 +64,7 @@ export default function Home(props) {
         }
         if(localStorage.getItem('userInfo')) {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            setUser(userInfo);
             if(userInfo.permissions[0] === 'PERMISSION_CREATE_USER') {
                 setIsMasterAdmin(true);
             }
@@ -212,16 +177,14 @@ export default function Home(props) {
                 </aside>
 
                 <main className="ml-60 pt-16 max-h-screen overflow-auto">
-                 
-                            {props.payments && (<><Payments colleges={colleges} students={students} courses={courses}/></>)}
-                            {props.newUser && (<><NewUser /></>)}
-                            {props.tasks && (<><Tasks tasks={tasks}/></>)}
-                            {props.calendar && (<><Calendar /></>)}
-                            {props.balance && (<><Balance /></>)}
-                            {props.colleges && (<><Colleges colleges={colleges} courses={courses} /></>)}
-                            {props.courses && (<><Courses students={students} courses={courses} /></>)}
-                            {props.students && (<><Students students={students} /></>)}
-                 
+                    {props.payments && (<><Payments/></>)}
+                    {props.newUser && (<><NewUser/></>)}
+                    {props.tasks && (<><Tasks/></>)}
+                    {props.calendar && (<><Calendar/></>)}
+                    {props.balance && (<><Balance/></>)}
+                    {props.colleges && (<><Colleges /></>)}
+                    {props.courses && (<><Courses/></>)}
+                    {props.students && (<><Students/></>)}
                 </main>
                 </body>
             </div>

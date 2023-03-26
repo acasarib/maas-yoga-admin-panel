@@ -25,6 +25,8 @@ export const login = async (email, password) => {
     return jwt.sign({
       id: userDb.id,
       firstName: userDb.firstName,
+      lastName: userDb.lastName,
+      email: userDb.email,
       permissions: getUserPermissions(userDb.dataValues)
     }, process.env.BACKEND_TOKEN_SECRET, {
       expiresIn: parseInt(process.env.BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS)

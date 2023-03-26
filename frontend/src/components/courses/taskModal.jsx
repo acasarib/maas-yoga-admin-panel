@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import coursesService from "../../services/coursesService";
+import React, { useEffect, useState, useContext } from "react";
 import CommonInput from "../commonInput";
 import Modal from "../modal";
 import dayjs from 'dayjs';
@@ -9,9 +8,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import { useFormik } from 'formik';
+import { Context } from "../../context/Context";
 
 export default function TaskModal(props) {
-
+    const { associateTask } = useContext(Context);
     const [isLoading, setIsLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [limitDate, setLimitDate] = useState(dayjs(new Date()));
@@ -38,7 +38,7 @@ export default function TaskModal(props) {
           };
           setIsLoading(true);
           try {
-            await coursesService.associateTask(props.courseId, body);
+            await associateTask(props.courseId, body);
             setIsLoading(false);
             setDisplay(false);
           } catch (error) {

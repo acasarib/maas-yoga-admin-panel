@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import paymentsService from "../services/paymentsService";
 import Select from 'react-select';
 import CommonInput from "../components/commonInput";
@@ -14,27 +14,24 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../components/paymentsTable";
+import { Context } from "../context/Context";
 
 export default function Payments(props) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const [students, setStudents] = useState([]);
-    const [courses, setCourses] = useState([]);
+    const { students, courses, payments, colleges, isLoadingPayments, informPayment } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
     const [selectedCollege, setSelectedCollege] = useState(null);
     const [fileId, setFileId] = useState(null);
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
-    const [disabled, setDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingPaymentsTable, setIsLoadingPaymentsTable] = useState(true);
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [isDischarge, setIsDischarge] = useState(false);
     const [openModal, setOpenModal] = useState(false);
-    const [payments, setPayments] = useState([]);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
     const handleFileChange = (e) => {
         if (e.target.files) {
@@ -102,7 +99,7 @@ export default function Payments(props) {
         }
     }*/
 
-    const informPayment = async () => {
+    const handleInformPayment = async () => {
         setIsLoadingPayment(true);
         const data = {
             headquarterId: selectedCollege?.value,
@@ -114,9 +111,7 @@ export default function Payments(props) {
             at: paymentAt.$d.getTime()
         }  
         try{
-            await paymentsService.informPayment(data);
-            const response = await paymentsService.getAllPayments();
-            setPayments(response);
+            await informPayment(data);
             setIsLoadingPayment(false);
             setIsDischarge(false);
             setOpenModal(false);
@@ -136,17 +131,6 @@ export default function Payments(props) {
         setIsDischarge(false);
     }
 
-    useEffect(() => {
-        setStudents(props.students);
-        setCourses(props.courses);
-        const getPayments = async () => {
-           const response = await paymentsService.getAllPayments();
-           setPayments(response);
-           setIsLoadingPaymentsTable(false);
-        }
-        getPayments();
-    }, [props.students, props.courses]);
-
     useEffect(() => setSelectedCollege(null), [paymentMethod]);
 
     return(
@@ -155,9 +139,9 @@ export default function Payments(props) {
                 <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
                 <h1 className="text-2xl md:text-3xl text-center font-bold mb-12 text-yellow-900">Pagos</h1>
                 <div className="my-6 md:my-12 mx-8 md:mx-4">
-                    <PaymentsTable payments={payments} isLoading={isLoadingPaymentsTable}/>
+                    <PaymentsTable payments={payments} isLoading={isLoadingPayments}/>
                 </div>
-                <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar</span>} onClick={informPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
+                <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
                 <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
                 {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
@@ -188,7 +172,7 @@ export default function Payments(props) {
                                 <Select
                                     value={selectedCollege}
                                     onChange={setSelectedCollege}
-                                    options={props.colleges.map(c => ({ label: c.name, value: c.id }))}
+                                    options={colleges}
                                     styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
                                 />
                             </div>

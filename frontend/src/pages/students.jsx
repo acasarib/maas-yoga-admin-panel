@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
 import Modal from "../components/modal";
@@ -10,12 +10,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import Table from "../components/table";
+import { Context } from "../context/Context";
 
 export default function Students(props) {
-
+    const { students, isLoadingStudents, deleteStudent, editStudent, newStudent } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [students, setStudents] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [studentId, setStudentId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando alumnos...');
@@ -37,7 +37,7 @@ export default function Students(props) {
     }
 
     const openEditModal = async (student) => {
-        await setStudentToEdit(student);
+        setStudentToEdit(student);
         setEdit(true);
         setDisplayModal(true);
         setStudentId(student.id);
@@ -51,13 +51,11 @@ export default function Students(props) {
         setStudentName(name);
     }
 
-    const deleteStudent = async () => {
+    const handleDeleteStudent = async () => {
         setIsLoading(true);
-        await studentsService.deleteStudent(studentId);
+        await deleteStudent(studentId);
         setIsLoading(false);
         setDeleteModal(false);
-        const response = await studentsService.getStudents();
-        setStudents(response);
     }
 
     const columns = [
@@ -179,13 +177,11 @@ export default function Students(props) {
           setIsLoading(true);
           try {
             if(edit) {
-                await studentsService.editStudent(studentId, body);
+                await editStudent(studentId, body);
                 setEdit(false);
             }else {
-                await studentsService.newStudent(body);
+                await newStudent(body);
             }
-            const response = await studentsService.getStudents();
-            setStudents(response);
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
@@ -197,11 +193,9 @@ export default function Students(props) {
       });
 
     useEffect(() => {
-        setStudents(props.students);
-        if(students.length === 0) {
-            setOpResult('No fue posible obtener los alumnos, por favor recargue la página...')
-        }
-    }, [props.students]);
+        if(students.length === 0 && !isLoadingStudents)
+            setOpResult('No fue posible obtener los alumnos, por favor recargue la página...');
+    }, [students, isLoadingStudents]);
 
     /*const white = orange[50];*/
 
@@ -300,7 +294,7 @@ export default function Students(props) {
                         </form>
                     </>
                     } />
-                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={() => deleteStudent()} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
+                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteStudent} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
                     <Modal style={{ minWidth: '600px' }} hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><Table
                             columns={coursesColumns}
                             data={coursesLists}
