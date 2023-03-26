@@ -71,9 +71,9 @@ export const Provider = ({ children }) => {
         return item1;
     }
 
-    const getCourseById = courseId => courses.filter(course => course.id === courseId)[0];
-    const getStudentById = studentId => students.filter(student => student.id === studentId)[0];
-    const getHeadquarterById = headquarterId => colleges.filter(headquarter => headquarter.id === headquarterId)[0];
+    const getCourseById = courseId => courses.find(course => course.id === courseId);
+    const getStudentById = studentId => students.find(student => student.id === studentId);
+    const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id === headquarterId);
 
     const informPayment = async payment => {
         const createdPayment = await paymentsService.informPayment(payment);
@@ -166,15 +166,29 @@ export const Provider = ({ children }) => {
             if (course.id === courseId) {
                 createdTask.students = course.students;
                 course.courseTasks.push(createdTask);
-                return course;
-            } else {
-                return course;
             }
+            return course;
         }));
     }
 
-    const changeTaskStatus = async (taskId, studentId, taskStatus) => {
-
+    const changeTaskStatus = async (courseId, taskId, studentId, taskStatus) => {
+        await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
+        setCourses(current => current.map(course => {
+            if (course.id === courseId) {
+                course.courseTasks.map(courseTask => {
+                    if (courseTask.id === taskId) {
+                        courseTask.students.map(courseTaskStudent => {
+                            if (courseTaskStudent.id === studentId) {
+                                courseTaskStudent.studentCourseTask.completed = taskStatus;
+                            }
+                            return courseTaskStudent;
+                        });
+                    }
+                    return courseTask;
+                });
+            }
+            return course;
+        }));
     }
 
     return (

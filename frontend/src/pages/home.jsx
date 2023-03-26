@@ -173,7 +173,6 @@ export default function Home(props) {
                     {props.payments && (<><Payments/></>)}
                     {props.newUser && (<><NewUser/></>)}
                     {props.tasks && (<><Tasks/></>)}
-                    {props.calendar && (<><Calendar/></>)}
                     {props.balance && (<><Balance/></>)}
                     {props.colleges && (<><Colleges /></>)}
                     {props.courses && (<><Courses/></>)}

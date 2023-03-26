@@ -24,7 +24,7 @@ import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 
 export default function Courses(props) {
-    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse } = useContext(Context);
+    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse, changeTaskStatus } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -112,13 +112,9 @@ export default function Courses(props) {
         setSelectedOption(arr)
     };
 
-    const changeTaskStatus = async (studentId, taskStatus) => {
+    const handleChangeTaskStatus = async (studentId, taskStatus) => {
         try {
-            await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
-            const response = await coursesService.getCourses();
-            //setCourses(response);
-            //TODO:
-            setIsTaskStudentModal(false);
+            await changeTaskStatus(tasksLists[0].courseId, taskId, studentId, taskStatus);
         } catch(error) {
             console.log(error);
         }
@@ -296,7 +292,7 @@ export default function Courses(props) {
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-300 hover:bg-red-400 mx-1" onClick={() => changeTaskStatus(row.id, false)}><RemoveDoneIcon /></button><button className="rounded-full p-1 bg-green-300 hover:bg-green-400 mx-1" onClick={() => changeTaskStatus(row.id, true)}><DoneOutlineIcon /></button></div>)
+            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-300 hover:bg-red-400 mx-1" onClick={() => handleChangeTaskStatus(row.id, false)}><RemoveDoneIcon /></button><button className="rounded-full p-1 bg-green-300 hover:bg-green-400 mx-1" onClick={() => handleChangeTaskStatus(row.id, true)}><DoneOutlineIcon /></button></div>)
         },
             sortable: true,
         },
