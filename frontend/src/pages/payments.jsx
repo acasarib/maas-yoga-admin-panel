@@ -15,7 +15,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../components/paymentsTable";
 import { Context } from "../context/Context";
-import templatesService from "../services/templatesService";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 
 export default function Payments(props) {
@@ -23,7 +22,7 @@ export default function Payments(props) {
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { students, courses, payments, colleges, isLoadingPayments, informPayment } = useContext(Context);
+    const { students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
     const [selectedCollege, setSelectedCollege] = useState(null);
@@ -35,7 +34,6 @@ export default function Payments(props) {
     const [isDischarge, setIsDischarge] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
-    const [templates, setTemplates] = useState([]);
     const [templateModal, setTemplateModal] = useState(false);
     const [templateTitle, setTemplateTitle] = useState('');
 
@@ -101,7 +99,7 @@ export default function Payments(props) {
     }
 
     const handleChangeTemplates = async (e) => {
-        const response = await templatesService.getTemplate(e.value);
+        const response = await getTemplate(e.value);
         console.log(response);
         setPaymentMethod(response.content.type);
         setAmmount(response.content.value);
@@ -118,7 +116,7 @@ export default function Payments(props) {
                     type: paymentMethod
                 }
             }
-            await templatesService.newTemplate(body);
+            await newTemplate(body);
             setDisplay(false);
         }catch(error) {
             console.log(error)
@@ -168,21 +166,6 @@ export default function Payments(props) {
     }
 
     useEffect(() => setSelectedCollege(null), [paymentMethod]);
-
-    useEffect(() => {
-        const getTemplates = async () => {
-            const response = await templatesService.getTemplates();
-            setTemplates(response);
-        }
-        getTemplates();
-    }, []);
-
-    useEffect(() => {
-        templates.forEach(template => {
-            template.label = template.title;
-            template.value = template.id;
-        })
-    }, [templates])
 
     return(
         <>

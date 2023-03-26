@@ -4,6 +4,7 @@ import coursesService from "../services/coursesService";
 import tasksService from "../services/tasksService";
 import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
+import templatesService from "../services/templatesService";
 
 export const Context = createContext();
 
@@ -16,11 +17,14 @@ export const Provider = ({ children }) => {
     const [isLoadingStudents, setIsLoadingStudents] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+    const [templates, setTemplates] = useState([]);
+    const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
     const [payments, setPayments] = useState([]);
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
+        if (user === null) return;
         const getStudents = async () => {
             const studentsList = await studentsService.getStudents();
             studentsList.forEach(student => {
@@ -58,12 +62,21 @@ export const Provider = ({ children }) => {
             setPayments(paymentsList);
             setIsLoadingPayments(false);
         }
+        const getTemplates = async () => {
+            const templates = await templatesService.getTemplates();
+            templates.forEach(template => {
+                template.label = template.title;
+                template.value = template.id;
+            });
+            setTemplates(templates);
+        }
         getStudents();
         getCourses();
         getTasks();
         getColleges();
         getPayments();
-    }, []);
+        getTemplates();
+    }, [user]);
 
     const merge = (item1, item2) => {
         for (let key in item1)
@@ -191,6 +204,27 @@ export const Provider = ({ children }) => {
         }));
     }
 
+    const getTemplate = async templateId => {
+        console.log("getTemplate ", templateId);
+        const localTemplate = templates.find(t => t.id === templateId);
+        console.log(localTemplate);
+        if (localTemplate && "content" in localTemplate)
+            return localTemplate;
+        const template = await templatesService.getTemplate(templateId);
+        template.label = template.title;
+        template.value = template.id;
+        setTemplates(current => current.map(t => t.id === templateId ? template : t));
+        return template;
+    }
+
+    const newTemplate = async template => {
+        const createdTemplate = await templatesService.newTemplate(template);
+        createdTemplate.label = createdTemplate.title;
+        createdTemplate.value = createdTemplate.id;
+        setTemplates(current => [...current, createdTemplate]);
+        return createdTemplate;
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -198,11 +232,13 @@ export const Provider = ({ children }) => {
             students,
             tasks,
             payments,
+            templates,
             isLoadingColleges,
             isLoadingCourses,
             isLoadingPayments,
             isLoadingStudents,
             isLoadingTasks,
+            isLoadingTemplates,
             setUser,
             informPayment,
             deleteCollege,
@@ -219,6 +255,8 @@ export const Provider = ({ children }) => {
             createTask,
             associateTask,
             changeTaskStatus,
+            newTemplate,
+            getTemplate,
         }}>{children}</Context.Provider>
     );
 }
