@@ -101,7 +101,7 @@ export default function TaskModal(props) {
                                 htmlFor="comment"
                                 id="comment" 
                                 onChange={formik.handleChange}
-                                placeholder="comment"
+                                placeholder="Comentarios"
                             />
                         </div>
                         <div className="col-span-2 pb-6">

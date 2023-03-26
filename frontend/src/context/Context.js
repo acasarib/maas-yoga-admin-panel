@@ -173,6 +173,10 @@ export const Provider = ({ children }) => {
         }));
     }
 
+    const changeTaskStatus = async (taskId, studentId, taskStatus) => {
+
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -200,6 +204,7 @@ export const Provider = ({ children }) => {
             deleteTask,
             createTask,
             associateTask,
+            changeTaskStatus,
         }}>{children}</Context.Provider>
     );
 }

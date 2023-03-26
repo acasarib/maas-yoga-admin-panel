@@ -15,6 +15,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../components/paymentsTable";
 import { Context } from "../context/Context";
+import templatesService from "../services/templatesService";
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 export default function Payments(props) {
 
@@ -33,6 +35,10 @@ export default function Payments(props) {
     const [isDischarge, setIsDischarge] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
+    const [templates, setTemplates] = useState([]);
+    const [templateModal, setTemplateModal] = useState(false);
+    const [templateTitle, setTemplateTitle] = useState('');
+
     const handleFileChange = (e) => {
         if (e.target.files) {
           setFile([...file, e.target.files[0]]);
@@ -61,6 +67,7 @@ export default function Payments(props) {
         setOpenModal(value);
         setIsLoadingPayment(false);
         setIsDischarge(value);
+        setTemplateModal(value);
     }
 
     const deleteSelection = () => {
@@ -87,6 +94,35 @@ export default function Payments(props) {
     const handleChangePayments = (e) => {
         setPaymentMethod(e.value);
        // checkValues();
+    }
+
+    const handleChangeTitle = (e) => {
+        setTemplateTitle(e.target.value);
+    }
+
+    const handleChangeTemplates = async (e) => {
+        const response = await templatesService.getTemplate(e.value);
+        console.log(response);
+        setPaymentMethod(response.content.type);
+        setAmmount(response.content.value);
+        setOpenModal(true);
+        setIsDischarge(true);
+    }
+
+    const addTemplate = async () => {
+        try{
+            const body = {
+                title: templateTitle,
+                content: {
+                    value: ammount,
+                    type: paymentMethod
+                }
+            }
+            await templatesService.newTemplate(body);
+            setDisplay(false);
+        }catch(error) {
+            console.log(error)
+        }
     }
 
     /*const checkValues = () => {
@@ -133,6 +169,21 @@ export default function Payments(props) {
 
     useEffect(() => setSelectedCollege(null), [paymentMethod]);
 
+    useEffect(() => {
+        const getTemplates = async () => {
+            const response = await templatesService.getTemplates();
+            setTemplates(response);
+        }
+        getTemplates();
+    }, []);
+
+    useEffect(() => {
+        templates.forEach(template => {
+            template.label = template.title;
+            template.value = template.id;
+        })
+    }, [templates])
+
     return(
         <>
             <div className="px-6 py-8 max-w-6xl mx-auto">
@@ -158,6 +209,7 @@ export default function Payments(props) {
                             className="block font-bold text-sm text-gray-700 mb-4"
                             type="number" 
                             placeholder="Importe" 
+                            value={ammount}
                             onChange={handleChangeAmmount}
                         />
                     </div>
@@ -165,7 +217,7 @@ export default function Payments(props) {
                         <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
                     </div>
-                    {((paymentMethod === "Efectivo") && !isDischarge) &&
+                    {(paymentMethod === "Efectivo") &&
                         <div className="col-span-2 md:col-span-2 pb-3">
                             <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                             <div className="mt-4">
@@ -195,6 +247,51 @@ export default function Payments(props) {
                 <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :
                 (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
                 </>} />
+                <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={'Crear nuevo template'} children={<>
+                <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
+                    <div className="col-span-2 grid grid-cols-2 pb-3">
+                        <div className="mr-4">
+                            <CommonInput 
+                                label="Titulo del Template"
+                                name="title"
+                                className="block font-bold text-sm text-gray-700 mb-4"
+                                type="text" 
+                                placeholder="Titulo" 
+                                value={templateTitle}
+                                onChange={handleChangeTitle}
+                            />
+                        </div>
+                        <div>
+                            <CommonInput 
+                                label="Importe"
+                                name="title"
+                                className="block font-bold text-sm text-gray-700 mb-4"
+                                type="number" 
+                                placeholder="Importe" 
+                                value={ammount}
+                                onChange={handleChangeAmmount}
+                            />    
+                        </div>
+                    </div>
+                    <div className="col-span-2 md:col-span-2 pb-3">
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
+                        <div className="mt-4">
+                            <Select
+                                value={selectedCollege}
+                                onChange={setSelectedCollege}
+                                options={colleges}
+                                styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                            />
+                        </div>
+                    </div>
+                </div>
+                </>} />
+                <div>
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Lista de templates</span>
+                    <div className="flex flex-row"><span className="w-72"><Select onChange={handleChangeTemplates} options={templates} /></span><button onClick={() => setTemplateModal(true)}
+                                className="ml-3 bg-yellow-900 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
+                    </button></div>
+                </div>
                 <div className="flex flex-row justify-end">
                     <div>
                         <button onClick={informDischarge}

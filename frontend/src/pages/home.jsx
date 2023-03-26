@@ -129,13 +129,6 @@ export default function Home(props) {
                                 </Link>
                             </li>
                             <li className="grid place-content-stretch">
-                                <Link to="/home/calendar">
-                                    <span className={props.calendar ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <CalendarMonthIcon /><span className="ml-3">Calendario</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
                                 <Link to="/home/students">
                                     <span className={props.students ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
                                         <SchoolIcon /><span className="ml-3">Alumnos</span>

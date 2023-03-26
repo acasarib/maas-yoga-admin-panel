@@ -161,5 +161,21 @@ export default {
                 })
         });
     },
+    changeTaskStatus(taskId, studentId, taskStatus) {
+        return new Promise((resolve, reject) => {
+            const accessToken = localStorage.getItem('accessToken')
+            let headers = { Authorization: `Bearer ${accessToken}` }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            const status = { "completed": taskStatus };
+            axios
+                .put(baseUrl + `api/v1/courses/tasks/${taskId}/students/${studentId}`, status, { headers })
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
 };
 
