@@ -271,7 +271,7 @@ export default function Payments(props) {
                 </>} />
                 <div>
                     <span className="block text-gray-700 text-sm font-bold mb-2">Lista de templates</span>
-                    <div className="flex flex-row"><span className="w-72"><Select onChange={handleChangeTemplates} options={templates} /></span><button onClick={() => setTemplateModal(true)}
+                    <div className="flex flex-row"><span className="w-72 self-center"><Select onChange={handleChangeTemplates} options={templates} /></span><button onClick={() => setTemplateModal(true)}
                                 className="ml-3 bg-yellow-900 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
                     </button></div>
                 </div>
