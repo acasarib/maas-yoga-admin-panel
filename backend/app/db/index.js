@@ -53,7 +53,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { user, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template } = sequelize.models;
+const { user, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz } = sequelize.models;
 
 
 course.belongsToMany(headquarter, { through: "headquarter_course" });
@@ -63,10 +63,12 @@ course.belongsToMany(student, { through: "course_student" });
 file.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 student.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 course.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
+clazz.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 headquarter.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 user.hasOne(payment, { foreignKey: { allowNull: false }, targetKey: "id" });
 payment.belongsTo(user);
 payment.belongsTo(student, { foreignKey: { allowNull: true } });
+payment.belongsTo(clazz, { foreignKey: { allowNull: true } });
 payment.belongsTo(course, { foreignKey: { allowNull: true } });
 payment.belongsTo(headquarter, { foreignKey: { allowNull: true } });
 courseTask.belongsTo(course);
@@ -86,4 +88,5 @@ export {
   courseTask,
   studentCourseTask,
   template,
+  clazz,
 };
