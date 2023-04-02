@@ -1,4 +1,4 @@
-import { clazz } from "../db/index.js";
+import { clazz, payment } from "../db/index.js";
 
 export const create = async (clazzParam) => {
   return clazz.create(clazzParam);
@@ -9,6 +9,8 @@ export const deleteById = async (id) => {
 };
 
 export const editById = async (clazzParam, id) => {
+  if (clazzParam.paymentsVerified)
+    payment.update({ verified: true }, { where: { clazzId: id } });
   return clazz.update(clazzParam, { where: { id } });
 };
 
