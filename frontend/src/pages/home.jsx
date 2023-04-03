@@ -110,7 +110,7 @@ export default function Home(props) {
                             <li className="grid place-content-stretch">
                                 <Link to="/home/payments">
                                     <span className={props.payments ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <PaidIcon /><span className="ml-3">Pagos</span>
+                                        <PaidIcon /><span className="ml-3">Ingresos/egresos</span>
                                     </span>
                                 </Link>
                             </li>

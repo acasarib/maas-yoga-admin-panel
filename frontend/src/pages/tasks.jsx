@@ -15,6 +15,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Context } from "../context/Context";
+import InfoIcon from '@mui/icons-material/Info';
 
 export default function Tasks(props) {
 
@@ -129,7 +130,7 @@ export default function Tasks(props) {
                             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleChange} aria-label="lab API tabs example" textColor="primary" indicatorColor="primary">
                                 <Tab label="Todas" value="1"/>
-                                <Tab label="Pendientes" value="2" />
+                                <Tab label="Pendientes" value="2" icon={(pendingTasks.length > 0) && <><InfoIcon className="ml-1"/></>} iconPosition="end" />
                                 <Tab label="Completadas" value="3" />
                             </TabList>
                             </Box>
