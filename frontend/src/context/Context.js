@@ -225,6 +225,14 @@ export const Provider = ({ children }) => {
         return createdTemplate;
     }
 
+    const editTemplate = async (template, id) => {
+        const editedTemplate = await templatesService.updateTemplate(id, template);
+        editedTemplate.label = editedTemplate.title;
+        editedTemplate.value = editedTemplate.id;
+        setTemplates(current => [...current, editedTemplate]);
+        return editedTemplate;
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -257,6 +265,7 @@ export const Provider = ({ children }) => {
             changeTaskStatus,
             newTemplate,
             getTemplate,
+            editTemplate,
         }}>{children}</Context.Provider>
     );
 }

@@ -16,13 +16,14 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../components/paymentsTable";
 import { Context } from "../context/Context";
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Payments(props) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate } = useContext(Context);
+    const { students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
     const [selectedCollege, setSelectedCollege] = useState(null);
@@ -36,6 +37,8 @@ export default function Payments(props) {
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
     const [templateModal, setTemplateModal] = useState(false);
     const [templateTitle, setTemplateTitle] = useState('');
+    const [isEditingTemplate, setIsEditingTemplate] = useState(false);
+    const [templateId, setTemplateId] = useState(null);
 
     const handleFileChange = (e) => {
         if (e.target.files) {
@@ -107,6 +110,15 @@ export default function Payments(props) {
         setIsDischarge(true);
     }
 
+    const handleEditTemplates = async (e) => {
+        const response = await getTemplate(e.value);
+        setTemplateId(response.id);
+        console.log(response)
+        setTemplateTitle(response.title ? response.title : '');
+        setAmmount(response.content.value ? response.content.value : null);
+        setIsDischarge(true);
+    }
+
     const addTemplate = async () => {
         try{
             const body = {
@@ -116,8 +128,13 @@ export default function Payments(props) {
                     type: paymentMethod
                 }
             }
-            await newTemplate(body);
-            setDisplay(false);
+            if(isEditingTemplate) {
+                await editTemplate(body, templateId);
+                setDisplay(false);
+            }else {
+                await newTemplate(body);
+                setDisplay(false);
+            }
         }catch(error) {
             console.log(error)
         }
@@ -230,8 +247,9 @@ export default function Payments(props) {
                 <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :
                 (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
                 </>} />
-                <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={'Crear nuevo template'} children={<>
+                <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={isEditingTemplate ? 'Editar template' : 'Crear nuevo template'} children={<>
                 <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
+                    <div className="col-span-1 pb-3"><Select onChange={handleEditTemplates} options={templates} /></div>
                     <div className="col-span-2 grid grid-cols-2 pb-3">
                         <div className="mr-4">
                             <CommonInput 
@@ -273,6 +291,12 @@ export default function Payments(props) {
                     <span className="block text-gray-700 text-sm font-bold mb-2">Lista de templates</span>
                     <div className="flex flex-row"><span className="w-72 self-center"><Select onChange={handleChangeTemplates} options={templates} /></span><button onClick={() => setTemplateModal(true)}
                                 className="ml-3 bg-yellow-900 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
+                    </button><button onClick={() => {
+                            setTemplateModal(true);
+                            setIsEditingTemplate(true);
+                        }
+                    }
+                                className="ml-3 bg-orange-200 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><EditIcon fontSize="large" sx={{ color: orange[50] }} /></span>
                     </button></div>
                 </div>
                 <div className="flex flex-row justify-end">
