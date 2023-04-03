@@ -18,7 +18,12 @@ const payment = (sequelize) => {
     at: {
       type: Sequelize.DataTypes.DATE,
       allowNull: false,
-    }
+    },
+    verified: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   }, {});
   payment.associate = function (models) {
     // associations can be defined here

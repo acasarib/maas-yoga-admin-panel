@@ -1080,7 +1080,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"type\": \"mercadopago\",\r\n    \"at\": 1679672761052,\r\n    \"value\": 2.3\r\n}",
+							"raw": "{\r\n    \"type\": \"Efectivo\",\r\n    \"at\": 1679672761052,\r\n    \"value\": 2.3\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1470,7 +1470,7 @@
 			]
 		},
 		{
-			"name": "Headquarter",
+			"name": "Headquarters",
 			"item": [
 				{
 					"name": "Create",
@@ -1749,6 +1749,242 @@
 								"headquarters",
 								"{{headquarterId}}",
 								"courses"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clazzes",
+			"item": [
+				{
+					"name": "Create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();\r",
+									"let savedData = response.id;\r",
+									"pm.environment.set(\"clazzId\", savedData );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title\",\r\n    \"professor\": \"professor\",\r\n    \"startAt\": 1679672761052\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/clazzes",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clazzes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/clazzes?q=paymentsVerified eq false",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clazzes"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "paymentsVerified eq false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let response = pm.response.json();\r",
+									"let savedData = response.id;\r",
+									"pm.environment.set(\"courseId\", savedData );"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/clazzes/{{clazzId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clazzes",
+								"{{clazzId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"new title\",\r\n    \"professor\": \"tomn\",\r\n    \"paymentsVerified\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/clazzes/{{clazzId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clazzes",
+								"{{clazzId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/clazzes/{{clazzId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clazzes",
+								"{{clazzId}}"
 							]
 						}
 					},

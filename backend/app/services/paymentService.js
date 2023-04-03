@@ -1,6 +1,9 @@
 import { payment, course, student, user } from "../db/index.js";
+import { PAYMENT_TYPES } from "../utils/constants.js";
 
 export const create = async (paymentParam) => {
+  if (paymentParam.type !== PAYMENT_TYPES.CASH)
+    paymentParam.verified = true;
   return payment.create(paymentParam);
 };
 
