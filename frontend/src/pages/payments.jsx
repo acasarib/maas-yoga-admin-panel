@@ -249,7 +249,7 @@ export default function Payments(props) {
                 </>} />
                 <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={isEditingTemplate ? 'Editar template' : 'Crear nuevo template'} children={<>
                 <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
-                    <div className="col-span-1 pb-3"><Select onChange={handleEditTemplates} options={templates} /></div>
+                    <div className="col-span-1 pb-3"><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar template</span><Select onChange={handleEditTemplates} options={templates} /></div>
                     <div className="col-span-2 grid grid-cols-2 pb-3">
                         <div className="mr-4">
                             <CommonInput 
