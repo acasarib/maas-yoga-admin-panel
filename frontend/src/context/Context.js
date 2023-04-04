@@ -229,7 +229,7 @@ export const Provider = ({ children }) => {
         const editedTemplate = await templatesService.updateTemplate(id, template);
         editedTemplate.label = editedTemplate.title;
         editedTemplate.value = editedTemplate.id;
-        setTemplates(current => [...current, editedTemplate]);
+        setTemplates(current => current.map(t => t.id === id ? editedTemplate : t));
         return editedTemplate;
     }
 
