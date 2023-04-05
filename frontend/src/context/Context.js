@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import studentsService from "../services/studentsService";
 import coursesService from "../services/coursesService";
 import tasksService from "../services/tasksService";
+import classesService from "../services/classesService";
 import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
 import templatesService from "../services/templatesService";
