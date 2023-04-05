@@ -14,9 +14,11 @@ import Balance from "./balance";
 import Tasks from "./tasks";
 import NewUser from "./newUser";
 import Calendar from "./calendar";
+import Classes from "./classes";
 import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 
 
@@ -149,6 +151,13 @@ export default function Home(props) {
                                     </span>
                                 </Link>
                             </li>
+                            <li className="grid place-content-stretch">
+                                <Link to="/home/">
+                                    <span className={props.classes ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
+                                        <HistoryEduIcon /><span className="ml-3">Clases</span>
+                                    </span>
+                                </Link>
+                            </li>
                             {isMasterAdmin && (<><li className="grid place-content-stretch">
                                 <Link to="/home/new-user">
                                     <span className={props.newUser ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
@@ -174,6 +183,7 @@ export default function Home(props) {
                     {props.newUser && (<><NewUser/></>)}
                     {props.tasks && (<><Tasks/></>)}
                     {props.balance && (<><Balance/></>)}
+                    {props.classes && (<><Classes/></>)}
                     {props.colleges && (<><Colleges /></>)}
                     {props.courses && (<><Courses/></>)}
                     {props.students && (<><Students/></>)}
