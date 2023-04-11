@@ -1,12 +1,12 @@
 import axios from "axios";
 
 export default {
-    newClass(classData) {
+    newClazz(clazzData) {
         return new Promise((resolve, reject) => {
             const data = {
-                "title": classData.title,
-                "professor": classData.professor,
-                "startAt": classData.startAt              
+                "title": clazzData.title,
+                "professor": clazzData.professor,
+                "startAt": clazzData.startAt              
             }            
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
@@ -21,7 +21,7 @@ export default {
                 })
         });
     },
-    getClasses() {
+    getclazzes() {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
@@ -36,13 +36,13 @@ export default {
                 })
         });
     },
-    getClass(classId) {
+    getclazz(clazzId) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/clazzes/${classId}`, { headers })
+                .get(baseUrl + `api/v1/clazzes/${clazzId}`, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -51,19 +51,19 @@ export default {
                 })
         });
     },
-    editClass(classId, classData) {
+    editclazz(clazzId, clazzData) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             const data = {
-                "title": classData.title,
-                "professor": classData.professor,
-                "startAt": classData.startAt,
-                "paymentsVerified": classData.paymentsVerified           
+                "title": clazzData.title,
+                "professor": clazzData.professor,
+                "startAt": clazzData.startAt,
+                "paymentsVerified": clazzData.paymentsVerified           
             }  
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/clazzes/${classId}`, data, { headers })
+                .put(baseUrl + `api/v1/clazzes/${clazzId}`, data, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -72,13 +72,13 @@ export default {
                 })
         });
     },
-    deleteClass(classId) {
+    deleteclazz(clazzId) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .delete(baseUrl + `api/v1/clazzes/${classId}`, { headers })
+                .delete(baseUrl + `api/v1/clazzes/${clazzId}`, { headers })
                 .then((response) => {
                     resolve(response.data);
                 })
