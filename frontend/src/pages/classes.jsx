@@ -12,7 +12,7 @@ import Table from "../components/table";
 import { Context } from "../context/Context";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 
-export default function Students(props) {
+export default function Classes(props) {
     const { students, isLoadingStudents, deleteStudent, editStudent, newStudent } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

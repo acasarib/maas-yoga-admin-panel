@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import studentsService from "../services/studentsService";
 import coursesService from "../services/coursesService";
 import tasksService from "../services/tasksService";
-import classesService from "../services/classesService";
+import clazzesService from "../services/clazzesService";
 import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
 import templatesService from "../services/templatesService";
@@ -22,6 +22,8 @@ export const Provider = ({ children }) => {
     const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
     const [payments, setPayments] = useState([]);
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
+    const [clazzes, setClazzes] = useState([]);
+    const [isLoadingClazzes, setIsLoadingClazzes] = useState(true);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
@@ -71,12 +73,21 @@ export const Provider = ({ children }) => {
             });
             setTemplates(templates);
         }
+        const getClazzes = async () => {
+            const clazzes = await clazzesService.getClazzes();
+            clazzes.forEach(clazz => {
+                clazz.label = clazz.title;
+                clazz.value = clazz.id;
+            });
+            setClazzes(clazzes);
+        }
         getStudents();
         getCourses();
         getTasks();
         getColleges();
         getPayments();
         getTemplates();
+        getClazzes();
     }, [user]);
 
     const merge = (item1, item2) => {
@@ -123,6 +134,14 @@ export const Provider = ({ children }) => {
         return createdCollege;
     }
 
+    const newClazz = async (clazz) => {
+        const createdClazz = await clazzesService.newClazz(clazz);
+        createdClazz.label = createdClazz.title;
+        createdClazz.value = createdClazz.id;
+        setClazzes(current => [...current, createdClazz]);
+        return createdClazz;
+    }
+
     const deleteStudent = async studentId => {
         await studentsService.deleteStudent(studentId);
         setStudents(current => current.filter(student => student.id !== studentId));
@@ -131,6 +150,11 @@ export const Provider = ({ children }) => {
     const editStudent = async (studentId, student) => {
         await studentsService.editStudent(studentId, student);
         setStudents(current => current.map(s => s.id === studentId ? merge(s, student) : s));
+    }
+    
+    const editClazz = async (clazzId, clazz) => {
+        await clazzesService.editclazz(clazzId, clazz);
+        setClazzes(current => current.map(s => s.id === clazzId ? merge(s, clazz) : s));
     }
 
     const newStudent = async student => {
@@ -142,6 +166,11 @@ export const Provider = ({ children }) => {
     const deleteCourse = async courseId => {
         await coursesService.deleteCourse(courseId);
         setCourses(current => current.filter(course => course.id !== courseId));
+    }
+
+    const deleteclazz = async clazzId => {
+        await clazzesService.deleteclazz(clazzId);
+        setClazzes(current => current.filter(clazz => clazz.id !== clazzId));
     }
 
     const newCourse = async course => {
@@ -253,6 +282,7 @@ export const Provider = ({ children }) => {
             deleteCollege,
             addCoursesToCollege,
             newCollege,
+            newClazz,
             deleteStudent,
             editStudent,
             newStudent,
@@ -267,6 +297,8 @@ export const Provider = ({ children }) => {
             newTemplate,
             getTemplate,
             editTemplate,
+            editClazz,
+            deleteclazz,
         }}>{children}</Context.Provider>
     );
 }
