@@ -22,7 +22,7 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
     }
     const [filtersAvailable, setFiltersAvailable] = useState([
         {
-            label: "Origen del pago",
+            label: "Modo de pago",
             value: "type",
             component: <FilterPaymentType onChange={value => onFilterChangeValue(value, "type")}/>
         },

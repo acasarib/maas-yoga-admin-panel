@@ -30,6 +30,7 @@ export default function Payments(props) {
     const [fileId, setFileId] = useState(null);
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
+    const [note, setNote] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [isDischarge, setIsDischarge] = useState(false);
@@ -91,6 +92,11 @@ export default function Payments(props) {
        setAmmount(e.target.value)
        //checkValues();
     }
+
+    const handleChangeNote = (e) => {
+        setNote(e.target.value)
+        //checkValues();
+     }
 
     const handleChangePayments = (e) => {
         setPaymentMethod(e.value);
@@ -159,6 +165,7 @@ export default function Payments(props) {
             fileId: fileId,
             paymentValue: isDischarge ? (ammount * -1) : ammount,
             studentId: isDischarge ? null : selectedStudent,
+            note: note,
             at: paymentAt.$d.getTime()
         }  
         try{
@@ -214,7 +221,7 @@ export default function Payments(props) {
                         />
                     </div>
                     <div className="col-span-2 md:col-span-1 pb-3">
-                        <span className="block text-gray-700 text-sm font-bold mb-2">Origen del pago</span>
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
                     </div>
                     {(paymentMethod === "Efectivo") &&
@@ -230,6 +237,17 @@ export default function Payments(props) {
                             </div>
                         </div>
                     }
+                    <div className="col-span-2 md:col-span-1 pb-3">
+                        <CommonInput 
+                            label="Nota"
+                            name="note"
+                            className="block font-bold text-sm text-gray-700 mb-4"
+                            type="number" 
+                            placeholder="Nota" 
+                            value={note}
+                            onChange={handleChangeNote}
+                        />
+                    </div>
                     <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                         <div className="mt-4"><LocalizationProvider dateAdapter={AdapterDayjs}>

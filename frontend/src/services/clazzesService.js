@@ -21,7 +21,7 @@ export default {
                 })
         });
     },
-    getclazzes() {
+    getClazzes() {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
@@ -36,7 +36,7 @@ export default {
                 })
         });
     },
-    getclazz(clazzId) {
+    getClazz(clazzId) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
@@ -72,7 +72,7 @@ export default {
                 })
         });
     },
-    deleteclazz(clazzId) {
+    deleteClazz(clazzId) {
         return new Promise((resolve, reject) => {
             const accessToken = localStorage.getItem('accessToken')
             let headers = { Authorization: `Bearer ${accessToken}` }
