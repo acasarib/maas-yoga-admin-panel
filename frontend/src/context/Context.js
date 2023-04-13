@@ -168,8 +168,8 @@ export const Provider = ({ children }) => {
         setCourses(current => current.filter(course => course.id !== courseId));
     }
 
-    const deleteclazz = async clazzId => {
-        await clazzesService.deleteclazz(clazzId);
+    const deleteClazz = async clazzId => {
+        await clazzesService.deleteClazz(clazzId);
         setClazzes(current => current.filter(clazz => clazz.id !== clazzId));
     }
 
@@ -271,6 +271,7 @@ export const Provider = ({ children }) => {
             tasks,
             payments,
             templates,
+            clazzes,
             isLoadingColleges,
             isLoadingCourses,
             isLoadingPayments,
@@ -298,7 +299,7 @@ export const Provider = ({ children }) => {
             getTemplate,
             editTemplate,
             editClazz,
-            deleteclazz,
+            deleteClazz,
         }}>{children}</Context.Provider>
     );
 }
