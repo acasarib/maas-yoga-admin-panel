@@ -1,24 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
-import coursesService from "../../../services/coursesService";
+import { useContext } from "react";
+import { Context } from "../../../context/Context";
 
 export default function FilterPaymentCourse({ onChange }) {
 
-    const [courses, setCourses] = useState([]);
+    const { courses } = useContext(Context);
     const [selectedCourse, setSelectedCourse] = useState(null);
-
-    useEffect(() => {
-        const getCourses = async () => {
-            const coursesList = await coursesService.getCourses();
-            coursesList.forEach(course => {
-                course.label = course.title;
-                course.value = course.id;
-            })
-            setCourses(coursesList);
-        }
-        getCourses();
-    }, []);
-    
     
     useEffect(() => {
         if (selectedCourse !== null)

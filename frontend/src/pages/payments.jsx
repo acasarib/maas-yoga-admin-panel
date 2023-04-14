@@ -18,6 +18,7 @@ import PaymentsTable from "../components/paymentsTable";
 import { Context } from "../context/Context";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import EditIcon from '@mui/icons-material/Edit';
+import SelectItem from "../components/select/selectItem";
 
 export default function Payments(props) {
 
@@ -41,6 +42,7 @@ export default function Payments(props) {
     const [templateTitle, setTemplateTitle] = useState('');
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [templateId, setTemplateId] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const handleFileChange = (e) => {
         if (e.target.files) {
@@ -160,6 +162,7 @@ export default function Payments(props) {
     const handleInformPayment = async () => {
         setIsLoadingPayment(true);
         const data = {
+            itemId: selectedItem?.id,
             headquarterId: selectedCollege?.value,
             courseId: isDischarge ? null : selectedCourse,
             paymentType: paymentMethod,
@@ -186,6 +189,7 @@ export default function Payments(props) {
         setSelectedCourse('');
         setSelectedStudent('');
         setNote('');
+        setSelectedItem(null);
         setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
         setIsDischarge(false);
@@ -223,7 +227,7 @@ export default function Payments(props) {
                         />
                     </div>
                     <div className="col-span-2 md:col-span-1 pb-3">
-                        <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
                         <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
                     </div>
                     {(paymentMethod === "Efectivo") &&
@@ -239,6 +243,10 @@ export default function Payments(props) {
                             </div>
                         </div>
                     }
+                    <div className="col-span-2 md:col-span-2 pb-3">
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
+                        <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
+                    </div>
                     <div className="col-span-2 md:col-span-2 pb-3">
                         <CommonTextArea 
                             label="Nota"

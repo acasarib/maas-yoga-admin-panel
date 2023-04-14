@@ -1,23 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
-import studentsService from "../../../services/studentsService";
+import { useContext } from "react";
+import { Context } from "../../../context/Context";
 
 export default function FilterPaymentStudent({ onChange }) {
 
-    const [students, setStudents] = useState([]);
+    const { students } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
-
-    useEffect(() => {
-        const getStudents = async () => {
-            const studentsList = await studentsService.getStudents();
-            studentsList.forEach(student => {
-                student.label = student.name;
-                student.value = student.id;
-            })
-            setStudents(studentsList);
-        }
-        getStudents();
-    }, []);
     
     useEffect(() => {
         if (selectedStudent !== null)

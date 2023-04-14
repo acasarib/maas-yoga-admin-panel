@@ -72,3 +72,7 @@
 .payment-filter-width {
   width: 200px;
 }
+
+button.bg-disabled:disabled, button.bg-disabled[disabled] {
+  background-color: white;
+}

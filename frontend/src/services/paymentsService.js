@@ -44,6 +44,7 @@ export default {
                 "headquarterId": paymentInfo.headquarterId,
                 "courseId": paymentInfo.courseId,
                 "studentId": paymentInfo.studentId,
+                "itemId": paymentInfo.itemId,
                 "type": paymentInfo.paymentType,
                 "fileId": paymentInfo.fileId,
                 "value": paymentInfo.paymentValue,
