@@ -68,7 +68,7 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
         },
         {
             name: 'Comprobante',
-            cell: row => (<>{row.fileId !== null &&<a href={`https://maas-yoga-admin-panel.onrender.com/api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
+            cell: row => (<>{row.fileId !== null &&<a href={`${process.env.BACKEND_HOST}/api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
             </a>}</>),
             sortable: true,
         },
