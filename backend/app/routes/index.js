@@ -8,6 +8,7 @@ import filesRoute from "./filesRoute.js";
 import tasksRoute from "./tasksRoute.js";
 import headquartersRoute from "./headquartersRoute.js";
 import templatesRoute from "./templatesRoute.js";
+import categoriesRoute from "./categoriesRoute.js";
 import clazzesRoute from "./clazzesRoute.js";
 
 const router = Router();
@@ -21,6 +22,7 @@ router.use("/payments", paymentsRoute);
 router.use("/files", filesRoute);
 router.use("/tasks", tasksRoute);
 router.use("/templates", templatesRoute);
+router.use("/categories", categoriesRoute);
 router.use("/clazzes", clazzesRoute);
 
 export default router;
