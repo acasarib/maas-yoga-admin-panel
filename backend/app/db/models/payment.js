@@ -24,6 +24,11 @@ const payment = (sequelize) => {
       allowNull: false,
       defaultValue: false,
     },
+    note: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
   }, {});
   payment.associate = function (models) {
     // associations can be defined here
