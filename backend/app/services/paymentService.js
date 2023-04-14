@@ -1,4 +1,4 @@
-import { payment, course, student, user } from "../db/index.js";
+import { payment, course, student, user, item } from "../db/index.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 
 export const create = async (paymentParam) => {
@@ -18,6 +18,6 @@ export const getAllByCourseId = async (courseId) => {
 export const getAll = async (specification) => {
   return payment.findAll({
     where: specification.getSequelizeSpecification(),
-    include: [user, student, course]
+    include: specification.getSequelizeSpecificationAssociations([user, student, course])
   });
 };

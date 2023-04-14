@@ -1,6 +1,7 @@
 import { ALLOWED_SEQUELIZE_OPERATIONS, SPECIFICATION_VALUE_SEPARATOR, SPECIFICATION_QUERY_SEPARATOR } from "../utils/constants.js";
 import { Sequelize, Op } from "sequelize";
 import { StatusCodes } from "http-status-codes";
+import { sequelize } from "../db/index.js";
 
 class Specification {
 
@@ -15,13 +16,24 @@ class Specification {
     this.queryParts = [];
     const invalidAttributes = [];
     const invalidOperations = [];
+    this.specificationAssociations = [];
     splitByQuerySeparator.forEach(part => {
       let error = false;
       const splitBySpaces = part.split(" ");
-      const attribute = splitBySpaces[0];
-      const operation = splitBySpaces[1];
-      let value = splitBySpaces[2];
-      if (!isValidAttribute(attribute)) {
+      let [attribute, operation, value] = splitBySpaces;
+      const isAssociationAttribute = attribute.includes(".");
+      if (isAssociationAttribute) {
+        const [associationName, associationAttribute] = attribute.split(".");
+        const existsAssociation = associationName in model.associations;
+        if (existsAssociation) {
+          const associationSpecification = { model: sequelize.models[associationName], where: {} };
+          associationSpecification.where[associationAttribute] = value;
+          this.specificationAssociations.push(associationSpecification);
+        } else {
+          error = true;
+          invalidAttributes.push(attribute);
+        }
+      } else if (!isValidAttribute(attribute)) {
         error = true;
         invalidAttributes.push(attribute);
       }
@@ -29,8 +41,8 @@ class Specification {
         error = true;
         invalidOperations.push(operation);
       }
-      if (!error) {
-        const valueType = modelAttributes[attribute].type;
+      if (!error && !isAssociationAttribute) {
+        const valueType = modelAttributes[attribute]?.type;
         if (!(valueType instanceof Sequelize.STRING)) {
           let valueSplitedBySeparator = value.split(SPECIFICATION_VALUE_SEPARATOR);
           if (valueType instanceof Sequelize.DataTypes.DATE)
@@ -51,6 +63,10 @@ class Specification {
       spec[queryPart.attribute] = { [Op[queryPart.operation]]: queryPart.value };
     });
     return spec;
+  }
+
+  getSequelizeSpecificationAssociations(extraAssociations) {
+    return [...extraAssociations, ...this.specificationAssociations];
   }
 
 }
