@@ -4,6 +4,7 @@ import { useState } from "react";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PaidIcon from '@mui/icons-material/Paid';
 import BalanceIcon from '@mui/icons-material/Balance';
+import CategoryIcon from '@mui/icons-material/Category';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SchoolIcon from '@mui/icons-material/School';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -16,6 +17,7 @@ import Classes from "./classes";
 import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
+import Categories from "./categories";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 import NavItem from "../components/navItem";
@@ -115,6 +117,7 @@ export default function Home(props) {
                             <NavItem target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
                             <NavItem target={"courses"} isActive={props.courses} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
                             <NavItem target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
+                            <NavItem target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
                             {isMasterAdmin && (<NavItem target={"new-user"} isActive={props.newUser} icon={<PersonAddIcon/>}>Agregar usuario</NavItem>)}
                         </ul>
                         </div>
@@ -138,6 +141,7 @@ export default function Home(props) {
                     {props.colleges && (<><Colleges /></>)}
                     {props.courses && (<><Courses/></>)}
                     {props.students && (<><Students/></>)}
+                    {props.categories && (<><Categories/></>)}
                 </main>
                 </body>
             </div>

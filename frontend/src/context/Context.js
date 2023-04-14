@@ -6,6 +6,7 @@ import clazzesService from "../services/clazzesService";
 import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
 import templatesService from "../services/templatesService";
+import categoriesService from "../services/categoriesService";
 
 export const Context = createContext();
 
@@ -24,6 +25,9 @@ export const Provider = ({ children }) => {
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
     const [isLoadingClazzes, setIsLoadingClazzes] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+    const [items, setItems] = useState([]);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
@@ -81,6 +85,18 @@ export const Provider = ({ children }) => {
             });
             setClazzes(clazzes);
         }
+        const getCategories = async () => {
+            const categories = await categoriesService.getCategories();
+            categories.forEach(category => {
+                category.label = category.title;
+                category.value = category.id;
+                category.items.forEach(item => {
+                    item.label = item.title;
+                    item.value = item.id;
+                });
+            });
+            setCategories(categories);
+        }
         getStudents();
         getCourses();
         getTasks();
@@ -88,7 +104,19 @@ export const Provider = ({ children }) => {
         getPayments();
         getTemplates();
         getClazzes();
+        getCategories();
     }, [user]);
+
+    useEffect(() => {
+        const formatedItems = [];
+        categories.forEach(category => category.items.forEach(item => {
+            item.categoryTitle = category.title;
+            item.value = item.id;
+            item.label = item.title;
+            formatedItems.push(item);
+        }));
+        setItems(formatedItems);
+    }, [categories]);
 
     const merge = (item1, item2) => {
         for (let key in item1)
@@ -99,6 +127,7 @@ export const Provider = ({ children }) => {
     const getCourseById = courseId => courses.find(course => course.id === courseId);
     const getStudentById = studentId => students.find(student => student.id === studentId);
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id === headquarterId);
+    const getItemById = itemId => categories.find(category => category.items.find(item => item.id === itemId)).find(item => item.id === itemId);
 
     const informPayment = async payment => {
         const createdPayment = await paymentsService.informPayment(payment);
@@ -109,6 +138,8 @@ export const Provider = ({ children }) => {
             createdPayment.student = getStudentById(createdPayment.studentId);
         if (createdPayment.headquarterId)
             createdPayment.headquarter = getHeadquarterById(createdPayment.headquarterId);
+        if (createdPayment.itemId)
+            createdPayment.item = getItemById(createdPayment.itemId);
         setPayments(current => [...current, createdPayment]);
         return createdPayment;
     };
@@ -263,6 +294,21 @@ export const Provider = ({ children }) => {
         return editedTemplate;
     }
 
+    const deleteCategory = async (categoryId) => {
+        await categoriesService.deleteCategory(categoryId);
+        setCategories(current => current.filter(c => c.id !== categoryId));
+    }
+    
+    const editCategory = async (categoryId, categoryData) => {
+        const editedCategory = await categoriesService.editCategory(categoryId, categoryData);
+        setCategories(current => current.map(c => c.id === categoryId ? editedCategory : c));
+    }
+    
+    const newCategory = async categoryData => {
+        const createdCategory = await categoriesService.newCategory(categoryData);
+        setCategories(current => [...current, createdCategory]);
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -272,12 +318,15 @@ export const Provider = ({ children }) => {
             payments,
             templates,
             clazzes,
+            categories,
+            items,
             isLoadingColleges,
             isLoadingCourses,
             isLoadingPayments,
             isLoadingStudents,
             isLoadingTasks,
             isLoadingTemplates,
+            isLoadingCategories,
             setUser,
             informPayment,
             deleteCollege,
@@ -300,6 +349,9 @@ export const Provider = ({ children }) => {
             editTemplate,
             editClazz,
             deleteClazz,
+            deleteCategory,
+            editCategory,
+            newCategory,
         }}>{children}</Context.Provider>
     );
 }

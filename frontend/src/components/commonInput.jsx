@@ -2,6 +2,13 @@ import React from "react";
 
 export default function CommonInput(props) {
 
+    const handleOnKeyDown = (event) => {
+        if (event.key === "Enter" && typeof props.onPressEnter === "function")
+            props.onPressEnter();
+        if (typeof props.onKeyDown === "function")
+            props.onKeyDown();
+    }
+
     return(
         <>
             <label className={props.className ? props.className : "block text-gray-700 text-sm font-bold mb-2"} for="email">
@@ -16,6 +23,7 @@ export default function CommonInput(props) {
                 value={props.value}
                 name={props.name}
                 htmlFor={props.htmlFor}
+                onKeyDown={handleOnKeyDown}
             />
         </>
     );

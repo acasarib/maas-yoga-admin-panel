@@ -13,7 +13,7 @@ export default function FilterPaymentType({ onChange }) {
 
     return (
     <div className="payment-filter-width">
-        <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
+        <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
         <div className="mt-4"><Select value={selectedPayment} onChange={handleOnChange} options={PAYMENT_OPTIONS} /></div>
     </div>
     );
