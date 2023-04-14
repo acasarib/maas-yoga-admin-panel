@@ -53,7 +53,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { user, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz } = sequelize.models;
+const { user, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category } = sequelize.models;
 
 
 course.belongsToMany(headquarter, { through: "headquarter_course" });
@@ -75,6 +75,8 @@ courseTask.belongsTo(course);
 course.hasMany(courseTask, { foreignKey: { allowNull: false }, targetKey: "id" });
 student.belongsToMany(courseTask, { through: studentCourseTask });
 courseTask.belongsToMany(student, { through: studentCourseTask });
+category.hasMany(item, { onDelete: "CASCADE" });
+item.belongsTo(category);
 
 export {
   sequelize,
@@ -89,4 +91,6 @@ export {
   studentCourseTask,
   template,
   clazz,
+  category,
+  item,
 };
