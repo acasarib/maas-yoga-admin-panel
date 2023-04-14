@@ -1,10 +1,9 @@
 import React, { useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PaidIcon from '@mui/icons-material/Paid';
 import BalanceIcon from '@mui/icons-material/Balance';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SchoolIcon from '@mui/icons-material/School';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -13,13 +12,13 @@ import Payments from "./payments";
 import Balance from "./balance";
 import Tasks from "./tasks";
 import NewUser from "./newUser";
-import Calendar from "./calendar";
 import Classes from "./classes";
 import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
+import NavItem from "../components/navItem";
 
 
 export default function Home(props) {
@@ -109,62 +108,14 @@ export default function Home(props) {
                         </div>
                         <div className="p-4">
                         <ul className="space-y-1">
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/payments">
-                                    <span className={props.payments ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <PaidIcon /><span className="ml-3">Ingresos/egresos</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/tasks">
-                                    <span className={props.tasks ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <AssignmentIcon /><span className="ml-3">Tareas pendientes</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/balance">
-                                    <span className={props.balance ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <BalanceIcon /><span className="ml-3">Balance</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/students">
-                                    <span className={props.students ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <SchoolIcon /><span className="ml-3">Alumnos</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/colleges"> 
-                                    <span className={props.colleges ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <AccountBalanceIcon /><span className="ml-3">Sedes</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/courses">
-                                    <span className={props.courses ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <LocalLibraryIcon /><span className="ml-3">Cursos</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            <li className="grid place-content-stretch">
-                                <Link to="/home/classes">
-                                    <span className={props.classes ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <HistoryEduIcon /><span className="ml-3">Clases</span>
-                                    </span>
-                                </Link>
-                            </li>
-                            {isMasterAdmin && (<><li className="grid place-content-stretch">
-                                <Link to="/home/new-user">
-                                    <span className={props.newUser ? "w-full flex items-center bg-amber-600 rounded-xl font-bold text-sm text-white py-3 px-4" : "w-11/12 flex items-center bg-orange-50 rounded-xl font-bold text-sm text-yellow-900 py-3 px-4 hover:bg-orange-100 shadow-lg"}>
-                                        <PersonAddIcon /><span className="ml-3">Agregar usuario</span>
-                                    </span>
-                                </Link>
-                            </li></>)}
+                            <NavItem target={"payments"} isActive={props.payments} icon={<PaidIcon/>}>Ingresos/egresos</NavItem>
+                            <NavItem target={"tasks"} isActive={props.tasks} icon={<AssignmentIcon/>}>Tareas pendientes</NavItem>
+                            <NavItem target={"balance"} isActive={props.balance} icon={<BalanceIcon/>}>Balance</NavItem>
+                            <NavItem target={"students"} isActive={props.students} icon={<SchoolIcon/>}>Alumnos</NavItem>
+                            <NavItem target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
+                            <NavItem target={"courses"} isActive={props.courses} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
+                            <NavItem target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
+                            {isMasterAdmin && (<NavItem target={"new-user"} isActive={props.newUser} icon={<PersonAddIcon/>}>Agregar usuario</NavItem>)}
                         </ul>
                         </div>
                     </div>
