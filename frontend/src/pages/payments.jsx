@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import paymentsService from "../services/paymentsService";
 import Select from 'react-select';
 import CommonInput from "../components/commonInput";
+import CommonTextArea from "../components/commonTextArea";
 import Modal from "../components/modal";
 import PaidIcon from '@mui/icons-material/Paid';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,8 +25,8 @@ export default function Payments(props) {
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
     const { students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate } = useContext(Context);
-    const [selectedStudent, setSelectedStudent] = useState('');
-    const [selectedCourse, setSelectedCourse] = useState('');
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [selectedCourse, setSelectedCourse] = useState(null);
     const [selectedCollege, setSelectedCollege] = useState(null);
     const [fileId, setFileId] = useState(null);
     const [ammount, setAmmount] = useState(null);
@@ -184,6 +185,7 @@ export default function Payments(props) {
         setFileId(null);
         setSelectedCourse('');
         setSelectedStudent('');
+        setNote('');
         setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
         setIsDischarge(false);
@@ -237,12 +239,12 @@ export default function Payments(props) {
                             </div>
                         </div>
                     }
-                    <div className="col-span-2 md:col-span-1 pb-3">
-                        <CommonInput 
+                    <div className="col-span-2 md:col-span-2 pb-3">
+                        <CommonTextArea 
                             label="Nota"
                             name="note"
                             className="block font-bold text-sm text-gray-700 mb-4"
-                            type="number" 
+                            type="textarea" 
                             placeholder="Nota" 
                             value={note}
                             onChange={handleChangeNote}

@@ -47,7 +47,8 @@ export default {
                 "type": paymentInfo.paymentType,
                 "fileId": paymentInfo.fileId,
                 "value": paymentInfo.paymentValue,
-                "at": paymentInfo.at
+                "at": paymentInfo.at,
+                "note": paymentInfo.note,
             }                
             axios
                 .post(baseUrl + `api/v1/payments`, data, { headers })
