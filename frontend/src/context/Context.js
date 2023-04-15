@@ -127,7 +127,7 @@ export const Provider = ({ children }) => {
     const getCourseById = courseId => courses.find(course => course.id === courseId);
     const getStudentById = studentId => students.find(student => student.id === studentId);
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id === headquarterId);
-    const getItemById = itemId => categories.find(category => category.items.find(item => item.id === itemId)).find(item => item.id === itemId);
+    const getItemById = itemId => categories.find(category => category.items.find(item => item.id === itemId)).items.find(item => item.id === itemId);
 
     const informPayment = async payment => {
         const createdPayment = await paymentsService.informPayment(payment);
@@ -159,7 +159,7 @@ export const Provider = ({ children }) => {
 
     const newCollege = async (college) => {
         const createdCollege = await collegesService.newCollege(college);
-        createdCollege.label = createdCollege.title;
+        createdCollege.label = createdCollege.name;
         createdCollege.value = createdCollege.id;
         setColleges(current => [...current, createdCollege]);
         return createdCollege;
@@ -309,6 +309,13 @@ export const Provider = ({ children }) => {
         setCategories(current => [...current, createdCategory]);
     }
 
+    const verifyClazz = async clazz => {
+        clazz.paymentsVerified = true;
+        await clazzesService.editclazz(clazz.id, clazz);
+        setClazzes(current => current.map(c => c.id === clazz.id ? clazz : c));
+        setPayments(current => current.map(payment => payment.clazzId === clazz.id ? ({ ...payment, verified: true }) : payment));
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -352,6 +359,7 @@ export const Provider = ({ children }) => {
             deleteCategory,
             editCategory,
             newCategory,
+            verifyClazz,
         }}>{children}</Context.Provider>
     );
 }
