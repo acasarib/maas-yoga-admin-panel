@@ -76,7 +76,7 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
 
     useEffect(() => {
         getBalanceForAllPayments();
-    }, [payments])
+    }, [payments]);
 
     return(
         <>

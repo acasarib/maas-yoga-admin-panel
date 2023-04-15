@@ -42,6 +42,7 @@ export default {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const data = {
                 "headquarterId": paymentInfo.headquarterId,
+                "clazzId": paymentInfo.clazzId,
                 "courseId": paymentInfo.courseId,
                 "studentId": paymentInfo.studentId,
                 "itemId": paymentInfo.itemId,

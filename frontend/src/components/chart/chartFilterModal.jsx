@@ -11,6 +11,7 @@ import FilterPaymentCourse from "./filters/course";
 import FilterPaymentCollege from "./filters/college";
 import FilterPaymentItem from "./filters/item";
 import FilterPaymentCategory from "./filters/category";
+import FilterPaymentClazz from "./filters/clazz";
 
 export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) {
 
@@ -62,6 +63,11 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
             label: "Articulo",
             value: "itemId",
             component: <FilterPaymentItem onChange={value => onFilterChangeValue(value, "itemId")} />
+        },
+        {
+            label: "Clase",
+            value: "clazzId",
+            component: <FilterPaymentClazz onChange={value => onFilterChangeValue(value, "clazzId")} />
         },
     ]);
     const [currentFilters, setCurrentFilters] = useState([]);
