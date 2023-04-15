@@ -8,7 +8,7 @@ export default function WeeklyChart({ data, height }) {
     const getMaxValue = (data) => Math.max(...data.map(d => d.value));
 
     const completeDays = data => {
-        let weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sab", "Dom"];
+        let weekDays = ["Lun", "Mar", "Mié", "Jue", "Víe", "Sáb", "Dom"];
         if (data.length === 0) return [];
         const firstDay = data[0];
         let index = weekDays.indexOf(firstDay.weekDay);
