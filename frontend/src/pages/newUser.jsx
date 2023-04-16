@@ -113,14 +113,14 @@ export default function NewUser(props) {
                         </div>
                         <div className="mb-4">
                             <CommonInput 
-                                label="Usuario"    
+                                label="Email"    
                                 onBlur={formik.handleBlur}
                                 value={formik.values.email}
                                 name="email"
                                 htmlFor="email"
                                 id="email" 
                                 type="text" 
-                                placeholder="Usuario" 
+                                placeholder="Email" 
                                 onChange={formik.handleChange}
                             />
                         {formik.touched.email && formik.errors.email ? (
