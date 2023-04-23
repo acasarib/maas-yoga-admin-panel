@@ -230,7 +230,6 @@ export default function PaymentsSection(props) {
                 <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
                 <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
             </div>
-            {(paymentMethod === "Efectivo") &&
                 <div className="col-span-2 md:col-span-2 pb-3">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
@@ -242,7 +241,6 @@ export default function PaymentsSection(props) {
                         />
                     </div>
                 </div>
-            }
             {isDischarge ?
             <div className="col-span-2 md:col-span-2 pb-3">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
