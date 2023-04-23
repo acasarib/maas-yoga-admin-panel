@@ -27,7 +27,7 @@ export default function VerifyPaymentClassesSection() {
 
     const prettyDate = (date) => {
         date = new Date(date);
-        return date instanceof Date ? `${date.getDay()} de ${prettyMonth(date)} del ${date.getFullYear()} a las ${date.getHours()}:${twoDigits(date.getMinutes())}` : "Fecha de pago invalida";
+        return date instanceof Date ? `${date.getDate()} de ${prettyMonth(date)} del ${date.getFullYear()} a las ${date.getHours()}:${twoDigits(date.getMinutes())}` : "Fecha de pago invalida";
     }
 
     return (<>
