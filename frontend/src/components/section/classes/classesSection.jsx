@@ -50,7 +50,6 @@ export default function ClassesSection(props) {
     }
 
     const formik = useFormik({
-        enableReinitialize: true,
         initialValues: {
             title: edit ? clazzToEdit.title : '',
             professor: edit ? clazzToEdit.professor : '',
@@ -60,7 +59,7 @@ export default function ClassesSection(props) {
           const body = {
             title: values.title,
             professor: values.professor,
-            startAt: values.startAt
+            startAt: startAt
           };
           setIsLoading(true);
           try {
