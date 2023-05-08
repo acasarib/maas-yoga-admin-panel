@@ -110,7 +110,7 @@ export default function Home(props) {
                         </div>
                         <div className="p-4">
                         <ul className="space-y-1">
-                            <NavItem target={"payments"} isActive={props.payments} icon={<PaidIcon/>}>Ingresos/egresos</NavItem>
+                            <NavItem target={"payments"} isActive={props.payments} icon={<PaidIcon/>}>Movimientos</NavItem>
                             <NavItem target={"tasks"} isActive={props.tasks} icon={<AssignmentIcon/>}>Tareas pendientes</NavItem>
                             <NavItem target={"balance"} isActive={props.balance} icon={<BalanceIcon/>}>Balance</NavItem>
                             <NavItem target={"students"} isActive={props.students} icon={<SchoolIcon/>}>Alumnos</NavItem>

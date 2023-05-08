@@ -198,8 +198,6 @@ export default function PaymentsSection(props) {
         setIsDischarge(false);
     }
 
-    useEffect(() => setSelectedCollege(null), [paymentMethod]);
-
     return (
         <>
         <div className="mb-6 md:my-6 mx-8 md:mx-4">
