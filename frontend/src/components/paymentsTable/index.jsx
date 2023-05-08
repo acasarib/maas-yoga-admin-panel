@@ -33,8 +33,8 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
 
     const columns = [
         {
-            name: 'Proveniente de',
-            selector: row => row.type,
+            name: 'Modo de pago',
+            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.type}</span>,
             sortable: true,
             searchable: true,
         },
@@ -46,13 +46,13 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
         },
         {
             name: 'Abonado por',
-            selector: row => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "",
+            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : ""}</span>,
             sortable: true,
             searchable: true,
         },
         {
             name: 'Informado por',
-            selector: row => row.user.firstName + ' ' + row.user.lastName,
+            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.user.firstName + ' ' + row.user.lastName}</span>,
             sortable: true,
             searchable: true,
         },

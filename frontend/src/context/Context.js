@@ -35,7 +35,7 @@ export const Provider = ({ children }) => {
         const getStudents = async () => {
             const studentsList = await studentsService.getStudents();
             studentsList.forEach(student => {
-                student.label = student.name;
+                student.label = student.name + ' ' + student.lastName;
                 student.value = student.id;
             });
             setStudents(studentsList);
