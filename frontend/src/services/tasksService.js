@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from './interceptors';
 
 export default {
     createTask(newTask) {
@@ -7,11 +7,9 @@ export default {
                 "title": newTask.title,
                 "description": newTask.description
             }                
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/tasks', task, { headers })
+                .post(baseUrl + 'api/v1/tasks', task, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -22,11 +20,9 @@ export default {
     },
     getTasks() {
         return new Promise((resolve, reject) => {              
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/tasks', { headers })
+                .get(baseUrl + 'api/v1/tasks', {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -37,11 +33,9 @@ export default {
     },
     getTask(taskId) {
         return new Promise((resolve, reject) => {              
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/tasks/${taskId}`, { headers })
+                .get(baseUrl + `api/v1/tasks/${taskId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -57,11 +51,9 @@ export default {
                 "description": editedTask.description,
                 "completed": editedTask.completed
             }                
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/tasks/${editedTask.id}`, task, { headers })
+                .put(baseUrl + `api/v1/tasks/${editedTask.id}`, task, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -72,11 +64,9 @@ export default {
     },
     deleteTask(taskId) {
         return new Promise((resolve, reject) => {              
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .delete(baseUrl + `api/v1/tasks/${taskId}`, { headers })
+                .delete(baseUrl + `api/v1/tasks/${taskId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })

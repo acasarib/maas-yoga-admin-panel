@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from './interceptors';
 import jwt_decode from "jwt-decode";
 
 export default {
@@ -20,11 +20,9 @@ export default {
     },
     createUser(user) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/users/register', user, {headers})
+                .post(baseUrl + 'api/v1/users/register', user, {})
                 .then((response) => {
                     resolve(response.data);
                 })
