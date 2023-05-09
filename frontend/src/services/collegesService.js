@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from './interceptors';
 
 export default {
     newCollege(collegeData) {
@@ -7,11 +7,9 @@ export default {
                 "name": collegeData.name,
                 "location": collegeData.location
             }            
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/headquarters', data, { headers })
+                .post(baseUrl + 'api/v1/headquarters', data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -22,11 +20,9 @@ export default {
     },
     getColleges() {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/headquarters', { headers })
+                .get(baseUrl + 'api/v1/headquarters', {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -37,11 +33,9 @@ export default {
     },
     getCollege(collegeId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/headquarters/${collegeId}`, { headers })
+                .get(baseUrl + `api/v1/headquarters/${collegeId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -52,15 +46,13 @@ export default {
     },
     editCollege(collegeId, collegeData) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
             const data = {
                 "name": collegeData.name,
                  "location": collegeData.location
             }  
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/headquarters/${collegeId}`, data, { headers })
+                .put(baseUrl + `api/v1/headquarters/${collegeId}`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -71,11 +63,9 @@ export default {
     },
     deleteCollege(collegeId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .delete(baseUrl + `api/v1/headquarters/${collegeId}`, { headers })
+                .delete(baseUrl + `api/v1/headquarters/${collegeId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -86,12 +76,10 @@ export default {
     },
     addCourses(collegeId, list) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             console.log(list)
             axios
-                .put(baseUrl + `api/v1/headquarters/${collegeId}/courses`, list, { headers })
+                .put(baseUrl + `api/v1/headquarters/${collegeId}/courses`, list, {})
                 .then((response) => {
                     resolve(response.data);
                 })

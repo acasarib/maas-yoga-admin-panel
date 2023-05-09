@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from './interceptors';
 
 export default {
     newStudent(student) {
@@ -10,11 +10,9 @@ export default {
                 "email": student.email,
                 "phoneNumber": student.phoneNumber                
             }
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/students', data, { headers })
+                .post(baseUrl + 'api/v1/students', data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -25,11 +23,9 @@ export default {
     },
     getStudents() {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/students', { headers })
+                .get(baseUrl + 'api/v1/students', {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -40,11 +36,9 @@ export default {
     },
     getStudent(studentId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/students/${studentId}`, { headers })
+                .get(baseUrl + `api/v1/students/${studentId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -55,7 +49,6 @@ export default {
     },
     editStudent(studentId, student) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
             const data = {
                 "name": student.name,
                 "lastName": student.lastName,
@@ -63,10 +56,9 @@ export default {
                 "email": student.email,
                 "phoneNumber": student.phoneNumber                
             }
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/students/${studentId}`, data, { headers })
+                .put(baseUrl + `api/v1/students/${studentId}`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -77,11 +69,9 @@ export default {
     },
     deleteStudent(studentId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` };
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .delete(baseUrl + `api/v1/students/${studentId}`, { headers })
+                .delete(baseUrl + `api/v1/students/${studentId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })

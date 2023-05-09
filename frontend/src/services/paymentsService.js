@@ -1,17 +1,15 @@
-import axios from "axios";
+import axios from './interceptors';
 import { SPECIFICATION_QUERY_SEPARATOR } from "../constants";
 
 export default {
     uploadFile(file) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const fd = new FormData();
             console.log(file)
             fd.append('file', file[0]);
             axios
-                .post(baseUrl + 'api/v1/files', fd, { headers })
+                .post(baseUrl + 'api/v1/files', fd, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -22,11 +20,9 @@ export default {
     },
     getFile(fileId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/files/${fileId}`, { headers })
+                .get(baseUrl + `api/v1/files/${fileId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -37,8 +33,6 @@ export default {
     },
     informPayment(paymentInfo) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const data = {
                 "headquarterId": paymentInfo.headquarterId,
@@ -53,7 +47,7 @@ export default {
                 "note": paymentInfo.note,
             }                
             axios
-                .post(baseUrl + `api/v1/payments`, data, { headers })
+                .post(baseUrl + `api/v1/payments`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -64,11 +58,9 @@ export default {
     },
     getStudentPayments(studentId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/payments/students/${studentId}`, { headers })
+                .get(baseUrl + `api/v1/payments/students/${studentId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -79,11 +71,9 @@ export default {
     },
     getCoursePayments(courseId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/payments/courses/${courseId}`, { headers })
+                .get(baseUrl + `api/v1/payments/courses/${courseId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -94,11 +84,9 @@ export default {
     },
     getAllPayments() {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/payments', { headers })
+                .get(baseUrl + 'api/v1/payments', {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -109,12 +97,10 @@ export default {
     },
     getByQuery(query) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             query = typeof query !== "string" ? query.join(SPECIFICATION_QUERY_SEPARATOR) : query;
             axios
-                .get(baseUrl + 'api/v1/payments?q=' + query, { headers })
+                .get(baseUrl + 'api/v1/payments?q=' + query, {})
                 .then((response) => {
                     resolve(response.data);
                 })

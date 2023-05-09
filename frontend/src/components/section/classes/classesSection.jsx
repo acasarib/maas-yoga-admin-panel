@@ -44,9 +44,15 @@ export default function ClassesSection(props) {
 
     const handleDeleteClazz = async () => {
         setIsLoading(true);
-        await deleteClazz(clazzId);
-        setIsLoading(false);
-        setDeleteModal(false);
+        try {
+            await deleteClazz(clazzId);
+            setIsLoading(false);
+            setDeleteModal(false);
+        } catch(e) {
+            console.log(e)
+            setIsLoading(false);
+            setDeleteModal(false);
+        }
     }
 
     const formik = useFormik({
