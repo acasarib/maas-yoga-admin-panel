@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from './interceptors';
 
 export default {
     newTemplate(templateData) {
@@ -7,11 +7,9 @@ export default {
                 "title": templateData.title,
                 "content": templateData.content
             }        
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/templates', data, { headers })
+                .post(baseUrl + 'api/v1/templates', data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -22,11 +20,9 @@ export default {
     },
     getTemplates() {
         return new Promise((resolve, reject) => {      
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/templates', { headers })
+                .get(baseUrl + 'api/v1/templates', {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -37,11 +33,9 @@ export default {
     },
     getTemplate(templateId) {
         return new Promise((resolve, reject) => {      
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/templates/${templateId}`, { headers })
+                .get(baseUrl + `api/v1/templates/${templateId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -52,15 +46,13 @@ export default {
     },
     updateTemplate(templateId, templateData) {
         return new Promise((resolve, reject) => {      
-            const accessToken = localStorage.getItem('accessToken')
             const data = {
                 "title": templateData.title,
                 "content": templateData.content
             }  
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/templates/${templateId}`, data, { headers })
+                .put(baseUrl + `api/v1/templates/${templateId}`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
