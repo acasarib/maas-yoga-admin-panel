@@ -1,13 +1,11 @@
-import axios from "axios";
+import axios from './interceptors';
 
 export default {
     newCategory(category) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/categories', category, { headers })
+                .post(baseUrl + 'api/v1/categories', category, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -18,11 +16,9 @@ export default {
     },
     getCategories() {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/categories', { headers })
+                .get(baseUrl + 'api/v1/categories', { })
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -33,11 +29,9 @@ export default {
     },
     getCategory(categoryId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/categories/${categoryId}`, { headers })
+                .get(baseUrl + `api/v1/categories/${categoryId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -48,12 +42,9 @@ export default {
     },
     editCategory(categoryId, categoryData) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-        
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/categories/${categoryId}`, categoryData, { headers })
+                .put(baseUrl + `api/v1/categories/${categoryId}`, categoryData, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -64,11 +55,9 @@ export default {
     },
     deleteCategory(categoryId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .delete(baseUrl + `api/v1/categories/${categoryId}`, { headers })
+                .delete(baseUrl + `api/v1/categories/${categoryId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from './interceptors';
 
 export default {
     newCourse(courseData) {
@@ -9,11 +9,9 @@ export default {
                 "startAt": courseData.startAt,
                 "duration": courseData.duration
             }
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/courses', data, { headers })
+                .post(baseUrl + 'api/v1/courses', data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -24,11 +22,9 @@ export default {
     },
     getCourses() {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/courses', { headers })
+                .get(baseUrl + 'api/v1/courses', {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -39,11 +35,9 @@ export default {
     },
     getCourse(courseId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + `api/v1/courses/${courseId}`, { headers })
+                .get(baseUrl + `api/v1/courses/${courseId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -54,17 +48,15 @@ export default {
     },
     editCourse(courseId, courseData) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
             const data = {
                 "title": courseData.title,
                 "description": courseData.description,
                 "startAt": courseData.startAt,
                 "duration": courseData.duration
             }
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/courses/${courseId}`, data, { headers })
+                .put(baseUrl + `api/v1/courses/${courseId}`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -75,11 +67,9 @@ export default {
     },
     deleteCourse(courseId) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .delete(baseUrl + `api/v1/courses/${courseId}`, { headers })
+                .delete(baseUrl + `api/v1/courses/${courseId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -90,12 +80,10 @@ export default {
     },
     addStudent(courseId, list) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             console.log(list)
             axios
-                .put(baseUrl + `api/v1/courses/${courseId}/students`, list, { headers })
+                .put(baseUrl + `api/v1/courses/${courseId}/students`, list, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -112,11 +100,9 @@ export default {
                 "comment": task.comment,
                 "limitDate": task.limitDate
             }
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + `api/v1/courses/${courseId}/tasks`, data, { headers })
+                .post(baseUrl + `api/v1/courses/${courseId}/tasks`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -133,11 +119,9 @@ export default {
                 "comment": task.comment,
                 "limitDate": task.limitDate
             }
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + `api/v1/courses/${courseId}/tasks`, data, { headers })
+                .post(baseUrl + `api/v1/courses/${courseId}/tasks`, data, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -148,11 +132,9 @@ export default {
     },
     associateStudentToTask(taskId, list) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/courses/tasks/${taskId}/students`, list, { headers })
+                .put(baseUrl + `api/v1/courses/tasks/${taskId}/students`, list, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -163,12 +145,10 @@ export default {
     },
     changeTaskStatus(taskId, studentId, taskStatus) {
         return new Promise((resolve, reject) => {
-            const accessToken = localStorage.getItem('accessToken')
-            let headers = { Authorization: `Bearer ${accessToken}` }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const status = { "completed": taskStatus };
             axios
-                .put(baseUrl + `api/v1/courses/tasks/${taskId}/students/${studentId}`, status, { headers })
+                .put(baseUrl + `api/v1/courses/tasks/${taskId}/students/${studentId}`, status, {})
                 .then((response) => {
                     resolve(response.data);
                 })
