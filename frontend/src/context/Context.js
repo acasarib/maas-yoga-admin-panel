@@ -29,6 +29,9 @@ export const Provider = ({ children }) => {
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [items, setItems] = useState([]);
     const [user, setUser] = useState(null);
+    const [isAlertActive, setIsAlertActive] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertStatus, setAlertStatus] = useState('');
 
     useEffect(() => {
         if (user === null) return;
@@ -245,6 +248,12 @@ export const Provider = ({ children }) => {
         }));
     }
 
+    const changeAlertStatusAndMessage = (activeAlert, status, message) => {
+        setAlertMessage(message);
+        setIsAlertActive(activeAlert);
+        setAlertStatus(status);
+    }
+
     const changeTaskStatus = async (courseId, taskId, studentId, taskStatus) => {
         await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
         setCourses(current => current.map(course => {
@@ -334,6 +343,9 @@ export const Provider = ({ children }) => {
             isLoadingTasks,
             isLoadingTemplates,
             isLoadingCategories,
+            isAlertActive,
+            alertMessage,
+            alertStatus,
             setUser,
             informPayment,
             deleteCollege,
@@ -360,6 +372,7 @@ export const Provider = ({ children }) => {
             editCategory,
             newCategory,
             verifyClazz,
+            changeAlertStatusAndMessage,
         }}>{children}</Context.Provider>
     );
 }
