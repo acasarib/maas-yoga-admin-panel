@@ -21,7 +21,7 @@ import Categories from "./categories";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 import NavItem from "../components/navItem";
-
+import AlertPortal from "../components/statusAlert";
 
 export default function Home(props) {
     const { setUser } = useContext(Context);
@@ -132,7 +132,8 @@ export default function Home(props) {
                     </div>
                 </aside>
 
-                <main className="ml-60 pt-16 max-h-screen overflow-auto">
+                <main className="relative ml-60 pt-16 max-h-screen overflow-auto">
+                    <span className="absolute right-0 top-0"><AlertPortal /></span>
                     {props.payments && (<><Payments/></>)}
                     {props.newUser && (<><NewUser/></>)}
                     {props.tasks && (<><Tasks/></>)}

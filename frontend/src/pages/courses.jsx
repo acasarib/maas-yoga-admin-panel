@@ -308,6 +308,7 @@ export default function Courses(props) {
     ];
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             title: edit ? courseToEdit.title : '',
             description: edit ? courseToEdit.description : '',
