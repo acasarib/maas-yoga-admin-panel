@@ -8,8 +8,8 @@ const DescriptionAlerts = () => {
   const { changeAlertStatusAndMessage, isAlertActive, alertMessage, alertStatus } = useContext(Context);
 
   return (
-    <Stack sx={{ width: '100%' }} spacing={2}>
-      <Snackbar open={isAlertActive} autoHideDuration={6000} onClose={() => changeAlertStatusAndMessage(false, '', '')}  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+    <Stack sx={{ width: '100%' }} spacing={4}>
+      <Snackbar open={isAlertActive} autoHideDuration={6000} onClose={() => changeAlertStatusAndMessage(false, '', '')}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
         <Alert severity={alertStatus}>
           {alertMessage}
         </Alert>
