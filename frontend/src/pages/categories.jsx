@@ -13,7 +13,7 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function Categories(props) {
-    const { categories, isLoadingCategories, deleteCategory, editCategory, newCategory } = useContext(Context);
+    const { categories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -134,7 +134,11 @@ export default function Categories(props) {
 
     const handleDeleteCategory = async () => {
         setIsLoading(true);
-        await deleteCategory(category.id);
+        try{
+            await deleteCategory(category.id);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'La categoria no pudo ser eliminada... Por favor inténtelo nuevamente.')
+        }
         setIsLoading(false);
         setCategory({ title: "" });
         setDeleteModal(false);
@@ -159,16 +163,20 @@ export default function Categories(props) {
             setOpResult('No fue posible obtener los rubros, por favor recargue la página...');
     }, [categories, isLoadingCategories]);
 
-    const handleOnClickNext = () => {
+    const handleOnClickNext = async () => {
         if (activeView === 0) {
             setActiveView(1);
         } else {
-            const c = { ...category, items };
-            if (edit)
-                editCategory(c.id, c);
-            else
-                newCategory(c);
-
+            try{
+                const c = { ...category, items };
+                if (edit)
+                   await editCategory(c.id, c);
+                else
+                   await newCategory(c);
+    
+            }catch {
+                changeAlertStatusAndMessage(true, 'error', 'La categoria no pudo ser informada... Por favor inténtelo nuevamente.')
+            }
             closeModal();
         }
         

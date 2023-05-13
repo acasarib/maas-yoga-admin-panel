@@ -21,7 +21,7 @@ import Categories from "./categories";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 import NavItem from "../components/navItem";
-import AlertPortal from "../components/statusAlert";
+import AlertPortal from "../components/snackBar";
 
 export default function Home(props) {
     const { setUser } = useContext(Context);

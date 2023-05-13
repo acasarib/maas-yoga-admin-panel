@@ -6,7 +6,7 @@ import PaidIcon from '@mui/icons-material/Paid';
 import ClassesTable from "../../classesTable";
 
 export default function VerifyPaymentClassesSection() {
-    const { clazzes, verifyClazz } = useContext(Context);
+    const { clazzes, verifyClazz, changeAlertStatusAndMessage } = useContext(Context);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [verifyingClazz, setVerifyingClazz] = useState(null);
 
@@ -15,8 +15,12 @@ export default function VerifyPaymentClassesSection() {
         setVerifyingClazz(clazz);
     }
 
-    const handleVerifyClazz = () => {
-        verifyClazz(verifyingClazz);
+    const handleVerifyClazz = async () => {
+        try{
+            await verifyClazz(verifyingClazz);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'La clase no pudo ser verificada... Por favor inténtelo nuevamente.')
+        }
         setVerifyingClazz(null);
         setIsModalOpen(false);
     }
