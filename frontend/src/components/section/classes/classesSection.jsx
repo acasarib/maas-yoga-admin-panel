@@ -16,7 +16,7 @@ import ClassesTable from "../../classesTable";
 
 export default function ClassesSection(props) {
 
-    const { clazzes, deleteClazz, editClazz, newClazz, isAlertActive, setIsAlertActive, changeAlertStatusAndMessage } = useContext(Context);
+    const { clazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -46,10 +46,10 @@ export default function ClassesSection(props) {
         setIsLoading(true);
         try {
             await deleteClazz(clazzId);
-            changeAlertStatusAndMessage(true, 'success', 'La clase fue borrada exitosamente!')
             setIsLoading(false);
             setDeleteModal(false);
         } catch(e) {
+            changeAlertStatusAndMessage(true, 'error', 'La clase no pudo ser eliminada... Por favor inténtelo nuevamente.')
             setIsLoading(false);
             setDeleteModal(false);
         }
@@ -76,12 +76,12 @@ export default function ClassesSection(props) {
                 formik.values = {};
             }else {
                 await newClazz(body);
-                changeAlertStatusAndMessage(true, 'success', 'La clase fue creada exitosamente!')
                 formik.values = {};
             }
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
+            changeAlertStatusAndMessage(true, 'error', 'La clase no pudo ser informada... Por favor inténtelo nuevamente.')
             setIsLoading(false);
             setDisplayModal(false);
           }

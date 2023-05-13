@@ -24,7 +24,7 @@ import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 
 export default function Courses(props) {
-    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse, changeTaskStatus } = useContext(Context);
+    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse, changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -70,7 +70,11 @@ export default function Courses(props) {
 
     const handleDeleteCourse = async () => {
         setIsLoading(true);
-        await deleteCourse(courseId);
+        try{
+            await deleteCourse(courseId);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser eliminado... Por favor inténtelo nuevamente.')
+        }
         setIsLoading(false);
         setDeleteModal(false);
         setCourseId(null);
@@ -116,6 +120,7 @@ export default function Courses(props) {
         try {
             await changeTaskStatus(tasksLists[0].courseId, taskId, studentId, taskStatus);
         } catch(error) {
+            changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')
             console.log(error);
         }
     }
@@ -340,6 +345,7 @@ export default function Courses(props) {
                   setIsLoading(false);
                   setDisplayModal(false);
                 } catch (error) {
+                    changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser informado... Por favor inténtelo nuevamente.')
                   setIsLoading(false);
                   setDisplayModal(false);
                 }

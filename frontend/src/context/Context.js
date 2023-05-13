@@ -134,6 +134,7 @@ export const Provider = ({ children }) => {
 
     const informPayment = async payment => {
         const createdPayment = await paymentsService.informPayment(payment);
+        changeAlertStatusAndMessage(true, 'success', 'El movimiento fue informado exitosamente!')
         createdPayment.user = user;
         if (createdPayment.courseId !== null)
             createdPayment.course = getCourseById(createdPayment.courseId);
@@ -149,11 +150,13 @@ export const Provider = ({ children }) => {
 
     const deleteCollege = async collegeId => {
         await collegesService.deleteCollege(collegeId);
+        changeAlertStatusAndMessage(true, 'success', 'La sede fue borrada exitosamente!')
         setColleges(current => current.filter(college => college.id !== collegeId));
     };
 
     const addCoursesToCollege = async (collegeId, coursesIds) => {
         const collegeEdited = await collegesService.addCourses(collegeId, coursesIds);
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue agregado exitosamente!')
         collegeEdited.label = collegeEdited.title;
         collegeEdited.value = collegeEdited.id;
         setColleges(current => current.map(college => college.id === collegeId ? collegeEdited : college));
@@ -162,6 +165,7 @@ export const Provider = ({ children }) => {
 
     const newCollege = async (college) => {
         const createdCollege = await collegesService.newCollege(college);
+        changeAlertStatusAndMessage(true, 'success', 'La sede fue creada exitosamente!')
         createdCollege.label = createdCollege.name;
         createdCollege.value = createdCollege.id;
         setColleges(current => [...current, createdCollege]);
@@ -170,6 +174,7 @@ export const Provider = ({ children }) => {
 
     const newClazz = async (clazz) => {
         const createdClazz = await clazzesService.newClazz(clazz);
+        changeAlertStatusAndMessage(true, 'success', 'La clase fue creada exitosamente!');
         createdClazz.label = createdClazz.title;
         createdClazz.value = createdClazz.id;
         setClazzes(current => [...current, createdClazz]);
@@ -178,43 +183,51 @@ export const Provider = ({ children }) => {
 
     const deleteStudent = async studentId => {
         await studentsService.deleteStudent(studentId);
+        changeAlertStatusAndMessage(true, 'success', 'El estudiante fue borrado exitosamente!')
         setStudents(current => current.filter(student => student.id !== studentId));
     }
 
     const editStudent = async (studentId, student) => {
         await studentsService.editStudent(studentId, student);
+        changeAlertStatusAndMessage(true, 'success', 'El estudiante fue editado exitosamente!')
         setStudents(current => current.map(s => s.id === studentId ? merge(s, student) : s));
     }
     
     const editClazz = async (clazzId, clazz) => {
         await clazzesService.editclazz(clazzId, clazz);
+        changeAlertStatusAndMessage(true, 'success', 'La clase fue editada exitosamente!')
         setClazzes(current => current.map(s => s.id === clazzId ? merge(s, clazz) : s));
     }
 
     const newStudent = async student => {
         const createdStudent = await studentsService.newStudent(student);
+        changeAlertStatusAndMessage(true, 'success', 'El estudiante fue agregado exitosamente!')
         setStudents(current => [...current, createdStudent]);
         return createdStudent;
     }
 
     const deleteCourse = async courseId => {
         await coursesService.deleteCourse(courseId);
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue borrado exitosamente!')
         setCourses(current => current.filter(course => course.id !== courseId));
     }
 
     const deleteClazz = async clazzId => {
         await clazzesService.deleteClazz(clazzId);
+        changeAlertStatusAndMessage(true, 'success', 'La clase fue borrada exitosamente!')
         setClazzes(current => current.filter(clazz => clazz.id !== clazzId));
     }
 
     const newCourse = async course => {
         const createdCourse = await coursesService.newCourse(course);
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue creado exitosamente!')
         setCourses(current => [...current, createdCourse]);
         return createdCourse;
     }
 
     const addStudent = async (courseId, studentsIds) => {
         const editedCourse = await coursesService.addStudent(courseId, studentsIds);
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!')
         editedCourse.label = editedCourse.name;
         editedCourse.value = editedCourse.id;
         setCourses(current => current.map(course => course.id === courseId ? editedCourse : course));
@@ -223,22 +236,26 @@ export const Provider = ({ children }) => {
 
     const editTask = async task => {
         await tasksService.editTask(task);
+        changeAlertStatusAndMessage(true, 'success', 'La tarea fue editada exitosamente!')
         setTasks(current => current.map(t => t.id === task.id ? task : t));
     }
 
     const deleteTask = async taskId => {
         await tasksService.deleteTask(taskId);
+        changeAlertStatusAndMessage(true, 'success', 'La tarea fue borrada exitosamente!')
         setTasks(current => current.filter(task => task.id !== taskId));
     }
 
     const createTask = async task => {
         const createdTask = await tasksService.createTask(task);
+        changeAlertStatusAndMessage(true, 'success', 'La tarea fue creada exitosamente!')
         setTasks(current => [...current, createdTask]);
         return createdTask;
     }
 
     const associateTask = async (courseId, task) => {
         const createdTask = await coursesService.associateTask(courseId, task);
+        changeAlertStatusAndMessage(true, 'success', 'La tarea fue asociada exitosamente!')
         setCourses(current => current.map(course => {
             if (course.id === courseId) {
                 createdTask.students = course.students;
@@ -256,6 +273,7 @@ export const Provider = ({ children }) => {
 
     const changeTaskStatus = async (courseId, taskId, studentId, taskStatus) => {
         await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
+        changeAlertStatusAndMessage(true, 'success', 'El estado de la tarea fue editado exitosamente!')
         setCourses(current => current.map(course => {
             if (course.id === courseId) {
                 course.courseTasks.map(courseTask => {
@@ -289,6 +307,7 @@ export const Provider = ({ children }) => {
 
     const newTemplate = async template => {
         const createdTemplate = await templatesService.newTemplate(template);
+        changeAlertStatusAndMessage(true, 'success', 'El template fue creado exitosamente!')
         createdTemplate.label = createdTemplate.title;
         createdTemplate.value = createdTemplate.id;
         setTemplates(current => [...current, createdTemplate]);
@@ -297,6 +316,7 @@ export const Provider = ({ children }) => {
 
     const editTemplate = async (template, id) => {
         const editedTemplate = await templatesService.updateTemplate(id, template);
+        changeAlertStatusAndMessage(true, 'success', 'El template fue editado exitosamente!')
         editedTemplate.label = editedTemplate.title;
         editedTemplate.value = editedTemplate.id;
         setTemplates(current => current.map(t => t.id === id ? editedTemplate : t));
@@ -305,22 +325,26 @@ export const Provider = ({ children }) => {
 
     const deleteCategory = async (categoryId) => {
         await categoriesService.deleteCategory(categoryId);
+        changeAlertStatusAndMessage(true, 'success', 'La categoria fue borrada exitosamente!')
         setCategories(current => current.filter(c => c.id !== categoryId));
     }
     
     const editCategory = async (categoryId, categoryData) => {
         const editedCategory = await categoriesService.editCategory(categoryId, categoryData);
+        changeAlertStatusAndMessage(true, 'success', 'La categoria fue editada exitosamente!')
         setCategories(current => current.map(c => c.id === categoryId ? editedCategory : c));
     }
     
     const newCategory = async categoryData => {
         const createdCategory = await categoriesService.newCategory(categoryData);
+        changeAlertStatusAndMessage(true, 'success', 'La categoria fue creada exitosamente!')
         setCategories(current => [...current, createdCategory]);
     }
 
     const verifyClazz = async clazz => {
         clazz.paymentsVerified = true;
         await clazzesService.editclazz(clazz.id, clazz);
+        changeAlertStatusAndMessage(true, 'success', 'La clase fue verificada exitosamente!')
         setClazzes(current => current.map(c => c.id === clazz.id ? clazz : c));
         setPayments(current => current.map(payment => payment.clazzId === clazz.id ? ({ ...payment, verified: true }) : payment));
     }

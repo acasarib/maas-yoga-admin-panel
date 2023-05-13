@@ -16,7 +16,7 @@ import { Context } from "../context/Context";
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { courses, colleges, isLoadingColleges, deleteCollege, editCollege, addCoursesToCollege, newCollege } = useContext(Context);
+    const { courses, colleges, isLoadingColleges, deleteCollege, editCollege, addCoursesToCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando cursos...');
@@ -40,7 +40,11 @@ export default function Colleges(props) {
 
     const handleDeleteCollege = async () => {
         setIsLoading(true);
-        await deleteCollege(collegeId);
+        try{
+            await deleteCollege(collegeId);
+        }catch{
+            changeAlertStatusAndMessage(true, 'error', 'La sede no pudo ser eliminada... Por favor inténtelo nuevamente.')
+        }
         setIsLoading(false);
         setDeleteModal(false);
         setCollegeId(null);
@@ -168,6 +172,7 @@ export default function Colleges(props) {
                   setIsLoading(false);
                   setDisplayModal(false);
                 } catch (error) {
+                changeAlertStatusAndMessage(true, 'error', 'La sede no pudo ser creada... Por favor inténtelo nuevamente.')
                   setIsLoading(false);
                   setDisplayModal(false);
                 }

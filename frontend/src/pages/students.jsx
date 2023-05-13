@@ -13,7 +13,7 @@ import Table from "../components/table";
 import { Context } from "../context/Context";
 
 export default function Students(props) {
-    const { students, isLoadingStudents, deleteStudent, editStudent, newStudent } = useContext(Context);
+    const { students, isLoadingStudents, deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -53,7 +53,11 @@ export default function Students(props) {
 
     const handleDeleteStudent = async () => {
         setIsLoading(true);
-        await deleteStudent(studentId);
+        try{
+            await deleteStudent(studentId);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser eliminado... Por favor inténtelo nuevamente.')
+        }
         setIsLoading(false);
         setDeleteModal(false);
     }
@@ -185,6 +189,7 @@ export default function Students(props) {
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
+            changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser informado... Por favor inténtelo nuevamente.')
             setIsLoading(false);
             setDisplayModal(false);
           }

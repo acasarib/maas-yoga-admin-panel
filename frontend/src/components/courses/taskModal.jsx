@@ -11,7 +11,7 @@ import { useFormik } from 'formik';
 import { Context } from "../../context/Context";
 
 export default function TaskModal(props) {
-    const { associateTask } = useContext(Context);
+    const { associateTask, changeAlertStatusAndMessage } = useContext(Context);
     const [isLoading, setIsLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [limitDate, setLimitDate] = useState(dayjs(new Date()));
@@ -42,6 +42,7 @@ export default function TaskModal(props) {
             setIsLoading(false);
             setDisplay(false);
           } catch (error) {
+            changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser asociada... Por favor inténtelo nuevamente.')
             setIsLoading(false);
             setDisplay(false);
           }

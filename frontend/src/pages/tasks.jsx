@@ -20,7 +20,7 @@ import InfoIcon from '@mui/icons-material/Info';
 export default function Tasks(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
-    const { tasks, editTask, deleteTask, createTask } = useContext(Context);
+    const { tasks, editTask, deleteTask, createTask, changeAlertStatusAndMessage } = useContext(Context);
     const [taskId, setTaskId] = useState(null);
     const [taskToEdit, setTaskToEdit] = useState({});
     const [deleteModal, setDeleteModal] = useState(false);
@@ -68,14 +68,22 @@ export default function Tasks(props) {
     const resolveTask = async (task) => {
         setIsLoading(true);
         task.completed = true;
-        await editTask(task);
+        try{
+            await editTask(task);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser editada... Por favor inténtelo nuevamente.')
+        }
         setIsLoading(false);
         setDeleteModal(false);
     }
 
     const handleDeleteTask = async () => {
         setIsLoading(true);
-        await deleteTask(taskId);
+        try{
+            await deleteTask(taskId);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser eliminada... Por favor inténtelo nuevamente.')
+        }
         setIsLoading(false);
         setDeleteModal(false);
     }
@@ -104,6 +112,7 @@ export default function Tasks(props) {
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
+            changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser informada... Por favor inténtelo nuevamente.')
             setIsLoading(false);
             setDisplayModal(false);
           }
