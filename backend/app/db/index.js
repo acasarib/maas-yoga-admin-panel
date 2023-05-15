@@ -79,6 +79,8 @@ student.belongsToMany(courseTask, { through: studentCourseTask });
 courseTask.belongsToMany(student, { through: studentCourseTask });
 category.hasMany(item, { onDelete: "CASCADE" });
 item.belongsTo(category);
+clazz.belongsTo(headquarter);
+headquarter.hasMany(clazz);
 
 export {
   sequelize,
