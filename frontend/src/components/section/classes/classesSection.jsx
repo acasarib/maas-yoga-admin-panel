@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import AddIcon from '@mui/icons-material/Add';
+import Select from "react-select";
 import { orange } from '@mui/material/colors';
 import Modal from "../../../components/modal";
 import { useFormik } from 'formik';
@@ -16,7 +17,7 @@ import ClassesTable from "../../classesTable";
 
 export default function ClassesSection(props) {
 
-    const { clazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage } = useContext(Context);
+    const { clazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, colleges } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -24,6 +25,7 @@ export default function ClassesSection(props) {
     const [edit, setEdit] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
     const [clazzToEdit, setClazzToEdit] = useState({});
+    const [selectedCollege, setSelectedCollege] = useState(null);
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
@@ -37,6 +39,7 @@ export default function ClassesSection(props) {
 
     const openEditModal = async (clazz) => {
         setClazzToEdit(clazz);
+        setSelectedCollege(colleges.find(c => c.id === clazz.headquarterId));
         setEdit(true);
         setDisplayModal(true);
         setClazzId(clazz.id);
@@ -66,8 +69,10 @@ export default function ClassesSection(props) {
           const body = {
             title: values.title,
             professor: values.professor,
-            startAt: startAt
+            startAt: startAt,
+            headquarterId: selectedCollege.id,
           };
+          console.log(body);
           setIsLoading(true);
           try {
             if(edit) {
@@ -78,6 +83,7 @@ export default function ClassesSection(props) {
                 await newClazz(body);
                 formik.values = {};
             }
+            setSelectedCollege(null);
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
@@ -151,6 +157,17 @@ export default function ClassesSection(props) {
                                 placeholder="Docente"
                                 onChange={formik.handleChange}
                         />
+                    </div>
+                    <div className="col-span-2 md:col-span-2 pb-3">
+                        <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
+                        <div className="mt-4">
+                            <Select
+                                value={selectedCollege}
+                                onChange={setSelectedCollege}
+                                options={colleges}
+                                styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                            />
+                        </div>
                     </div>
                 </div>
             </form>
