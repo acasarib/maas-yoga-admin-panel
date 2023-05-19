@@ -7,9 +7,10 @@ const clazz = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     },
-    title: Sequelize.STRING,
+    title: { type: Sequelize.STRING, allowNull: false },
+    endAt: { type: Sequelize.DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
     professor: { type: Sequelize.STRING, allowNull: false },
-    startAt: { type: Sequelize.DataTypes.DATE, allowNull: false },
+    startAt: { type: Sequelize.DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
     paymentsVerified: { type: Sequelize.BOOLEAN, allowNull: false },
   }, {});
   clazz.associate = function (models) {
