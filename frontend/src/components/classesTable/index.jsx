@@ -32,6 +32,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
           </div></>)},
             sortable: true,
             searchable: true,
+            selector: row => row.title,
         },
         {
             name: 'Docente',
