@@ -35,16 +35,23 @@ export const editById = async (clazzParam, id) => {
 
 export const getById = async (id) => {
   const c = await clazz.findByPk(id, { include: [clazzDayDetail] });
+  calcDays(c);
+  return c;
+};
+
+export const getAll = async (specification) => {
+  const clazzes = await clazz.findAll({
+    where: specification.getSequelizeSpecification(),
+    include: [clazzDayDetail],
+  });
+  clazzes.forEach(c => calcDays(c));
+  return clazzes;
+};
+
+const calcDays = (c) => {
   c.dataValues.days = {};
   c.clazzDayDetails.forEach(d => {
     c.dataValues.days[d.day] = { startAt: d.startAt, endAt: d.endAt };
   });
   delete c.dataValues.clazzDayDetails;
-  return c;
-};
-
-export const getAll = async (specification) => {
-  return clazz.findAll({
-    where: specification.getSequelizeSpecification(),
-  });
-};
+}
