@@ -8,6 +8,7 @@ export default {
                 "professor": clazzData.professor,
                 "startAt": clazzData.startAt,
                 "headquarterId": clazzData.headquarterId,
+                "days": clazzData.days,
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
@@ -54,6 +55,7 @@ export default {
                 "startAt": clazzData.startAt,
                 "paymentsVerified": clazzData.paymentsVerified,
                 "headquarterId": clazzData.headquarterId,
+                "days": clazzData.days,
             }  
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
