@@ -36,6 +36,10 @@ export const login = async (email, password) => {
   }
 };
 
+export const getAll = async () => {
+  return user.findAll();
+};
+
 function getUserPermissions(user) {
   const permissionsKeys = Object.keys(user).filter(key => key.startsWith("permission") && user[key]);
   return permissionsKeys.map(permission => permission.replace(/[A-Z]/g, letter => `_${letter}`).toUpperCase());
