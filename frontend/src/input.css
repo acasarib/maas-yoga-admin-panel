@@ -85,3 +85,7 @@ button.bg-disabled:disabled, button.bg-disabled[disabled] {
   opacity: 0.6;
   color: #000000;
 }
+
+.modal-responsive {
+  max-width: 100% !important;
+}
