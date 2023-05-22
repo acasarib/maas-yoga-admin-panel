@@ -35,7 +35,7 @@ export default function Table({ className = "", columns, data, ...rest }) {
                 searchableColumns={searchableColumns}
             />}
             <DataTable
-                className={`rounded-3xl shadow-lg ${className}`}
+                className={`rounded-3xl shadow-lg mt-1 ${className}`}
                 columns={columns}
                 data={dataFiltered}
                 paginationComponentOptions={{ rowsPerPageText: 'Filas por pagina:', rangeSeparatorText: 'de', noRowsPerPage: false, selectAllRowsItem: false, selectAllRowsItemText: 'Todo' }}

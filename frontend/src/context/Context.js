@@ -7,6 +7,7 @@ import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
 import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
+import userService from "../services/userService";
 
 export const Context = createContext();
 
@@ -20,6 +21,7 @@ export const Provider = ({ children }) => {
     const [tasks, setTasks] = useState([]);
     const [isLoadingTasks, setIsLoadingTasks] = useState(true);
     const [templates, setTemplates] = useState([]);
+    const [users, setUsers] = useState([]);
     const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
     const [payments, setPayments] = useState([]);
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
@@ -100,6 +102,15 @@ export const Provider = ({ children }) => {
             });
             setCategories(categories);
         }
+        const getUsers = async () => {
+            try {
+              const usersList = await userService.getUsers();
+              setUsers(usersList);
+            }catch {
+              changeAlertStatusAndMessage(true, 'error', 'No fue posible obtener los usuarios... Por favor recarge la página.');
+            }
+        }
+        getUsers();
         getStudents();
         getCourses();
         getTasks();
@@ -179,6 +190,13 @@ export const Provider = ({ children }) => {
         createdClazz.value = createdClazz.id;
         setClazzes(current => [...current, createdClazz]);
         return createdClazz;
+    }
+
+    const newUser = async (user) => {
+        const createdUser = await userService.createUser(user);
+        changeAlertStatusAndMessage(true, 'success', 'La clase fue creada exitosamente!');
+        setUsers(current => [...current, createdUser]);
+        return createdUser;
     }
 
     const deleteStudent = async studentId => {
@@ -376,6 +394,7 @@ export const Provider = ({ children }) => {
             addCoursesToCollege,
             newCollege,
             newClazz,
+            newUser,
             deleteStudent,
             editStudent,
             newStudent,
@@ -396,6 +415,7 @@ export const Provider = ({ children }) => {
             editCategory,
             newCategory,
             verifyClazz,
+            users,
             changeAlertStatusAndMessage,
         }}>{children}</Context.Provider>
     );
