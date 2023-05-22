@@ -148,6 +148,11 @@ export const Provider = ({ children }) => {
         return createdPayment;
     };
 
+    const deletePayment = async (id) => {
+        await paymentsService.deletePayment(id);
+        setPayments(current => current.filter(p => p.id !== id));
+    }
+
     const deleteCollege = async collegeId => {
         await collegesService.deleteCollege(collegeId);
         changeAlertStatusAndMessage(true, 'success', 'La sede fue borrada exitosamente!')
@@ -374,6 +379,7 @@ export const Provider = ({ children }) => {
             alertStatus,
             setUser,
             informPayment,
+            deletePayment,
             deleteCollege,
             addCoursesToCollege,
             newCollege,

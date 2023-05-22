@@ -56,6 +56,19 @@ export default {
                 })
         });
     },
+    deletePayment(paymentId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .delete(baseUrl + `api/v1/payments/${paymentId}`, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getStudentPayments(studentId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
