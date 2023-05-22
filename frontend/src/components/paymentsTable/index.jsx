@@ -1,7 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Table from "../table";
+import DeleteIcon from '@mui/icons-material/Delete';
+import Modal from "../modal";
+import { Context } from "../../context/Context";
 
 export default function PaymentsTable({ className = "", payments, isLoading }) {
+    const { deletePayment } = useContext(Context);
+    const [payment, setPayment] = useState(null);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [isDeletingPayment, setIsDeletingPayment] = useState(false);
 
     const getBalanceForAllPayments = () => {
         let value = 0;
@@ -9,6 +16,14 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
             value = value + payment.value;
         });
         return value;
+    }
+
+    const handleDeletePayment = async () => {
+        setIsDeletingPayment(true);
+        await deletePayment(payment.id);
+        setIsDeletingPayment(false);
+        setPayment(null);
+        setDeleteModal(false);
     }
 
     const getPayments = () => {
@@ -29,6 +44,11 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
             }
         });
         return value * -1;
+    }
+
+    const openDeleteModal = (payment) => {
+        setPayment(payment);
+        setDeleteModal(true);
     }
 
     const getUserFullName = (row) => row.user.firstName + ' ' + row.user.lastName;
@@ -80,6 +100,11 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
             </a>}</>),
             sortable: true,
         },
+        {
+            name: 'Acciones',
+            cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button></div>),
+            sortable: true,
+        },
     ];
 
     useEffect(() => {
@@ -100,6 +125,11 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
                 <div className="mx-12">Ingresos: <span className="text-gray-800 font-bold bg-white rounded-2xl py-2 px-3">${getPayments()}</span></div>
                 <div className="mx-12">Egresos: <span className="text-red-800 font-bold bg-white rounded-2xl py-2 px-3">${getDischarges()}</span></div>
             </div>
+            <Modal onClose={() => setPayment(null)} icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
+                {payment !== null &&
+                    <div>Esta a punto de eliminar el pago con el importe de <span className="font-bold">{payment.value}$</span>{payment.fileId !== null && ", este pago tiene asociado un comprobante el cual tambien sera eliminado."}</div>
+                }
+            </Modal>
         </>
     );
 } 
