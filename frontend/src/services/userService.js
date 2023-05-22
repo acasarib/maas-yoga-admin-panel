@@ -31,6 +31,19 @@ export default {
                 })
         });
     },
+    getUsers() {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + 'api/v1/users', {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getHealth() {
         return new Promise((resolve, reject) => {
             const healthUrl = process.env.REACT_APP_HEALTHCHECK;
