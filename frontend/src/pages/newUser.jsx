@@ -1,17 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import Modal from "../components/modal";
 import userService from "../services/userService";
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import { Context } from "../context/Context";
+import Table from "../components/table";
+import AddIcon from '@mui/icons-material/Add';
+import { orange } from '@mui/material/colors';
 
 export default function NewUser(props) {
 
     const [disabled, setDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [canCreateUser, setCanCreateUser] = useState(false);
+    const [displayModal, setDisplayModal] = useState(false);
+    const { changeAlertStatusAndMessage, newUser, users } = useContext(Context);
+    const [opResult, setOpResult] = useState('Verificando usuarios...');
+
+    const setDisplay = (value) => {
+      setDisplayModal(value);
+  }
 
     const validate = (values) => {
         const errors = {};
@@ -36,122 +48,183 @@ export default function NewUser(props) {
         return errors;
     };
 
+    const columns = [
+      {
+          name: 'Nombre',
+          selector: row => row.firstName,
+          sortable: true,
+          searchable: true,
+      },
+      {
+          name: 'Apellido',
+          selector: row => row.lastName,
+          sortable: true,
+          searchable: true,
+      },
+      {
+          name: 'Email',
+          cell: row => {return (<><div className="flex flex-col justify-center">
+          <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+            <div className="group cursor-pointer relative inline-block">{row.email}
+              <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                {row.email}
+                <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+              </div>
+            </div>
+          </div>
+        </div></>)},
+          sortable: true,
+          searchable: true,
+          selector: row => row.email,
+      },
+      {
+        name: 'Fecha de creacion',
+        selector: row => {var dt = new Date(row.createdAt);
+            let year  = dt.getFullYear();
+            let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+            let day   = dt.getDate().toString().padStart(2, "0");
+            var date = day + '/' + month + '/' + year; return date},
+        sortable: true,
+    },
+  ];
+
     const formik = useFormik({
-        initialValues: {
-          email: '',
-          firstName: '',
-          lastName: '',
-          password: '',
-        },
-        validate,
-        onSubmit: async (values) => {
-          const body = {
-            email: values.email,
-            password: values.password,
-            lastName: values.lastName,
-            firstName: values. firstName,
-            permissionCreateUser: canCreateUser
-          };
-          setIsLoading(true);
-          try {
-            await userService.createUser(body);
-            console.log(body)
-            setIsLoading(false);
-          } catch (error) {
-            setIsLoading(false);
-          }
-          setCanCreateUser(false);
-          formik.values = {};
-        },
-      });
+      initialValues: {
+        email: '',
+        firstName: '',
+        lastName: '',
+        password: '',
+      },
+      validate,
+      onSubmit: async (values) => {
+        const body = {
+          email: values.email,
+          password: values.password,
+          lastName: values.lastName,
+          firstName: values. firstName,
+          permissionCreateUser: canCreateUser
+        };
+        setIsLoading(true);
+        try {
+          await newUser(body);
+          changeAlertStatusAndMessage(true, 'success', 'El usuario fue creado con éxito!');
+          setDisplayModal(false);
+          setIsLoading(false);
+        } catch (error) {
+          setIsLoading(false);
+          changeAlertStatusAndMessage(true, 'error', 'El usuario no pudo ser creado... por favor inténtelo nuevamente.');
+          setDisplayModal(false);
+        }
+        setCanCreateUser(false);
+        formik.values = {};
+      },
+    });
+
+    useEffect(() => {
+      setOpResult('No fue posible obtener los usuarios, por favor recargue la página...');
+    }, [])
 
     return(
         <>
         <div className="px-6 py-8 max-w-6xl mx-auto">
-            <div className="md:mx-32 bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
-                <div className="flex-row">
-                    <span className="mx-auto h-12 w-12 p-2 rounded-full bg-orange-100 sm:mx-0 sm:h-10 sm:w-10">
-                        <span className=""><PersonAddIcon /></span>
-                    </span><span className="text-2xl md:text-3xl font-bold text-yellow-900 ml-4 mt-4">Nuevo usuario</span>
-                </div>
-                    <form className="pt-6 mb-4 mx-auto w-4/6"    
-                        method="POST"
-                        id="form"
-                        onSubmit={formik.handleSubmit}
-                    >
-                           <div className="mb-4">
-                            <CommonInput 
-                                label="Nombre"    
-                                onBlur={formik.handleBlur}
-                                value={formik.values.firstName}
-                                name="firstName"
-                                htmlFor="firstName"
-                                id="firstName" 
-                                type="text" 
-                                placeholder="Nombre" 
-                                onChange={formik.handleChange}
-                            />
-                        {formik.touched.firstName && formik.errors.firstName ? (
-                            <div className="text-red-500">{formik.errors.firstName}</div>
-                        ) : null}
-                        </div>
-                        <div className="mb-4">
-                            <CommonInput 
-                                label="Apellido"    
-                                onBlur={formik.handleBlur}
-                                value={formik.values.lastName}
-                                name="lastName"
-                                htmlFor="lastName"
-                                id="lastName" 
-                                type="text" 
-                                placeholder="Apellido" 
-                                onChange={formik.handleChange}
-                            />
-                        {formik.touched.lastName && formik.errors.lastName ? (
-                            <div className="text-red-500">{formik.errors.lastName}</div>
-                        ) : null}
-                        </div>
-                        <div className="mb-4">
-                            <CommonInput 
-                                label="Email"    
-                                onBlur={formik.handleBlur}
-                                value={formik.values.email}
-                                name="email"
-                                htmlFor="email"
-                                id="email" 
-                                type="text" 
-                                placeholder="Email" 
-                                onChange={formik.handleChange}
-                            />
-                        {formik.touched.email && formik.errors.email ? (
-                            <div className="text-red-500">{formik.errors.email}</div>
-                        ) : null}
-                        </div>
-                        <div className="mb-6">
-                        <CommonInput 
-                                label="Contraseña"    
-                                onBlur={formik.handleBlur}
-                                value={formik.values.password}
-                                name="password"
-                                htmlFor="password"
-                                id="password" 
-                                type="password" 
-                                placeholder="******************"
-                                onChange={formik.handleChange}
-                        />
-                        {formik.touched.password && formik.errors.password ? (
-                            <div className="text-red-500">{formik.errors.password}</div>
-                        ) : null}
-                        </div>
-                        <FormGroup>
-                          <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} />} label="Permitir crear usuarios" />
-                        </FormGroup>
-                            <button disabled={disabled} className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2" : "bg-orange-200 hover:bg-orange-550 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2"}  type="submit">
-                                {isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>}
-                            </button>
-                    </form>
+          <div className="md:mx-32 bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
+            <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Usuarios</h1>
+            <div className="my-6 md:my-12 mx-8 md:mx-4">
+                <Table
+                    columns={columns}
+                    data={users}
+                    pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    responsive
+                    noDataComponent={opResult}
+                />
+            </div>
+            <div className="flex justify-end">
+              <button onClick={() => setDisplayModal(true)}
+                      className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
+              </button>
             </div>
           </div>
-        </>
+          <Modal icon={<PersonAddIcon />} buttonDisabled={disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} onClick={formik.handleSubmit} children={<>
+                  <form className="pt-6 mb-4 mx-auto w-4/6"    
+                      method="POST"
+                      id="form"
+                      onSubmit={formik.handleSubmit}
+                  >
+                          <div className="mb-4">
+                          <CommonInput 
+                              label="Nombre"    
+                              onBlur={formik.handleBlur}
+                              value={formik.values.firstName}
+                              name="firstName"
+                              htmlFor="firstName"
+                              id="firstName" 
+                              type="text" 
+                              placeholder="Nombre" 
+                              onChange={formik.handleChange}
+                          />
+                      {formik.touched.firstName && formik.errors.firstName ? (
+                          <div className="text-red-500">{formik.errors.firstName}</div>
+                      ) : null}
+                      </div>
+                      <div className="mb-4">
+                          <CommonInput 
+                              label="Apellido"    
+                              onBlur={formik.handleBlur}
+                              value={formik.values.lastName}
+                              name="lastName"
+                              htmlFor="lastName"
+                              id="lastName" 
+                              type="text" 
+                              placeholder="Apellido" 
+                              onChange={formik.handleChange}
+                          />
+                      {formik.touched.lastName && formik.errors.lastName ? (
+                          <div className="text-red-500">{formik.errors.lastName}</div>
+                      ) : null}
+                      </div>
+                      <div className="mb-4">
+                          <CommonInput 
+                              label="Email"    
+                              onBlur={formik.handleBlur}
+                              value={formik.values.email}
+                              name="email"
+                              htmlFor="email"
+                              id="email" 
+                              type="text" 
+                              placeholder="Email" 
+                              onChange={formik.handleChange}
+                          />
+                      {formik.touched.email && formik.errors.email ? (
+                          <div className="text-red-500">{formik.errors.email}</div>
+                      ) : null}
+                      </div>
+                      <div className="mb-6">
+                      <CommonInput 
+                              label="Contraseña"    
+                              onBlur={formik.handleBlur}
+                              value={formik.values.password}
+                              name="password"
+                              htmlFor="password"
+                              id="password" 
+                              type="password" 
+                              placeholder="******************"
+                              onChange={formik.handleChange}
+                      />
+                      {formik.touched.password && formik.errors.password ? (
+                          <div className="text-red-500">{formik.errors.password}</div>
+                      ) : null}
+                      </div>
+                      <FormGroup>
+                        <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
+                          color: orange[500],
+                          '&.Mui-checked': {
+                            color: orange[500],
+                          },
+                        }} />} label="Permitir crear usuarios" />
+                      </FormGroup>
+                  </form>
+          </>} />
+        </div>
+      </>
     );
 } 
