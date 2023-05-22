@@ -219,6 +219,8 @@ export const Provider = ({ children }) => {
 
     const newStudent = async student => {
         const createdStudent = await studentsService.newStudent(student);
+        createdStudent.label = createdStudent.name + ' ' + createdStudent.lastName;
+        createdStudent.value = createdStudent.id;
         changeAlertStatusAndMessage(true, 'success', 'El estudiante fue agregado exitosamente!')
         setStudents(current => [...current, createdStudent]);
         return createdStudent;

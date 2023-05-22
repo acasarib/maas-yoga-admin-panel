@@ -8,6 +8,7 @@ const PAYMENT_TYPES = {
 };
 const FIRST_USER_PASSWORD = "123";
 const FIRST_USER_EMAIL = "email@email.com";
+const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 // https://sequelize.org/docs/v6/core-concepts/model-querying-basics/
 const ALLOWED_SEQUELIZE_OPERATIONS = [
@@ -41,4 +42,5 @@ export {
   SPECIFICATION_VALUE_SEPARATOR,
   SPECIFICATION_QUERY_SEPARATOR,
   PAYMENT_TYPES,
+  DAYS,
 };

@@ -48,4 +48,17 @@ export default {
     }
   },
 
+  /**
+   * / [GET]
+   * @returns HttpStatus ok and array of @Template
+   */
+  getAll: async (req, res, next) => {
+    try {
+      const users = await userService.getAll();
+      res.status(StatusCodes.OK).json(users);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };
