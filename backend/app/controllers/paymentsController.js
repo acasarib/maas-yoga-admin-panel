@@ -19,6 +19,19 @@ export default {
   },
 
   /**
+   * /payments/{id} [DELETE]
+   * @returns HttpStatus no content if was deleted
+   */
+  deleteById: async (req, res, next) => {
+    try {
+      await paymentService.deleteById(req.params.id);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /payments/students/{studentId} [GET]
    * @returns HttpStatus ok and array of @Payment
    */
