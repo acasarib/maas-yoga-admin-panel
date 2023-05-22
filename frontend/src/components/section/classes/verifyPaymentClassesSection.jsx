@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal from "../../modal";
 import PaidIcon from '@mui/icons-material/Paid';
 import ClassesTable from "../../classesTable";
+import { twoDigits } from "../../../utils";
 
 export default function VerifyPaymentClassesSection() {
     const { clazzes, verifyClazz, changeAlertStatusAndMessage } = useContext(Context);
@@ -26,8 +27,6 @@ export default function VerifyPaymentClassesSection() {
     }
 
     const prettyMonth = date => new Intl.DateTimeFormat('es-ES', { month: 'long'}).format(date);
-
-    const twoDigits = minutes => String(minutes).padStart(2, '0');
 
     const prettyDate = (date) => {
         date = new Date(date);

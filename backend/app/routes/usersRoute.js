@@ -9,5 +9,6 @@ const router = express.Router();
 router.post("/register", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), body("email").isEmail(), controller.register);
 router.delete("/:email", controller.deleteByEmail);
 router.post("/login", controller.login);
+router.get("/", controller.getAll);
 
 export default router;

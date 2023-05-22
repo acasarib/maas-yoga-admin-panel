@@ -31,12 +31,17 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
         return value * -1;
     }
 
+    const getUserFullName = (row) => row.user.firstName + ' ' + row.user.lastName;
+
+    const getStudentFullName = (row) => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "";
+
     const columns = [
         {
             name: 'Modo de pago',
             cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.type}</span>,
             sortable: true,
             searchable: true,
+            selector: row => row.type,
         },
         {
             name: 'Importe',
@@ -46,15 +51,17 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
         },
         {
             name: 'Abonado por',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : ""}</span>,
+            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getStudentFullName(row)}</span>,
             sortable: true,
             searchable: true,
+            selector: row => getStudentFullName(row),
         },
         {
             name: 'Informado por',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.user.firstName + ' ' + row.user.lastName}</span>,
+            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getUserFullName(row)}</span>,
             sortable: true,
             searchable: true,
+            selector: row => getUserFullName(row),
         },
         {
             name: 'Fecha',
@@ -64,6 +71,7 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
                 let day   = dt.getDate().toString().padStart(2, "0");
                 var date = day + '/' + month + '/' + year; return date},
             sortable: true,
+            searchable: true,
             maxWidth: '80px'
         },
         {

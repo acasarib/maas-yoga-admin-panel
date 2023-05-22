@@ -140,6 +140,7 @@ export default function Courses(props) {
             </div></>)},
             sortable: true,
             searchable: true,
+            selector: row => row.title,
         },
         {
             name: 'Descripción',

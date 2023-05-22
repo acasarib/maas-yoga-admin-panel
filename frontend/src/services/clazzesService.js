@@ -6,8 +6,10 @@ export default {
             const data = {
                 "title": clazzData.title,
                 "professor": clazzData.professor,
-                "startAt": clazzData.startAt              
-            }            
+                "startAt": clazzData.startAt,
+                "headquarterId": clazzData.headquarterId,
+                "days": clazzData.days,
+            }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
                 .post(baseUrl + 'api/v1/clazzes', data, {})
@@ -51,7 +53,9 @@ export default {
                 "title": clazzData.title,
                 "professor": clazzData.professor,
                 "startAt": clazzData.startAt,
-                "paymentsVerified": clazzData.paymentsVerified           
+                "paymentsVerified": clazzData.paymentsVerified,
+                "headquarterId": clazzData.headquarterId,
+                "days": clazzData.days,
             }  
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
