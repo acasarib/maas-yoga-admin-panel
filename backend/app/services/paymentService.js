@@ -1,4 +1,4 @@
-import { payment, course, student, user, item } from "../db/index.js";
+import { payment, course, student, user, file } from "../db/index.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 
 const isPaymentVerified = payment => {
@@ -10,6 +10,14 @@ const isPaymentVerified = payment => {
 export const create = async (paymentParam) => {
   paymentParam.verified = isPaymentVerified(paymentParam);
   return payment.create(paymentParam);
+};
+
+export const deleteById = async (id) => {
+  const p = await payment.findByPk(id);
+  if (p.fileId) {
+    file.destroy({ where: { id: p.fileId } });
+  }
+  return p.destroy();
 };
 
 export const getAllByStudentId = async (studentId) => {
