@@ -55,13 +55,21 @@ export default function PaymentsSection(props) {
 
     const uploadFile = async (file) => {
         setIsLoading(true);
-        const response = await paymentsService.uploadFile(file);
-        setFileId(response.id);
-        setFile([]);
-        setHaveFile(false);
-        //checkValues();
-        setFilename("");
-        setIsLoading(true);
+        try {
+            const response = await paymentsService.uploadFile(file);
+            setFileId(response.id);
+            setFile([]);
+            setHaveFile(false);
+            setFilename("");
+            setIsLoading(false);
+            changeAlertStatusAndMessage(true, 'success', 'El archivo fue subido exitosamente!');
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'El archivo no pudo ser subido... Por favor inténtelo nuevamente.')
+            setFile([]);
+            setHaveFile(false);
+            setFilename("");
+            setIsLoading(false);
+        }
     }
 
     const informDischarge = () => {
