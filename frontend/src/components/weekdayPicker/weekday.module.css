@@ -15,16 +15,16 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 2px solid #4080ff;
+    border: 2px solid #ea8215;
     width: 40px;
     height: 40px;
     border-radius: 20px;
-    color: #4080ff;
+    color: #ea8215;
     position: relative;
 }
 
 .button .buttonSelected {
-    background: #4080ff;
+    background: #ea8215;
     color: white;
 }
 

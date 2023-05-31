@@ -27,6 +27,7 @@ export default function ClassesSection(props) {
     const [clazzId, setClazzId] = useState(null);
     const [edit, setEdit] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
+    const [endAt, setEndAt] = useState(dayjs(new Date()));
     const [activeView, setActiveView] = useState(0);
     const [btnText, setBtnText] = useState("Siguiente");
     const [clazzToEdit, setClazzToEdit] = useState({});
@@ -144,6 +145,20 @@ export default function ClassesSection(props) {
                         </DemoContainer>
                     </LocalizationProvider>
                 </div>
+                <div className="mb-4 relative col-span-2">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
+                        Fecha de finalización
+                    </label>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                            <DateTimePicker
+                            label="Seleccionar fecha"
+                            value={endAt}
+                            onChange={(newValue) => setEndAt(newValue)}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
+                </div>
                 <div className="mb-4">
                     <CommonInput 
                         label="Titulo"    
@@ -177,7 +192,7 @@ export default function ClassesSection(props) {
                             value={selectedCollege}
                             onChange={setSelectedCollege}
                             options={colleges}
-                            styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                            styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
                         />
                     </div>
                 </div>
@@ -206,7 +221,8 @@ export default function ClassesSection(props) {
         initialValues: {
             title: edit ? clazzToEdit.title : '',
             professor: edit ? clazzToEdit.professor : '',
-            startAt: edit ? clazzToEdit.startAt : startAt
+            startAt: edit ? clazzToEdit.startAt : startAt,
+            endAt: edit ? clazzToEdit.endAt : endAt,
         },
         onSubmit: async (values) => {
           const daysParam = {};
@@ -218,6 +234,7 @@ export default function ClassesSection(props) {
             title: values.title,
             professor: values.professor,
             startAt: startAt,
+            endAt: endAt,
             headquarterId: selectedCollege.id,
             days: daysParam,
           };
@@ -282,6 +299,7 @@ export default function ClassesSection(props) {
                 numViews={2}
                 activeView={activeView}
                 animateHeight
+                style={{ overflow: 'auto', padding: '4px'}}
             />
         </>
         } />
