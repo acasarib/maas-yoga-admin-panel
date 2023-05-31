@@ -7,6 +7,7 @@ export default {
                 "title": clazzData.title,
                 "professor": clazzData.professor,
                 "startAt": clazzData.startAt,
+                "endAt": clazzData.endAt,
                 "headquarterId": clazzData.headquarterId,
                 "days": clazzData.days,
             }
@@ -53,6 +54,7 @@ export default {
                 "title": clazzData.title,
                 "professor": clazzData.professor,
                 "startAt": clazzData.startAt,
+                "endAt": clazzData.endAt,
                 "paymentsVerified": clazzData.paymentsVerified,
                 "headquarterId": clazzData.headquarterId,
                 "days": clazzData.days,
