@@ -25,6 +25,8 @@ export default function Balance(props) {
         setCurrentChartSelected("custom");
         switchModal();
     }
+
+    const handleOnDeletePayment = paymentId => setPayments(current => current.filter(p => p.id !== paymentId));
     
     return(
         <>
@@ -43,7 +45,7 @@ export default function Balance(props) {
                             />
                         </div>
                     </div>
-                    <PaymentsTable className="mt-4" payments={payments} isLoading={false}/>
+                    <PaymentsTable className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
                 </div>
                 <ChartFilterModal isOpen={isModalOpen} closeModal={switchModal} onApplyFilter={onApplyFilter} />
             </div>
