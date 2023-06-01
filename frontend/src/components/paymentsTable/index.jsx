@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from "../modal";
 import { Context } from "../../context/Context";
 
-export default function PaymentsTable({ className = "", payments, isLoading }) {
+export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {} }) {
     const { deletePayment } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -24,6 +24,7 @@ export default function PaymentsTable({ className = "", payments, isLoading }) {
         setIsDeletingPayment(false);
         setPayment(null);
         setDeleteModal(false);
+        onDelete(payment.id);
     }
 
     const getPayments = () => {
