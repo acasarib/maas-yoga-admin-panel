@@ -132,7 +132,7 @@ export default function ClassesSection(props) {
         >
             <div className="grid grid-cols-2 gap-4">
                 <div className="mb-4 relative col-span-2">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                         Fecha de inicio
                     </label>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -146,7 +146,7 @@ export default function ClassesSection(props) {
                     </LocalizationProvider>
                 </div>
                 <div className="mb-4 relative col-span-2">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                         Fecha de finalización
                     </label>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
