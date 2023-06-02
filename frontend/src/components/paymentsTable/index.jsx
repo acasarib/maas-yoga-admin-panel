@@ -5,7 +5,7 @@ import Modal from "../modal";
 import { Context } from "../../context/Context";
 
 export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {} }) {
-    const { deletePayment, categories } = useContext(Context);
+    const { deletePayment } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);
@@ -56,29 +56,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
 
     const getStudentFullName = (row) => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "";
 
-    const getCategory = (categorieId) => {
-        const filteredCategorie = categories.filter(categorie => categorie.id === categorieId);
-        return (filteredCategorie.length > 0) ? filteredCategorie[0].title : '';
-    }
-
     const columns = [
-        {
-            name: 'Fecha',
-            selector: row => {var dt = new Date(row.createdAt);
-                let year  = dt.getFullYear();
-                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                let day   = dt.getDate().toString().padStart(2, "0");
-                var date = day + '/' + month + '/' + year; return date},
-            sortable: true,
-            searchable: true,
-            maxWidth: '80px'
-        },
-        {
-            name: 'Importe',
-            cell: row => <span className={(row.value >= 0) ? "w-16 text-gray-800 font-bold" : "w-16 text-red-800 font-bold"}>{'$' + row.value}</span>,
-            sortable: true,
-            //maxWidth: '80px'
-        },
         {
             name: 'Modo de pago',
             cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.type}</span>,
@@ -87,11 +65,10 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             selector: row => row.type,
         },
         {
-            name: 'Detalle',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getCategory(row.itemId)}</span>,
+            name: 'Importe',
+            cell: row => <span className={(row.value >= 0) ? "w-16 text-gray-800 font-bold" : "w-16 text-red-800 font-bold"}>{'$' + row.value}</span>,
             sortable: true,
-            searchable: true,
-            selector: row => getCategory(row.itemId),
+            //maxWidth: '80px'
         },
         {
             name: 'Abonado por',
@@ -106,6 +83,17 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             sortable: true,
             searchable: true,
             selector: row => getUserFullName(row),
+        },
+        {
+            name: 'Fecha',
+            selector: row => {var dt = new Date(row.createdAt);
+                let year  = dt.getFullYear();
+                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                let day   = dt.getDate().toString().padStart(2, "0");
+                var date = day + '/' + month + '/' + year; return date},
+            sortable: true,
+            searchable: true,
+            maxWidth: '80px'
         },
         {
             name: 'Comprobante',
