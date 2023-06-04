@@ -106,7 +106,7 @@ export default function Home(props) {
                     </div>
                 </header>
 
-                <aside className={`${isOpenSidebar ? "translate-x-0 w-full" : "-translate-x-full"} sm:translate-x-0 sm:w-64 z-50 transition-transform -translate-x-full fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen`}>
+                <aside className={`${isOpenSidebar ? "translate-x-0 w-full" : "-translate-x-full"} sm:translate-x-0 sm:w-64 z-50 transition-transform fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen`}>
                     <div className="flex flex-col justify-between h-full">
                         <div className="flex-grow">
                             <div className="px-4 py-8 text-center border-b bg-orange-100">
