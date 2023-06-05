@@ -101,7 +101,12 @@ export default function PaymentsSection(props) {
     };
 
     const handleChangeAmmount = (e) => {
-       setAmmount(e.target.value)
+        if(!isDischarge) {
+            const fixedNumber = e.target.value.toFixed(3);
+            setAmmount(fixedNumber);
+        }else {
+            setAmmount(e.target.value);
+        }
        //checkValues();
     }
 
@@ -177,7 +182,7 @@ export default function PaymentsSection(props) {
             courseId: isDischarge ? null : selectedCourse,
             paymentType: paymentMethod,
             fileId: fileId,
-            paymentValue: isDischarge ? (ammount * -1) : ammount,
+            paymentValue: isDischarge ? (ammount * -1).toFixed(3) : ammount,
             studentId: isDischarge ? null : selectedStudent,
             note: note,
             at: paymentAt.$d.getTime()
