@@ -1,7 +1,15 @@
 import { student, course, courseTask } from "../db/index.js";
 
+/**
+ * 
+ * @param {Array||Student} studentParam 
+ * @returns {Array} created students if @param studentParam is Array
+ * @returns {Student} created student if @param studentParam is Student
+ */
 export const create = async (studentParam) => {
-  return student.create(studentParam);
+  const isArray = Array.isArray(studentParam);
+  const createdStudents = await student.bulkCreate(isArray ? studentParam : [studentParam]);
+  return (createdStudents.length === 1) ? createdStudents[0] : createdStudents;
 };
 
 export const deleteById = async (id) => {

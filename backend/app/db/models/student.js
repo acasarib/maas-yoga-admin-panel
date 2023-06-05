@@ -9,9 +9,16 @@ const student = (sequelize) => {
     },
     name: Sequelize.STRING,
     lastName: Sequelize.STRING,
-    document: Sequelize.INTEGER,
+    document: Sequelize.BIGINT,
     email: Sequelize.STRING,
     phoneNumber: Sequelize.STRING,
+    cellPhoneNumber: Sequelize.STRING,
+    contact: Sequelize.STRING,
+    image:  Sequelize.STRING,
+    alias: Sequelize.STRING,
+    address: Sequelize.STRING,
+    occupation: Sequelize.STRING,
+    coverage: Sequelize.STRING,
   }, {});
   student.associate = function (models) {
     // associations can be defined here
