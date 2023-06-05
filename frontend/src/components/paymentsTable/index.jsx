@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import Table from "../table";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from "../modal";
@@ -56,69 +56,78 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
 
     const getStudentFullName = (row) => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "";
 
-    const getCategory = (categorieId) => {
-        const filteredCategorie = categories.filter(categorie => categorie.id === categorieId);
-        return (filteredCategorie.length > 0) ? filteredCategorie[0].title : '';
+    const getItemById = itemId => {
+        let item = "";
+        try {
+            const newItem = categories.find(category => category.items.find(item => item.id === itemId)).items.find(item => item.id === itemId);
+            item = newItem.title;
+        }catch {
+            item = "";
+        }
+        return item;
     }
 
-    const columns = [
-        {
-            name: 'Fecha',
-            selector: row => {var dt = new Date(row.createdAt);
-                let year  = dt.getFullYear();
-                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                let day   = dt.getDate().toString().padStart(2, "0");
-                var date = day + '/' + month + '/' + year; return date},
-            sortable: true,
-            searchable: true,
-            maxWidth: '80px'
-        },
-        {
-            name: 'Importe',
-            cell: row => <span className={(row.value >= 0) ? "w-16 text-gray-800 font-bold" : "w-16 text-red-800 font-bold"}>{'$' + row.value}</span>,
-            sortable: true,
-            //maxWidth: '80px'
-        },
-        {
-            name: 'Modo de pago',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.type}</span>,
-            sortable: true,
-            searchable: true,
-            selector: row => row.type,
-        },
-        {
-            name: 'Detalle',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getCategory(row.itemId)}</span>,
-            sortable: true,
-            searchable: true,
-            selector: row => getCategory(row.itemId),
-        },
-        {
-            name: 'Abonado por',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getStudentFullName(row)}</span>,
-            sortable: true,
-            searchable: true,
-            selector: row => getStudentFullName(row),
-        },
-        {
-            name: 'Informado por',
-            cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getUserFullName(row)}</span>,
-            sortable: true,
-            searchable: true,
-            selector: row => getUserFullName(row),
-        },
-        {
-            name: 'Comprobante',
-            cell: row => (<>{row.fileId !== null &&<a href={`${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
-            </a>}</>),
-            sortable: true,
-        },
-        {
-            name: 'Acciones',
-            cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button></div>),
-            sortable: true,
-        },
-    ];
+    const columns = useMemo(() => {
+        const newColumns = [
+            {
+                name: 'Fecha',
+                selector: row => {var dt = new Date(row.createdAt);
+                    let year  = dt.getFullYear();
+                    let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                    let day   = dt.getDate().toString().padStart(2, "0");
+                    var date = day + '/' + month + '/' + year; return date},
+                sortable: true,
+                searchable: true,
+                maxWidth: '80px'
+            },
+            {
+                name: 'Importe',
+                cell: row => <span className={(row.value >= 0) ? "w-16 text-gray-800 font-bold" : "w-16 text-red-800 font-bold"}>{'$' + row.value}</span>,
+                sortable: true,
+                //maxWidth: '80px'
+            },
+            {
+                name: 'Modo de pago',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.type}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => row.type,
+            },
+            {
+                name: 'Detalle',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row.itemId)}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => getItemById(row.itemId),
+            },
+            {
+                name: 'Abonado por',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getStudentFullName(row)}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => getStudentFullName(row),
+            },
+            {
+                name: 'Informado por',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getUserFullName(row)}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => getUserFullName(row),
+            },
+            {
+                name: 'Comprobante',
+                cell: row => (<>{row.fileId !== null &&<a href={`${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
+                </a>}</>),
+                sortable: true,
+            },
+            {
+                name: 'Acciones',
+                cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button></div>),
+                sortable: true,
+            },
+        ];
+        return newColumns;
+    }, [categories]); 
 
     useEffect(() => {
         getBalanceForAllPayments();
