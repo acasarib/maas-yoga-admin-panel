@@ -19,6 +19,7 @@ export default function App() {
           <Route path="/home/students" element={<Home students />} />
           <Route path="/home/colleges" element={<Home colleges />} />
           <Route path="/home/categories" element={<Home categories />} />
+          <Route path="/home/imports" element={<Home imports />} />
         </Routes>
       </Router>
   );

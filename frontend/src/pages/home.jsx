@@ -4,6 +4,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import PaidIcon from '@mui/icons-material/Paid';
 import BalanceIcon from '@mui/icons-material/Balance';
 import CategoryIcon from '@mui/icons-material/Category';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
 import CloseIcon from '@mui/icons-material/Close';
 import SchoolIcon from '@mui/icons-material/School';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -17,6 +18,7 @@ import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
 import Categories from "./categories";
+import Imports from "./imports";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 import NavItem from "../components/navItem";
@@ -141,6 +143,7 @@ export default function Home(props) {
                                 <NavItem target={"courses"} isActive={props.courses} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
                                 <NavItem target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
                                 <NavItem target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
+                                <NavItem target={"imports"} isActive={props.imports} icon={<ImportExportIcon/>}>Importar datos</NavItem>
                                 {isMasterAdmin && (<NavItem target={"new-user"} isActive={props.newUser} icon={<GroupIcon/>}>Usuarios</NavItem>)}
                             </ul>
                             </div>
@@ -166,6 +169,7 @@ export default function Home(props) {
                     {props.courses && (<><Courses/></>)}
                     {props.students && (<><Students/></>)}
                     {props.categories && (<><Categories/></>)}
+                    {props.imports && (<><Imports/></>)}
                 </main>
                 </body>
             </div>

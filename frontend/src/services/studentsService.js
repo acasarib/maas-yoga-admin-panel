@@ -1,4 +1,7 @@
 import axios from './interceptors';
+import { Observable } from 'rxjs';
+import { share } from 'rxjs/operators';
+import { sleep } from '../utils';
 
 export default {
     newStudent(student) {
@@ -20,6 +23,28 @@ export default {
                     reject(error.data)
                 })
         });
+    },
+    newStudents(students) {
+        return new Observable(async (subscriber) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            const chunkSize = 40;
+            let created = [];
+            for (let i = 0; i < students.length; i += chunkSize) {
+                const currentChunk = i + chunkSize
+                const chunk = students.slice(i, currentChunk);
+                try {
+                    await sleep(2000);
+                    let createdStudents = await axios.post(baseUrl + 'api/v1/students', chunk, {});
+                    createdStudents = Array.isArray(createdStudents) ? createdStudents : [createdStudents];
+                    created = [...created, ...createdStudents];
+                    const percentaje = (currentChunk/students.length) * 100;
+                    subscriber.next(percentaje);
+                } catch {
+
+                }
+            }
+            subscriber.complete(created);
+        }).pipe(share());
     },
     getStudents() {
         return new Promise((resolve, reject) => {
