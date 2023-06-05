@@ -231,6 +231,22 @@ export const Provider = ({ children }) => {
         return createdStudent;
     }
 
+    const newStudents = students => {
+        const observable = studentsService.newStudents(students);
+        observable.subscribe({
+            complete(createdStudents) {
+                createdStudents = Array.isArray(createdStudents) ? createdStudents : [createdStudents];
+                createdStudents.forEach(createdStudent => {
+                    createdStudent.label = createdStudent.name + ' ' + createdStudent.lastName;
+                    createdStudent.value = createdStudent.id;
+                })
+                changeAlertStatusAndMessage(true, 'success', 'Los estudiantes se importaron exitosamente!')
+                setStudents(current => [...current, ...createdStudents]);
+            }
+        })
+        return observable;
+    }
+
     const deleteCourse = async courseId => {
         await coursesService.deleteCourse(courseId);
         changeAlertStatusAndMessage(true, 'success', 'El curso fue borrado exitosamente!')
@@ -406,6 +422,7 @@ export const Provider = ({ children }) => {
             deleteStudent,
             editStudent,
             newStudent,
+            newStudents,
             deleteCourse,
             newCourse,
             addStudent,

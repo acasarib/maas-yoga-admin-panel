@@ -18,6 +18,8 @@ export default function Table({ className = "", columns, data, ...rest }) {
                 throw Error(`The column ${currentFilteringColumn.name} has no selector defined`);
             setDataFiltered(data.filter(d => {
                 const dataValue = columnSelector(d);
+                if (dataValue === null)
+                    return false;
                 return dataValue.toLowerCase().includes(searchValue.toLowerCase());
             }));
         } else {
