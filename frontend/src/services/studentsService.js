@@ -35,15 +35,15 @@ export default {
                 try {
                     await sleep(2000);
                     let createdStudents = await axios.post(baseUrl + 'api/v1/students', chunk, {});
+                    createdStudents = createdStudents.data;
                     createdStudents = Array.isArray(createdStudents) ? createdStudents : [createdStudents];
-                    created = [...created, ...createdStudents];
                     const percentaje = (currentChunk/students.length) * 100;
                     subscriber.next(percentaje);
                 } catch {
 
                 }
             }
-            subscriber.complete(created);
+            subscriber.complete();
         }).pipe(share());
     },
     getStudents() {

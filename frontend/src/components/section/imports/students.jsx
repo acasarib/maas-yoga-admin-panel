@@ -54,6 +54,13 @@ export default function ImportStudents({ onCancel }) {
                         return "0";
                     return str;
                 }
+                const mapDate = date => {
+                    try {
+                        return new Date(date);
+                    } catch {
+                        return null;
+                    }
+                }
                 const mapFieldsToObject = student => ({
                     id: mapNull(student.id),
                     name: mapNull(student.nombre),
@@ -69,6 +76,7 @@ export default function ImportStudents({ onCancel }) {
                     occupation: mapNull(student.ocupacion),
                     coverage: mapNull(student.cobertura),
                     isSelected: true,
+                    createdAt: mapDate(student.create_at)
                 });
                 const data = results.data
                     .filter(onlyStudentsPermission)
