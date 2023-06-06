@@ -5,7 +5,7 @@ import Modal from "../modal";
 import { Context } from "../../context/Context";
 
 export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {} }) {
-    const { deletePayment } = useContext(Context);
+    const { deletePayment, categories } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);

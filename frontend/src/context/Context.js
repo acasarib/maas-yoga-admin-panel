@@ -234,14 +234,13 @@ export const Provider = ({ children }) => {
     const newStudents = students => {
         const observable = studentsService.newStudents(students);
         observable.subscribe({
-            complete(createdStudents) {
-                createdStudents = Array.isArray(createdStudents) ? createdStudents : [createdStudents];
-                createdStudents.forEach(createdStudent => {
+            complete() {
+                students.forEach(createdStudent => {
                     createdStudent.label = createdStudent.name + ' ' + createdStudent.lastName;
                     createdStudent.value = createdStudent.id;
                 })
                 changeAlertStatusAndMessage(true, 'success', 'Los estudiantes se importaron exitosamente!')
-                setStudents(current => [...current, ...createdStudents]);
+                setStudents(current => [...current, ...students]);
             }
         })
         return observable;
