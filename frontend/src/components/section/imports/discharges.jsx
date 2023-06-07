@@ -4,7 +4,7 @@ import { Context } from "../../../context/Context";
 import { dateToString } from "../../../utils";
 
 
-export default function ImportSubscriptionClasses({ onCancel }) {
+export default function ImportDischarges({ onCancel }) {
     const { payments, newSubscriptionClasses } = useContext(Context);
     const csvToObject = csv => {
         const mapNull = str => str === "NULL" ? null : str;
@@ -18,13 +18,9 @@ export default function ImportSubscriptionClasses({ onCancel }) {
         const mapFieldsToObject = payment => ({
             id: mapNull(payment.id),
             note: mapNull(payment.descripcion),
-            name: mapNull(payment.nombre),
-            lastName: mapNull(payment.apellido),
-            email: mapNull(payment.email),
-            createdAt: mapDate(payment.fecha),
             at: mapDate(payment.fecha),
-            headquarterName: mapNull(payment.location_name),
-            value: mapNull(payment.valor),
+            createdAt: mapDate(payment.fecha),
+            value: parseFloat(payment.valor)*-1,
         });
         
         return csv.map(mapFieldsToObject);
@@ -51,43 +47,19 @@ export default function ImportSubscriptionClasses({ onCancel }) {
             searchable: true,
         },
         {
-            name: 'Nombre del alumno',
-            selector: row => row.name,
-            sortable: true,
-            searchable: true,
-        },
-        {
-            name: 'Apellido del alumno',
-            selector: row => row.lastName,
-            sortable: true,
-            searchable: true,
-        },
-        {
-            name: 'Email del alumno',
-            selector: row => row.email,
-            sortable: true,
-            searchable: true,
-        },
-        {
             name: 'Fecha',
             selector: row => dateToString(row.at),
             sortable: true,
             searchable: true,
-        },
-        {
-            name: 'Sede',
-            selector: row => row.headquarterName,
-            sortable: true,
-            searchable: true,
-        },
+        }
     ];
 
-    const isAlreadyImported = payment1 => payments.some(payment2 => parseInt(payment1.id) === payment2.oldId && payment2.value >= 0);
+    const isAlreadyImported = payment1 => payments.some(payment2 => parseInt(payment1.id) === payment2.oldId && payment2.value < 0);
 
     return (<>
         <ImportModule
             onCancel={onCancel}
-            moduleName="abono de clases"
+            moduleName="gastos"
             csvToObject={csvToObject}
             isAlreadyImported={isAlreadyImported}
             columns={columns}
