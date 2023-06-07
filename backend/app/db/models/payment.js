@@ -7,6 +7,7 @@ const payment = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     },
+    oldId: Sequelize.INTEGER,
     type: {
       type: Sequelize.STRING,
       allowNull: false,

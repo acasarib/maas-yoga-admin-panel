@@ -10,8 +10,7 @@ export default {
    */
   create: async (req, res, next) => {
     try {
-      req.body.userId = req.user.id;
-      const createdPayment = await paymentService.create(req.body);
+      const createdPayment = await paymentService.create(req.body, req.user.id);
       res.status(StatusCodes.CREATED).json(createdPayment);
     } catch (e) {
       next(e);
