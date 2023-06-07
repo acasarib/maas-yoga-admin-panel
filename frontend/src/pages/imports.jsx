@@ -6,6 +6,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PaidIcon from '@mui/icons-material/Paid';
 import SchoolIcon from '@mui/icons-material/School';
 import ImportStudents from "../components/section/imports/students";
+import ImportSubscriptionClasses from "../components/section/imports/subscriptionClasses";
 
 export default function Imports() {
     const [activeView, setActiveView] = useState(0);
@@ -23,7 +24,6 @@ export default function Imports() {
     }, [activeImport]);
 
     const onCancelImport = () => setActiveImport("");
-    
 
     const renderView = ({ index, active, transitionState }) => (
         <>
@@ -31,7 +31,10 @@ export default function Imports() {
             <Menu/>
         }
         {index === 1 && 
-            (<>{activeImport === "students" && <ImportStudents onCancel={onCancelImport}/>}</>)
+            (<>
+            {activeImport === "students" && <ImportStudents onCancel={onCancelImport}/>}
+            {activeImport === "subscriptionClasses" && <ImportSubscriptionClasses onCancel={onCancelImport}/>}
+            </>)
         }</>
     )
 
@@ -39,7 +42,7 @@ export default function Imports() {
         <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Importar datos</h1>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <ImportItem item="students" icon={<SchoolIcon/>}>Alumnos</ImportItem>
-            <ImportItem item="payments" icon={<PaidIcon/>}>Movimientos</ImportItem>
+            <ImportItem item="subscriptionClasses" icon={<PaidIcon/>}>Abono de clases</ImportItem>
             <ImportItem item="headquarters" icon={<AccountBalanceIcon/>}>Sedes</ImportItem>
             <ImportItem item="courses" icon={<LocalLibraryIcon/>}>Cursos</ImportItem>
         </div>

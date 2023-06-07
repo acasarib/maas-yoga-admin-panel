@@ -86,7 +86,7 @@ export default function Home(props) {
     return(
         <>
             <div>
-                <body className="relative bg-orange-50 h-screen overflow-y-auto max-h-screen">
+                <div className="relative bg-orange-50 h-screen overflow-y-auto max-h-screen">
                 <header className="fixed right-0 top-0 z-10  sm:left-60 bg-orange-100 py-3 px-4 h-24">
                     <div className="max-w-4xl mx-auto mt-4">
                         <div className="flex items-center justify-between">
@@ -171,7 +171,7 @@ export default function Home(props) {
                     {props.categories && (<><Categories/></>)}
                     {props.imports && (<><Imports/></>)}
                 </main>
-                </body>
+                </div>
             </div>
         </>
     );

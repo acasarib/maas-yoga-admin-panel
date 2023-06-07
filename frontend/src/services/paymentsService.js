@@ -1,5 +1,7 @@
 import axios from './interceptors';
 import { SPECIFICATION_QUERY_SEPARATOR } from "../constants";
+import { sleep } from '../utils';
+import { Observable, share } from 'rxjs';
 
 export default {
     uploadFile(file) {
@@ -55,6 +57,23 @@ export default {
                     reject(error.data)
                 })
         });
+    },
+    newPayments(payments) {
+        return new Observable(async (subscriber) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            const chunkSize = 40;
+            for (let i = 0; i < payments.length; i += chunkSize) {
+                const currentChunk = i + chunkSize
+                const chunk = payments.slice(i, currentChunk);
+                try {
+                    await sleep(100);
+                    await axios.post(baseUrl + 'api/v1/payments', chunk, {});
+                    const percentaje = (currentChunk/payments.length) * 100;
+                    subscriber.next(percentaje);
+                } catch {}
+            }
+            subscriber.complete();
+        }).pipe(share());
     },
     deletePayment(paymentId) {
         return new Promise((resolve, reject) => {
