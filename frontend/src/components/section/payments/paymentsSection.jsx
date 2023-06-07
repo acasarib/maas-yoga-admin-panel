@@ -214,7 +214,7 @@ export default function PaymentsSection(props) {
 
     return (
         <>
-        <div className="mb-6 md:my-6 mx-8 md:mx-4">
+        <div className="mb-6 md:my-6 sm:mx-8 md:mx-4">
             <PaymentsTable payments={payments} isLoading={isLoadingPayments}/>
         </div>
         <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
