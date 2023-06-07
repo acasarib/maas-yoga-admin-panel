@@ -7,9 +7,26 @@ const isPaymentVerified = payment => {
   return value < 0 || payment.type !== PAYMENT_TYPES.CASH || clazzId === null;
 };
 
-export const create = async (paymentParam) => {
-  paymentParam.verified = isPaymentVerified(paymentParam);
-  return payment.create(paymentParam);
+/**
+ * 
+ * @param {Array||Payment} paymentParam 
+ * @returns {Array} created payments if @param paymentParam is Array
+ * @returns {Student} created payments if @param paymentParam is Payment
+ */
+export const create = async (paymentParam, informerId) => {
+  const isArray = Array.isArray(paymentParam);
+  paymentParam = isArray ? paymentParam : [paymentParam];
+  paymentParam.forEach(p => {
+    if ("id" in p) {
+      p.oldId = p.id;
+      delete p.id;
+    }
+    if (p.verified === null || p === undefined)
+      p.verified = isPaymentVerified(p);
+    p.userId = informerId;
+  });
+  const createdPayments = await payment.bulkCreate(paymentParam);
+  return (createdPayments.length === 1) ? createdPayments[0] : createdPayments;
 };
 
 export const deleteById = async (id) => {
