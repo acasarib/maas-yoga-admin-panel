@@ -6,6 +6,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import ImportStudents from "../components/section/imports/students";
 import ImportSubscriptionClasses from "../components/section/imports/subscriptionClasses";
 import ImportDischarges from "../components/section/imports/discharges";
+import Container from "../components/container";
 
 export default function Imports() {
     const [activeView, setActiveView] = useState(0);
@@ -51,17 +52,15 @@ export default function Imports() {
 
     return(
         <>
-        <div className="px-6 py-8 max-w-6xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
-                <ViewSlider
-                    renderView={renderView}
-                    numViews={2}
-                    activeView={activeView}
-                    animateHeight
-                    style={{ overflow: 'auto', padding: '4px'}}
-                />
-            </div>
-        </div>
+        <Container disableTitle>
+            <ViewSlider
+                renderView={renderView}
+                numViews={2}
+                activeView={activeView}
+                animateHeight
+                style={{ overflow: 'auto', padding: '4px'}}
+            />
+        </Container>
         </>
     );
 } 

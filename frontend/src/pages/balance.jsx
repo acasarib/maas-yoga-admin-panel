@@ -3,6 +3,7 @@ import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
 import PaymentsTable from "../components/paymentsTable";
+import Container from "../components/container";
 
 export default function Balance(props) {
 
@@ -30,25 +31,22 @@ export default function Balance(props) {
     
     return(
         <>
-            <div className="px-6 py-8 max-w-6xl mx-auto">
-                <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
-                    <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Balance</h1>
-                    <div className="grid grid-cols-1 md:grid-cols-4 md:gap-x-4 mb-14">
-                        <div className="col-span-1">
-                            <ChartSelector currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
-                        </div>
-                        <div className="col-span-3">
-                            <Chart
-                                customChainFilters={customChainFilters}
-                                currentChartSelected={currentChartSelected}
-                                onChangeData={data => setPayments(data)}    
-                            />
-                        </div>
+            <Container title="Balance">
+                <div className="grid grid-cols-1 md:grid-cols-4 md:gap-x-4 mb-14">
+                    <div className="col-span-1">
+                        <ChartSelector currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
                     </div>
-                    <PaymentsTable className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
+                    <div className="col-span-3">
+                        <Chart
+                            customChainFilters={customChainFilters}
+                            currentChartSelected={currentChartSelected}
+                            onChangeData={data => setPayments(data)}    
+                            />
+                    </div>
                 </div>
-                <ChartFilterModal isOpen={isModalOpen} closeModal={switchModal} onApplyFilter={onApplyFilter} />
-            </div>
+                <PaymentsTable className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
+            </Container>
+            <ChartFilterModal isOpen={isModalOpen} closeModal={switchModal} onApplyFilter={onApplyFilter} />
         </>
     );
 } 

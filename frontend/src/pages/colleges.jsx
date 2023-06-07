@@ -12,6 +12,7 @@ import Select from 'react-select';
 import SchoolIcon from '@mui/icons-material/School';
 import Table from "../components/table";
 import { Context } from "../context/Context";
+import Container from "../components/container";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
@@ -193,74 +194,71 @@ export default function Colleges(props) {
 
     return(
         <>
-            <div className="px-6 py-8 max-w-6xl mx-auto">
-                <div className="bg-white rounded-3xl shadow-lg p-8 mb-5 mt-6 md:mt-16">
-                    <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Sedes</h1>
-                    <div className="my-6 md:my-12 mx-8 md:mx-4">
-                        <Table
-                            columns={columns}
-                            data={colleges}
-                            noDataComponent={opResult}
-                            pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-                        />
-                    </div>
-                    <div className="flex justify-end">
-                        <button onClick={() => setDisplayModal(true)}
-                                className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-                        </button>
-                    </div>
-                    <Modal icon={<AccountBalanceIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar sede' : 'Agregar sede'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
-                        <form className="pr-8 pt-6 mb-4"    
-                            method="POST"
-                            id="form"
-                            onSubmit={formik.handleSubmit}
-                        >
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="mb-4">
-                                    <CommonInput 
-                                        label="Nombre"    
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.name}
-                                        name="name"
-                                        htmlFor="name"
-                                        id="name" 
-                                        type="text" 
-                                        placeholder="Nombre" 
-                                        onChange={formik.handleChange}
-                                    />
-                                </div>
-                                <div className="mb-4">
+            <Container title="Sedes">
+                <div className="my-6 md:my-12 mx-8 md:mx-4">
+                    <Table
+                        columns={columns}
+                        data={colleges}
+                        noDataComponent={opResult}
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    />
+                </div>
+                <div className="flex justify-end">
+                    <button onClick={() => setDisplayModal(true)}
+                            className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
+                    </button>
+                </div>
+                <Modal icon={<AccountBalanceIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar sede' : 'Agregar sede'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
+                    <form className="pr-8 pt-6 mb-4"    
+                        method="POST"
+                        id="form"
+                        onSubmit={formik.handleSubmit}
+                    >
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="mb-4">
                                 <CommonInput 
-                                        label="Ubicación"    
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.location}
-                                        name="location"
-                                        htmlFor="location"
-                                        id="location" 
-                                        type="text" 
-                                        placeholder="Ubicación"
-                                        onChange={formik.handleChange}
+                                    label="Nombre"    
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.name}
+                                    name="name"
+                                    htmlFor="name"
+                                    id="name" 
+                                    type="text" 
+                                    placeholder="Nombre" 
+                                    onChange={formik.handleChange}
                                 />
-                                </div>
                             </div>
                             <div className="mb-4">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                        Asignar cursos
-                                    </label>
-                                    <Select isMulti onChange={handleChange} options={courses} />
+                            <CommonInput 
+                                    label="Ubicación"    
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.location}
+                                    name="location"
+                                    htmlFor="location"
+                                    id="location" 
+                                    type="text" 
+                                    placeholder="Ubicación"
+                                    onChange={formik.handleChange}
+                            />
                             </div>
-                        </form>
-                    </>
-                    } />
-                    <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCollege} children={<><div>Esta a punto de elimnar esta sede. ¿Desea continuar?</div></>} />
-                    <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos de la sede ' + '"' + collegeName + '"'} children={<><div>   <Table
-                            columns={coursesColumns}
-                            data={coursesList}
-                            noDataComponent="Este sede aun no posee cursos"
-                            pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-                        /></div></>} />
-                </div>    
-            </div>
+                        </div>
+                        <div className="mb-4">
+                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                                    Asignar cursos
+                                </label>
+                                <Select isMulti onChange={handleChange} options={courses} />
+                        </div>
+                    </form>
+                </>
+                } />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCollege} children={<><div>Esta a punto de elimnar esta sede. ¿Desea continuar?</div></>} />
+                <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos de la sede ' + '"' + collegeName + '"'} children={<><div>   <Table
+                        columns={coursesColumns}
+                        data={coursesList}
+                        noDataComponent="Este sede aun no posee cursos"
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    /></div></>} />
+            </Container>
         </>
     );
 } 

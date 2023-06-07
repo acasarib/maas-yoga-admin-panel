@@ -3,7 +3,7 @@ import Table from "../table";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from "../modal";
 import { Context } from "../../context/Context";
-import { dateToString } from "../../utils";
+import { dateToString, withSeparators } from "../../utils";
 
 export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {} }) {
     const { deletePayment, categories } = useContext(Context);
@@ -79,7 +79,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             },
             {
                 name: 'Importe',
-                cell: row => <span className={(row.value >= 0) ? "w-16 text-gray-800 font-bold" : "w-16 text-red-800 font-bold"}>{'$' + row.value}</span>,
+                cell: row => <span className={`${row.value >= 0 ? "text-gray-800" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{'$' + withSeparators(row.value)}</span>,
                 sortable: true,
                 //maxWidth: '80px'
             },
@@ -139,10 +139,10 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
                 noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
                 pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
             />
-            <div className="bg-orange-200 rounded-2xl px-8 py-4 mt-8 flex flex-row">
-                <div className="mr-12">Total: <span className={(getBalanceForAllPayments() >= 0) ? 'text-gray-800 font-bold bg-white rounded-2xl py-2 px-3' : 'text-red-800 font-bold bg-white rounded-2xl py-2 px-3'}>${getBalanceForAllPayments()}</span></div>
-                <div className="mx-12">Ingresos: <span className="text-gray-800 font-bold bg-white rounded-2xl py-2 px-3">${getPayments()}</span></div>
-                <div className="mx-12">Egresos: <span className="text-red-800 font-bold bg-white rounded-2xl py-2 px-3">${getDischarges()}</span></div>
+            <div className="bg-orange-200 rounded-2xl px-8 py-4 mt-8 flex justify-between">
+                <div className="md:mr-12 flex flex-col lg:flex-row items-center"><span>Total: </span><span className={`${getBalanceForAllPayments() >= 0 ? "text-gray-800" : "text-red-800"} w-full text-center font-bold bg-white rounded-2xl py-2 px-3`}>${withSeparators(getBalanceForAllPayments())}</span></div>
+                <div className="md:mx-12 flex flex-col lg:flex-row items-center"><span>Ingresos: </span><span className="w-full text-center text-gray-800 font-bold bg-white rounded-2xl py-2 px-3">${withSeparators(getPayments())}</span></div>
+                <div className="md:mx-12 flex flex-col lg:flex-row items-center"><span>Egresos: </span><span className="w-full text-center text-red-800 font-bold bg-white rounded-2xl py-2 px-3">${withSeparators(getDischarges())}</span></div>
             </div>
             <Modal onClose={() => setPayment(null)} icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
                 {payment !== null &&
