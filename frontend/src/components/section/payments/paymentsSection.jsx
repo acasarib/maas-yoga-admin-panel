@@ -102,7 +102,7 @@ export default function PaymentsSection(props) {
 
     const handleChangeAmmount = (e) => {
         if(!isDischarge) {
-            const fixedNumber = e.target.value.toFixed(3);
+            const fixedNumber = e.target.value;
             setAmmount(fixedNumber);
         }else {
             setAmmount(e.target.value);

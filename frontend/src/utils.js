@@ -16,6 +16,19 @@ export function dateDiffInDays(date1, date2) {
     return days;
 }
 
+export function dateToString(str) {
+    if (str === null || str === undefined)
+        return "Sin fecha/Fecha invalida";
+    const dt = typeof str === 'string' ? new Date(str) : str;
+    const year  = dt.getFullYear();
+    const month = (dt.getMonth() + 1).toString().padStart(2, "0");
+    const day   = dt.getDate().toString().padStart(2, "0");
+    const hour  = dt.getHours();
+    const mins  = String(dt.getMinutes()).padStart(2, '0'); 
+    const date = `${day}/${month}/${year} ${hour}:${mins}`;
+    return date;
+}
+
 export function formatPaymentValue(value) {
     return "$" + value.toLocaleString("es-ES");
 }

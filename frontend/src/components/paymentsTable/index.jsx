@@ -3,6 +3,7 @@ import Table from "../table";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from "../modal";
 import { Context } from "../../context/Context";
+import { dateToString } from "../../utils";
 
 export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {} }) {
     const { deletePayment, categories } = useContext(Context);
@@ -71,11 +72,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
         const newColumns = [
             {
                 name: 'Fecha',
-                selector: row => {var dt = new Date(row.createdAt);
-                    let year  = dt.getFullYear();
-                    let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                    let day   = dt.getDate().toString().padStart(2, "0");
-                    var date = day + '/' + month + '/' + year; return date},
+                selector: row => dateToString(row.at),
                 sortable: true,
                 searchable: true,
                 maxWidth: '80px'

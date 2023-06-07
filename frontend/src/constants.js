@@ -1,3 +1,5 @@
+export const CASH_PAYMENT_TYPE = 'Efectivo';
+
 export const PAYMENT_OPTIONS = [
     {
         label: 'Mercado pago',
@@ -9,7 +11,7 @@ export const PAYMENT_OPTIONS = [
     },
     {
         label: 'Efectivo',
-        value: 'Efectivo'
+        value: CASH_PAYMENT_TYPE
     }
 ];
 

@@ -6,6 +6,7 @@ import { Context } from "../../context/Context";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState } from "react";
+import { dateToString } from "../../utils";
 
 export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked }) {
 
@@ -42,13 +43,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
         },
         {
             name: 'Fecha',
-            selector: row => {var dt = new Date(row.startAt);
-                let year  = dt.getFullYear();
-                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                let day   = dt.getDate().toString().padStart(2, "0");
-                let hour  = dt.getHours();
-                let mins  = String(dt.getMinutes()).padStart(2, '0'); 
-                var date = `${day}/${month}/${year} ${hour}:${mins}`; return date},
+            selector: row => dateToString(row.startAt),
             sortable: true,
             searchable: true,
         },

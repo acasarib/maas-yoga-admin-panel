@@ -8,6 +8,7 @@ import paymentsService from "../services/paymentsService";
 import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
 import userService from "../services/userService";
+import { CASH_PAYMENT_TYPE } from "../constants";
 
 export const Context = createContext();
 
@@ -246,6 +247,21 @@ export const Provider = ({ children }) => {
         return observable;
     }
 
+    const newSubscriptionClasses = payments => {
+        payments.forEach(p => {
+            p.verified = true;
+            p.type = CASH_PAYMENT_TYPE;
+        });
+        const observable = paymentsService.newPayments(payments);
+        observable.subscribe({
+            complete() {
+                changeAlertStatusAndMessage(true, 'success', 'Los pagos se importaron exitosamente!')
+                setPayments(current => [...current, ...payments]);
+            }
+        })
+        return observable;
+    }
+
     const deleteCourse = async courseId => {
         await coursesService.deleteCourse(courseId);
         changeAlertStatusAndMessage(true, 'success', 'El curso fue borrado exitosamente!')
@@ -412,6 +428,7 @@ export const Provider = ({ children }) => {
             alertStatus,
             setUser,
             informPayment,
+            newSubscriptionClasses,
             deletePayment,
             deleteCollege,
             addCoursesToCollege,
