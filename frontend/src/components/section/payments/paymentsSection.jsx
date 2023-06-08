@@ -218,7 +218,7 @@ export default function PaymentsSection(props) {
             <PaymentsTable payments={payments} isLoading={isLoadingPayments}/>
         </div>
         <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
-        <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
+        <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                 <div className="mt-4"><Select onChange={handleChangeStudent} options={students} /></div>
@@ -234,7 +234,7 @@ export default function PaymentsSection(props) {
                     className="block font-bold text-sm text-gray-700 mb-4"
                     type="number" 
                     placeholder="Importe" 
-                    value={ammount}
+                    value={ammount === null ? "": ammount}
                     onChange={handleChangeAmmount}
                 />
             </div>
@@ -293,7 +293,7 @@ export default function PaymentsSection(props) {
         (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
         </>} />
         <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={isEditingTemplate ? 'Editar template' : 'Crear nuevo template'} children={<>
-        <div className="grid grid-cols-2 gap-10 pr-8 pt-6 mb-4">
+        <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
             <div className="col-span-1 pb-3"><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar template</span><Select onChange={handleEditTemplates} options={templates} /></div>
             <div className="col-span-2 grid grid-cols-2 pb-3">
                 <div className="mr-4">
@@ -314,7 +314,7 @@ export default function PaymentsSection(props) {
                         className="block font-bold text-sm text-gray-700 mb-4"
                         type="number" 
                         placeholder="Importe" 
-                        value={ammount}
+                        value={ammount === null ? "" : ammount}
                         onChange={handleChangeAmmount}
                     />    
                 </div>

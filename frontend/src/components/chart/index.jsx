@@ -150,7 +150,7 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 <Modal
                     open={isModalOpen}
                     setDisplay={switchModal}
-                    style={{maxWidth: "50%"}}
+                    size="medium"
                     buttonText={"Cerrar"}
                     icon={<InfoIcon/>}
                     title="Informacion del grafico"

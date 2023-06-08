@@ -127,74 +127,74 @@ export default function NewUser(props) {
     return(
         <>
         <Container title="Usuarios">
-            <div className="my-6 md:my-12 mx-8 md:mx-4">
-              <Table
-                columns={columns}
-                data={users}
-                pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-                responsive
-                noDataComponent={opResult}
-              />
-            </div>
+            <Table
+              columns={columns}
+              data={users}
+              pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+              responsive
+              noDataComponent={opResult}
+            />
             <div className="flex justify-end">
               <PlusButton onClick={() => setDisplayModal(true)}/>
             </div>
         </Container>
         <Modal icon={<PersonAddIcon />} buttonDisabled={disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} onClick={formik.handleSubmit} children={<>
-                <form className="pt-6 mb-4 mx-auto w-4/6"    
+                <form className="pt-6 mb-4 sm:mx-auto"    
                     method="POST"
                     id="form"
                     onSubmit={formik.handleSubmit}
                 >
-                        <div className="mb-4">
-                        <CommonInput 
-                            label="Nombre"    
-                            onBlur={formik.handleBlur}
-                            value={formik.values.firstName}
-                            name="firstName"
-                            htmlFor="firstName"
-                            id="firstName" 
-                            type="text" 
-                            placeholder="Nombre" 
-                            onChange={formik.handleChange}
-                        />
-                    {formik.touched.firstName && formik.errors.firstName ? (
-                        <div className="text-red-500">{formik.errors.firstName}</div>
-                    ) : null}
-                    </div>
-                    <div className="mb-4">
-                        <CommonInput 
-                            label="Apellido"    
-                            onBlur={formik.handleBlur}
-                            value={formik.values.lastName}
-                            name="lastName"
-                            htmlFor="lastName"
-                            id="lastName" 
-                            type="text" 
-                            placeholder="Apellido" 
-                            onChange={formik.handleChange}
-                        />
-                    {formik.touched.lastName && formik.errors.lastName ? (
-                        <div className="text-red-500">{formik.errors.lastName}</div>
-                    ) : null}
-                    </div>
-                    <div className="mb-4">
-                        <CommonInput 
-                            label="Email"    
-                            onBlur={formik.handleBlur}
-                            value={formik.values.email}
-                            name="email"
-                            htmlFor="email"
-                            id="email" 
-                            type="text" 
-                            placeholder="Email" 
-                            onChange={formik.handleChange}
-                        />
+                  <div className="mb-4 flex flex-col sm:flex-row w-full">
+                      <div className="w-full mb-4 sm:mb-0 sm:mr-1">
+                          <CommonInput 
+                              label="Nombre"    
+                              onBlur={formik.handleBlur}
+                              value={formik.values.firstName}
+                              name="firstName"
+                              htmlFor="firstName"
+                              id="firstName" 
+                              type="text" 
+                              placeholder="Nombre" 
+                              onChange={formik.handleChange}
+                          />
+                          {formik.touched.firstName && formik.errors.firstName ? (
+                              <div className="text-red-500">{formik.errors.firstName}</div>
+                          ) : null}
+                      </div>
+                      <div className="sm:w-full sm:ml-1">
+                          <CommonInput 
+                              label="Apellido"    
+                              onBlur={formik.handleBlur}
+                              value={formik.values.lastName}
+                              name="lastName"
+                              htmlFor="lastName"
+                              id="lastName" 
+                              type="text" 
+                              placeholder="Apellido" 
+                              onChange={formik.handleChange}
+                          />
+                        {formik.touched.lastName && formik.errors.lastName ? (
+                            <div className="text-red-500">{formik.errors.lastName}</div>
+                        ) : null}
+                      </div>
+                  </div>
+                  <div className="mb-4">
+                      <CommonInput 
+                          label="Email"    
+                          onBlur={formik.handleBlur}
+                          value={formik.values.email}
+                          name="email"
+                          htmlFor="email"
+                          id="email" 
+                          type="text" 
+                          placeholder="Email" 
+                          onChange={formik.handleChange}
+                      />
                     {formik.touched.email && formik.errors.email ? (
                         <div className="text-red-500">{formik.errors.email}</div>
                     ) : null}
-                    </div>
-                    <div className="mb-6">
+                  </div>
+                  <div className="mb-6">
                     <CommonInput 
                             label="Contraseña"    
                             onBlur={formik.handleBlur}
@@ -209,15 +209,15 @@ export default function NewUser(props) {
                     {formik.touched.password && formik.errors.password ? (
                         <div className="text-red-500">{formik.errors.password}</div>
                     ) : null}
-                    </div>
-                    <FormGroup>
-                      <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
+                  </div>
+                  <FormGroup>
+                    <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
+                      color: orange[500],
+                      '&.Mui-checked': {
                         color: orange[500],
-                        '&.Mui-checked': {
-                          color: orange[500],
-                        },
-                      }} />} label="Permitir crear usuarios" />
-                    </FormGroup>
+                      },
+                    }} />} label="Permitir crear usuarios" />
+                  </FormGroup>
                 </form>
         </>} />
       </>

@@ -41,8 +41,8 @@ export default function Classes(props) {
                                 <Tab label="Verificar pagos" value="2" />
                             </TabList>
                         </Box>
-                        <TabPanel value="1"><ClassesSection/></TabPanel>
-                        <TabPanel value="2"><VerifyPaymentClassesSection/></TabPanel>
+                        <TabPanel className="pt-4" value="1"><ClassesSection/></TabPanel>
+                        <TabPanel className="pt-4" value="2"><VerifyPaymentClassesSection/></TabPanel>
                         </TabContext>
                     </Box>
                 </ThemeProvider>
