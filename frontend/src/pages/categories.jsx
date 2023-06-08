@@ -187,15 +187,13 @@ export default function Categories(props) {
     return(
         <>
             <Container title="Rubros">
-                <div className="my-6 md:my-12 mx-8 md:mx-4">
-                    <Table
-                        columns={columns}
-                        data={categories}
-                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-                        responsive
-                        noDataComponent={opResult}
-                    />
-                </div>
+                <Table
+                    columns={columns}
+                    data={categories}
+                    pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                    responsive
+                    noDataComponent={opResult}
+                />
                 <div className="flex justify-end">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>

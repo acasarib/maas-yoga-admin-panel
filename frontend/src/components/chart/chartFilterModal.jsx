@@ -3,7 +3,7 @@ import BalanceIcon from '@mui/icons-material/Balance';
 import Modal from "../modal";
 import Select from "react-select";
 import FilterPaymentType from "./filters/type";
-import CloseIcon from '@mui/icons-material/Close';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import FilterPaymentValue from "./filters/value";
 import FilterPaymentAt from "./filters/at";
 import FilterPaymentStudent from "./filters/student";
@@ -90,17 +90,17 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
     return (
     <Modal
         icon={<BalanceIcon />}
-        style={{maxWidth: "70%"}}
         open={isOpen}
+        size="medium"
         setDisplay={closeModal}
         buttonText={"Aplicar"}
         title="Seleccionar filtros"
         onClick={handleApplyFilter}
     >
         {currentFilters.map(filter => 
-            <div key={filter.value} className="flex justify-between mb-4">
+            <div key={filter.value} className="flex items-center justify-between mb-4">
                 {filter.component}
-                <CloseIcon className="cursor-pointer" onClick={() => removeFilter(filter)}/>
+                <RemoveCircleOutlineIcon className="cursor-pointer" onClick={() => removeFilter(filter)}/>
             </div>)}
         {filtersAvailable.length > 0 &&
             <>

@@ -124,7 +124,7 @@ export default function ClassesSection(props) {
     const renderView = ({ index, active, transitionState }) => (
         <>
         {index === 0 &&
-        <form className="pr-8 pt-6 mb-4"    
+        <form className="pt-6 mb-4"    
             method="POST"
             id="form"
             onSubmit={formik.handleSubmit}
@@ -280,13 +280,11 @@ export default function ClassesSection(props) {
     /*const white = orange[50];*/
 
     return(<>
-        <div className="my-6 md:my-12 mx-8 md:mx-4">
-            <ClassesTable 
-                clazzes={clazzes}
-                onDelete={openDeleteModal}
-                onEdit={openEditModal}
-            />
-        </div>
+        <ClassesTable 
+            clazzes={clazzes}
+            onDelete={openDeleteModal}
+            onEdit={openEditModal}
+        />
         <div className="flex justify-end">
             <PlusButton onClick={() => setDisplayModal(true)}/>
         </div>
