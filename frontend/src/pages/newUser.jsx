@@ -8,9 +8,9 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { Context } from "../context/Context";
 import Table from "../components/table";
-import AddIcon from '@mui/icons-material/Add';
 import { orange } from '@mui/material/colors';
 import Container from "../components/container";
+import PlusButton from "../components/button/plus";
 
 export default function NewUser(props) {
 
@@ -137,9 +137,7 @@ export default function NewUser(props) {
               />
             </div>
             <div className="flex justify-end">
-              <button onClick={() => setDisplayModal(true)}
-                      className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-              </button>
+              <PlusButton onClick={() => setDisplayModal(true)}/>
             </div>
         </Container>
         <Modal icon={<PersonAddIcon />} buttonDisabled={disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} onClick={formik.handleSubmit} children={<>

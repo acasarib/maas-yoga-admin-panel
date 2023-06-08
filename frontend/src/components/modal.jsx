@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
+import ButtonPrimary from './button/primary';
+import ButtonSecondary from './button/secondary';
 
 export default function Modal(props) {
   
@@ -18,7 +20,7 @@ export default function Modal(props) {
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
         <div className="fixed inset-0 overflow-y-auto overflow-x-auto scale-up-center">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <div className="flex min-h-full items-end justify-center p-4 text-center items-center sm:p-0">
               <div className={`relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg ${props.className}`} style={props.style}>
                 <div className="rounded-t-md bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div className="flex flex-col">
@@ -40,23 +42,22 @@ export default function Modal(props) {
                     </div>
                   </div>
                 </div>
-                <div className="rounded-b-md flex justify-items-end bg-orange-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  {!props.hiddingButton && (<button
+                <div className="w-full flex bg-orange-50 px-4 py-3 sm:flex-row-reverse sm:px-6">
+                  {!props.hiddingButton && (<ButtonPrimary
+                    className="w-full sm:w-auto sm:ml-2 mr-1 sm:mr-0"
                     disabled={props.buttonDisabled}
-                    type="button"
-                    className="bg-disabled inline-flex w-full justify-center rounded-md border border-transparent bg-orange-300 px-4 py-2 text-base font-medium text-yellow-900 shadow-sm hover:bg-orange-550 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
                     onClick={props.onClick}
-                  >
+                    >
                     {props.buttonText}
-                  </button>)}
-                  <button
+                  </ButtonPrimary>)}
+                  <ButtonSecondary
+                    className="w-full sm:w-auto ml-1 sm:ml-0"
                     type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 hover:bg-gray-100 text-base font-medium text-yellow-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                     onClick={onClose}
                     ref={cancelButtonRef}
                   >
                     {props.closeText ? props.closeText : 'Cancelar'}
-                  </button>
+                  </ButtonSecondary>
                 </div>
               </div>
           </div>
