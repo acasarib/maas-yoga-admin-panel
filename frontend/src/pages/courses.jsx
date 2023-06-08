@@ -23,6 +23,7 @@ import { Context } from "../context/Context";
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import Container from "../components/container";
+import PlusButton from "../components/button/plus";
 
 export default function Courses(props) {
     const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse, changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context);
@@ -376,9 +377,7 @@ export default function Courses(props) {
                     />
                 </div>
                 <div className="flex justify-end">
-                    <button onClick={() => setDisplayModal(true)}
-                            className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-                    </button>
+                    <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal icon={<LocalLibraryIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar curso' : 'Agregar curso'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
                     <form className="pr-8 pt-6 mb-4"    

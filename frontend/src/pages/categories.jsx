@@ -12,6 +12,7 @@ import { Context } from "../context/Context";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Container from "../components/container";
+import PlusButton from "../components/button/plus";
 
 export default function Categories(props) {
     const { categories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage } = useContext(Context);
@@ -196,9 +197,7 @@ export default function Categories(props) {
                     />
                 </div>
                 <div className="flex justify-end">
-                    <button onClick={() => setDisplayModal(true)}
-                            className="mt-6 bg-yellow-900 w-14 h-14 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-                    </button>
+                    <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal onClose={closeModal} icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar rubro' : 'Agregar rubro'} buttonDisabled={activeView === 0 ? category.title === "" : items.length === 0} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
                     <ViewSlider
