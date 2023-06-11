@@ -12,24 +12,34 @@ import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
+import studentsService from "../services/studentsService";
+import Spinner from "../components/spinner/spinner";
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
+import AddTaskIcon from '@mui/icons-material/AddTask';
 
 export default function Students(props) {
     const { students, isLoadingStudents, deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [spinnerOn, setSpinnerOn] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [studentId, setStudentId] = useState(null);
+    const [displayTasksModal, setDisplayTasksModal] = useState(false);
     const [opResult, setOpResult] = useState('Verificando alumnos...');
     const [edit, setEdit] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState({});
     const [displayCoursesModal, setDisplayCoursesModal] = useState(false);
     const [coursesLists, setCoursesLists] = useState([]);
     const [studentName, setStudentName] = useState("");
+    const [tasks, setTasks] = useState([]);
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
         setEdit(false);
         setDisplayCoursesModal(value);
+        setDisplayTasksModal(false);
     }
 
     const openDeleteModal = (id) => {
@@ -45,11 +55,19 @@ export default function Students(props) {
     }
 
     
-    const openCoursesModal = (courses, studentName, studentSurname) => {
+    const openCoursesModal = async (courses, studentName, studentSurname, studentId) => {
         setDisplayCoursesModal(true);
         setCoursesLists(courses);
         const name = studentName + ' ' + studentSurname;
         setStudentName(name);
+        try{
+            setSpinnerOn(true)
+            const student = await studentsService.getStudent(studentId);
+            setTasks(student.courseTasks);
+            setSpinnerOn(false);   
+        }catch {
+            setSpinnerOn(false);
+        }
     }
 
     const handleDeleteStudent = async () => {
@@ -61,6 +79,27 @@ export default function Students(props) {
         }
         setIsLoading(false);
         setDeleteModal(false);
+    }
+
+    const getTasksStatus = (courseId) => {
+        if(tasks.length > 0) {
+            const courseTasks = tasks.filter(tk => tk.courseId === courseId);
+            const completedTasks = courseTasks.filter(tk => tk.studentCourseTask.completed === true);
+            return completedTasks.length + '/' + courseTasks.length;
+        }else {
+            return '0/0';
+        }
+    }
+
+    const getTasksProgress = (courseId) => {
+        const progress = getTasksStatus(courseId);
+        const stringValue = progress.toString();
+        const valuesArray = stringValue.split('/');
+        if((Number(valuesArray[0]) !==0)) {
+            return Number(valuesArray[0]) / Number(valuesArray[1]);
+        }else {
+            return 0;
+        }
     }
 
     const columns = [
@@ -104,7 +143,7 @@ export default function Students(props) {
         },
         {
             name: 'Cursos',
-            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name, row.lastName)}>Ver cursos</button></div>)},
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name, row.lastName, row.id)}>Ver cursos</button></div>)},
             sortable: true,
         },
         {
@@ -160,6 +199,43 @@ export default function Students(props) {
             selector: row => row.duration,
             sortable: true,
         },
+        {
+            name: 'Tareas pendientes',
+            selector: row => getTasksStatus(row.id),
+            cell: row => {return (<><div className="flex flex-row justify-center">
+                <span className="my-auto mr-2">{getTasksStatus(row.id)}</span><button onClick={() => setDisplayTasksModal(true)} className="rounded-2xl bg-orange-200 shadow px-2 py-1 my-2"><span>{((getTasksProgress(row.id) === 0) && (getTasksStatus(row.id) !== '0/0')) && (<><CloseIcon color="error"/></>)}{(getTasksProgress(row.id) === 1) && (<><DoneAllIcon color="success" /></>)}{((getTasksProgress(row.id) < 1) && ((getTasksProgress(row.id) > 0))) && (<><DoneIcon color="success"/></>)}</span></button>
+          </div></>)},
+            sortable: true,
+        },
+    ];
+
+    const taskColumn = [
+        {
+            name: 'Título',
+            selector: row => row.title,
+            sortable: true,
+            searchable: true,
+        },
+        {
+            name: 'Descripción',
+            selector: row => row.description,
+            sortable: true,
+        },
+        {
+            name: 'Estado de la tarea',
+            cell: row => { return (<>{(row.studentCourseTask.completed === false) ? <><span className="my-auto mr-2">Completada</span><CloseIcon color="error"/></> : <><span className="my-auto mr-2">No completada</span><DoneIcon color="success" /></>}</>)
+        },
+            sortable: true,
+        },
+        {
+            name: 'Fecha limite',
+            selector: row => {var dt = new Date(row.limitDate);
+                let year  = dt.getFullYear();
+                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
+                let day   = dt.getDate().toString().padStart(2, "0");
+                var date = day + '/' + month + '/' + year; return date},
+            sortable: true,
+        },
     ];
 
     const formik = useFormik({
@@ -208,6 +284,7 @@ export default function Students(props) {
     return(
         <>
             <Container title="Alumnos">
+            {spinnerOn ? <div className="flex justify-center"><Spinner/></div> : <></>}
                 <Table
                     columns={columns}
                     data={students}
@@ -300,6 +377,12 @@ export default function Students(props) {
                         data={coursesLists}
                         noDataComponent="Este alumno no esta asociado a ningun curso"
                         pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                /></div></>} />
+                <Modal style={{ minWidth: '800px' }} hiddingButton icon={<AddTaskIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title="Tareas del curso" children={<><div className="mt-8"><Table
+                    columns={taskColumn}
+                    data={tasks}
+                    noDataComponent="Este curso no posee tareas"
+                    pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
             </Container>
         </>
