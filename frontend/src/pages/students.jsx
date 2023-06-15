@@ -34,6 +34,10 @@ export default function Students(props) {
     const [coursesLists, setCoursesLists] = useState([]);
     const [studentName, setStudentName] = useState("");
     const [tasks, setTasks] = useState([]);
+    const [matches, setMatches] = useState(
+        window.matchMedia("(min-width: 700px)").matches
+    )
+
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
@@ -279,12 +283,17 @@ export default function Students(props) {
             setOpResult('No fue posible obtener los alumnos, por favor recargue la página...');
     }, [students, isLoadingStudents]);
 
+    useEffect(() => {
+        window
+        .matchMedia("(min-width: 700px)")
+        .addEventListener('change', e => setMatches( e.matches ));
+    }, []);
+
     /*const white = orange[50];*/
 
     return(
         <>
             <Container title="Alumnos">
-            {spinnerOn ? <div className="flex justify-center"><Spinner/></div> : <></>}
                 <Table
                     columns={columns}
                     data={students}
@@ -372,7 +381,7 @@ export default function Students(props) {
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteStudent} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
-                <Modal style={{ minWidth: '600px' }} hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><Table
+                {matches && (<><Modal style={{ minWidth: '650px' }} hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><Table
                         columns={coursesColumns}
                         data={coursesLists}
                         noDataComponent="Este alumno no esta asociado a ningun curso"
@@ -383,7 +392,19 @@ export default function Students(props) {
                     data={tasks}
                     noDataComponent="Este curso no posee tareas"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                /></div></>} /></>)}
+                {!matches && (<><Modal hiddingButton icon={<LocalLibraryIcon />} open={displayCoursesModal} setDisplay={setDisplay} closeText="Salir" title={'Cursos del alumno ' + studentName} children={<><div><Table
+                        columns={coursesColumns}
+                        data={coursesLists}
+                        noDataComponent="Este alumno no esta asociado a ningun curso"
+                        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
+                <Modal hiddingButton icon={<AddTaskIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title="Tareas del curso" children={<><div className="mt-8"><Table
+                    columns={taskColumn}
+                    data={tasks}
+                    noDataComponent="Este curso no posee tareas"
+                    pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+                /></div></>} /></>)}
             </Container>
         </>
     );
