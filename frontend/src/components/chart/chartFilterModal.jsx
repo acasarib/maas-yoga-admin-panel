@@ -91,7 +91,7 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
     <Modal
         icon={<BalanceIcon />}
         open={isOpen}
-        size="medium"
+        size="large"
         setDisplay={closeModal}
         buttonText={"Aplicar"}
         title="Seleccionar filtros"

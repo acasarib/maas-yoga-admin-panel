@@ -14,8 +14,11 @@ export default function Modal(props) {
   }
 
   const getModalSize = (size) => {
-    if (size === "medium")
+    if (size === "medium"){
       return "md:max-w-screen-md"
+    }else if(size === "large") {
+      return "md:max-w-screen-lg"
+    }
     return "";
   }
 
