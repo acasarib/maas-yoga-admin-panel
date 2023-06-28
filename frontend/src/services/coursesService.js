@@ -7,7 +7,9 @@ export default {
                 "title": courseData.title,
                 "description": courseData.description,
                 "startAt": courseData.startAt,
-                "duration": courseData.duration
+                "duration": courseData.duration,
+                "criteria": courseData.criteria,
+                "criteriaValue": courseData.criteriaValue
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
@@ -52,7 +54,9 @@ export default {
                 "title": courseData.title,
                 "description": courseData.description,
                 "startAt": courseData.startAt,
-                "duration": courseData.duration
+                "duration": courseData.duration,
+                "criteria": courseData.criteria,
+                "criteriaValue": courseData.criteriaValue
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios

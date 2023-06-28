@@ -44,6 +44,8 @@ export default function Courses(props) {
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
     const [taskId, setTaskId] = useState(null);
+    const [professorPaymentBy, setProffesorPaymentBy] = useState('percentage');
+    const [criteriaValue, setCriteriaValue] = useState(0);
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -321,14 +323,18 @@ export default function Courses(props) {
             title: edit ? courseToEdit.title : '',
             description: edit ? courseToEdit.description : '',
             startAt: edit ? courseToEdit.startAt : startAt,
-            duration: edit ? courseToEdit.duration : ''
+            duration: edit ? courseToEdit.duration : '',
+            criteria: edit ? courseToEdit.criteria : '',
+            criteriaValue: edit ? courseToEdit.criteriaValue : criteriaValue,
         },
             onSubmit: async (values) => {
                 const body = {
                   title: values.title,
                   description: values.description,
                   startAt: startAt,
-                  duration: values.duration
+                  duration: values.duration,
+                  criteria: professorPaymentBy,
+                  criteriaValue: criteriaValue
                 };
                 setIsLoading(true);
                 try {
@@ -443,6 +449,30 @@ export default function Courses(props) {
                                     Asignar alumnos
                                 </label>
                                 <Select isMulti onChange={handleChange} options={students} />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-4">
+                                Pago del profesor por:
+                            </label>
+                            <div className="flex items-center mb-4 ml-2 md:ml-4">
+                                <input id="default-radio-1" type="radio" checked={professorPaymentBy == 'percentage'} onChange={() => setProffesorPaymentBy('percentage')} name="default-radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                                <label for="default-radio-1" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
+                            </div>
+                            <div className="flex items-center ml-2 md:ml-4">
+                                <input checked={professorPaymentBy == 'student'} onChange={() => setProffesorPaymentBy('student')} id="default-radio-2" type="radio" name="default-radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                                <label for="default-radio-2" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
+                            </div>
+                        </div>
+                        <div className="mb-4 w-3/6">
+                            <CommonInput 
+                                label={(professorPaymentBy == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}    
+                                value={criteriaValue}
+                                name={(professorPaymentBy == 'percentage') ? "percentage" : "ammount"}
+                                id={(professorPaymentBy == 'percentage') ? "percentage" : "ammount"} 
+                                type="number" 
+                                placeholder={(professorPaymentBy == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}
+                                onChange={(v) => setCriteriaValue(v.target.value)}
+                            />
                         </div>
                     </form>
                 </>
