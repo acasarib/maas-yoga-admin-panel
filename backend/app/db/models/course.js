@@ -9,6 +9,9 @@ const course = (sequelize) => {
     },
     title: Sequelize.STRING,
     description: Sequelize.STRING,
+    professor: Sequelize.STRING,
+    criteria: Sequelize.STRING,
+    criteriaValue: Sequelize.INTEGER,
     startAt: Sequelize.DataTypes.DATE,
     duration: Sequelize.STRING,
   }, {});

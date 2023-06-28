@@ -191,4 +191,17 @@ export default {
     }
   },
 
+  /**
+   * /courses/tasks/{courseTaskId}/students/{studentId} [PUT]
+   * @returns HttpStatus ok
+   */
+  calcProfessorsPayments: async (req, res, next) => {
+    try {
+      const details = await courseService.calcProfessorsPayments(req.body.from, req.body.to);
+      res.status(StatusCodes.OK).json(details);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };
