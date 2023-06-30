@@ -25,6 +25,7 @@ import NavItem from "../components/navItem";
 import AlertPortal from "../components/snackBar";
 import GroupIcon from '@mui/icons-material/Group';
 import HamburgerButton from "../components/button/hanmburger";
+import ProfessorPayments from "./professorPayments";
 
 export default function Home(props) {
     const { setUser } = useContext(Context);
@@ -170,6 +171,7 @@ export default function Home(props) {
                     {props.students && (<><Students/></>)}
                     {props.categories && (<><Categories/></>)}
                     {props.imports && (<><Imports/></>)}
+                    {props.professorPayments && (<><ProfessorPayments/></>)}
                 </main>
                 </div>
             </div>

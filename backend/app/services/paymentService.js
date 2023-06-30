@@ -44,3 +44,7 @@ export const getAll = async (specification) => {
     include: specification.getSequelizeSpecificationAssociations([user, student, course])
   });
 };
+
+export const changeVerified = async (id, verified) => {
+  return payment.update({ verified }, { where: { id } });
+};

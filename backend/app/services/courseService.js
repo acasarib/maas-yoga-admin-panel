@@ -98,7 +98,6 @@ export const calcProfessorsPayments = async (from, to) => {
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
   const paymentsInRange = await payment.findAll({
-    attributes: ["id", "courseId", "studentId", "value"],
     where: {
       at: {
         [Op.between]: [startDate, endDate]
@@ -158,4 +157,5 @@ export const addProfessorPayments = async (data, from, to) => {
       await payment.create(p);
     }
   }
+  return paymentsAdded;
 }
