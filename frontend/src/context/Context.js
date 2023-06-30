@@ -405,6 +405,19 @@ export const Provider = ({ children }) => {
         setPayments(current => current.map(payment => payment.clazzId === clazz.id ? ({ ...payment, verified: true }) : payment));
     }
 
+    const calcProfessorsPayments = async (from, to) => {
+        const data = await coursesService.calcProfessorsPayments(from, to);
+        data.forEach(d => {
+            d.payments.forEach(p => {
+                p.student = students.find(s => s.id === p.studentId);
+                p.user = users.find(u => u.id === p.userId);
+                p.course = courses.find(c => c.id === p.courseId);
+            });
+            d.course = courses.find(c => c.id === d.courseId);
+        });
+        return data;
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -458,6 +471,7 @@ export const Provider = ({ children }) => {
             verifyClazz,
             users,
             changeAlertStatusAndMessage,
+            calcProfessorsPayments,
         }}>{children}</Context.Provider>
     );
 }
