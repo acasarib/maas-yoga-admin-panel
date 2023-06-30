@@ -167,5 +167,18 @@ export default {
         return this.getByQuery(`at between ${prevMonday}:${until}`)
             .then(data => ({ data, period: { from: prevMonday, to: until } }));
     },
+    verifyPayment(paymentId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .put(baseUrl + `api/v1/payments/${paymentId}/verified`, {verified: true})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
 };
 

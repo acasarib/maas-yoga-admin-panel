@@ -4,12 +4,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from "../modal";
 import { Context } from "../../context/Context";
 import { dateToString, withSeparators } from "../../utils";
+import DoneIcon from '@mui/icons-material/Done';
 
-export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {} }) {
-    const { deletePayment, categories } = useContext(Context);
+export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {}, canVerify }) {
+    const { deletePayment, categories, verifyPayment } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);
+    const [verifyModal, setVerifyModal] = useState(false);
+    const [verifying, setVerifying] = useState(false);
 
     const getBalanceForAllPayments = () => {
         let value = 0;
@@ -26,6 +29,14 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
         setPayment(null);
         setDeleteModal(false);
         onDelete(payment.id);
+    }
+
+    const handleVerifyPayment = async () => {
+        setVerifying(true);
+        await verifyPayment(payment.id);
+        setVerifying(false);
+        setPayment(null);
+        setVerifyModal(false);
     }
 
     const getPayments = () => {
@@ -51,6 +62,11 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
     const openDeleteModal = (payment) => {
         setPayment(payment);
         setDeleteModal(true);
+    }
+
+    const openVerifyModal = (payment) => {
+        setPayment(payment);
+        setVerifyModal(true);
     }
 
     const getUserFullName = (row) => row.user.firstName + ' ' + row.user.lastName;
@@ -119,7 +135,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             },
             {
                 name: 'Acciones',
-                cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button></div>),
+                cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button>{canVerify && (<button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openVerifyModal(row)}><DoneIcon /></button>)}</div>),
                 sortable: true,
             },
         ];
@@ -147,6 +163,11 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             <Modal onClose={() => setPayment(null)} icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
                 {payment !== null &&
                     <div>Esta a punto de eliminar el pago con el importe de <span className="font-bold">{payment.value}$</span>{payment.fileId !== null && ", este pago tiene asociado un comprobante el cual tambien sera eliminado."}</div>
+                }
+            </Modal>
+            <Modal onClose={() => setPayment(null)} icon={<DoneIcon />} open={verifyModal} setDisplay={() => setVerifyModal(false)} title="Verificar pago" buttonText={verifying ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Verificando...</span></>) : <span>Verificar</span>} onClick={handleVerifyPayment}>
+                {payment !== null &&
+                    <div>Esta a punto de verificar el pago con el importe de <span className="font-bold">{payment.value}$</span></div>
                 }
             </Modal>
         </>
