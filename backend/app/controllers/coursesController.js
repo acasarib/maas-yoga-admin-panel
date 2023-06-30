@@ -192,13 +192,30 @@ export default {
   },
 
   /**
-   * /courses/tasks/{courseTaskId}/students/{studentId} [PUT]
+   * /calc-professors-payments [POST]
    * @returns HttpStatus ok
    */
   calcProfessorsPayments: async (req, res, next) => {
     try {
       const details = await courseService.calcProfessorsPayments(req.body.from, req.body.to);
       res.status(StatusCodes.OK).json(details);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /add-professor-payment [POST]
+   * @returns HttpStatus ok
+   */
+  addProfessorPayment: async (req, res, next) => {
+    try {
+      const { from, to } = req.body;
+      new Date(from);
+      new Date(to);
+      const added = await courseService.addProfessorPayment(req.body, from, to, req.user.id);
+      const message = added ? "ADDED" : "ALREADY_EXITS";
+      res.status(StatusCodes.OK).json({ message });
     } catch (e) {
       next(e);
     }

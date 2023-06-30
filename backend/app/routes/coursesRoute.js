@@ -20,5 +20,6 @@ router.get("/tasks/:courseTaskId/students", verifyToken, controller.getStudentsT
 router.put("/tasks/:courseTaskId/students/:studentId", verifyToken, controller.setCompletedStudentTask);
 
 router.post("/calc-professors-payments", verifyToken, controller.calcProfessorsPayments);
+router.post("/add-professor-payment", verifyToken, controller.addProfessorPayment);
 
 export default router;
