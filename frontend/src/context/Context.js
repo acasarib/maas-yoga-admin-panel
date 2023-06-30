@@ -160,6 +160,13 @@ export const Provider = ({ children }) => {
         return createdPayment;
     };
 
+    const verifyPayment = async (paymentId) => {
+        const veryfiedPayment = await paymentsService.verifyPayment(paymentId);
+        changeAlertStatusAndMessage(true, 'success', 'El pago fue verificado exitosamente!');
+        setPayments(current => [...current, veryfiedPayment]);
+        return veryfiedPayment;
+    }
+
     const deletePayment = async (id) => {
         await paymentsService.deletePayment(id);
         setPayments(current => current.filter(p => p.id !== id));
@@ -428,6 +435,7 @@ export const Provider = ({ children }) => {
             alertStatus,
             setUser,
             informPayment,
+            verifyPayment,
             newSubscriptionClasses,
             deletePayment,
             deleteCollege,
