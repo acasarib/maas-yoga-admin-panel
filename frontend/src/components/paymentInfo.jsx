@@ -3,6 +3,14 @@ import { formatDateDDMMYY, formatPaymentValue } from "../utils";
 
 export default function PaymentInfo({ payment }) {
 
+    const getUserFullName = (payment) => {
+        if (payment.user && payment.user !== undefined && payment.user !== null) {
+            return `${payment.user.firstName} ${payment.user.lastName}`
+        } else {
+            return "Sistema";
+        }
+    }
+
     return (
     <div className="w-full border rounded p-4 shadow-md bg-white mb-4">
         <div>
@@ -14,7 +22,7 @@ export default function PaymentInfo({ payment }) {
             <div>Monto: {formatPaymentValue(payment.value)}</div>
             <div>Tipo de pago: {payment.type}</div>
             <div>Curso: {payment?.course?.title}</div>
-            <div>Pago informado por: {payment.user.firstName} {payment.user.lastName}</div>
+            <div>Pago informado por: {getUserFullName(payment)}</div>
         </div>
     </div>
     );

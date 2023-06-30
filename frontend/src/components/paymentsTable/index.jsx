@@ -69,7 +69,13 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
         setVerifyModal(true);
     }
 
-    const getUserFullName = (row) => row.user.firstName + ' ' + row.user.lastName;
+    const getUserFullName = (row) => {
+        if (row.user && row.user !== undefined && row.user !== null) {
+            return row.user.firstName + ' ' + row.user.lastName;
+        } else {
+            return "Sistema";
+        }
+    }
 
     const getStudentFullName = (row) => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "";
 

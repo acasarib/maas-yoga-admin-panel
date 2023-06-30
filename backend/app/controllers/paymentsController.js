@@ -70,5 +70,17 @@ export default {
       next(e);
     }
   },
+  /**
+   * /payments/{id}/verified [PUT]
+   * @returns HttpStatus ok and array of @Payment
+   */
+  changeVerified: async (req, res, next) => {
+    try {
+      paymentService.changeVerified(req.params.id, req.body.verified);
+      res.status(StatusCodes.OK).json();
+    } catch (e) {
+      next(e);
+    }
+  },
 
 };

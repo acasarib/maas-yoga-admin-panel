@@ -1,4 +1,18 @@
-import { course, student, courseTask, studentCourseTask } from "../db/index.js";
+import { Op } from "sequelize";
+import utils from "../utils/functions.js";
+import { course, student, courseTask, studentCourseTask, payment } from "../db/index.js";
+import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
+
+const getCollectedByStudent = professorPayment => {
+  const amountByStudent = parseFloat(professorPayment.criteriaValue);
+  return amountByStudent * professorPayment.totalStudents;
+}
+
+const getCollectedByPercentage = professorPayment => {
+  const percentage = parseFloat(professorPayment.criteriaValue);
+  const total = professorPayment.collectedByPayments;
+  return (percentage / 100) * total;
+}
 
 export const create = async (courseParam) => {
   return course.create(courseParam);
@@ -72,3 +86,76 @@ export const getStudentsByCourseTask = async (courseTaskId) => {
 export const setCompletedStudentTask = async (studentCourseTaskParam, courseTaskId, studentId) => {
   studentCourseTask.update(studentCourseTaskParam, { where: { courseTaskId, studentId } })
 };
+
+/**
+ * 
+ * @param {String} from in format yyyy-mm-dd
+ * @param {String} to in format yyyy-mm-dd
+ */
+export const calcProfessorsPayments = async (from, to) => {
+  const startDate = new Date(from);
+  const endDate = new Date(to);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+  const paymentsInRange = await payment.findAll({
+    where: {
+      at: {
+        [Op.between]: [startDate, endDate]
+      },
+      courseId: {
+        [Op.not]: null
+      }
+    }
+  });
+  let coursesIds = paymentsInRange.map(payment => payment.courseId);
+  coursesIds = utils.removeDuplicated(coursesIds);
+  const coursesInRange = await course.findAll({
+    where: {
+      id: {
+        [Op.in]: coursesIds
+      }
+    }
+  });
+  const professorsPayments = coursesInRange.map(c => {
+    let currentPayment = { criteria: c.criteria, criteriaValue: c.criteriaValue };
+    currentPayment.courseId = c.id;
+    currentPayment.payments = paymentsInRange.filter(p => p.courseId === c.id);
+    currentPayment.collectedByPayments = currentPayment.payments.reduce((total, p) => total + p.value, 0);
+    currentPayment.totalStudents = currentPayment.payments.map(p => p.studentId);
+    currentPayment.totalStudents = utils.removeDuplicated(currentPayment.totalStudents).length;
+    currentPayment.collectedByProfessor = c.criteria === CRITERIA_COURSES.STUDENT ? getCollectedByStudent(currentPayment) : getCollectedByPercentage(currentPayment);
+    currentPayment.professor = c.professor;
+
+    return currentPayment;
+  });
+  return professorsPayments;
+}
+
+export const addProfessorPayments = async (data, from, to) => {
+  const payments = data.map(d => ({
+    type: PAYMENT_TYPES.CASH,
+    value: d.collectedByProfessor *-1,
+    at: new Date(),
+    verified: false,
+    note: "",
+    courseId: d.courseId,
+    periodFrom: new Date(from),
+    periodTo: new Date(to),
+    professor: d.professor,
+  }));
+  let paymentsAdded = 0;
+  for (const p of payments) {
+    const alreadyCalculated = await payment.count({
+      where: {
+        periodFrom: from,
+        periodTo: to,
+        professor: p.professor,
+      }
+    });
+    if (alreadyCalculated === 0) {
+      paymentsAdded++;
+      await payment.create(p);
+    }
+  }
+  return paymentsAdded;
+}
