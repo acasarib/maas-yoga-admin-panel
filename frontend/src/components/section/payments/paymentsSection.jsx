@@ -19,6 +19,7 @@ import { Context } from "../../../context/Context";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import SelectItem from "../../../components/select/selectItem";
+import { Link } from "react-router-dom";
 
 export default function PaymentsSection(props) {
 
@@ -344,13 +345,16 @@ export default function PaymentsSection(props) {
                         className="ml-3 bg-orange-200 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><EditIcon fontSize="large" sx={{ color: orange[50] }} /></span>
             </button></div>
         </div>
-        <div className="flex flex-row justify-end">
+        <div className="flex flex-row justify-between">
+            <Link to="/home/professor-payments">
+                <div
+                    className="mr-4 mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Calcular pagos</span>
+                </div>
+            </Link>
             <div>
                 <button onClick={informDischarge}
                     className="mr-4 mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Informar egreso</span>
                 </button>
-            </div>
-            <div>
                 <button onClick={() => setOpenModal(true)}
                     className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Informar ingreso</span>
                 </button>

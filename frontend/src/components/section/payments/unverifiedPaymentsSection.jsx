@@ -12,6 +12,7 @@ export default function UnverifiedPaymentsSections() {
             <PaymentsTable
                 payments={payments.filter(payment => !payment.verified)}
                 isLoading={isLoadingPayments}
+                canVerify
             />
         </div>
     </>);
