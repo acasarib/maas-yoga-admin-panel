@@ -1,12 +1,6 @@
 import { payment, course, student, user, file } from "../db/index.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 
-const isPaymentVerified = payment => {
-  const value = parseFloat(payment.value);
-  const clazzId = payment.clazzId === undefined ? null : payment.clazzId;
-  return value < 0 || payment.type !== PAYMENT_TYPES.CASH || clazzId === null;
-};
-
 /**
  * 
  * @param {Array||Payment} paymentParam 
@@ -21,8 +15,7 @@ export const create = async (paymentParam, informerId) => {
       p.oldId = p.id;
       delete p.id;
     }
-    if (p.verified === null || p === undefined)
-      p.verified = isPaymentVerified(p);
+    p.verified = true;
     p.userId = informerId;
   });
   const createdPayments = await payment.bulkCreate(paymentParam);
@@ -50,4 +43,8 @@ export const getAll = async (specification) => {
     where: specification.getSequelizeSpecification(),
     include: specification.getSequelizeSpecificationAssociations([user, student, course])
   });
+};
+
+export const changeVerified = async (id, verified) => {
+  return payment.update({ verified }, { where: { id } });
 };
