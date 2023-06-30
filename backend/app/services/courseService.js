@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 import { course, student, courseTask, studentCourseTask, payment } from "../db/index.js";
-import { CRITERIA_COURSES } from "../utils/constants.js";
+import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
 const getCollectedByStudent = professorPayment => {
   const amountByStudent = parseFloat(professorPayment.criteriaValue);
@@ -130,4 +130,32 @@ export const calcProfessorsPayments = async (from, to) => {
     return currentPayment;
   });
   return professorsPayments;
+}
+
+export const addProfessorPayments = async (data, from, to) => {
+  const payments = data.map(d => ({
+    type: PAYMENT_TYPES.CASH,
+    value: d.collectedByProfessor *-1,
+    at: new Date(),
+    verified: false,
+    note: "",
+    courseId: d.courseId,
+    periodFrom: new Date(from),
+    periodTo: new Date(to),
+    professor: d.professor,
+  }));
+  let paymentsAdded = 0;
+  for (const p of payments) {
+    const alreadyCalculated = await payment.count({
+      where: {
+        periodFrom: from,
+        periodTo: to,
+        professor: p.professor,
+      }
+    });
+    if (alreadyCalculated === 0) {
+      paymentsAdded++;
+      await payment.create(p);
+    }
+  }
 }
