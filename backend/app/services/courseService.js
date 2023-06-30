@@ -131,7 +131,7 @@ export const calcProfessorsPayments = async (from, to) => {
   return professorsPayments;
 }
 
-export const addProfessorPayments = async (data, from, to) => {
+export const addProfessorPayments = async (data, from, to, informerId = null) => {
   const payments = data.map(d => ({
     type: PAYMENT_TYPES.CASH,
     value: d.collectedByProfessor *-1,
@@ -142,6 +142,7 @@ export const addProfessorPayments = async (data, from, to) => {
     periodFrom: new Date(from),
     periodTo: new Date(to),
     professor: d.professor,
+    userId: informerId,
   }));
   let paymentsAdded = 0;
   for (const p of payments) {
@@ -158,4 +159,9 @@ export const addProfessorPayments = async (data, from, to) => {
     }
   }
   return paymentsAdded;
+}
+
+export const addProfessorPayment = async (payment, from, to, informerId) => {
+  const amountAdded = await addProfessorPayments([payment], from, to, informerId);
+  return amountAdded === 1;
 }

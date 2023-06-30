@@ -8,7 +8,7 @@ import errorHandler from "./app/middleware/errorHandler.js";
 import routes from "./app/routes/index.js";
 import cors from "cors";
 
-cron.schedule("* * 1 * *", createMonthlyProfessorPayments);
+//cron.schedule("* * 1 * *", createMonthlyProfessorPayments);
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS || "*";
 const port = process.env.BACKEND_PORT || 3000;
