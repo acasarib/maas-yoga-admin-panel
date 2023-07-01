@@ -4,15 +4,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from "../modal";
 import { Context } from "../../context/Context";
 import { dateToString, withSeparators } from "../../utils";
+import Select from 'react-select';
 import DoneIcon from '@mui/icons-material/Done';
+import { PAYMENT_OPTIONS } from "../../constants";
 
 export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {}, canVerify }) {
-    const { deletePayment, categories, verifyPayment } = useContext(Context);
+    const { deletePayment, categories, verifyPayment, updateUnverifiedPayment } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);
     const [verifyModal, setVerifyModal] = useState(false);
     const [verifying, setVerifying] = useState(false);
+    const [verifingPaymentMethod, setVerifingPaymentMethod] = useState(null);
 
     const getBalanceForAllPayments = () => {
         let value = 0;
@@ -33,6 +36,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
 
     const handleVerifyPayment = async () => {
         setVerifying(true);
+        await updateUnverifiedPayment({ type: verifingPaymentMethod.value }, payment.id);
         await verifyPayment(payment.id);
         setVerifying(false);
         setPayment(null);
@@ -66,6 +70,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
 
     const openVerifyModal = (payment) => {
         setPayment(payment);
+        setVerifingPaymentMethod(PAYMENT_OPTIONS.find(po => po.value === payment.type));
         setVerifyModal(true);
     }
 
@@ -174,7 +179,13 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             </Modal>
             <Modal onClose={() => setPayment(null)} icon={<DoneIcon />} open={verifyModal} setDisplay={() => setVerifyModal(false)} title="Verificar pago" buttonText={verifying ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Verificando...</span></>) : <span>Verificar</span>} onClick={handleVerifyPayment}>
                 {payment !== null &&
-                    <div>Esta a punto de verificar el pago con el importe de <span className="font-bold">{payment.value}$</span></div>
+                    <div>
+                        <div>Esta a punto de verificar el pago con el importe de <span className="font-bold">{payment.value}$</span></div>
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</label>
+                            <Select value={verifingPaymentMethod} onChange={setVerifingPaymentMethod} options={PAYMENT_OPTIONS} />
+                        </div>
+                    </div>
                 }
             </Modal>
         </>

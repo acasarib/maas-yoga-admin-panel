@@ -163,7 +163,7 @@ export const Provider = ({ children }) => {
     const verifyPayment = async (paymentId) => {
         const veryfiedPayment = await paymentsService.verifyPayment(paymentId);
         changeAlertStatusAndMessage(true, 'success', 'El pago fue verificado exitosamente!');
-        setPayments(current => [...current, veryfiedPayment]);
+        setPayments(current => current.map(p => ({ ...p, verified: true, user: users.find(u => u.id === p.userId) })));
         return veryfiedPayment;
     }
 
@@ -425,6 +425,10 @@ export const Provider = ({ children }) => {
         return data;
     }
 
+    const updateUnverifiedPayment = async (data, paymentId) => {
+        await paymentsService.updateUnverifiedPayment(data, paymentId);
+    }
+
     return (
         <Context.Provider value={{
             colleges,
@@ -480,6 +484,7 @@ export const Provider = ({ children }) => {
             users,
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
+            updateUnverifiedPayment,
         }}>{children}</Context.Provider>
     );
 }
