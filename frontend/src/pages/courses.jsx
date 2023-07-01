@@ -320,7 +320,8 @@ export default function Courses(props) {
                   startAt: startAt,
                   duration: values.duration,
                   criteria: professorPaymentBy,
-                  criteriaValue: criteriaValue
+                  criteriaValue: criteriaValue,
+                  professor: values.professor,
                 };
                 setIsLoading(true);
                 try {
@@ -390,7 +391,7 @@ export default function Courses(props) {
                                 />
                             </div>
                             <div className="mb-4">
-                            <CommonInput 
+                                <CommonInput 
                                     label="Descripción"    
                                     onBlur={formik.handleBlur}
                                     value={formik.values.description}
@@ -400,7 +401,7 @@ export default function Courses(props) {
                                     type="text" 
                                     placeholder="Descripción"
                                     onChange={formik.handleChange}
-                            />
+                                />
                             </div>
                             <div className="mb-4 relative col-span-2">
                                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
@@ -417,18 +418,31 @@ export default function Courses(props) {
                                 </LocalizationProvider>
                             </div>
                         </div>
-                        <div className="mb-4 w-3/6">
-                                <CommonInput 
-                                    label="Duración"    
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.duration}
-                                    name="duration"
-                                    htmlFor="duration"
-                                    id="duration" 
-                                    type="text" 
-                                    placeholder="Duración" 
-                                    onChange={formik.handleChange}
-                                />
+                        <div className="mb-4">
+                            <CommonInput 
+                                label="Duración"    
+                                onBlur={formik.handleBlur}
+                                value={formik.values.duration}
+                                name="duration"
+                                htmlFor="duration"
+                                id="duration" 
+                                type="text" 
+                                placeholder="Duración" 
+                                onChange={formik.handleChange}
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <CommonInput 
+                                label="Professor"    
+                                onBlur={formik.handleBlur}
+                                value={formik.values.professor}
+                                name="professor"
+                                htmlFor="professor"
+                                id="professor" 
+                                type="text" 
+                                placeholder="Profesor" 
+                                onChange={formik.handleChange}
+                            />
                         </div>
                         <div className="mb-4">
                                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
