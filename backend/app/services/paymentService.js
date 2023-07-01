@@ -1,3 +1,4 @@
+import { StatusCodes } from "http-status-codes";
 import { payment, course, student, user, file } from "../db/index.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 
@@ -45,6 +46,17 @@ export const getAll = async (specification) => {
   });
 };
 
-export const changeVerified = async (id, verified) => {
-  return payment.update({ verified }, { where: { id } });
+export const updateUnverifiedPayment = async (id, data) => {
+  const p = await payment.findByPk(id);
+  if (p.verified)
+    throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "Payment must be unverified to update" });
+  await payment.update(data, { where: { id } });
+  return payment.findByPk(id, { include: [user,student,course] });
+};
+
+export const changeVerified = async (id, verified, verifiedBy) => {
+  const newData = { verified };
+  if (verified)
+    newData.verifiedBy = verifiedBy;
+  return payment.update(newData, { where: { id } });
 };
