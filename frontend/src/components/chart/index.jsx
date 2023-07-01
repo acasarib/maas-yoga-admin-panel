@@ -55,6 +55,8 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         setData(data);
     }
 
+    const onlyVerified = d => d !== null ? d.filter(p => p.verified) : [];
+
     useEffect(() => {
         if (chartPeriodIterator === false) return;
         const now = new Date();
@@ -130,7 +132,7 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 setCurrentChartBy("year");
             }
         }
-        onChangeData(data !== null ? data : []);
+        onChangeData(data !== null ? onlyVerified(data) : []);
     }, [data, currentChartSelected]);
 
     return (
@@ -140,9 +142,9 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500 mb-4">{currentChartSelected !== "custom" && <ArrowLeftIcon onClick={onClickPreviousArrow} className="cursor-pointer"/>}{chartPeriod}{currentChartSelected !== "custom" && <ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>}</span>
                 
-                {currentChartBy === "year" && <YearlyChart data={data} height={"300px"} />}
-                {currentChartBy === "month" && <MonthlyChart data={data} height={"300px"} />}
-                {currentChartBy === "week" && <WeeklyChart data={data} height={"300px"}/>}
+                {currentChartBy === "year" && <YearlyChart data={onlyVerified(data)} height={"300px"} />}
+                {currentChartBy === "month" && <MonthlyChart data={onlyVerified(data)} height={"300px"} />}
+                {currentChartBy === "week" && <WeeklyChart data={onlyVerified(data)} height={"300px"}/>}
 
                 <div className="w-full mt-4">
                     <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
