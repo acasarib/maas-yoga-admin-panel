@@ -12,7 +12,11 @@ export const PAYMENT_OPTIONS = [
     {
         label: 'Efectivo',
         value: CASH_PAYMENT_TYPE
-    }
+    },
+    {
+        label: 'Transferencia',
+        value: 'Transferencia'
+    },
 ];
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
