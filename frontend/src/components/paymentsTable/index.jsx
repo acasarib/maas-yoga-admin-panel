@@ -97,7 +97,8 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
                 selector: row => dateToString(row.at),
                 sortable: true,
                 searchable: true,
-                maxWidth: '80px'
+                maxWidth: '120px',
+                minWidth: '120px',
             },
             {
                 name: 'Importe',

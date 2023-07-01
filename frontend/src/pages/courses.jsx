@@ -44,8 +44,6 @@ export default function Courses(props) {
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
     const [taskId, setTaskId] = useState(null);
-    const [professorPaymentBy, setProffesorPaymentBy] = useState('percentage');
-    const [criteriaValue, setCriteriaValue] = useState(0);
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -310,8 +308,9 @@ export default function Courses(props) {
             description: edit ? courseToEdit.description : '',
             startAt: edit ? courseToEdit.startAt : startAt,
             duration: edit ? courseToEdit.duration : '',
+            professor: edit ? courseToEdit.professor : '',
             criteria: edit ? courseToEdit.criteria : '',
-            criteriaValue: edit ? courseToEdit.criteriaValue : criteriaValue,
+            criteriaValue: edit ? courseToEdit.criteriaValue : 0,
         },
             onSubmit: async (values) => {
                 const body = {
@@ -319,10 +318,11 @@ export default function Courses(props) {
                   description: values.description,
                   startAt: startAt,
                   duration: values.duration,
-                  criteria: professorPaymentBy,
-                  criteriaValue: criteriaValue,
+                  criteria: values.criteria,
+                  criteriaValue: values.criteriaValue,
                   professor: values.professor,
                 };
+                console.log("onSubmit body=", body);
                 setIsLoading(true);
                 try {
                   if(edit) {
@@ -347,7 +347,9 @@ export default function Courses(props) {
                 }
                 formik.values = {};
               },
-      });
+    });
+
+    const handleRadioButtons = e => formik.values.criteria = e.target.value;
 
     useEffect(() => {
         console.log('Cantidad seleccionada ' + selectedOption.length + '...');
@@ -455,23 +457,23 @@ export default function Courses(props) {
                                 Pago del profesor por:
                             </label>
                             <div className="flex items-center mb-4 ml-2 md:ml-4">
-                                <input id="default-radio-1" type="radio" checked={professorPaymentBy == 'percentage'} onChange={() => setProffesorPaymentBy('percentage')} name="default-radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                                <label for="default-radio-1" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
+                                <input name="criteria" id="criteria-percentage" type="radio" checked={formik.values.criteria == 'percentage'} value="percentage" onChange={formik.handleChange} className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                                <label for="criteria-percentage" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
                             </div>
                             <div className="flex items-center ml-2 md:ml-4">
-                                <input checked={professorPaymentBy == 'student'} onChange={() => setProffesorPaymentBy('student')} id="default-radio-2" type="radio" name="default-radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                                <label for="default-radio-2" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
+                                <input name="criteria" id="criteria-student" checked={formik.values.criteria == 'student'} value="student" onChange={formik.handleChange} type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                                <label for="criteria-student" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
                             </div>
                         </div>
                         <div className="mb-4 w-3/6">
                             <CommonInput 
-                                label={(professorPaymentBy == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}    
-                                value={criteriaValue}
-                                name={(professorPaymentBy == 'percentage') ? "percentage" : "ammount"}
-                                id={(professorPaymentBy == 'percentage') ? "percentage" : "ammount"} 
+                                label={(formik.values.criteria == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}    
+                                value={formik.values.criteriaValue}
+                                name="criteriaValue"
+                                id="criteriaValue" 
                                 type="number" 
-                                placeholder={(professorPaymentBy == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}
-                                onChange={(v) => setCriteriaValue(v.target.value)}
+                                placeholder={(formik.values.criteria == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}
+                                onChange={formik.handleChange}
                             />
                         </div>
                     </form>
