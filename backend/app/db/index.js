@@ -67,6 +67,10 @@ course.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 clazz.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 headquarter.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 user.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
+payment.belongsTo(user, {
+  foreignKey: { name: 'verifiedBy', allowNull: true },
+});
+user.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "verifiedBy" });
 payment.belongsTo(user, { foreignKey: { allowNull: true } });
 payment.belongsTo(student, { foreignKey: { allowNull: true } });
 payment.belongsTo(clazz, { foreignKey: { allowNull: true } });

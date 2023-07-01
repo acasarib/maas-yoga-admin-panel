@@ -70,13 +70,27 @@ export default {
       next(e);
     }
   },
+
+  /**
+   * /payments/{id} [PUT]
+   * @returns HttpStatus ok
+   */
+  updateUnverifiedPayment: async (req, res, next) => {
+    try {
+      await paymentService.updateUnverifiedPayment(req.params.id, req.body);
+      res.status(StatusCodes.OK).json();
+    } catch (e) {
+      next(e);
+    }
+  },
+
   /**
    * /payments/{id}/verified [PUT]
-   * @returns HttpStatus ok and array of @Payment
+   * @returns HttpStatus ok
    */
   changeVerified: async (req, res, next) => {
     try {
-      paymentService.changeVerified(req.params.id, req.body.verified);
+      await paymentService.changeVerified(req.params.id, req.body.verified, req.user.id);
       res.status(StatusCodes.OK).json();
     } catch (e) {
       next(e);

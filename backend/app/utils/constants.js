@@ -5,6 +5,7 @@ const PAYMENT_TYPES = {
   MERCADO_PAGO: "Mercado pago",
   PAYPAL: "Paypal",
   CASH: "Efectivo",
+  TRANSFER: "Transferencia",
 };
 const FIRST_USER_PASSWORD = "123";
 const FIRST_USER_EMAIL = "email@email.com";
