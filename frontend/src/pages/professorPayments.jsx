@@ -20,9 +20,10 @@ import ButtonPrimary from "../components/button/primary";
 import { dateToYYYYMMDD } from "../utils";
 import PaymentsTable from "../components/paymentsTable";
 import PaymentInfo from "../components/paymentInfo";
+import paymentsService from "../services/paymentsService";
 
 export default function ProfessorPayments(props) {
-    const { calcProfessorsPayments } = useContext(Context);
+    const { calcProfessorsPayments, changeAlertStatusAndMessage } = useContext(Context);
 
     const [from, setFrom] = useState(null);
     const [to, setTo] = useState(null);
@@ -36,6 +37,19 @@ export default function ProfessorPayments(props) {
         const data = await calcProfessorsPayments(parsedFrom, parsedTo);
         console.log("Data: ", data);
         setData(data);
+    }
+
+    const addPayment = async (payment) => {
+        const parsedFrom = dateToYYYYMMDD(from.$d);
+        const parsedTo = dateToYYYYMMDD(to.$d);
+        payment.from = parsedFrom;
+        payment.to = parsedTo;
+        try { 
+            await paymentsService.informProfessorPayment(payment);
+            changeAlertStatusAndMessage(true, 'success', 'El movimiento fue informado exitosamente!')
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.')
+        }
     }
 
     const getModalTitle = () => {
@@ -83,7 +97,10 @@ export default function ProfessorPayments(props) {
                         <span>Total de ingresos: {d.collectedByPayments}$</span>
                         <span>Total a pagar al profesor: {d.collectedByProfessor}$</span>
                         <span>Criterio: {d.criteria === "percentage" ? `Se debe pagar el ${d.criteriaValue}% del total de ingresos` : `Se debe pagar ${d.criteriaValue}$ por cada estudiante`}</span>
-                        <ButtonPrimary className="mt-2" onClick={() => setActiveCourseModal(d)}>Ver pagos</ButtonPrimary>
+                        <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
+                            <ButtonPrimary onClick={() => addPayment(d)}>Informar</ButtonPrimary>
+                            <ButtonPrimary onClick={() => setActiveCourseModal(d)}>Ver pagos</ButtonPrimary>
+                        </div>
                     </div>))
                 }
                 <Modal

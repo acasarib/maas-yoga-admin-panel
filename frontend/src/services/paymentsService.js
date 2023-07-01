@@ -58,6 +58,19 @@ export default {
                 })
         });
     },
+    informProfessorPayment(data) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;           
+            axios
+                .post(baseUrl + `api/v1/courses/add-professor-payment`, data, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     newPayments(payments) {
         return new Observable(async (subscriber) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
