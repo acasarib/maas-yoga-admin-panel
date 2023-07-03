@@ -26,7 +26,7 @@ import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 
 export default function Courses(props) {
-    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse, changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context);
+    const { courses, students, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -326,7 +326,7 @@ export default function Courses(props) {
                 setIsLoading(true);
                 try {
                   if(edit) {
-                        await coursesService.editCourse(courseId, body);
+                        await editCourse(courseId, body);
                         setEdit(false);
                         if(selectedOption.length > 0) {
                             await addStudent(courseId, selectedOption);
