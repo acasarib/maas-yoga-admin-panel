@@ -283,9 +283,20 @@ export const Provider = ({ children }) => {
 
     const newCourse = async course => {
         const createdCourse = await coursesService.newCourse(course);
-        changeAlertStatusAndMessage(true, 'success', 'El curso fue creado exitosamente!')
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue creado exitosamente!');
+        createdCourse.label = createdCourse.title;
+        createdCourse.value = createdCourse.id;
         setCourses(current => [...current, createdCourse]);
         return createdCourse;
+    }
+
+    const editCourse = async (courseId, course) => {
+        const editedCourse = await coursesService.editCourse(courseId, course);
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!');
+        editedCourse.label = editedCourse.title;
+        editedCourse.value = editedCourse.id;
+        setCourses(current => [...current, editedCourse]);
+        return editedCourse;
     }
 
     const addStudent = async (courseId, studentsIds) => {
@@ -394,12 +405,16 @@ export const Provider = ({ children }) => {
     
     const editCategory = async (categoryId, categoryData) => {
         const editedCategory = await categoriesService.editCategory(categoryId, categoryData);
+        editedCategory.label = editedCategory.title;
+        editedCategory.value = editedCategory.id;
         changeAlertStatusAndMessage(true, 'success', 'La categoria fue editada exitosamente!')
         setCategories(current => current.map(c => c.id === categoryId ? editedCategory : c));
     }
     
     const newCategory = async categoryData => {
         const createdCategory = await categoriesService.newCategory(categoryData);
+        createdCategory.label = createdCategory.title;
+        createdCategory.value = createdCategory.id;
         changeAlertStatusAndMessage(true, 'success', 'La categoria fue creada exitosamente!')
         setCategories(current => [...current, createdCategory]);
     }
@@ -466,6 +481,7 @@ export const Provider = ({ children }) => {
             newStudents,
             deleteCourse,
             newCourse,
+            editCourse,
             addStudent,
             editTask,
             deleteTask,
