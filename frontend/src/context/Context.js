@@ -292,10 +292,9 @@ export const Provider = ({ children }) => {
 
     const editCourse = async (courseId, course) => {
         const editedCourse = await coursesService.editCourse(courseId, course);
+        course.id = courseId;
         changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!');
-        editedCourse.label = editedCourse.title;
-        editedCourse.value = editedCourse.id;
-        setCourses(current => [...current, editedCourse]);
+        setCourses(current => current.map(s => s.id === courseId ? merge(s, course) : s));
         return editedCourse;
     }
 
