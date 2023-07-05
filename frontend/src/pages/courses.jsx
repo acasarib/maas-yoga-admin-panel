@@ -44,6 +44,7 @@ export default function Courses(props) {
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
     const [taskId, setTaskId] = useState(null);
+    const [isDateSelected, setIsDateSelected] = useState(false);
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -53,6 +54,7 @@ export default function Courses(props) {
         setAddTaskModal(value);
         setDisplayTasksModal(value);
         setIsTaskStudentModal(value);
+        setIsDateSelected(false);
     }
 
     const setDisplayTask = async (value) => {
@@ -83,7 +85,9 @@ export default function Courses(props) {
     }
 
     const openEditModal = (course) => {
+        console.log(course);
         setEdit(true);
+        setIsDateSelected(true);
         setDisplayModal(true);
         setCourseId(course.id);
         setCourseToEdit(course);
@@ -306,7 +310,7 @@ export default function Courses(props) {
         initialValues: {
             title: edit ? courseToEdit.title : '',
             description: edit ? courseToEdit.description : '',
-            startAt: edit ? courseToEdit.startAt : startAt,
+            startAt: edit ? dayjs(new Date(courseToEdit.startAt)) : startAt,
             duration: edit ? courseToEdit.duration : '',
             professor: edit ? courseToEdit.professor : '',
             criteria: edit ? courseToEdit.criteria : '',
@@ -338,6 +342,7 @@ export default function Courses(props) {
                             await addStudent(response.id, selectedOption);
                         }
                   }
+                  setIsDateSelected(false);
                   setIsLoading(false);
                   setDisplayModal(false);
                 } catch (error) {
@@ -378,7 +383,24 @@ export default function Courses(props) {
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="mb-4 relative col-span-2">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                                Fecha de inicio
+                            </label>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                                    <DateTimePicker
+                                    label="Seleccionar fecha"
+                                    value={formik.values.startAt}
+                                    onChange={(newValue) => {
+                                        setStartAt(newValue);
+                                        setIsDateSelected(true);
+                                    }}
+                                    />
+                                </DemoContainer>
+                            </LocalizationProvider>
+                        </div>
+                        {isDateSelected && (<><div className="grid grid-cols-2 gap-4">
                             <div className="mb-4">
                                 <CommonInput 
                                     label="Título"    
@@ -405,20 +427,6 @@ export default function Courses(props) {
                                     onChange={formik.handleChange}
                                 />
                             </div>
-                            <div className="mb-4 relative col-span-2">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                    Fecha de inicio
-                                </label>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                                        <DateTimePicker
-                                        label="Seleccionar fecha"
-                                        value={startAt}
-                                        onChange={(newValue) => setStartAt(newValue)}
-                                        />
-                                    </DemoContainer>
-                                </LocalizationProvider>
-                            </div>
                         </div>
                         <div className="mb-4">
                             <CommonInput 
@@ -435,7 +443,7 @@ export default function Courses(props) {
                         </div>
                         <div className="mb-4">
                             <CommonInput 
-                                label="Professor"    
+                                label="Profesor"    
                                 onBlur={formik.handleBlur}
                                 value={formik.values.professor}
                                 name="professor"
@@ -475,7 +483,7 @@ export default function Courses(props) {
                                 placeholder={(formik.values.criteria == 'percentage') ? "Porcentaje" : "Cantidad por alumno"}
                                 onChange={formik.handleChange}
                             />
-                        </div>
+                        </div></>)}
                     </form>
                 </>
                 } />
