@@ -17,6 +17,10 @@ export const PAYMENT_OPTIONS = [
         label: 'Transferencia',
         value: 'Transferencia'
     },
+    {
+        label: 'Dólar',
+        value: 'Dólar'
+    },
 ];
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
