@@ -17,6 +17,10 @@ export const PAYMENT_OPTIONS = [
         label: 'Transferencia',
         value: 'Transferencia'
     },
+    {
+        label: 'Tarjeta de credito',
+        value: 'Tarjeta de credito'
+    },
 ];
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
