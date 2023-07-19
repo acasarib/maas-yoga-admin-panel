@@ -34,6 +34,7 @@ export default function Students(props) {
     const [coursesLists, setCoursesLists] = useState([]);
     const [studentName, setStudentName] = useState("");
     const [tasks, setTasks] = useState([]);
+    const [filteredTasks, setFilteredTasks] = useState([]);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
@@ -72,6 +73,12 @@ export default function Students(props) {
         }catch {
             setSpinnerOn(false);
         }
+    }
+
+    const openTaskModal = async (courseId) => {
+        const courseTasks = tasks.filter(tk => tk.courseId === courseId);
+        setFilteredTasks(courseTasks);
+        setDisplayTasksModal(true);
     }
 
     const handleDeleteStudent = async () => {
@@ -207,7 +214,7 @@ export default function Students(props) {
             name: 'Tareas pendientes',
             selector: row => getTasksStatus(row.id),
             cell: row => {return (<><div className="flex flex-row justify-center">
-                <span className="my-auto mr-2">{getTasksStatus(row.id)}</span><button onClick={() => setDisplayTasksModal(true)} className="rounded-2xl bg-orange-200 shadow px-2 py-1 my-2"><span>{((getTasksProgress(row.id) === 0) && (getTasksStatus(row.id) !== '0/0')) && (<><CloseIcon color="error"/></>)}{(getTasksProgress(row.id) === 1) && (<><DoneAllIcon color="success" /></>)}{((getTasksProgress(row.id) < 1) && ((getTasksProgress(row.id) > 0))) && (<><DoneIcon color="success"/></>)}</span></button>
+                <span className="my-auto mr-2">{getTasksStatus(row.id)}</span><button onClick={() => openTaskModal(row.id)} className="rounded-2xl bg-orange-200 shadow px-2 py-1 my-2"><span>{((getTasksProgress(row.id) === 0) && (getTasksStatus(row.id) !== '0/0')) && (<><CloseIcon color="error"/></>)}{(getTasksProgress(row.id) === 1) && (<><DoneAllIcon color="success" /></>)}{((getTasksProgress(row.id) < 1) && ((getTasksProgress(row.id) > 0))) && (<><DoneIcon color="success"/></>)}</span></button>
           </div></>)},
             sortable: true,
         },
@@ -227,7 +234,7 @@ export default function Students(props) {
         },
         {
             name: 'Estado de la tarea',
-            cell: row => { return (<>{(row.studentCourseTask.completed === false) ? <><span className="my-auto mr-2">Completada</span><CloseIcon color="error"/></> : <><span className="my-auto mr-2">No completada</span><DoneIcon color="success" /></>}</>)
+            cell: row => { return (<>{(row.studentCourseTask.completed === false) ? <><span className="my-auto mr-2">No completada</span><CloseIcon color="error"/></> : <><span className="my-auto mr-2">Completada</span><DoneIcon color="success" /></>}</>)
         },
             sortable: true,
         },
@@ -389,7 +396,7 @@ export default function Students(props) {
                 /></div></>} />
                 <Modal style={{ minWidth: '800px' }} hiddingButton icon={<AddTaskIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title="Tareas del curso" children={<><div className="mt-8"><Table
                     columns={taskColumn}
-                    data={tasks}
+                    data={filteredTasks}
                     noDataComponent="Este curso no posee tareas"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} /></>)}
@@ -401,7 +408,7 @@ export default function Students(props) {
                 /></div></>} />
                 <Modal hiddingButton icon={<AddTaskIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title="Tareas del curso" children={<><div className="mt-8"><Table
                     columns={taskColumn}
-                    data={tasks}
+                    data={filteredTasks}
                     noDataComponent="Este curso no posee tareas"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} /></>)}
