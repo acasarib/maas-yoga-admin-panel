@@ -6,6 +6,7 @@ const PAYMENT_TYPES = {
   PAYPAL: "Paypal",
   CASH: "Efectivo",
   TRANSFER: "Transferencia",
+  CREDIT_CARD: "Tarjeta de credito",
 };
 const FIRST_USER_PASSWORD = "123";
 const FIRST_USER_EMAIL = "email@email.com";

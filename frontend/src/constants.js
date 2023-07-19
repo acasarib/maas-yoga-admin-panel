@@ -18,8 +18,8 @@ export const PAYMENT_OPTIONS = [
         value: 'Transferencia'
     },
     {
-        label: 'Dólar',
-        value: 'Dólar'
+        label: 'Tarjeta de credito',
+        value: 'Tarjeta de credito'
     },
 ];
 
