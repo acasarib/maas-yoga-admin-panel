@@ -11,8 +11,9 @@ import InfoIcon from '@mui/icons-material/Info';
 import Modal from "../modal";
 import ButtonPrimary from "../button/primary";
 import PaymentInfo from "../paymentInfo";
+import CustomCheckbox from "../checkbox/customCheckbox";
 
-export default function Chart({ currentChartSelected, customChainFilters, onChangeData }) {
+export default function Chart({ currentChartSelected, customChainFilters, onChangeData, chartByCreatedAt, setChartByCreatedAt }) {
 
     const [data, setData] = useState(null);
     const [currentChartBy, setCurrentChartBy] = useState("year")
@@ -60,17 +61,17 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         const now = new Date();
         const fetchDataByYear = async () => {
             now.setFullYear(now.getFullYear() + chartPeriodIterator);
-            const response = await paymentsService.getAllByYear(now);
+            const response = await paymentsService.getAllByYear(now, chartByCreatedAt);
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
             now.setMonth(now.getMonth() + chartPeriodIterator);
-            const response = await paymentsService.getAllByMonth(now);
+            const response = await paymentsService.getAllByMonth(now, chartByCreatedAt);
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
             now.setDate(now.getDate() + chartPeriodIterator * 7);
-            const response = await paymentsService.getAllByWeek(now);
+            const response = await paymentsService.getAllByWeek(now, chartByCreatedAt);
             onChangeWeekData(response);
         };
         if (currentChartSelected === "year")
@@ -79,19 +80,19 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
             fetchDataByMonth();
         if (currentChartSelected === "week")
             fetchDataByWeek();
-    }, [chartPeriodIterator]);
+    }, [chartPeriodIterator, chartByCreatedAt]);
     
     useEffect(() => {
         const fetchDataByYear = async () => {
-            const response = await paymentsService.getAllByYear();
+            const response = await paymentsService.getAllByYear(chartByCreatedAt);
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
-            const response = await paymentsService.getAllByMonth();
+            const response = await paymentsService.getAllByMonth(chartByCreatedAt);
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
-            const response = await paymentsService.getAllByWeek();
+            const response = await paymentsService.getAllByWeek(chartByCreatedAt);
             onChangeWeekData(response);
         };
         const fetchDataByChainFilters = async () => {
@@ -107,11 +108,12 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         if (currentChartSelected === "custom")
             fetchDataByChainFilters();
         setChartPeriodIterator(false);
-    }, [currentChartSelected, customChainFilters]);
+    }, [currentChartSelected, customChainFilters, chartByCreatedAt]);
 
     useEffect(() => {
         if (data && currentChartSelected === "custom") {
-            const dates = data.map(payment => new Date(payment.at).getTime());
+            const field = chartByCreatedAt ? "createdAt" : "at";
+            const dates = data.map(payment => new Date(payment[field]).getTime());
             const minDate = new Date(Math.min(...dates));
             const maxDate = new Date(Math.max(...dates));
             const diffDays = dateDiffInDays(maxDate, minDate);
@@ -131,7 +133,7 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
             }
         }
         onChangeData(data !== null ? data : []);
-    }, [data, currentChartSelected]);
+    }, [data, currentChartSelected, chartByCreatedAt]);
 
     return (
         <>
@@ -140,12 +142,19 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500 mb-4">{currentChartSelected !== "custom" && <ArrowLeftIcon onClick={onClickPreviousArrow} className="cursor-pointer"/>}{chartPeriod}{currentChartSelected !== "custom" && <ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>}</span>
                 
-                {currentChartBy === "year" && <YearlyChart data={data} height={"300px"} />}
-                {currentChartBy === "month" && <MonthlyChart data={data} height={"300px"} />}
-                {currentChartBy === "week" && <WeeklyChart data={data} height={"300px"}/>}
+                {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : "at"} height={"300px"} />}
+                {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : "at"} height={"300px"} />}
+                {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : "at"} height={"300px"}/>}
 
-                <div className="w-full mt-4">
+                <div className="w-full mt-4 flex">
                     <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
+                    <CustomCheckbox
+                        checked={chartByCreatedAt}
+                        labelOn="Fecha ingreso"
+                        labelOff="Fecha indicada"
+                        className="ml-2"
+                        onChange={() => setChartByCreatedAt(!chartByCreatedAt)}
+                    />
                 </div>
                 <Modal
                     open={isModalOpen}

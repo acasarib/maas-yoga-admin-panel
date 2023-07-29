@@ -10,6 +10,7 @@ export default function Balance(props) {
     const [currentChartSelected, setCurrentChartSelected] = useState("year");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [customChainFilters, setCustomChainFilters] = useState([]);
+    const [chartByCreatedAt, setChartByCreatedAt] = useState(false);
     const [payments, setPayments] = useState([]);
 
     const switchModal = () => setIsModalOpen(!isModalOpen);
@@ -38,13 +39,15 @@ export default function Balance(props) {
                     </div>
                     <div className="col-span-3">
                         <Chart
+                            chartByCreatedAt={chartByCreatedAt}
+                            setChartByCreatedAt={setChartByCreatedAt}
                             customChainFilters={customChainFilters}
                             currentChartSelected={currentChartSelected}
                             onChangeData={data => setPayments(data)}    
                             />
                     </div>
                 </div>
-                <PaymentsTable className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
+                <PaymentsTable dateField={chartByCreatedAt ? "createdAt" : "at"} className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
             </Container>
             <ChartFilterModal isOpen={isModalOpen} closeModal={switchModal} onApplyFilter={onApplyFilter} />
         </>

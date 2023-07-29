@@ -6,7 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
-export default function FilterPaymentAt({ onChange }) {
+export default function FilterPaymentCreatedAt({ onChange }) {
 
     const [typeCriteriaSelected, setTypeCriteriaSelected] = useState(null);
     const isBetween = typeCriteriaSelected !== null && typeCriteriaSelected.value === "between";
@@ -32,7 +32,7 @@ export default function FilterPaymentAt({ onChange }) {
             at.$d.setMinutes(0);
             at2.$d.setHours(23);
             at2.$d.setMinutes(59);
-            onChange(`at ${typeCriteriaSelected.value} ${at.$d.getTime()}${isBetween ? ":" + at2.$d.getTime() : ""}`);
+            onChange(`createdAt ${typeCriteriaSelected.value} ${at.$d.getTime()}${isBetween ? ":" + at2.$d.getTime() : ""}`);
         }
     }, [typeCriteriaSelected, at, at2]);
     
@@ -40,7 +40,7 @@ export default function FilterPaymentAt({ onChange }) {
 
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Fecha indicada</span>
+        <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Fecha ingreso</span>
         <div className="flex">
             <Select placeholder="Seleccionar" className="payment-filter-width mt-3  mr-8" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
             <div className="my-auto flex">
