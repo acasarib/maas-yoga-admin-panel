@@ -3,7 +3,7 @@ import { useState } from "react";
 import { capitalizeFirstCharacter } from "../../utils";
 import BarChart from "./barChart";
 
-export default function WeeklyChart({ data, height }) {
+export default function WeeklyChart({ data, height, field }) {
     const [parsedData, setParsedData] = useState([]);
     const getMaxValue = (data) => Math.max(...data.map(d => d.value));
 
@@ -23,9 +23,9 @@ export default function WeeklyChart({ data, height }) {
     useEffect(() => {
         const parsedData = [];
         if (data && data.length > 0) {
-            data.sort((a, b) => new Date(a.at) < new Date(b.at) ? -1 : 1);
+            data.sort((a, b) => new Date(a[field]) < new Date(b[field]) ? -1 : 1);
             data.forEach(d => {
-                const at = new Date(d.at);
+                const at = new Date(d[field]);
                 const weekDay = capitalizeFirstCharacter(at.toLocaleDateString('es-ES', { weekday: 'short' }));
                 const currentWeekDayValue = parsedData.find(d => d.weekDay === weekDay);
                 if (currentWeekDayValue)

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { capitalizeFirstCharacter } from "../../utils";
 import BarChart from "./barChart";
 
-export default function YearlyChart({ data, height }) {
+export default function YearlyChart({ data, height, field }) {
     const [parsedData, setParsedData] = useState([]);
     const getMaxValue = (data) => Math.max(...Object.keys(data).map(month => data[month].value));
 
@@ -22,9 +22,9 @@ export default function YearlyChart({ data, height }) {
             "Dic": { value: 0, percentage: 0 },
         };
         if (data && data.length > 0) {
-            data.sort((a, b) => new Date(a.at) < new Date(b.at) ? -1 : 1);
+            data.sort((a, b) => new Date(a[field]) < new Date(b[field]) ? -1 : 1);
             data.forEach(payment => {
-                const paymentAt = new Date(payment.at);
+                const paymentAt = new Date(payment[field]);
                 const atMonth = capitalizeFirstCharacter(paymentAt.toLocaleDateString('es-ES', { month: 'short' }));
                 parsedData[atMonth].value += payment.value;
             })

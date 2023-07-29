@@ -167,19 +167,21 @@ export default {
                 })
         });
     },
-    getAllByYear(from = new Date()) {
+    getAllByYear(byCreatedAt, from = new Date()) {
         const startOfYear = new Date(from.getFullYear(), 0, 1).getTime();
         const endOfYear = new Date(from.getFullYear(), 11, 31).getTime();
-        return this.getByQuery(`at between ${startOfYear}:${endOfYear}`)
+        const field = byCreatedAt ? "createdAt" : "at";
+        return this.getByQuery(`${field} between ${startOfYear}:${endOfYear}`)
             .then(data => ({ data, period: { from: startOfYear, to: endOfYear } }));
     },
-    getAllByMonth(from = new Date()) {
+    getAllByMonth(byCreatedAt, from = new Date()) {
         const startOfMonth = new Date(from.getFullYear(), from.getMonth(), 1).getTime();
         const endOfMonth = new Date(from.getFullYear(), from.getMonth() + 1, 0).getTime();
-        return this.getByQuery(`at between ${startOfMonth}:${endOfMonth}`)
+        const field = byCreatedAt ? "createdAt" : "at";
+        return this.getByQuery(`${field} between ${startOfMonth}:${endOfMonth}`)
             .then(data => ({ data, period: { from: startOfMonth, to: endOfMonth } }));
     },
-    getAllByWeek(from = new Date()) {
+    getAllByWeek(byCreatedAt, from = new Date()) {
         let prevMonday = from;
         prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() == 1 ? 7 : (prevMonday.getDay() + (7 - 1)) % 7 ));
         prevMonday.setHours(0);
@@ -190,7 +192,8 @@ export default {
         until.setMinutes(59);
         until = until.getTime();
         prevMonday = prevMonday.getTime();
-        return this.getByQuery(`at between ${prevMonday}:${until}`)
+        const field = byCreatedAt ? "createdAt" : "at";
+        return this.getByQuery(`${field} between ${prevMonday}:${until}`)
             .then(data => ({ data, period: { from: prevMonday, to: until } }));
     },
     verifyPayment(paymentId) {

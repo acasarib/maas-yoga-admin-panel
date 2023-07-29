@@ -8,7 +8,7 @@ import Select from 'react-select';
 import DoneIcon from '@mui/icons-material/Done';
 import { PAYMENT_OPTIONS } from "../../constants";
 
-export default function PaymentsTable({ className = "", payments, isLoading, onDelete = () => {}, canVerify }) {
+export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify }) {
     const { deletePayment, categories, verifyPayment, updateUnverifiedPayment } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -99,7 +99,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
         const newColumns = [
             {
                 name: 'Fecha',
-                selector: row => dateToString(row.at),
+                selector: row => dateToString(row[dateField]),
                 sortable: true,
                 searchable: true,
                 maxWidth: '120px',
@@ -152,7 +152,7 @@ export default function PaymentsTable({ className = "", payments, isLoading, onD
             },
         ];
         return newColumns;
-    }, [categories]); 
+    }, [categories, dateField]); 
 
     useEffect(() => {
         getBalanceForAllPayments();
