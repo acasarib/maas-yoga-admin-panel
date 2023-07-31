@@ -5,7 +5,8 @@ import { sequelize } from "../db/index.js";
 
 class Specification {
 
-  constructor(rawQuerySpecification = "", model) {
+  constructor(rawQuerySpecification = "", model, isOrOperation = false) {
+    this.isOrOperation = isOrOperation;
     const modelAttributes = model.getAttributes();
     const rawModelAttributes = Object.keys(modelAttributes);
     const isValidAttribute = atributte => rawModelAttributes.includes(atributte);
@@ -62,7 +63,7 @@ class Specification {
     this.queryParts.forEach(queryPart => {
       spec[queryPart.attribute] = { [Op[queryPart.operation]]: queryPart.value };
     });
-    return spec;
+    return this.isOrOperation ? { [Op.or]: spec }: spec;
   }
 
   getSequelizeSpecificationAssociations(extraAssociations) {
