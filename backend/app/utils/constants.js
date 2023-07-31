@@ -7,6 +7,8 @@ const PAYMENT_TYPES = {
   CASH: "Efectivo",
   TRANSFER: "Transferencia",
   CREDIT_CARD: "Tarjeta de credito",
+  DEBIT_ACCOUNT: "Débito de cuenta",
+  DEBIT_CARD: "Débito de tarjeta"
 };
 const FIRST_USER_PASSWORD = "123";
 const FIRST_USER_EMAIL = "email@email.com";
