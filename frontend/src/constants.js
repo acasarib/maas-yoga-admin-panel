@@ -21,6 +21,14 @@ export const PAYMENT_OPTIONS = [
         label: 'Tarjeta de credito',
         value: 'Tarjeta de credito'
     },
+    {
+        label: 'Débito de cuenta',
+        value: 'Débito de cuenta'
+    },
+    {
+        label: 'Débito de tarjeta',
+        value: 'Débito de tarjeta'
+    },
 ];
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
