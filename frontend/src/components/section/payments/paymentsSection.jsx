@@ -10,7 +10,6 @@ import { orange } from '@mui/material/colors';
 import "react-datepicker/dist/react-datepicker.css";
 import { PAYMENT_OPTIONS } from "../../../constants";
 import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -39,6 +38,7 @@ export default function PaymentsSection(props) {
     const [isDischarge, setIsDischarge] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
+    const [operativeResult, setOperativeResult] = useState(dayjs(new Date()));
     const [templateModal, setTemplateModal] = useState(false);
     const [templateTitle, setTemplateTitle] = useState('');
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
@@ -127,7 +127,6 @@ export default function PaymentsSection(props) {
 
     const handleChangeTemplates = async (e) => {
         const response = await getTemplate(e.value);
-        console.log(response);
         setPaymentMethod(response.content.type);
         setAmmount(response.content.value);
         setOpenModal(true);
@@ -137,7 +136,6 @@ export default function PaymentsSection(props) {
     const handleEditTemplates = async (e) => {
         const response = await getTemplate(e.value);
         setTemplateId(response.id);
-        console.log(response)
         setTemplateTitle(response.title ? response.title : '');
         setAmmount(response.content.value ? response.content.value : null);
         setIsDischarge(true);
@@ -186,7 +184,8 @@ export default function PaymentsSection(props) {
             paymentValue: isDischarge ? (ammount * -1).toFixed(3) : ammount,
             studentId: isDischarge ? null : selectedStudent,
             note: note,
-            at: paymentAt.$d.getTime()
+            at: paymentAt.$d.getTime(),
+            operativeResult: operativeResult.$d.getTime(),
         }  
         try{
             await informPayment(data);
@@ -276,18 +275,28 @@ export default function PaymentsSection(props) {
                     onChange={handleChangeNote}
                 />
             </div>
-            <div className="col-span-2 pb-6">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
-                <div className="mt-4"><LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                    <DateTimePicker
-                    label="Seleccionar fecha"
-                    value={paymentAt}
-                    onChange={(newValue) => setPaymentAt(newValue)}
-                    />
-                </DemoContainer>
-                </LocalizationProvider></div>
-            </div>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <div className="col-span-2 pb-6">
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
+                    <div className="mt-4">
+                        <DateTimePicker
+                        label="Seleccionar fecha"
+                        value={paymentAt}
+                        onChange={(newValue) => setPaymentAt(newValue)}
+                        />
+                    </div>
+                </div>
+                <div className="col-span-2 pb-6">
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
+                    <div className="mt-4">
+                        <DateTimePicker
+                            label="Seleccionar fecha"
+                            value={operativeResult}
+                            onChange={(newValue) => setOperativeResult(newValue)}
+                        />
+                    </div>
+                </div>
+            </LocalizationProvider>
         </div>
         {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label htmlFor="fileUpload" className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
         <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :

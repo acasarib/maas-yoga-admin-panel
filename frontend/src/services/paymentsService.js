@@ -46,6 +46,7 @@ export default {
                 "fileId": paymentInfo.fileId,
                 "value": paymentInfo.paymentValue,
                 "at": paymentInfo.at,
+                "operativeResult": paymentInfo.operativeResult,
                 "note": paymentInfo.note,
             }                
             axios

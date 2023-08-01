@@ -5,38 +5,31 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import 'dayjs/locale/es';
 
 export default function FilterPaymentOperativeResult({ onChange }) {
 
-    const [typeCriteriaSelected, setTypeCriteriaSelected] = useState(null);
-    const isBetween = typeCriteriaSelected !== null && typeCriteriaSelected.value === "between";
-    const [at, setAt] = useState(dayjs(new Date()));
-    const [at2, setAt2] = useState(dayjs(new Date()));
-    const typeCriterias = [{
-        label: "Despues de",
-        value: "gte"
-    },
-    {
-        label: "Antes de",
-        value: "lte"
-    },
-    {
-        label: "Entre",
-        value: "between"
-    }];
+    const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
 
     useEffect(() => {
-        if (typeCriteriaSelected !== null && at !== null && at2 !== null) {
-            const isBetween = typeCriteriaSelected.value === "between";
-            at.$d.setHours(0);
-            at.$d.setMinutes(0);
-            at2.$d.setHours(23);
-            at2.$d.setMinutes(59);
-            const conditionOne = `at ${typeCriteriaSelected.value} ${at.$d.getTime()}${isBetween ? ":" + at2.$d.getTime() : ""}`;
-            const conditionTwo = `createdAt ${typeCriteriaSelected.value} ${at.$d.getTime()}${isBetween ? ":" + at2.$d.getTime() : ""}`;
-            onChange(`${conditionOne};${conditionTwo}&isOrOperation=true`);
+        //console.log(at);
+        //console.log(new Date(at));
+        if (selectedDate !== null) {
+            selectedDate.$d.setHours(0);
+            selectedDate.$d.setMinutes(0);
+            selectedDate.$d.setDate(1);
+            const to = new Date(selectedDate.valueOf());
+            const selectedMonth = to.getMonth();
+            to.setMonth(selectedMonth + 1, 1);
+            to.setHours(23);
+            to.setMinutes(59);
+            to.setDate(to.getDate() - 1);
+            const startAt = selectedDate.$d.getTime();
+            const endAt = to.getTime();
+            const condition = `operativeResult between ${startAt}:${endAt}`;
+            onChange(condition);
         }
-    }, [typeCriteriaSelected, at, at2]);
+    }, [selectedDate]);
     
 
 
@@ -44,35 +37,16 @@ export default function FilterPaymentOperativeResult({ onChange }) {
     <div>
         <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Resultado operativo</span>
         <div className="flex">
-            <Select placeholder="Seleccionar" className="payment-filter-width mt-3  mr-8" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
-            <div className="my-auto flex">
-                {typeCriteriaSelected !== null && 
-                    <>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                            <DateTimePicker
-                            label="Seleccionar fecha"
-                            value={at}
-                            onChange={(newValue) => setAt(newValue)}
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-                    {typeCriteriaSelected.value === "between" &&
-                    <><span className="mx-2">y</span>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                            <DateTimePicker
-                            label="Seleccionar fecha"
-                            value={at2}
-                            onChange={(newValue) => setAt2(newValue)}
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-                    </>
-                    }
-                    </>
-                }
-            </div>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                    <DateTimePicker
+                        views={['year', 'month']}
+                        label="Seleccionar fecha"
+                        value={selectedDate}
+                        onChange={(newValue) => setSelectedDate(newValue)}
+                    />
+                </DemoContainer>
+            </LocalizationProvider>
         </div>
     </div>
     );
