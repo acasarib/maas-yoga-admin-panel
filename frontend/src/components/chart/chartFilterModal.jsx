@@ -48,8 +48,8 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
         },
         {
             label: " Resultado operativo",
-            value: "at",
-            component: <FilterPaymentOperativeResult onChange={value => onFilterChangeValue(value, "at")} />
+            value: "operativeResult",
+            component: <FilterPaymentOperativeResult onChange={value => onFilterChangeValue(value, "operativeResult")} />
         },
         {
             label: "Estudiante",
