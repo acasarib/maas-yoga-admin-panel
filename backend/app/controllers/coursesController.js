@@ -32,12 +32,12 @@ export default {
 
   /**
    * /courses/{id} [PUT]
-   * @returns HttpStatus ok if was edited
+   * @returns HttpStatus ok and @Course edited
    */
   editById: async (req, res, next) => {
     try {
-      await courseService.editById(req.body, req.params.id);
-      res.status(StatusCodes.OK).send();
+      const editedCourse = await courseService.editById(req.body, req.params.id);
+      res.status(StatusCodes.OK).send(editedCourse);
     } catch (e) {
       next(e);
     }
@@ -200,6 +200,7 @@ export default {
       const details = await courseService.calcProfessorsPayments(req.body.from, req.body.to);
       res.status(StatusCodes.OK).json(details);
     } catch (e) {
+      console.log(e);
       next(e);
     }
   },
@@ -210,10 +211,7 @@ export default {
    */
   addProfessorPayment: async (req, res, next) => {
     try {
-      const { from, to } = req.body;
-      new Date(from);
-      new Date(to);
-      const added = await courseService.addProfessorPayment(req.body, from, to, req.user.id);
+      const added = await courseService.addProfessorPayment(req.body, req.user.id);
       const message = added ? "ADDED" : "ALREADY_EXITS";
       res.status(StatusCodes.OK).json({ message });
     } catch (e) {
