@@ -1,21 +1,83 @@
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
-import { course, student, courseTask, studentCourseTask, payment } from "../db/index.js";
+import { StatusCodes } from "http-status-codes";
+import { course, student, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
-const getCollectedByStudent = professorPayment => {
-  const amountByStudent = parseFloat(professorPayment.criteriaValue);
+const paymentBelongToProfessor = (payment, professor) => {
+  const paymentDate = payment.at;
+  return professor.dataValues.periods.find(period => period.startAt <= paymentDate && period.endAt >= paymentDate);
+}
+
+const getProfessorPeriodsInCourse = async (courseId) => {
+  const rawPeriods = await professorCourse.findAll({ where: { courseId } });
+  const professorsIds = rawPeriods.map(p => p.professorId);
+  const professors = await professor.findAll({ where: { id: professorsIds } });
+  professors.forEach(prof => {
+    prof.dataValues.periods = [];
+    rawPeriods.forEach(period => {
+      if (period.professorId == prof.id) {
+        prof.dataValues.periods.push({
+          id: period.id,
+          startAt: period.startAt,
+          endAt: period.endAt,
+          criteria: period.criteria,
+          criteriaValue: period.criteriaValue,
+        });
+      }
+    });
+  });
+  return professors;
+}
+
+const checkOverlappingProfessorsPeriods = (professors) => {
+  const professorMap = {};
+
+  for (const prof of professors) {
+    const { professorId, startAt, endAt } = prof;
+    const isValidRange = startAt < endAt;
+    if (!isValidRange) {
+      throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid range for professor id="+professorId+ " verify that startAt < endAt" });
+    }
+    if (!professorMap[professorId]) {
+      professorMap[professorId] = [{ startAt, endAt }];
+    } else {
+      const existingProfRanges = professorMap[professorId];
+      for (const range of existingProfRanges) {
+        const isOverlapping = (startAt > range.startAt && startAt < range.endAt) 
+                           || (endAt > range.startAt && endAt < range.endAt)
+                           || (startAt < range.startAt && endAt > range.endAt);
+        if (isOverlapping) {
+          throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "overlapping in professor id="+professorId });
+        }
+      }
+    }
+  }
+}
+
+const createProfessorCourse = async (courseId, professorsCourseParam) => {
+  professorsCourseParam.forEach(pc => pc.courseId = courseId);
+  await professorCourse.bulkCreate(professorsCourseParam);
+}
+
+const getCollectedByStudent = (professorPayment, criteriaValue) => {
+  const amountByStudent = parseFloat(criteriaValue);
   return amountByStudent * professorPayment.totalStudents;
 }
 
-const getCollectedByPercentage = professorPayment => {
-  const percentage = parseFloat(professorPayment.criteriaValue);
+const getCollectedByPercentage = (professorPayment, criteriaValue) => {
+  const percentage = parseFloat(criteriaValue);
   const total = professorPayment.collectedByPayments;
   return (percentage / 100) * total;
 }
 
 export const create = async (courseParam) => {
-  return course.create(courseParam);
+  const createdCourse = await course.create(courseParam);
+  if ("professors" in courseParam) {
+    checkOverlappingProfessorsPeriods(courseParam.professors);
+    await createProfessorCourse(createdCourse.id, courseParam.professors);
+  }
+  return getById(createdCourse.id);
 };
 
 export const deleteById = async (id) => {
@@ -23,11 +85,20 @@ export const deleteById = async (id) => {
 };
 
 export const editById = async (courseParam, id) => {
-  return course.update(courseParam, { where: { id } });
+  await course.update(courseParam, { where: { id } });
+  if ("professors" in courseParam) {
+    checkOverlappingProfessorsPeriods(courseParam.professors);
+    professorCourse.destroy({ where: { courseId: id } });
+    await createProfessorCourse(id, courseParam.professors);
+  }
+  return getById(id);
 };
 
 export const getById = async (id) => {
-  return course.findByPk(id, { include: [student, courseTask] });
+  const c = await course.findByPk(id, { include: [student, courseTask] });
+  const professorsWithPeriods = await getProfessorPeriodsInCourse(c.id);
+  c.dataValues.professors = professorsWithPeriods;
+  return c;
 };
 
 export const getAll = async () => {
@@ -116,22 +187,50 @@ export const calcProfessorsPayments = async (from, to) => {
       }
     }
   });
-  const professorsPayments = coursesInRange.map(c => {
-    let currentPayment = { criteria: c.criteria, criteriaValue: c.criteriaValue };
-    currentPayment.courseId = c.id;
-    currentPayment.payments = paymentsInRange.filter(p => p.courseId === c.id);
-    currentPayment.collectedByPayments = currentPayment.payments.reduce((total, p) => total + p.value, 0);
-    currentPayment.totalStudents = currentPayment.payments.map(p => p.studentId);
-    currentPayment.totalStudents = utils.removeDuplicated(currentPayment.totalStudents).length;
-    currentPayment.collectedByProfessor = c.criteria === CRITERIA_COURSES.STUDENT ? getCollectedByStudent(currentPayment) : getCollectedByPercentage(currentPayment);
-    currentPayment.professor = c.professor;
+  for (const c of coursesInRange) {
+    c.professors = await getProfessorPeriodsInCourse(c.id);
+  }
 
-    return currentPayment;
-  });
-  return professorsPayments;
+  
+  for (const paymentRange of paymentsInRange) {
+    const paidCourse = coursesInRange.find(c => c.id == paymentRange.courseId);
+    for (const prof of paidCourse.professors) {
+      const paidPeriod = paymentBelongToProfessor(paymentRange, prof);
+      if (paidPeriod) {
+        if (!("result" in prof)) {
+          prof.result = {
+            payments: [],
+            period: paidPeriod,
+          }
+        }
+        prof.result.payments.push(paymentRange);
+      }
+    }
+  }
+  for (const course of coursesInRange) {
+    course.dataValues.collectedByPayments = paymentsInRange
+                                .filter(p => p.courseId == course.id)
+                                .reduce((total, p) => total + p.value, 0);
+    for (const prof of course.professors) {
+      if ("result" in prof) {
+        prof.result.courseId = course.id;
+        prof.result.criteria = prof.criteria;
+        prof.result.criteriaValue = prof.criteriaValue;
+        prof.result.collectedByPayments = prof.result.payments.reduce((total, p) => total + p.value, 0);
+        prof.result.totalStudents = prof.result.payments.map(p => p.studentId);
+        prof.result.totalStudents = utils.removeDuplicated(prof.result.totalStudents).length;
+        prof.result.collectedByProfessor = prof.result.period.criteria === CRITERIA_COURSES.STUDENT
+                                            ? getCollectedByStudent(prof.result, prof.result.period.criteriaValue) 
+                                            : getCollectedByPercentage(prof.result, prof.result.period.criteriaValue);
+        prof.dataValues.result = prof.result;
+      }
+    }
+    course.dataValues.professors = course.professors; 
+  }
+  return coursesInRange;
 }
 
-export const addProfessorPayments = async (data, from, to, informerId = null) => {
+export const addProfessorPayments = async (data, informerId = null) => {
   const payments = data.map(d => ({
     type: PAYMENT_TYPES.CASH,
     value: d.collectedByProfessor *-1,
@@ -139,9 +238,8 @@ export const addProfessorPayments = async (data, from, to, informerId = null) =>
     verified: false,
     note: "",
     courseId: d.courseId,
-    periodFrom: new Date(from),
-    periodTo: new Date(to),
-    professor: d.professor,
+    professorCourseId: d.professorCourseId,
+    professorId: d.professorId,
     userId: informerId,
   }));
   let paymentsAdded = 0;

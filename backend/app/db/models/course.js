@@ -9,11 +9,8 @@ const course = (sequelize) => {
     },
     title: Sequelize.STRING,
     description: Sequelize.STRING,
-    professor: Sequelize.STRING,
-    criteria: Sequelize.STRING,
-    criteriaValue: Sequelize.INTEGER,
-    startAt: Sequelize.DataTypes.DATE,
-    duration: Sequelize.STRING,
+    startAt: { type: Sequelize.DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+    endAt: { type: Sequelize.DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
   }, {});
   course.associate = function (models) {
     // associations can be defined here
