@@ -427,14 +427,10 @@ export const Provider = ({ children }) => {
     }
 
     const calcProfessorsPayments = async (from, to) => {
-        const data = await coursesService.calcProfessorsPayments(from, to);
+        let data = await coursesService.calcProfessorsPayments(from, to);
         data.forEach(d => {
-            d.payments.forEach(p => {
-                p.student = students.find(s => s.id === p.studentId);
-                p.user = users.find(u => u.id === p.userId);
-                p.course = courses.find(c => c.id === p.courseId);
-            });
-            d.course = courses.find(c => c.id === d.courseId);
+            d.professors = d.professors.filter(professor => "result" in professor);
+            d.professorsNames = d.professors.map(p => p.name);
         });
         return data;
     }

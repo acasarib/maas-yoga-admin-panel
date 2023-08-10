@@ -1,30 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import Modal from "../components/modal";
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
-import CommonInput from "../components/commonInput";
 import "react-datepicker/dist/react-datepicker.css";
-import DeleteIcon from '@mui/icons-material/Delete';
-import Select from 'react-select';
-import SchoolIcon from '@mui/icons-material/School';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import InfoIcon from '@mui/icons-material/Info';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import TaskModal from "../components/courses/taskModal";
-import Table from "../components/table";
 import Container from "../components/container";
-import PlusButton from "../components/button/plus";
 import { Context } from "../context/Context";
 import ButtonPrimary from "../components/button/primary";
 import { dateToYYYYMMDD } from "../utils";
-import PaymentsTable from "../components/paymentsTable";
 import PaymentInfo from "../components/paymentInfo";
 import paymentsService from "../services/paymentsService";
+import CourseProfessorCard from "../components/courses/CourseProfessorCalculation/courseProfessorCard";
 
 export default function ProfessorPayments(props) {
     const { calcProfessorsPayments, changeAlertStatusAndMessage } = useContext(Context);
-
     const [from, setFrom] = useState(null);
     const [to, setTo] = useState(null);
     const [data, setData] = useState(null);
@@ -88,21 +76,8 @@ export default function ProfessorPayments(props) {
                         <ButtonPrimary onClick={handleCalcProfessorsPayments}>Calcular</ButtonPrimary>
                     </div>
                 </div>
-
                 {data !== null &&
-                    data.map((d, i) => (<div key={i} className="mt-2 w-full flex flex-col border rounded p-4 shadow-md bg-white mb-4">
-                        <span>Curso: {d.course.title}</span>
-                        <span>Profesor: {d.professor}</span>
-                        <span>Estudiantes que abonaron el curso: {d.totalStudents}</span>
-                        <span>Total de ingresos: {d.collectedByPayments}$</span>
-                        <span>Total a pagar al profesor: {d.collectedByProfessor}$</span>
-                        <span>Criterio: {d.criteria === "percentage" ? `Se debe pagar el ${d.criteriaValue}% del total de ingresos` : `Se debe pagar ${d.criteriaValue}$ por cada estudiante`}</span>
-                        <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
-                            <ButtonPrimary onClick={() => addPayment(d)}>Informar</ButtonPrimary>
-                            <ButtonPrimary onClick={() => setActiveCourseModal(d)}>Ver pagos</ButtonPrimary>
-                        </div>
-                    </div>))
-                }
+                    data.map((d, i) => <CourseProfessorCard key={i} course={d}/>)}
                 <Modal
                     open={activeCourseModal !== null}
                     setDisplay={() => setActiveCourseModal(null)}
