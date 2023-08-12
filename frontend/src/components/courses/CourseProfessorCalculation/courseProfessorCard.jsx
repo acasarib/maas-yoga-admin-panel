@@ -10,7 +10,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ProfessorsCollapse from "./professorsCollapse";
 
-export default function CourseProfessorCard({ course }) {
+export default function CourseProfessorCard({ course, onShowPayments, from, to }) {
 
     return (
     <div className="mt-2 w-full flex flex-col border rounded p-4 shadow-md bg-white mb-4">
@@ -33,7 +33,7 @@ export default function CourseProfessorCard({ course }) {
                 </ListItemIcon>
                 <ListItemText primary="Ingresos" secondary={`${course.collectedByPayments}$`} />
             </ListItem>
-            <ProfessorsCollapse professors={course.professors}/>
+            <ProfessorsCollapse from={from} to={to} onShowPayments={onShowPayments} professors={course.professors}/>
         </List>
     </div>
     );

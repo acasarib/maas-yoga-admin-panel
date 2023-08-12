@@ -143,21 +143,26 @@ export const Provider = ({ children }) => {
     const getStudentById = studentId => students.find(student => student.id === studentId);
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id === headquarterId);
     const getItemById = itemId => categories.find(category => category.items.find(item => item.id === itemId)).items.find(item => item.id === itemId);
+    const getUserById = userId => users.find(user => user.id === userId);
 
     const informPayment = async payment => {
-        const createdPayment = await paymentsService.informPayment(payment);
-        changeAlertStatusAndMessage(true, 'success', 'El movimiento fue informado exitosamente!')
-        createdPayment.user = user;
-        if (createdPayment.courseId !== null)
-            createdPayment.course = getCourseById(createdPayment.courseId);
-        if (createdPayment.studentId)
-            createdPayment.student = getStudentById(createdPayment.studentId);
-        if (createdPayment.headquarterId)
-            createdPayment.headquarter = getHeadquarterById(createdPayment.headquarterId);
-        if (createdPayment.itemId)
-            createdPayment.item = getItemById(createdPayment.itemId);
-        setPayments(current => [...current, createdPayment]);
-        return createdPayment;
+        try {
+            const createdPayment = await paymentsService.informPayment(payment);
+            changeAlertStatusAndMessage(true, 'success', 'El movimiento fue informado exitosamente!')
+            createdPayment.user = user;
+            if (createdPayment.courseId !== null)
+                createdPayment.course = getCourseById(createdPayment.courseId);
+            if (createdPayment.studentId)
+                createdPayment.student = getStudentById(createdPayment.studentId);
+            if (createdPayment.headquarterId)
+                createdPayment.headquarter = getHeadquarterById(createdPayment.headquarterId);
+            if (createdPayment.itemId)
+                createdPayment.item = getItemById(createdPayment.itemId);
+            setPayments(current => [...current, createdPayment]);
+            return createdPayment;
+        } catch(e) {
+            changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.');
+        }
     };
 
     const verifyPayment = async (paymentId) => {
@@ -431,6 +436,20 @@ export const Provider = ({ children }) => {
         data.forEach(d => {
             d.professors = d.professors.filter(professor => "result" in professor);
             d.professorsNames = d.professors.map(p => p.name);
+            d.professors.forEach(professor => {
+                professor.result.payments.forEach(payment => {
+                    if (payment.courseId !== null)
+                        payment.course = getCourseById(payment.courseId);
+                    if (payment.studentId)
+                        payment.student = getStudentById(payment.studentId);
+                    if (payment.headquarterId)
+                        payment.headquarter = getHeadquarterById(payment.headquarterId);
+                    if (payment.itemId)
+                        payment.item = getItemById(payment.itemId);
+                    if (payment.userId)
+                        payment.user = getUserById(payment.userId);
+                });
+            });
         });
         return data;
     }
