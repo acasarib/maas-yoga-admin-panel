@@ -16,7 +16,8 @@ export const create = async (paymentParam, informerId) => {
       p.oldId = p.id;
       delete p.id;
     }
-    p.verified = true;
+    if (!("verified" in p))
+      p.verified = true;
     p.userId = informerId;
   });
   const createdPayments = await payment.bulkCreate(paymentParam);

@@ -32,10 +32,6 @@ const payment = (sequelize) => {
       type: Sequelize.DataTypes.DATEONLY,
       allowNull: true,
     },
-    professor: {
-      type: Sequelize.STRING,
-      allowNull: true,
-    },
     verified: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
