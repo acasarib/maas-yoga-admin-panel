@@ -12,6 +12,7 @@ const paymentBelongToProfessor = (payment, professor) => {
 const getProfessorPeriodsInCourse = async (courseId) => {
   const rawPeriods = await professorCourse.findAll({ where: { courseId } });
   const professorsIds = rawPeriods.map(p => p.professorId);
+  const payments = await payment.findAll({ where: { courseId, professorId: professorsIds } });
   const professors = await professor.findAll({ where: { id: professorsIds } });
   professors.forEach(prof => {
     prof.dataValues.periods = [];
@@ -24,6 +25,12 @@ const getProfessorPeriodsInCourse = async (courseId) => {
           criteria: period.criteria,
           criteriaValue: period.criteriaValue,
         });
+      }
+    });
+    prof.dataValues.payments = [];
+    payments.forEach(payment => {
+      if (payment.professorId === prof.id) {
+        prof.dataValues.payments.push(payment);
       }
     });
   });

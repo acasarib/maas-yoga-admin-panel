@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import PaidIcon from '@mui/icons-material/Paid';
-import { dateToYYYYMMDD, formatDateDDMMYY } from "../../../utils";
+import { dateToYYYYMMDD, formatDateDDMMYY, toMonthsNames } from "../../../utils";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import List from '@mui/material/List';
 import SchoolIcon from '@mui/icons-material/School';
@@ -18,7 +18,7 @@ import ButtonPrimary from "../../button/primary";
 import { Context } from "../../../context/Context";
 import { CASH_PAYMENT_TYPE } from "../../../constants";
 
-export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to }) {
+export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const { informPayment } = useContext(Context);
@@ -37,7 +37,13 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
             courseId: professor.result.courseId,
             professorId: professor.id
         }
-        informPayment(payment)
+        informPayment(payment);
+        onInformPayment(payment);
+    }
+
+    const alreadyInformedPayment = () => {
+        const fromTo = toMonthsNames(from, to);
+        return professor.payments.some(payment => toMonthsNames(payment.periodFrom, payment.periodTo) === fromTo);
     }
 
     return (<>
@@ -54,16 +60,28 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemIcon className="text-yellow-900">
                     <CalendarMonthIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Periodo" secondary={`${formatDateDDMMYY(new Date(professor.result.period.startAt))} - ${formatDateDDMMYY(new Date(professor.result.period.endAt))}`} />
+                <ListItemText primary="Periodo" secondary={toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)} />
             </ListItemButton>
             <Collapse className="ml-10" in={isCalendarOpen} timeout="auto" unmountOnExit>
+                <div className="font-bold">Periodos en que se dicta en el curso</div>
                 <ul>
                     {professor.periods.map((period, i) => 
                         <li key={i}>
-                            <span className={period.id === professor.result.period.id && "font-bold"}>- {formatDateDDMMYY(new Date(period.startAt))} - {formatDateDDMMYY(new Date(period.endAt))} </span><span>{period.id === professor.result.period.id && "(periodo seleccionado)"}</span>
+                            <span className={period.id === professor.result.period.id && "font-bold"}>- {toMonthsNames(period.startAt, period.endAt)} </span><span>{period.id === professor.result.period.id && "(periodo seleccionado)"}</span>
                         </li>
                     )}
                 </ul>
+                {professor.payments.length >= 1 && <>
+                    <div className="font-bold mt-8">Periodos ya pagados</div>
+                    <ul>
+                        {professor.payments.filter(p => "periodFrom" in p && "periodTo" in p).map((p,i) => 
+                            <li key={i}>
+                                <span>- {toMonthsNames(p.periodFrom, p.periodTo)} </span>
+                            </li>
+                        )}
+                    </ul>
+                    </>
+                }
             </Collapse>
             <ListItem>
                 <ListItemIcon className="text-yellow-900">
@@ -84,7 +102,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemText primary="Criterio" secondary={professor.result.period.criteria === "percentage" ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante`} />
             </ListItem>
             <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
-                <ButtonPrimary onClick={() => addPayment()}>Informar</ButtonPrimary>
+                <ButtonPrimary disabled={alreadyInformedPayment()} onClick={() => addPayment()}>Informar</ButtonPrimary>
                 <ButtonPrimary onClick={() => onShowPayments(professor.result.payments)}>Ver pagos</ButtonPrimary>
             </div>
         </List>

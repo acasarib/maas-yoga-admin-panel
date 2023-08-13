@@ -11,7 +11,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ProfessorDetailCollapse from "./professorDetailCollapse";
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 
-export default function ProfessorsCollapse({ professors, onShowPayments,from, to }) {
+export default function ProfessorsCollapse({ professors, onShowPayments,from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (<>
@@ -24,7 +24,7 @@ export default function ProfessorsCollapse({ professors, onShowPayments,from, to
     </ListItemButton>
     <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List component="div" >
-            {professors.map((professor, i) => <ProfessorDetailCollapse from={from} to={to} onShowPayments={onShowPayments} key={i} professor={professor}/>)}
+            {professors.map((professor, i) => <ProfessorDetailCollapse onInformPayment={onInformPayment} from={from} to={to} onShowPayments={onShowPayments} key={i} professor={professor}/>)}
         </List>
     </Collapse>
     </>);
