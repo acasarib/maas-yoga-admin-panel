@@ -26,6 +26,21 @@ export default function ProfessorPayments(props) {
         setData(data);
     }
 
+    const onInformPayment = payment => {
+        setData(current => {
+            current.forEach(course => {
+                if (course.id === payment.courseId) {
+                    course.professors.forEach(professor => {
+                        if (professor.id === payment.professorId) {
+                            professor.payments.push(payment);
+                        }
+                    });
+                }
+            });
+            return current;
+        })
+    }
+
     return(
         <>
             <Container title="Calculo de pagos">
@@ -56,7 +71,7 @@ export default function ProfessorPayments(props) {
                     </div>
                 </div>
                 {data !== null &&
-                    data.map((d, i) => <CourseProfessorCard from={from} to={to} onShowPayments={setActivePaymentsShowing} key={i} course={d}/>)}
+                    data.map((d, i) => <CourseProfessorCard onInformPayment={onInformPayment} from={from} to={to} onShowPayments={setActivePaymentsShowing} key={i} course={d}/>)}
                 <Modal
                     open={activePaymentsShowing !== null}
                     setDisplay={() => setActivePaymentsShowing(null)}
