@@ -5,6 +5,7 @@ import tasksService from "../services/tasksService";
 import clazzesService from "../services/clazzesService";
 import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
+import professorsService from "../services/professorsService";
 import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
 import userService from "../services/userService";
@@ -35,6 +36,8 @@ export const Provider = ({ children }) => {
     const [isAlertActive, setIsAlertActive] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertStatus, setAlertStatus] = useState('');
+    const [professors, setProfessors] = useState([]);
+    const [isLoadingProfessors, setIsLoadingProfessors] = useState(true);
 
     useEffect(() => {
         if (user === null) return;
@@ -111,6 +114,11 @@ export const Provider = ({ children }) => {
               changeAlertStatusAndMessage(true, 'error', 'No fue posible obtener los usuarios... Por favor recarge la página.');
             }
         }
+        const getProffesors = async () => {
+            const pfrs = await professorsService.getProffesors();
+            setProfessors(pfrs);
+            setIsLoadingProfessors(false);
+        }
         getUsers();
         getStudents();
         getCourses();
@@ -120,6 +128,7 @@ export const Provider = ({ children }) => {
         getTemplates();
         getClazzes();
         getCategories();
+        getProffesors();
     }, [user]);
 
     useEffect(() => {
@@ -196,6 +205,13 @@ export const Provider = ({ children }) => {
         return createdCollege;
     }
 
+    const newProfessor = async (professor) => {
+        const createdProfessor = await professorsService.newProfessor(professor);
+        changeAlertStatusAndMessage(true, 'success', 'El profesor fue agregado exitosamente!')
+        setProfessors(current => [...current, createdProfessor]);
+        return createdProfessor;
+    }
+
     const newClazz = async (clazz) => {
         const createdClazz = await clazzesService.newClazz(clazz);
         changeAlertStatusAndMessage(true, 'success', 'La clase fue creada exitosamente!');
@@ -216,6 +232,12 @@ export const Provider = ({ children }) => {
         await studentsService.deleteStudent(studentId);
         changeAlertStatusAndMessage(true, 'success', 'El estudiante fue borrado exitosamente!')
         setStudents(current => current.filter(student => student.id !== studentId));
+    }
+
+    const deleteProfessor = async professorId => {
+        await professorsService.deleteProfessor(professorId);
+        changeAlertStatusAndMessage(true, 'success', 'El profesor fue borrado exitosamente!')
+        setProfessors(current => current.filter(prof => prof.id !== professorId));
     }
 
     const editStudent = async (studentId, student) => {
@@ -296,6 +318,13 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!');
         setCourses(current => current.map(s => s.id === courseId ? merge(s, course) : s));
         return editedCourse;
+    }
+
+    const editProfessor = async (professorId, professor) => {
+        const editedProfessor = await professorsService.editProfessor(professorId, professor);
+        changeAlertStatusAndMessage(true, 'success', 'El profesor fue editado exitosamente!');
+        setProfessors(current => current.map(s => s.id === professorId ? merge(s, professor) : s));
+        return editedProfessor;
     }
 
     const addStudent = async (courseId, studentsIds) => {
@@ -492,6 +521,10 @@ export const Provider = ({ children }) => {
             editCategory,
             newCategory,
             verifyClazz,
+            professors,
+            newProfessor,
+            deleteProfessor,
+            editProfessor,
             users,
             changeAlertStatusAndMessage,
             calcProfessorsPayments,

@@ -17,6 +17,7 @@ import Classes from "./classes";
 import Colleges from "./colleges";
 import Students from "./students";
 import Courses from "./courses";
+import Professors from "./professors";
 import Categories from "./categories";
 import Imports from "./imports";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -26,6 +27,7 @@ import AlertPortal from "../components/snackBar";
 import GroupIcon from '@mui/icons-material/Group';
 import HamburgerButton from "../components/button/hanmburger";
 import ProfessorPayments from "./professorPayments";
+import HailIcon from '@mui/icons-material/Hail';
 
 export default function Home(props) {
     const { setUser } = useContext(Context);
@@ -141,6 +143,7 @@ export default function Home(props) {
                                 <NavItem onClick={closeSidebar} target={"balance"} isActive={props.balance} icon={<BalanceIcon/>}>Balance</NavItem>
                                 <NavItem onClick={closeSidebar} target={"students"} isActive={props.students} icon={<SchoolIcon/>}>Alumnos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
+                                <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors} icon={<HailIcon/>}>Profesores</NavItem>
                                 <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
                                 <NavItem onClick={closeSidebar} target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
@@ -172,6 +175,7 @@ export default function Home(props) {
                     {props.categories && (<><Categories/></>)}
                     {props.imports && (<><Imports/></>)}
                     {props.professorPayments && (<><ProfessorPayments/></>)}
+                    {props.professors && (<><Professors/></>)}
                 </main>
                 </div>
             </div>
