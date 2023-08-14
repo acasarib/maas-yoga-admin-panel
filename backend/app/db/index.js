@@ -56,6 +56,7 @@ modelDefiners.forEach((model) => model(sequelize));
 const { user, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
 
 professor.belongsToMany(course, { through: { model: professorCourse, unique: false} });
+professor.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 course.belongsToMany(professor, { through: { model: professorCourse, unique: false} });
 course.belongsToMany(headquarter, { through: "headquarter_course" });
 headquarter.belongsToMany(course, { through: "headquarter_course" });
@@ -74,6 +75,7 @@ payment.belongsTo(user, {
 user.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "verifiedBy" });
 payment.belongsTo(user, { foreignKey: { allowNull: true } });
 payment.belongsTo(student, { foreignKey: { allowNull: true } });
+payment.belongsTo(professor, { foreignKey: { allowNull: true } });
 payment.belongsTo(clazz, { foreignKey: { allowNull: true } });
 payment.belongsTo(course, { foreignKey: { allowNull: true } });
 payment.belongsTo(item, { foreignKey: { allowNull: true } });
