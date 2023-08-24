@@ -116,6 +116,10 @@ export const Provider = ({ children }) => {
         }
         const getProffesors = async () => {
             const pfrs = await professorsService.getProffesors();
+            pfrs.forEach(professor => {
+                professor.label = professor.name;
+                professor.value = professor.id;
+            })
             setProfessors(pfrs);
             setIsLoadingProfessors(false);
         }
