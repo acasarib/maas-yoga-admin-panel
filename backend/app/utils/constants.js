@@ -10,6 +10,12 @@ const PAYMENT_TYPES = {
   DEBIT_ACCOUNT: "Débito de cuenta",
   DEBIT_CARD: "Débito de tarjeta"
 };
+const LOG_PAYMENT_ACTIONS = {
+  UPDATE: "UPDATE",
+  CREATE: "CREATE",
+  DELETE: "DELETE",
+  VERIFICATION: "VERIFICATION",
+};
 const FIRST_USER_PASSWORD = "123";
 const FIRST_USER_EMAIL = "email@email.com";
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -52,4 +58,5 @@ export {
   PAYMENT_TYPES,
   DAYS,
   CRITERIA_COURSES,
+  LOG_PAYMENT_ACTIONS,
 };
