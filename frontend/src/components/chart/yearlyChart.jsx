@@ -16,7 +16,7 @@ export default function YearlyChart({ data, height, field }) {
             "Jun": { value: 0, percentage: 0 },
             "Jul": { value: 0, percentage: 0 },
             "Ago": { value: 0, percentage: 0 },
-            "Sep": { value: 0, percentage: 0 },
+            "Sept": { value: 0, percentage: 0 },
             "Oct": { value: 0, percentage: 0 },
             "Nov": { value: 0, percentage: 0 },
             "Dic": { value: 0, percentage: 0 },
