@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { payment, course, student, user, file } from "../db/index.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
+import * as logService from "./logService.js";
 
 /**
  * 
@@ -21,6 +22,7 @@ export const create = async (paymentParam, informerId) => {
     p.userId = informerId;
   });
   const createdPayments = await payment.bulkCreate(paymentParam);
+  logService.logCreatedPayments(createdPayments);
   return (createdPayments.length === 1) ? createdPayments[0] : createdPayments;
 };
 
@@ -47,11 +49,11 @@ export const getAll = async (specification) => {
   });
 };
 
-export const updateUnverifiedPayment = async (id, data) => {
-  const p = await payment.findByPk(id);
-  if (p.verified)
-    throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "Payment must be unverified to update" });
+export const updateUnverifiedPayment = async (id, data, userId) => {
+  if (data.verified)
+    throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "Can not change verified with this endpoint" });
   await payment.update(data, { where: { id } });
+  logService.logUpdate(id, userId);
   return payment.findByPk(id, { include: [user,student,course] });
 };
 
@@ -59,5 +61,9 @@ export const changeVerified = async (id, verified, verifiedBy) => {
   const newData = { verified };
   if (verified)
     newData.verifiedBy = verifiedBy;
+  if (verified)
+    logService.logVerified(id, verifiedBy);
+  else
+    logService.logUpdate(id, verifiedBy);
   return payment.update(newData, { where: { id } });
 };

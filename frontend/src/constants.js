@@ -1,5 +1,12 @@
 export const CASH_PAYMENT_TYPE = 'Efectivo';
 
+export const LOG_PAYMENT_ACTIONS = {
+    UPDATE: "UPDATE",
+    CREATE: "CREATE",
+    DELETE: "DELETE",
+    VERIFICATION: "VERIFICATION",
+  };
+
 export const PAYMENT_OPTIONS = [
     {
         label: 'Mercado pago',
