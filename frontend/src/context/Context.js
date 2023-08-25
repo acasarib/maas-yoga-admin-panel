@@ -10,6 +10,7 @@ import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
 import userService from "../services/userService";
 import { CASH_PAYMENT_TYPE } from "../constants";
+import logsService from "../services/logsService";
 
 export const Context = createContext();
 
@@ -38,6 +39,8 @@ export const Provider = ({ children }) => {
     const [alertStatus, setAlertStatus] = useState('');
     const [professors, setProfessors] = useState([]);
     const [isLoadingProfessors, setIsLoadingProfessors] = useState(true);
+    const [logs, setLogs] = useState([]);
+    const [logsInit, setLogsInit] = useState(false);
 
     useEffect(() => {
         if (user === null) return;
@@ -177,6 +180,19 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.');
         }
     };
+
+    const getLogs = async () => {
+        if (!logsInit) {
+            const l = await logsService.getAll();
+            l.forEach(log => {
+                log.user = getUserById(log.userId);
+            })
+            setLogs(l);
+            return l;
+        } else {
+            return logs;
+        }
+    }
 
     const verifyPayment = async (paymentId) => {
         const veryfiedPayment = await paymentsService.verifyPayment(paymentId);
@@ -552,6 +568,7 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
             updateUnverifiedPayment,
+            getLogs,
         }}>{children}</Context.Provider>
     );
 }
