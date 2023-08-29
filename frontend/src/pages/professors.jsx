@@ -9,6 +9,7 @@ import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
+import CustomRadio from "../components/radio/customRadio";
 
 export default function Students(props) {
     const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
@@ -22,6 +23,11 @@ export default function Students(props) {
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
+
+    const [selectedProfessorInvoiceType, setSelectedProfessorInvoiceType] = useState('A');
+    const handleOptionChange = (event) => {
+        setSelectedProfessorInvoiceType(event.target.value);
+    };
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -77,11 +83,16 @@ export default function Students(props) {
         initialValues: {
             name: edit ? professorToEdit.name : '',
             surname: edit ? professorToEdit.lastName : '',
+            phoneNumber: edit ? professorToEdit.phoneNumber : '',
+            email: edit ? professorToEdit.email : '',
         },
         onSubmit: async (values) => {
           const body = {
             name: values.name,
             lastName: values.surname,
+            phoneNumber: values.phoneNumber,
+            email: values.email,
+            invoiceType: selectedProfessorInvoiceType,
           };
           setIsLoading(true);
           try {
@@ -151,17 +162,80 @@ export default function Students(props) {
                                 />
                             </div>
                             <div className="mb-4">
-                            <CommonInput 
-                                    label="Apellido"    
+                                <CommonInput 
+                                        label="Apellido"    
+                                        onBlur={formik.handleBlur}
+                                        value={formik.values.surname}
+                                        name="surname"
+                                        htmlFor="surname"
+                                        id="surname" 
+                                        type="text" 
+                                        placeholder="Apellido"
+                                        onChange={formik.handleChange}
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="mb-4">
+                                <CommonInput 
+                                    label="Numero de contacto"    
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.surname}
-                                    name="surname"
-                                    htmlFor="surname"
-                                    id="surname" 
+                                    value={formik.values.phoneNumber}
+                                    name="phoneNumber"
+                                    htmlFor="phoneNumber"
+                                    id="phoneNumber" 
                                     type="text" 
-                                    placeholder="Apellido"
+                                    placeholder="Numero de contacto" 
                                     onChange={formik.handleChange}
-                            />
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <CommonInput 
+                                    label="Email"    
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.email}
+                                    name="email"
+                                    htmlFor="email"
+                                    id="email" 
+                                    type="text" 
+                                    placeholder="Email"
+                                    onChange={formik.handleChange}
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="mb-4">
+                                <CustomRadio
+                                    checked={selectedProfessorInvoiceType === 'A'}
+                                    onChange={handleOptionChange}
+                                    value="A"
+                                    name="radio-buttons"
+                                    inputProps={{ 'aria-label': 'A' }}
+                                    label="FA (Factura A)"
+                                />
+                                <CustomRadio
+                                    type="radio"
+                                    value="B"
+                                    checked={selectedProfessorInvoiceType === 'B'}
+                                    onChange={handleOptionChange}
+                                    label="FB (Factura B)"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <CustomRadio
+                                    type="radio"
+                                    value="C"
+                                    checked={selectedProfessorInvoiceType === 'C'}
+                                    onChange={handleOptionChange}
+                                    label="FC (Factura C)"
+                                />
+                                <CustomRadio
+                                    type="radio"
+                                    value="NF"
+                                    checked={selectedProfessorInvoiceType === 'NF'}
+                                    onChange={handleOptionChange}
+                                    label="NF (No Factura)"
+                                />
                             </div>
                         </div>
                     </form>
