@@ -9,6 +9,9 @@ const professor = (sequelize) => {
     },
     name: { type: Sequelize.STRING, allowNull: false },
     lastName: { type: Sequelize.STRING, allowNull: false },
+    phoneNumber: { type: Sequelize.STRING, allowNull: false, defaultValue:'' },
+    email: { type: Sequelize.STRING, allowNull: false, defaultValue:'' },
+    invoiceType: { type: Sequelize.STRING, allowNull: false, defaultValue:'' },
   }, {});
   professor.associate = function (models) {
     // associations can be defined here
