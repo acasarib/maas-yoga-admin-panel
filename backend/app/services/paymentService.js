@@ -45,7 +45,7 @@ export const getAllByCourseId = async (courseId) => {
 export const getAll = async (specification) => {
   return payment.findAll({
     where: specification.getSequelizeSpecification(),
-    include: specification.getSequelizeSpecificationAssociations([user, student, course])
+    include: specification.getSequelizeSpecificationAssociations([user, student, course, file])
   });
 };
 
