@@ -5,5 +5,5 @@ export const create = async (type, name, blob) => {
 };
 
 export const getById = async (id) => {
-  return file.findByPk(id);
+  return file.scope("withBlob").findByPk(id);
 };
