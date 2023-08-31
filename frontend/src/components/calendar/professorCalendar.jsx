@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useContext, useRef } from "react";
 import { useEffect } from "react";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useState } from "react";
 import Tooltip from '@mui/material/Tooltip';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
+import CurrencyInput from "../input/currencyInput";
+import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
+import { Context } from "../../context/Context";
 
-export default function ProfessorCalendar({ enabledPeriods, payments }) {
+export default function     ProfessorCalendar({ professorId, courseId, enabledPeriods, payments }) {
     const [currentYear, setCurrentYear] = useState(null);
     const [periods, setPeriods] = useState({});
     const years = Object.keys(periods);
@@ -20,20 +25,28 @@ export default function ProfessorCalendar({ enabledPeriods, payments }) {
         return monthNames[parseInt(month)-1];
     }
 
-    const getMonthStatus = (month) => {
+    const getMonthDetail = month => {
         try {
-            const isMonthPaid = periods[currentYear][month].paid;
-            const isMonthPaidVerified = periods[currentYear][month].verified;
-            if (isMonthPaid) {
-                if (isMonthPaidVerified) {
-                    return "pago realizado";
-                } else {
-                    return "pago sin verificar";
+            if (periods[currentYear][month]) {
+                const monthDetails = periods[currentYear][month];
+                if (!monthDetails.paid) {
+                    if (monthDetails.dictedByProfessor) {
+                        return <NoPayments year={currentYear} month={month} professorId={professorId} courseId={courseId}/>;
+                    } else {
+                        return "no disponible";
+                    }
                 }
+                if (!monthDetails.verified) {
+                    return "pago sin verificar $" + monthDetails.payment.value *-1;
+                }
+                const hasMonthPaid = "payment" in monthDetails;
+                const title = hasMonthPaid ? `$${monthDetails.payment.value *-1} por ${monthDetails.payment.type}` : "error";
+                const monthStatus = "pago realizado $" + monthDetails.payment.value *-1;
+                return (<Tooltip title={title}><span>{monthStatus}</span></Tooltip>)
             } else {
-                return "no hay pagos";
+                return "no hay datos";
             }
-        } catch(e) {
+        } catch {
             return "";
         }
     }
@@ -96,9 +109,9 @@ export default function ProfessorCalendar({ enabledPeriods, payments }) {
 
     return (<>
         <div className="flex justify-between bg-gray-100 px-4 py-1">
-            <ArrowLeftIcon className={arrowLeftDisabled ? "text-gray-400" : "cursor-pointer"} onClick={() => setCurrentYear(parseInt(currentYear)-1)}/>
+            <ArrowLeftIcon className={arrowLeftDisabled ? "text-gray-400" : "cursor-pointer"} onClick={() => !arrowLeftDisabled && setCurrentYear(parseInt(currentYear)-1)}/>
             <div>{currentYear}</div>
-            <ArrowRightIcon className={arrowRightDisabled ? "text-gray-400" : "cursor-pointer"} onClick={() => setCurrentYear(parseInt(currentYear)+1)}/>
+            <ArrowRightIcon className={arrowRightDisabled ? "text-gray-400" : "cursor-pointer"} onClick={() => !arrowRightDisabled && setCurrentYear(parseInt(currentYear)+1)}/>
         </div>
         <div>
             {Object.keys(periods).length > 0 &&
@@ -106,9 +119,7 @@ export default function ProfessorCalendar({ enabledPeriods, payments }) {
                     <div key={i} className={`${i % 2 == 1 && "bg-gray-100"} px-4 py-1`}>
                         <span className={`${!periods[currentYear][month].dictedByProfessor && "text-gray-400"} flex justify-between`}>
                             <span>{getMonthName(month)}</span>
-                            <span>{"payment" in periods[currentYear][month] ? 
-                                <Tooltip title={"payment" in periods[currentYear][month] ? `$${periods[currentYear][month].payment.value *-1} por ${periods[currentYear][month].payment.type}` : ""}>{<span>{getMonthStatus(month)}</span>}</Tooltip>
-                                : getMonthStatus(month)}
+                            <span>{getMonthDetail(month)}
                             </span>
                         </span>
                     </div>
@@ -117,3 +128,43 @@ export default function ProfessorCalendar({ enabledPeriods, payments }) {
         </div>
     </>);
 } 
+
+function NoPayments({ month, year, courseId, professorId }) {
+    const { newProfessorPayment } = useContext(Context);
+    const [addingPayment, setAddingPayment] = useState(false);
+    const [value, setValue] = useState("");
+    const currencyInputRef = React.createRef();
+
+    const toggleAddingPayment = () => {
+        setAddingPayment(!addingPayment);
+        setValue("");
+    }
+
+    useEffect(() => {
+        if (addingPayment && currencyInputRef !== null) {
+            currencyInputRef.current.focus();
+        }
+    }, [addingPayment]);
+
+    const handleOnCreatePayment = () => {
+        const m = addLeadingZeroLessTen(month);
+        const from = `${year}-${m}-01`;
+        const to = `${year}-${m}-${getLastDayOfMonth(year, month)}`;
+        newProfessorPayment(professorId, courseId, from, to, value);
+    }
+
+    return !addingPayment ? 
+    <>no hay pagos <span onClick={toggleAddingPayment} className="underline cursor-pointer">agregar</span></>
+    : 
+        <div className="flex flex-end items-center">
+            <div className="w-2/6">
+                <CurrencyInput
+                    innerref={currencyInputRef}
+                    value={value}
+                    onChange={(e) => setValue(e)}
+                />
+            </div>
+            <CheckIcon onClick={handleOnCreatePayment} className="mx-2 cursor-pointer"/>
+            <CloseIcon onClick={toggleAddingPayment} className="cursor-pointer"/>
+        </div>
+}

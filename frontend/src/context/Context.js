@@ -160,6 +160,46 @@ export const Provider = ({ children }) => {
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id === headquarterId);
     const getItemById = itemId => categories.find(category => category.items.find(item => item.id === itemId)).items.find(item => item.id === itemId);
     const getUserById = userId => users.find(user => user.id === userId);
+    const getProfessorById = professorId => professors.find(professor => professor.id === professorId);
+
+    const getProfessorDetailsById = async professorId => {
+        const localProfessor = getProfessorById(professorId);
+        if (localProfessor) {
+            if ("courses" in localProfessor) {
+                return localProfessor;
+            }
+            const professor = await professorsService.getProfessor(professorId);
+            setProfessors(prev => prev.map(p => {
+                if (p.id === professorId) {
+                    return professor;
+                } else {
+                    return p;
+                }
+            }))
+            return professor;
+        } else {
+            const professor = await professorsService.getProfessor(professorId);
+            setProfessors(prev => [...professors, professor]);
+            return professor;
+        }
+    }
+
+    const newProfessorPayment = async (professorId, courseId, periodFrom, periodTo, value) => {
+        const payment = {
+            professorId,
+            courseId,
+            periodFrom,
+            periodTo,
+            at: new Date(),
+            operativeResult: new Date(),
+            paymentType: CASH_PAYMENT_TYPE,
+            paymentValue: value*-1,
+            verified: false,
+        }
+        informPayment(payment);
+        const professor = await professorsService.getProfessor(professorId);
+        setProfessors(prev => prev.map(p => p.id === professor.id ? professor : p));
+    }
 
     const informPayment = async payment => {
         try {
@@ -560,6 +600,8 @@ export const Provider = ({ children }) => {
             editCategory,
             newCategory,
             verifyClazz,
+            getProfessorDetailsById,
+            newProfessorPayment,
             professors,
             newProfessor,
             deleteProfessor,

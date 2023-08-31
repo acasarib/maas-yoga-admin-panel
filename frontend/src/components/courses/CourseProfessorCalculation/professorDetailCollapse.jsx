@@ -9,7 +9,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Collapse from '@mui/material/Collapse';
 import ListItem from '@mui/material/ListItem';
-import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
+import HailIcon from '@mui/icons-material/Hail';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PercentIcon from '@mui/icons-material/Percent';
@@ -49,7 +49,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     return (<>
     <ListItemButton sx={{ pl: 4 }} onClick={() => setIsOpen(!isOpen)}>
         <ListItemIcon>
-            <RecordVoiceOverIcon />{/*TODO: cambiar por icono de profes*/}
+            <HailIcon />
         </ListItemIcon>
         <ListItemText primary={`${professor.name} ${professor.lastName}`} />
         {isOpen ? <ExpandLess /> : <ExpandMore />}

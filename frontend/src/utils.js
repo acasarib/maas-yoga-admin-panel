@@ -117,6 +117,20 @@ export function toMonthsNames(from, to) {
     }
 }
 
+export function addLeadingZeroLessTen(numberString) {
+    const number = parseInt(numberString, 10);
+    if (number < 10) {
+      return '0' + number;
+    }
+    return numberString;
+}
+
+export function getLastDayOfMonth(year, month) {
+    const nextMonth = new Date(year, month, 1);
+    nextMonth.setHours(-1);
+    return nextMonth.getDate();
+}
+
 function isFirstDayOfMonth(date) {
     return date.getDate() === 1;
 }
