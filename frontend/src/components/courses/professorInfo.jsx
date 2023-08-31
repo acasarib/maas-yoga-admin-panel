@@ -87,11 +87,11 @@ export default function ProfessorInfo(props) {
                 </label>
                 <div className="flex items-center mb-4 ml-2 md:ml-4">
                     <input onChange={() => setCriteriaCheck(!criteriaCheck)} name="criteria" id="criteria-percentage" type="radio" checked={!criteriaCheck} value="percentage" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                    <label for="criteria-percentage" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
+                    <label htmlFor="criteria-percentage" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
                 </div>
                 <div className="flex items-center ml-2 md:ml-4">
                     <input onChange={() => setCriteriaCheck(!criteriaCheck)} name="criteria" id="criteria-student" checked={criteriaCheck} value="student" type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                    <label for="criteria-student" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
+                    <label htmlFor="criteria-student" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
                 </div>
             </div>
             <div className="mb-4 w-3/6">

@@ -10,9 +10,10 @@ import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import CustomRadio from "../components/radio/customRadio";
+import ProfessorDetailModal from "../components/modal/professorDetailModal";
 
 export default function Students(props) {
-    const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
+    const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, getProfessorDetailsById, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -20,6 +21,7 @@ export default function Students(props) {
     const [opResult, setOpResult] = useState('Verificando profesores...');
     const [edit, setEdit] = useState(false);
     const [professorToEdit, setProfessorToEdit] = useState({});
+    const [professorDetailId, setProfessorDetailId] = useState(null);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
@@ -57,10 +59,14 @@ export default function Students(props) {
         setDeleteModal(false);
     }
 
+    const handleOnClickProfessor = async (professor) => {
+        setProfessorDetailId(professor.id)
+    }
+
     const columns = [
         {
             name: 'Nombre',
-            selector: row => row.name,
+            selector: row => <div className="underline text-yellow-900 mx-1" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
             sortable: true,
             searchable: true,
         },
@@ -242,6 +248,7 @@ export default function Students(props) {
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar profesor" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteProfessor} children={<><div>Esta a punto de elimnar este profesor. ¿Desea continuar?</div></>} />
+                <ProfessorDetailModal isOpen={professorDetailId !== null} onClose={() => setProfessorDetailId(null)} professorId={professorDetailId} />
             </Container>
         </>
     );
