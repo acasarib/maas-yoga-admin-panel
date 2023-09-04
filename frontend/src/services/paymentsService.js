@@ -44,7 +44,7 @@ export default {
                 "itemId": paymentInfo.itemId,
                 "type": paymentInfo.type,
                 "fileId": paymentInfo.fileId,
-                "value": paymentInfo.paymentValue,
+                "value": paymentInfo.value,
                 "at": paymentInfo.at,
                 "operativeResult": paymentInfo.operativeResult,
                 "note": paymentInfo.note,
