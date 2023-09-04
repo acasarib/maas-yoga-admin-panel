@@ -31,7 +31,7 @@ export default function Payments(props) {
     const handleChangeTabValue = (_, newValue) => setTabValue(newValue);
 
     return (<>
-        <Container title="Movimientos">
+        <Container title="Movimientos" className="max-w-full">
             <ThemeProvider theme={theme}>
                 <Box sx={{ width: '100%', typography: 'body1' }}>
                     <TabContext value={tabValue}>

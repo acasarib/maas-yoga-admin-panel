@@ -19,13 +19,14 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import SelectItem from "../../../components/select/selectItem";
 import { Link } from "react-router-dom";
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function PaymentsSection(props) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage } = useContext(Context);
+    const { clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [selectedCollege, setSelectedCollege] = useState(null);
@@ -45,6 +46,8 @@ export default function PaymentsSection(props) {
     const [templateId, setTemplateId] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedClazz, setSelectedClazz] = useState(null);
+    const [edit, setEdit] = useState(false);
+    const [paymentToEdit, setPaymentToEdit] = useState({});
 
     const handleFileChange = (e) => {
         if (e.target.files) {
@@ -59,6 +62,9 @@ export default function PaymentsSection(props) {
         try {
             const response = await paymentsService.uploadFile(file);
             setFileId(response.id);
+            if(edit) {
+                setPaymentToEdit({...paymentToEdit, fileId: response.id})
+            } 
             setFile([]);
             setHaveFile(false);
             setFilename("");
@@ -83,6 +89,17 @@ export default function PaymentsSection(props) {
         setIsLoadingPayment(false);
         setIsDischarge(value);
         setTemplateModal(value);
+        setEdit(value);
+        setPaymentAt(dayjs(new Date()));
+        setOperativeResult(dayjs(new Date()));
+        setAmmount(null);
+        setSelectedStudent(null);
+        setPaymentMethod(null);
+        setSelectedCourse(null);
+        setSelectedClazz(null);
+        setSelectedClazz(null);
+        setSelectedCollege(null);
+        setHaveFile(false);
     }
 
     const deleteSelection = () => {
@@ -93,12 +110,10 @@ export default function PaymentsSection(props) {
 
     const handleChangeStudent = (selectedOpt) => {
         setSelectedStudent(selectedOpt.id);
-        //checkValues();
     };
 
     const handleChangeCourse = (selectedOpt) => {
         setSelectedCourse(selectedOpt.id);
-        //checkValues();
     };
 
     const handleChangeAmmount = (e) => {
@@ -108,17 +123,14 @@ export default function PaymentsSection(props) {
         }else {
             setAmmount(e.target.value);
         }
-       //checkValues();
     }
 
     const handleChangeNote = (e) => {
         setNote(e.target.value)
-        //checkValues();
      }
 
     const handleChangePayments = (e) => {
         setPaymentMethod(e.value);
-       // checkValues();
     }
 
     const handleChangeTitle = (e) => {
@@ -162,41 +174,71 @@ export default function PaymentsSection(props) {
         }
     }
 
-    /*const checkValues = () => {
-        if((ammount !== null) && (selectedCourse !== '') && (selectedStudent !== '') && (paymentMethod !== '') && (fileId !== '')){
-            setDisabled(false);
-            console.log(disabled)
-        } else {
-            setDisabled(true);
-            console.log(disabled)
+    const openEditPayment = (payment) => {
+        setEdit(true);
+        setOpenModal(true);
+        if(payment.value < 0) {
+            setIsDischarge(true);
+        }else {
+            setSelectedStudent({label: payment.student.name, value: payment.student.id});
+            if(payment.course) {
+                setSelectedCourse({label: payment.course.title, value: payment.course.id});
+            }
+            if(payment.clazzId) {
+                const classes = clazzes.filter(cls => cls.id === payment.clazzId);
+                setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
+            }
+            if(payment.headquarterId) {
+                const college = getHeadquarterById(payment.headquarterId);
+                console.log(college);
+                setSelectedCollege((college.length > 0) ? {label: college[0].title, value: college[0].id} : null);
+            }
         }
-    }*/
+        const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
+        setPaymentMethod(method);
+        console.log(payment)
+        setAmmount(payment.value)
+        setPaymentAt(dayjs(new Date(payment.at)));
+        setOperativeResult(dayjs(new Date(payment.operativeResult)));
+        setPaymentToEdit(payment);
+    }
 
     const handleInformPayment = async () => {
         setIsLoadingPayment(true);
         const data = {
-            itemId: selectedItem?.id,
-            clazzId: selectedClazz?.id,
-            headquarterId: selectedCollege?.value,
-            courseId: isDischarge ? null : selectedCourse,
+            itemId: edit ? paymentToEdit.itemId : selectedItem?.id,
+            clazzId: edit ? paymentToEdit.clazzId : selectedClazz?.id,
+            headquarterId: edit ? paymentToEdit.headquarterId : selectedCollege?.value,
+            courseId: edit ? paymentToEdit.courseId : (isDischarge ? null : selectedCourse),
             paymentType: paymentMethod,
-            fileId: fileId,
+            fileId: edit ? paymentToEdit.fileId : fileId,
             paymentValue: isDischarge ? (ammount * -1).toFixed(3) : ammount,
-            studentId: isDischarge ? null : selectedStudent,
-            note: note,
-            at: paymentAt.$d.getTime(),
-            operativeResult: operativeResult.$d.getTime(),
+            studentId: edit ? (paymentToEdit.studentId || null) : (isDischarge ? null : selectedStudent),
+            note: edit ? paymentToEdit.note : note,
+            at: edit ? paymentAt : paymentAt.$d.getTime(),
+            operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
         }  
         try{
-            await informPayment(data);
+            if(edit) {
+                data.id = paymentToEdit.id;
+                await editPayment(data);
+            }else {
+                await informPayment(data);
+            }
             setIsLoadingPayment(false);
             setIsDischarge(false);
             setOpenModal(false);
+            setPaymentAt(dayjs(new Date()));
+            setOperativeResult(dayjs(new Date()));
         }catch(err) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.')
             console.log(err);
             setIsDischarge(false);
             setIsLoadingPayment(false);
+            setPaymentAt(dayjs(new Date()));
+            setAmmount(null);
+            setOperativeResult(dayjs(new Date()));
+            setHaveFile(false);
         }
         setAmmount(null);
         setSelectedCollege(null);
@@ -205,7 +247,9 @@ export default function PaymentsSection(props) {
         setSelectedCourse(null);
         setSelectedStudent(null);
         setSelectedClazz(null);
+        setHaveFile(false);
         setNote('');
+        setEdit(false);
         setSelectedItem(null);
         setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
@@ -215,17 +259,17 @@ export default function PaymentsSection(props) {
     return (
         <>
         <div className="mb-6 md:my-6 md:mx-4">
-            <PaymentsTable payments={payments.filter(p => p.verified)} isLoading={isLoadingPayments}/>
+            <PaymentsTable editPayment={(payment) => openEditPayment(payment)} payments={payments.filter(p => p.verified)} isLoading={isLoadingPayments}/>
         </div>
-        <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Informando...</span></>) : <span>Informar</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
+        <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{edit ? 'Editando...' : 'Informando...'}</span></>) : <span>{edit ? 'Editar' : 'Informar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
-                <div className="mt-4"><Select onChange={handleChangeStudent} options={students} /></div>
+                <div className="mt-4"><Select onChange={handleChangeStudent} options={students} defaultValue={(edit && !isDischarge) ? selectedStudent : {}} /></div>
             </div>
             <div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
-                <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} /></div>
+                <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} defaultValue={(edit && !isDischarge) ? selectedCourse : {}} /></div>
             </div></>)}
             <div className="col-span-2 md:col-span-1 pb-3">
                 <CommonInput 
@@ -240,7 +284,7 @@ export default function PaymentsSection(props) {
             </div>
             <div className="col-span-2 md:col-span-1 pb-3">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
-                <div className="mt-4"><Select onChange={handleChangePayments} options={PAYMENT_OPTIONS} /></div>
+                <div className="mt-4"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
             </div>
                 <div className="col-span-2 md:col-span-2 pb-3">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
@@ -298,7 +342,15 @@ export default function PaymentsSection(props) {
                 </div>
             </LocalizationProvider>
         </div>
-        {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label htmlFor="fileUpload" className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
+        {(edit && (paymentToEdit.file !== null)) && (
+        <>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Archivo
+            </label>
+            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
+        </>
+        )}
+        {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label htmlFor="fileUpload" className="mt-6 bg-orange-300 rounded-lg py-2 w-3/6 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
         <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :
         (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
         </>} />
