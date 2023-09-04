@@ -206,13 +206,13 @@ export default function PaymentsSection(props) {
     const handleInformPayment = async () => {
         setIsLoadingPayment(true);
         const data = {
-            itemId: edit ? paymentToEdit.itemId : selectedItem?.id,
+            itemId: selectedItem?.id,
             clazzId: selectedClazz?.id,
             headquarterId: selectedCollege?.value,
             courseId: isDischarge ? null : selectedCourse,
             type: paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
-            paymentValue: isDischarge ? (ammount * -1).toFixed(3) : ammount,
+            value: isDischarge ? (ammount * -1).toFixed(3) : ammount,
             studentId: isDischarge ? null : selectedStudent,
             note: edit ? paymentToEdit.note : note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
@@ -347,7 +347,7 @@ export default function PaymentsSection(props) {
             <label className="block text-gray-700 text-sm font-bold mb-2">
                     Archivo
             </label>
-            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
+            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file.name ? paymentToEdit.file.name : ''}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
         </>
         )}
         {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label htmlFor="fileUpload" className="mt-6 bg-orange-300 rounded-lg py-2 w-3/6 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
