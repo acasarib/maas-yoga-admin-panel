@@ -42,7 +42,7 @@ export default {
                 "courseId": paymentInfo.courseId,
                 "studentId": paymentInfo.studentId,
                 "itemId": paymentInfo.itemId,
-                "type": paymentInfo.paymentType,
+                "type": paymentInfo.type,
                 "fileId": paymentInfo.fileId,
                 "value": paymentInfo.paymentValue,
                 "at": paymentInfo.at,

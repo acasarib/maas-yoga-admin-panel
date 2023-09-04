@@ -207,13 +207,13 @@ export default function PaymentsSection(props) {
         setIsLoadingPayment(true);
         const data = {
             itemId: edit ? paymentToEdit.itemId : selectedItem?.id,
-            clazzId: edit ? paymentToEdit.clazzId : selectedClazz?.id,
-            headquarterId: edit ? paymentToEdit.headquarterId : selectedCollege?.value,
-            courseId: edit ? paymentToEdit.courseId : (isDischarge ? null : selectedCourse),
-            paymentType: paymentMethod,
+            clazzId: selectedClazz?.id,
+            headquarterId: selectedCollege?.value,
+            courseId: isDischarge ? null : selectedCourse,
+            type: paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             paymentValue: isDischarge ? (ammount * -1).toFixed(3) : ammount,
-            studentId: edit ? (paymentToEdit.studentId || null) : (isDischarge ? null : selectedStudent),
+            studentId: isDischarge ? null : selectedStudent,
             note: edit ? paymentToEdit.note : note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),

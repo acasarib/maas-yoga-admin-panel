@@ -235,7 +235,6 @@ export const Provider = ({ children }) => {
             if (editedPayment.itemId)
                 editedPayment.item = getItemById(editedPayment.itemId);
             setPayments(current => current.map(p => p.id === payment.id ? merge(p, payment) : p));
-            return editedPayment;
         } catch(e) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser editado... Por favor inténtelo nuevamente.');
         }
