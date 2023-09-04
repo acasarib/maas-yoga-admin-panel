@@ -221,6 +221,26 @@ export const Provider = ({ children }) => {
         }
     };
 
+    const editPayment = async payment => {
+        try {
+            const editedPayment = await paymentsService.editPayment(payment);
+            changeAlertStatusAndMessage(true, 'success', 'El movimiento fue editado exitosamente!')
+            editedPayment.user = user;
+            if (editedPayment.courseId !== null)
+                editedPayment.course = getCourseById(editedPayment.courseId);
+            if (editedPayment.studentId)
+                editedPayment.student = getStudentById(editedPayment.studentId);
+            if (editedPayment.headquarterId)
+                editedPayment.headquarter = getHeadquarterById(editedPayment.headquarterId);
+            if (editedPayment.itemId)
+                editedPayment.item = getItemById(editedPayment.itemId);
+            setPayments(current => current.map(p => p.id === payment.id ? merge(p, payment) : p));
+            return editedPayment;
+        } catch(e) {
+            changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser editado... Por favor inténtelo nuevamente.');
+        }
+    };
+
     const getLogs = async () => {
         if (!logsInit) {
             const l = await logsService.getAll();
@@ -602,6 +622,7 @@ export const Provider = ({ children }) => {
             verifyClazz,
             getProfessorDetailsById,
             newProfessorPayment,
+            editPayment,
             professors,
             newProfessor,
             deleteProfessor,
@@ -610,6 +631,7 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
             updateUnverifiedPayment,
+            getHeadquarterById,
             getLogs,
         }}>{children}</Context.Provider>
     );
