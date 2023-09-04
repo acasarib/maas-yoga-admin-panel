@@ -195,8 +195,7 @@ export default function PaymentsSection(props) {
             }
         }
         const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
-        setPaymentMethod(method);
-        console.log(payment)
+        setPaymentMethod(method[0]);
         setAmmount(payment.value)
         setPaymentAt(dayjs(new Date(payment.at)));
         setOperativeResult(dayjs(new Date(payment.operativeResult)));
@@ -207,13 +206,13 @@ export default function PaymentsSection(props) {
         setIsLoadingPayment(true);
         const data = {
             itemId: selectedItem?.id,
-            clazzId: selectedClazz?.id,
-            headquarterId: selectedCollege?.value,
-            courseId: isDischarge ? null : selectedCourse,
-            type: paymentMethod,
+            clazzId: (edit && selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
+            headquarterId: (edit && selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
+            courseId: (edit && selectedCourse !== null) ? selectedCourse.value : (isDischarge ? null : selectedCourse),
+            type: (edit && paymentMethod !== null) ? paymentMethod.value : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: isDischarge ? (ammount * -1).toFixed(3) : ammount,
-            studentId: isDischarge ? null : selectedStudent,
+            studentId: (edit && selectedStudent !== null) ? selectedStudent.value : (isDischarge ? null : selectedStudent),
             note: edit ? paymentToEdit.note : note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
@@ -271,22 +270,22 @@ export default function PaymentsSection(props) {
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} defaultValue={(edit && !isDischarge) ? selectedCourse : {}} /></div>
             </div></>)}
-            <div className="col-span-2 md:col-span-1 pb-3">
+            <div className="col-span-2 md:col-span-1 pb-1">
                 <CommonInput 
                     label="Importe"
                     name="title"
-                    className="block font-bold text-sm text-gray-700 mb-4"
+                    className="block font-bold text-sm text-gray-700 mb-2"
                     type="number" 
                     placeholder="Importe" 
                     value={ammount === null ? "": ammount}
                     onChange={handleChangeAmmount}
                 />
             </div>
-            <div className="col-span-2 md:col-span-1 pb-3">
+            <div className="col-span-2 md:col-span-1 pb-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
-                <div className="mt-4"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
+                <div className="mt-2"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
             </div>
-                <div className="col-span-2 md:col-span-2 pb-3">
+                <div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
                         <Select
@@ -298,17 +297,17 @@ export default function PaymentsSection(props) {
                     </div>
                 </div>
             {isDischarge ?
-            <div className="col-span-2 md:col-span-2 pb-3">
+            <div className="col-span-2 md:col-span-2">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
                 <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
             </div>
             :
-            <div className="col-span-2 md:col-span-2 pb-3">
+            <div className="col-span-2 md:col-span-2">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
                 <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
             </div>
             }
-            <div className="col-span-2 md:col-span-2 pb-3">
+            <div className="col-span-2 md:col-span-2">
                 <CommonTextArea 
                     label="Nota"
                     name="note"
@@ -320,7 +319,7 @@ export default function PaymentsSection(props) {
                 />
             </div>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <div className="col-span-2 pb-6">
+                <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                     <div className="mt-4">
                         <DateTimePicker
@@ -330,7 +329,7 @@ export default function PaymentsSection(props) {
                         />
                     </div>
                 </div>
-                <div className="col-span-2 pb-6">
+                <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
                     <div className="mt-4">
                         <DateTimePicker
@@ -342,12 +341,12 @@ export default function PaymentsSection(props) {
                 </div>
             </LocalizationProvider>
         </div>
-        {(edit && (paymentToEdit.file !== null)) && (
+        {(edit && (paymentToEdit.file && (paymentToEdit.file !== null))) && (
         <>
             <label className="block text-gray-700 text-sm font-bold mb-2">
                     Archivo
             </label>
-            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file.name ? paymentToEdit.file.name : ''}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
+            <div className="my-2 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
         </>
         )}
         {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label htmlFor="fileUpload" className="mt-6 bg-orange-300 rounded-lg py-2 w-3/6 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
@@ -362,7 +361,7 @@ export default function PaymentsSection(props) {
                     <CommonInput 
                         label="Titulo del Template"
                         name="title"
-                        className="block font-bold text-sm text-gray-700 mb-4"
+                        className="block font-bold text-sm text-gray-700 mb-2"
                         type="text" 
                         placeholder="Titulo" 
                         value={templateTitle}
@@ -373,7 +372,7 @@ export default function PaymentsSection(props) {
                     <CommonInput 
                         label="Importe"
                         name="title"
-                        className="block font-bold text-sm text-gray-700 mb-4"
+                        className="block font-bold text-sm text-gray-700 mb-2"
                         type="number" 
                         placeholder="Importe" 
                         value={ammount === null ? "" : ammount}
