@@ -100,6 +100,7 @@ export default function PaymentsSection(props) {
         setSelectedClazz(null);
         setSelectedCollege(null);
         setHaveFile(false);
+        setPaymentToEdit({});
     }
 
     const deleteSelection = () => {
@@ -179,7 +180,9 @@ export default function PaymentsSection(props) {
         setOpenModal(true);
         if(payment.value < 0) {
             setIsDischarge(true);
+            setAmmount(payment.value * -1)
         }else {
+            setAmmount(payment.value)
             setSelectedStudent({label: payment.student.name, value: payment.student.id});
             if(payment.course) {
                 setSelectedCourse({label: payment.course.title, value: payment.course.id});
@@ -190,13 +193,11 @@ export default function PaymentsSection(props) {
             }
             if(payment.headquarterId) {
                 const college = getHeadquarterById(payment.headquarterId);
-                console.log(college);
                 setSelectedCollege((college.length > 0) ? {label: college[0].title, value: college[0].id} : null);
             }
         }
         const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
         setPaymentMethod(method[0]);
-        setAmmount(payment.value)
         setPaymentAt(dayjs(new Date(payment.at)));
         setOperativeResult(dayjs(new Date(payment.operativeResult)));
         setPaymentToEdit(payment);
@@ -229,6 +230,7 @@ export default function PaymentsSection(props) {
             setOpenModal(false);
             setPaymentAt(dayjs(new Date()));
             setOperativeResult(dayjs(new Date()));
+            setPaymentToEdit({});
         }catch(err) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.')
             console.log(err);
@@ -238,6 +240,7 @@ export default function PaymentsSection(props) {
             setAmmount(null);
             setOperativeResult(dayjs(new Date()));
             setHaveFile(false);
+            setPaymentToEdit({});
         }
         setAmmount(null);
         setSelectedCollege(null);

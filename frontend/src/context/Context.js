@@ -148,6 +148,10 @@ export const Provider = ({ children }) => {
         }));
         setItems(formatedItems);
     }, [categories]);
+    useEffect(() => {
+      console.log(payments);
+    }, [payments])
+    
 
     const merge = (item1, item2) => {
         for (let key in item1)
@@ -222,6 +226,7 @@ export const Provider = ({ children }) => {
     };
 
     const editPayment = async payment => {
+        console.log(payment)
         try {
             const editedPayment = await paymentsService.editPayment(payment);
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue editado exitosamente!')
@@ -234,7 +239,8 @@ export const Provider = ({ children }) => {
                 editedPayment.headquarter = getHeadquarterById(editedPayment.headquarterId);
             if (editedPayment.itemId)
                 editedPayment.item = getItemById(editedPayment.itemId);
-            setPayments(current => current.map(p => p.id === payment.id ? merge(p, payment) : p));
+            console.log(editedPayment);
+            setPayments(current => current.map(p => p.id === payment.id ? merge(p, editedPayment) : p));
         } catch(e) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser editado... Por favor inténtelo nuevamente.');
         }
