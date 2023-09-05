@@ -305,10 +305,16 @@ export default function PaymentsSection(props) {
                 <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
             </div>
             :
-            <div className="col-span-2 md:col-span-2">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
-                <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
-            </div>
+            <>
+                <div className="col-span-2 md:col-span-2">
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
+                    <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
+                </div>
+                <div className="col-span-2 md:col-span-2">
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
+                    <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
+                </div>
+            </>
             }
             <div className="col-span-2 md:col-span-2">
                 <CommonTextArea 
