@@ -148,10 +148,6 @@ export const Provider = ({ children }) => {
         }));
         setItems(formatedItems);
     }, [categories]);
-    useEffect(() => {
-      console.log(payments);
-    }, [payments])
-    
 
     const merge = (item1, item2) => {
         for (let key in item1)
@@ -196,13 +192,18 @@ export const Provider = ({ children }) => {
             periodTo,
             at: new Date(),
             operativeResult: new Date(),
-            paymentType: CASH_PAYMENT_TYPE,
-            paymentValue: value*-1,
+            type: CASH_PAYMENT_TYPE,
+            value: value*-1,
             verified: false,
         }
-        informPayment(payment);
-        const professor = await professorsService.getProfessor(professorId);
-        setProfessors(prev => prev.map(p => p.id === professor.id ? professor : p));
+        const createdPayment = await informPayment(payment);
+        //const professor = await professorsService.getProfessor(professorId);
+        setProfessors(prev => prev.map(p => {
+            if (p.id === professorId) {
+                p.payments.push(createdPayment);
+            }
+            return p;
+        }));
     }
 
     const informPayment = async payment => {
@@ -297,6 +298,8 @@ export const Provider = ({ children }) => {
 
     const newProfessor = async (professor) => {
         const createdProfessor = await professorsService.newProfessor(professor);
+        createdProfessor.label = professor.name;
+        createdProfessor.value = professor.id;
         changeAlertStatusAndMessage(true, 'success', 'El profesor fue agregado exitosamente!')
         setProfessors(current => [...current, createdProfessor]);
         return createdProfessor;

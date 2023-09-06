@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext } from "react";
 import { useEffect } from "react";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
@@ -10,7 +10,7 @@ import CurrencyInput from "../input/currencyInput";
 import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
 import { Context } from "../../context/Context";
 
-export default function     ProfessorCalendar({ professorId, courseId, enabledPeriods, payments }) {
+export default function ProfessorCalendar({ professor, courseId, enabledPeriods, payments }) {
     const [currentYear, setCurrentYear] = useState(null);
     const [periods, setPeriods] = useState({});
     const years = Object.keys(periods);
@@ -31,7 +31,7 @@ export default function     ProfessorCalendar({ professorId, courseId, enabledPe
                 const monthDetails = periods[currentYear][month];
                 if (!monthDetails.paid) {
                     if (monthDetails.dictedByProfessor) {
-                        return <NoPayments year={currentYear} month={month} professorId={professorId} courseId={courseId}/>;
+                        return <NoPayments year={currentYear} month={month} professor={professor} courseId={courseId}/>;
                     } else {
                         return "no disponible";
                     }
@@ -105,7 +105,7 @@ export default function     ProfessorCalendar({ professorId, courseId, enabledPe
         }
         setCurrentYear(Object.keys(periods)[0]);
         setPeriods(periods);
-    }, [enabledPeriods])
+    }, [enabledPeriods, payments]);
 
     return (<>
         <div className="flex justify-between bg-gray-100 px-4 py-1">
@@ -129,7 +129,7 @@ export default function     ProfessorCalendar({ professorId, courseId, enabledPe
     </>);
 } 
 
-function NoPayments({ month, year, courseId, professorId }) {
+function NoPayments({ month, year, courseId, professor }) {
     const { newProfessorPayment } = useContext(Context);
     const [addingPayment, setAddingPayment] = useState(false);
     const [value, setValue] = useState("");
@@ -150,7 +150,8 @@ function NoPayments({ month, year, courseId, professorId }) {
         const m = addLeadingZeroLessTen(month);
         const from = `${year}-${m}-01`;
         const to = `${year}-${m}-${getLastDayOfMonth(year, month)}`;
-        newProfessorPayment(professorId, courseId, from, to, value);
+        newProfessorPayment(professor.id, courseId, from, to, value);
+        toggleAddingPayment();
     }
 
     return !addingPayment ? 

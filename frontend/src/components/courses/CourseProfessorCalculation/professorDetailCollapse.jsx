@@ -27,8 +27,8 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
         const parsedFrom = dateToYYYYMMDD(from.$d);
         const parsedTo = dateToYYYYMMDD(to.$d);
         const payment = {
-            paymentType: CASH_PAYMENT_TYPE,
-            paymentValue: professor.result.collectedByProfessor * -1,
+            type: CASH_PAYMENT_TYPE,
+            value: professor.result.collectedByProfessor * -1,
             at: new Date(),
             operativeResult: new Date(),
             periodFrom: parsedFrom,

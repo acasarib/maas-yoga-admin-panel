@@ -39,9 +39,9 @@ export default function ProfessorInfo(props) {
 
     useEffect(() => {
         if(criteriaCheck) {
-            setCriteriaValue('student');
+            setCriteria('student');
         }else {
-            setCriteriaValue('percentage');
+            setCriteria('percentage');
         }
     }, [criteriaCheck])
 
