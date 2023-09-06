@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import Modal from "../components/modal";
 import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
@@ -12,7 +12,7 @@ import PlusButton from "../components/button/plus";
 import CustomRadio from "../components/radio/customRadio";
 import ProfessorDetailModal from "../components/modal/professorDetailModal";
 
-export default function Students(props) {
+export default function Professors(props) {
     const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, getProfessorDetailsById, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +21,8 @@ export default function Students(props) {
     const [opResult, setOpResult] = useState('Verificando profesores...');
     const [edit, setEdit] = useState(false);
     const [professorToEdit, setProfessorToEdit] = useState({});
-    const [professorDetailId, setProfessorDetailId] = useState(null);
+    const [professorDetail, setProfessorDetail] = useState(null);
+    const [professorModal, setProfessorModal] = useState(null);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
@@ -60,10 +61,11 @@ export default function Students(props) {
     }
 
     const handleOnClickProfessor = async (professor) => {
-        setProfessorDetailId(professor.id)
+        getProfessorDetailsById(professor.id);
+        setProfessorDetail(professor);
     }
 
-    const columns = [
+    const columns = useMemo(() => [
         {
             name: 'Nombre',
             selector: row => <div className="underline text-yellow-900 mx-1" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
@@ -82,7 +84,7 @@ export default function Students(props) {
         },
             sortable: true,
         },
-    ];
+    ], [professors]);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -131,6 +133,15 @@ export default function Students(props) {
         .matchMedia("(min-width: 700px)")
         .addEventListener('change', e => setMatches( e.matches ));
     }, []);
+
+    useEffect(() => {
+        if (professorDetail !== null) {
+            const prof = professors.find(p => p?.id === professorDetail?.id);
+            setProfessorModal(JSON.parse(JSON.stringify(prof)));
+        } else {
+            setProfessorModal(null);
+        }
+    }, [professors, professorDetail]);
 
     /*const white = orange[50];*/
 
@@ -248,7 +259,7 @@ export default function Students(props) {
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar profesor" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteProfessor} children={<><div>Esta a punto de elimnar este profesor. ¿Desea continuar?</div></>} />
-                <ProfessorDetailModal isOpen={professorDetailId !== null} onClose={() => setProfessorDetailId(null)} professorId={professorDetailId} />
+                <ProfessorDetailModal isOpen={professorDetail !== null} onClose={() => setProfessorDetail(null)} professor={professorModal} />
             </Container>
         </>
     );

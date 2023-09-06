@@ -14,6 +14,7 @@ export default {
                     resolve(response.data.token);
                 })
                 .catch((error) => {
+                    console.error(error);
                     reject(error.data)
                 })
         });

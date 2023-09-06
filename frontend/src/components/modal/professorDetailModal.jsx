@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "../modal";
 import HailIcon from '@mui/icons-material/Hail';
 import ProfessorCalendar from "../calendar/professorCalendar";
@@ -8,36 +8,20 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ListItemButton from '@mui/material/ListItemButton';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Collapse from '@mui/material/Collapse';
-import { Context } from "../../context/Context";
 import ListItemText from '@mui/material/ListItemText';
 
-export default function ProfessorDetailModal({ isOpen, onClose, professorId }) {
+export default function ProfessorDetailModal({ isOpen, onClose, professor }) {
 
-    const { professors, getProfessorDetailsById } = useContext(Context);
-    const [professor, setProfessor] = useState(null);
 
-    const updateProfessor = async () => {
-        setProfessor(await getProfessorDetailsById(professorId));
-    }
-
-    useEffect(() => {
-        if (professorId === null) {
-            setProfessor(null);
-        } else {
-            updateProfessor();
-        }
-    }, [professorId, professors])
-    
-    
     return(
         <Modal hiddingButton open={isOpen} icon={<HailIcon/>} setDisplay={() => onClose()} title={professor?.name}>
             <h2 className="text-xl ml-2 mb-2">Cursos</h2>
-            {professor?.courses?.map(course => <Course key={course.id} professorId={professor.id    } course={course} payments={professor.payments}/>)}
+            {professor?.courses?.map(course => <Course key={course.id} professor={professor} course={course} payments={professor.payments}/>)}
         </Modal>
     );
 }
 
-function Course({ course, payments, professorId }) {
+function Course({ course, payments, professor }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (<>
@@ -49,7 +33,7 @@ function Course({ course, payments, professorId }) {
         {isOpen ? <ExpandLess /> : <ExpandMore />}
     </ListItemButton>
     <Collapse in={isOpen} timeout="auto" unmountOnExit>
-        <ProfessorCalendar professorId={professorId} courseId={course.id} enabledPeriods={course.professorCourse} payments={payments}/>
+        <ProfessorCalendar professor={professor} courseId={course.id} enabledPeriods={course.professorCourse} payments={payments}/>
     </Collapse>
     </>);
 }

@@ -9,9 +9,13 @@ export default function LogsPaymentSection(props) {
     const { getLogs } = useContext(Context);
     const [logs, setLogs] = useState([]);
 
-    useEffect(async () => {
+    const fetchData = async () => {
         const l = await getLogs();
         setLogs(l);
+    }
+
+    useEffect(() => {
+        fetchData();
     }, []);
 
     const getPrettyLogAction = (action, paymentId) => {
