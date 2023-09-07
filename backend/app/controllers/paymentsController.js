@@ -23,7 +23,7 @@ export default {
    */
   deleteById: async (req, res, next) => {
     try {
-      await paymentService.deleteById(req.params.id);
+      await paymentService.deleteById(req.params.id, req.user.id);
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (e) {
       next(e);

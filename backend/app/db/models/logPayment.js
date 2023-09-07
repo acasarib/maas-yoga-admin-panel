@@ -8,6 +8,8 @@ const logPayment = (sequelize) => {
       primaryKey: true
     },
     action: Sequelize.STRING,
+  }, { 
+    tableName: "log_payment",
   });
   logPayment.associate = function (models) {
     // associations can be defined here

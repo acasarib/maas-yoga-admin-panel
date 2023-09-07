@@ -25,3 +25,7 @@ export const logVerified = async (paymentId, userId) => {
     action: LOG_PAYMENT_ACTIONS.VERIFICATION,
   });
 };
+
+export const deletePayment = async (userId) => {
+  logPayment.create({ userId, action: LOG_PAYMENT_ACTIONS.DELETE });
+};
