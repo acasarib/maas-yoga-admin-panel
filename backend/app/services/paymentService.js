@@ -26,11 +26,12 @@ export const create = async (paymentParam, informerId) => {
   return (createdPayments.length === 1) ? createdPayments[0] : createdPayments;
 };
 
-export const deleteById = async (id) => {
+export const deleteById = async (id, userId) => {
   const p = await payment.findByPk(id);
   if (p.fileId) {
     file.destroy({ where: { id: p.fileId } });
   }
+  logService.deletePayment(userId);
   return p.destroy();
 };
 
