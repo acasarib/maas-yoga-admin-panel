@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import paymentsService from "../../../services/paymentsService";
 import Select from 'react-select';
 import CommonInput from "../../../components/commonInput";
@@ -26,7 +26,7 @@ export default function PaymentsSection(props) {
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById } = useContext(Context);
+    const { clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [selectedCollege, setSelectedCollege] = useState(null);
@@ -178,23 +178,28 @@ export default function PaymentsSection(props) {
     const openEditPayment = (payment) => {
         setEdit(true);
         setOpenModal(true);
+        setNote(payment.note);
+        if(payment.course) {
+            setSelectedCourse({label: payment.course.title, value: payment.course.id});
+        }
+        if(payment.clazzId) {
+            const classes = clazzes.filter(cls => cls.id === payment.clazzId);
+            setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
+        }
+        if(payment.headquarterId) {
+            const college = getHeadquarterById(payment.headquarterId);
+            setSelectedCollege(college !== undefined ? {label: college.name, value: college.id} : null);
+        }
+        if (payment.itemId) {
+            const item = getItemById(payment.itemId);
+            setSelectedItem(item !== undefined ? item : null);
+        }
         if(payment.value < 0) {
             setIsDischarge(true);
             setAmmount(payment.value * -1)
-        }else {
+        } else {
             setAmmount(payment.value)
             setSelectedStudent({label: payment.student.name, value: payment.student.id});
-            if(payment.course) {
-                setSelectedCourse({label: payment.course.title, value: payment.course.id});
-            }
-            if(payment.clazzId) {
-                const classes = clazzes.filter(cls => cls.id === payment.clazzId);
-                setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
-            }
-            if(payment.headquarterId) {
-                const college = getHeadquarterById(payment.headquarterId);
-                setSelectedCollege((college.length > 0) ? {label: college[0].title, value: college[0].id} : null);
-            }
         }
         const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
         setPaymentMethod(method[0]);
@@ -214,7 +219,7 @@ export default function PaymentsSection(props) {
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: isDischarge ? (ammount * -1).toFixed(3) : ammount,
             studentId: (edit && selectedStudent !== null) ? selectedStudent.value : (isDischarge ? null : selectedStudent),
-            note: edit ? paymentToEdit.note : note,
+            note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
         }  
@@ -230,6 +235,7 @@ export default function PaymentsSection(props) {
             setOpenModal(false);
             setPaymentAt(dayjs(new Date()));
             setOperativeResult(dayjs(new Date()));
+            setNote('');
             setPaymentToEdit({});
         }catch(err) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.')

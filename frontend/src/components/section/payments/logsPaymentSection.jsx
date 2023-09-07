@@ -19,13 +19,16 @@ export default function LogsPaymentSection(props) {
     }, []);
 
     const getPrettyLogAction = (action, paymentId) => {
+        const payment = paymentId !== null ? paymentId : "(pago eliminado)";
         switch (action) {
             case LOG_PAYMENT_ACTIONS.CREATE:
-                return `Creacion del pago #${paymentId}`;
+                return `Creacion del pago #${payment}`;
             case LOG_PAYMENT_ACTIONS.UPDATE:
-                return `Se modifico el pago #${paymentId}`;
+                return `Se modifico el pago #${payment}`;
             case LOG_PAYMENT_ACTIONS.VERIFICATION:
-                return `Se verifico el pago #${paymentId}`;
+                return `Se verifico el pago #${payment}`;
+            case LOG_PAYMENT_ACTIONS.DELETE:
+                return `Se elimino un pago`;
             default:
                 return 'Error';
         }
