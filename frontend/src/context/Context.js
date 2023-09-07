@@ -640,6 +640,7 @@ export const Provider = ({ children }) => {
             calcProfessorsPayments,
             updateUnverifiedPayment,
             getHeadquarterById,
+            getItemById,
             getLogs,
         }}>{children}</Context.Provider>
     );

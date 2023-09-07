@@ -91,8 +91,8 @@ export default function Categories(props) {
                     <AddIcon className="mt-6 cursor-pointer" onClick={addItem}/>
                 </div>
                 <div className="mt-6">
-                    {items.map(item =>
-                        <div className="flex items-center">
+                    {items.map((item, i) =>
+                        <div key={i} className="flex items-center">
                             <div className="w-full">
                                 <CommonInput
                                     value={item.title}
