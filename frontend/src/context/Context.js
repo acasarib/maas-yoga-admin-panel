@@ -11,6 +11,8 @@ import categoriesService from "../services/categoriesService";
 import userService from "../services/userService";
 import { CASH_PAYMENT_TYPE } from "../constants";
 import logsService from "../services/logsService";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleApiProvider } from 'react-gapi'
 
 export const Context = createContext();
 
@@ -642,6 +644,13 @@ export const Provider = ({ children }) => {
             getHeadquarterById,
             getItemById,
             getLogs,
-        }}>{children}</Context.Provider>
+            user,
+        }}>
+            <GoogleApiProvider clientId={user?.googleDriveCredentials?.clientId}>
+                <GoogleOAuthProvider clientId={user?.googleDriveCredentials?.clientId}>
+                    {children}
+                </GoogleOAuthProvider>
+            </GoogleApiProvider>
+        </Context.Provider>
     );
 }

@@ -20,16 +20,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import SelectItem from "../../../components/select/selectItem";
 import { Link } from "react-router-dom";
 import CloseIcon from '@mui/icons-material/Close';
+import StorageIconButton from "../../button/storageIconButton";
+import { useRef } from "react";
+import useDrivePicker from 'react-google-drive-picker'
 
 export default function PaymentsSection(props) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById } = useContext(Context);
+    const { user, clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [selectedCollege, setSelectedCollege] = useState(null);
+    const inputFileRef = useRef(null);
     const [fileId, setFileId] = useState(null);
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState(null);
@@ -48,6 +52,9 @@ export default function PaymentsSection(props) {
     const [selectedClazz, setSelectedClazz] = useState(null);
     const [edit, setEdit] = useState(false);
     const [paymentToEdit, setPaymentToEdit] = useState({});
+    const [openPicker, data, authResponse] = useDrivePicker();
+    const [driveFile, setDriveFile] = useState(null);
+    const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
     const handleFileChange = (e) => {
         if (e.target.files) {
@@ -56,6 +63,29 @@ export default function PaymentsSection(props) {
           setHaveFile(true);
         }
     };
+
+    const handleOpenPicker = async () => {
+        const { clientId, token, apiKey } = user.googleDriveCredentials;
+        openPicker({
+            clientId,
+            developerKey: apiKey,
+            token,
+            viewId:'DOCS',
+            showUploadView: true,
+            showUploadFolders: true,
+            supportDrives: true,
+            multiselect: true,
+            callbackFunction: (data) => {
+                if (data.action === 'picked') {
+                    const [file] = data.docs;
+                    setDriveFile(file);
+                    setFilename(file.name);
+                    setHaveFile(true);
+                }
+            },
+        })
+    }
+
 
     const uploadFile = async (file) => {
         setIsLoading(true);
@@ -106,6 +136,7 @@ export default function PaymentsSection(props) {
     const deleteSelection = () => {
         setFile([]);
         setHaveFile(false);
+        setDriveFile(null);
         setFilename("");
     }
 
@@ -222,6 +253,7 @@ export default function PaymentsSection(props) {
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
+            driveUrl: driveFile?.url,
         }  
         try{
             if(edit) {
@@ -364,9 +396,18 @@ export default function PaymentsSection(props) {
             <div className="my-2 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
         </>
         )}
-        {!haveFile ? (<><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span><label htmlFor="fileUpload" className="mt-6 bg-orange-300 rounded-lg py-2 w-3/6 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Seleccionar archivo</label>
-        <input type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input></>) :
-        (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
+        {!haveFile ? <>
+            <span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar comprobante para respaldar la operación</span>
+            <div className="flex">
+                <StorageIconButton onClick={() => inputFileRef.current.click()} className="mr-2 min-icon-storage" icon="\assets\images\db.png" alt="google drive">Maas Yoga</StorageIconButton>
+                <input ref={inputFileRef} type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input>
+                {googleDriveEnabled &&
+                    <StorageIconButton onClick={handleOpenPicker} className="ml-2 min-icon-storage" icon="\assets\images\gdrive.png" alt="google drive">Google Drive</StorageIconButton>
+                }
+            </div>
+        </>
+        :
+        (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className={`${driveFile !== null && "none"} mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550`}>{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
         </>} />
         <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={isEditingTemplate ? 'Editar template' : 'Crear nuevo template'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">

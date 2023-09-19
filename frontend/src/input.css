@@ -73,6 +73,14 @@
 	display: block;
 }
 
+.min-icon-storage {
+  min-width: 120px;
+}
+
+.none {
+  display: none;
+}
+
 .payment-filter-width {
   width: 200px;
 }
