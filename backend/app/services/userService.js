@@ -2,6 +2,7 @@ import { user } from "../db/index.js";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
+import request from "request";
 
 export const create = async (userParam) => {
   const encryptedPassword = await bcrypt.hash(userParam.password, 10);
@@ -21,19 +22,23 @@ export const login = async (email, password) => {
   if (!userDb)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
   const result = bcrypt.compareSync(password, userDb.password);
-  if (result) {
-    return jwt.sign({
-      id: userDb.id,
-      firstName: userDb.firstName,
-      lastName: userDb.lastName,
-      email: userDb.email,
-      permissions: getUserPermissions(userDb.dataValues)
-    }, process.env.BACKEND_TOKEN_SECRET, {
-      expiresIn: parseInt(process.env.BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS)
-    });
-  } else {
+  if (!result)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
+  const claims = {
+    id: userDb.id,
+    firstName: userDb.firstName,
+    lastName: userDb.lastName,
+    email: userDb.email,
+    permissions: getUserPermissions(userDb.dataValues)
+  };
+
+  
+  if (userDb.permissionGoogleDrive) {
+    claims.googleDriveCredentials = await getGoogleDriveCredentials();
   }
+  return jwt.sign(claims, process.env.BACKEND_TOKEN_SECRET, {
+    expiresIn: parseInt(process.env.BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS)
+  });
 };
 
 export const getAll = async () => {
@@ -43,4 +48,30 @@ export const getAll = async () => {
 function getUserPermissions(user) {
   const permissionsKeys = Object.keys(user).filter(key => key.startsWith("permission") && user[key]);
   return permissionsKeys.map(permission => permission.replace(/[A-Z]/g, letter => `_${letter}`).toUpperCase());
+}
+
+function getGoogleDriveCredentials() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method: "POST",
+      url: "https://www.googleapis.com/oauth2/v3/token",
+      formData : {
+        "grant_type" : "refresh_token",
+        "client_id": process.env.GOOGLE_CLIENT_ID,
+        "client_secret": process.env.GOOGLE_CLIENT_SECRET,
+        "refresh_token": process.env.GOOGLE_CLIENT_REFRESH_TOKEN,
+      }
+    };
+  
+    request(options, (err, res, body) => {
+      if(err) {
+        reject({err, res, body});
+      }
+      resolve({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        token: JSON.parse(body).access_token,
+        apiKey: process.env.GOOGLE_API_KEY,
+      });
+    });
+  });
 }
