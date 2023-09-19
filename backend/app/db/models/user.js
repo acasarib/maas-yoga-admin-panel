@@ -11,7 +11,8 @@ const user = (sequelize) => {
     firstName: Sequelize.STRING,
     lastName: Sequelize.STRING,
     password: Sequelize.STRING,
-    permissionCreateUser: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
+    permissionCreateUser: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
+    permissionGoogleDrive: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
   }, {
     defaultScope: {
       attributes: {
