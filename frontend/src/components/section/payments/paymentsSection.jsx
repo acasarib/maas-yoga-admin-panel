@@ -239,6 +239,14 @@ export default function PaymentsSection(props) {
         setPaymentToEdit(payment);
     }
 
+    const getValue = () => {
+        if(paymentToEdit.value < 0) {
+            return ammount * -1;
+        } else {
+            return ammount;
+        }
+    }
+
     const handleInformPayment = async () => {
         setIsLoadingPayment(true);
         const data = {
@@ -248,7 +256,7 @@ export default function PaymentsSection(props) {
             courseId: (edit && selectedCourse !== null) ? selectedCourse.value : (isDischarge ? null : selectedCourse),
             type: (edit && paymentMethod !== null) ? paymentMethod.value : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
-            value: isDischarge ? (ammount * -1).toFixed(3) : ammount,
+            value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
             studentId: (edit && selectedStudent !== null) ? selectedStudent.value : (isDischarge ? null : selectedStudent),
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
@@ -307,10 +315,10 @@ export default function PaymentsSection(props) {
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                 <div className="mt-4"><Select onChange={handleChangeStudent} options={students} defaultValue={(edit && !isDischarge) ? selectedStudent : {}} /></div>
             </div>
-            <div className="col-span-2 md:col-span-1">
+            {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} defaultValue={(edit && !isDischarge) ? selectedCourse : {}} /></div>
-            </div></>)}
+            </div>)}</>)}
             <div className="col-span-2 md:col-span-1 pb-1">
                 <CommonInput 
                     label="Importe"
@@ -344,14 +352,14 @@ export default function PaymentsSection(props) {
             </div>
             :
             <>
-                <div className="col-span-2 md:col-span-2">
+                 {(!selectedClazz && !selectedCourse) && (<div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
                     <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
-                </div>
-                <div className="col-span-2 md:col-span-2">
+                </div>)}
+                {(!selectedCourse && !selectedItem) && (<div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
                     <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
-                </div>
+                </div>)}
             </>
             }
             <div className="col-span-2 md:col-span-2">
