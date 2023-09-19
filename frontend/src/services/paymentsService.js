@@ -52,7 +52,8 @@ export default {
                 "periodTo": paymentInfo.periodTo,
                 "professorId": paymentInfo.professorId,
                 "verified": paymentInfo.verified,
-            }                
+                "driveUrl": paymentInfo.driveUrl,
+            }    
             axios
                 .post(baseUrl + `api/v1/payments`, data, {})
                 .then((response) => {
