@@ -32,7 +32,7 @@ const payment = (sequelize) => {
       type: Sequelize.DataTypes.DATEONLY,
       allowNull: true,
     },
-    driveUrl: {
+    driveFileId: {
       type: Sequelize.STRING,
       allowNull: true,
     },
