@@ -258,11 +258,11 @@ export default function Students(props) {
             email: edit ? studentToEdit.email : '',
             phoneNumber: edit ? studentToEdit.phoneNumber : null
         },
-        onSubmit: async (values) => {
+        onSubmit: async (values,  { resetForm }) => {
           const body = {
             name: values.name,
             lastName: values.surname,
-            document: values.document,
+            document: (values.document !== '') ? values.document : null,
             email: values.email,
             phoneNumber: values.phoneNumber
           };
@@ -274,14 +274,15 @@ export default function Students(props) {
             }else {
                 await newStudent(body);
             }
+            resetForm();
             setIsLoading(false);
             setDisplayModal(false);
           } catch (error) {
-            changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser informado... Por favor inténtelo nuevamente.')
+            changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser informado... Por favor inténtelo nuevamente.');
+            resetForm();
             setIsLoading(false);
             setDisplayModal(false);
           }
-          formik.values = {};
         },
       });
 
