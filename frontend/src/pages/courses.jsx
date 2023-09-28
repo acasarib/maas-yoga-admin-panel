@@ -62,6 +62,7 @@ export default function Courses(props) {
         setIsDateSelected(false);
         setNewProfessor(false);
         setStartAt(dayjs(new Date()));
+        setEndAt(dayjs(new Date()));
         setCourseProfessors([]);
     }
 
@@ -99,6 +100,8 @@ export default function Courses(props) {
         setDisplayModal(true);
         setCourseId(course.id);
         setCourseToEdit(course);
+        setStartAt(dayjs(new Date(course.startAt)));
+        setEndAt(dayjs(new Date(course.endAt)));
     }
 
     const openStudentsModal = (students, courseName) => {
@@ -129,6 +132,14 @@ export default function Courses(props) {
         })
         setSelectedOption(arr)
     };
+
+    const getStudents = (students) => {
+        students.forEach(student => {
+            student.label = student.name + ' ' + student.lastName;
+            student.value = student.id;
+        })
+        return students;
+    }
 
     const handleChangeTaskStatus = async (studentId, taskStatus) => {
         try {
@@ -319,6 +330,8 @@ export default function Courses(props) {
         },
     ];
 
+
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -344,9 +357,7 @@ export default function Courses(props) {
                         setEdit(false);
                         setNewProfessor(false);
                         setCourseProfessors([]);
-                        if(selectedOption.length > 0) {
-                            await addStudent(courseId, selectedOption);
-                        }
+                        await addStudent(courseId, selectedOption);
                   }else{
                         const response = await newCourse(body);
                         setNewProfessor(false);
@@ -470,7 +481,7 @@ export default function Courses(props) {
                                 <label className="block text-gray-700 text-sm font-bold mb-2">
                                     Asignar alumnos
                                 </label>
-                                <Select isMulti onChange={handleChange} options={students} />
+                                <Select isMulti onChange={handleChange} options={students} defaultValue={edit ? getStudents(courseToEdit.students) : []} />
                         </div>
                         {courseProfessors.length > 0 && (<>
                         <label className="block text-gray-700 text-sm font-bold mb-2">
