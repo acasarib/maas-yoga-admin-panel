@@ -10,7 +10,7 @@ import { PAYMENT_OPTIONS } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
 
 export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment }) {
-    const { deletePayment, categories, verifyPayment, updateUnverifiedPayment } = useContext(Context);
+    const { deletePayment, user, categories, verifyPayment, updateUnverifiedPayment, changeAlertStatusAndMessage } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);
@@ -46,6 +46,36 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
 
     const openEditModal = (payment) => {
         editPayment(payment);
+    }
+
+    const handleDownloadGoogleDrive = async payment => {
+        if (payment.driveFileId) {
+            if (!("googleDriveCredentials" in user)) {
+                changeAlertStatusAndMessage(true, "error", "El usuario no tiene acceso a google drive");
+                return;
+            }
+            let anchor = document.createElement("a");
+            document.body.appendChild(anchor);
+            let downloadUrl = `https://www.googleapis.com/drive/v3/files/${payment.driveFileId}`;
+            let accessToken = user.googleDriveCredentials.token;
+            let authorization = `Bearer ${accessToken}`;
+            let headers = new Headers();
+            headers.append('Authorization', authorization);
+            let response = await fetch(downloadUrl, {
+                "method": "GET",
+                "headers": {
+                    "Authorization": authorization
+                }
+            });
+            let json = await response.json();
+            response = await fetch(downloadUrl + "?alt=media", { headers });
+            let blobby = await response.blob();
+            let objectUrl = window.URL.createObjectURL(blobby);
+            anchor.href = objectUrl;
+            anchor.download = json.name;
+            anchor.click();
+            window.URL.revokeObjectURL(objectUrl);
+        }
     }
 
     const getPayments = () => {
@@ -146,7 +176,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
             },
             {
                 name: 'Comprobante',
-                cell: row => (<>{row.fileId !== null &&<a href={`${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}`} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
+                cell: row => (<>{(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
                 </a>}</>),
                 sortable: true,
             },
