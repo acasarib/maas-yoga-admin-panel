@@ -75,6 +75,7 @@ export default function PaymentsSection(props) {
             showUploadFolders: true,
             supportDrives: true,
             multiselect: true,
+            locale: "es",
             callbackFunction: (data) => {
                 if (data.action === 'picked') {
                     const [file] = data.docs;
@@ -261,7 +262,7 @@ export default function PaymentsSection(props) {
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
-            driveUrl: driveFile?.url,
+            driveFileId: driveFile?.id,
         }  
         try{
             if(edit) {
