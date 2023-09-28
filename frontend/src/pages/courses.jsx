@@ -328,7 +328,7 @@ export default function Courses(props) {
             endAt: edit ? dayjs(new Date(courseToEdit.endAt)) : endAt,
             professors: edit ? courseToEdit.professors : [],
         },
-            onSubmit: async (values) => {
+            onSubmit: async (values, { resetForm }) => {
                 const body = {
                   title: values.title,
                   description: values.description,
@@ -358,15 +358,16 @@ export default function Courses(props) {
                   }
                   setIsDateSelected(false);
                   setIsLoading(false);
+                  resetForm();
                   setDisplayModal(false);
                 } catch (error) {
-                    changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser informado... Por favor inténtelo nuevamente.')
+                changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser informado... Por favor inténtelo nuevamente.')
                   setIsLoading(false);
                   setCourseProfessors([]);
                   setNewProfessor(false);
+                  resetForm();
                   setDisplayModal(false);
                 }
-                formik.values = {};
               },
     });
 
