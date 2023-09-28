@@ -35,6 +35,9 @@ export default function Students(props) {
     const [studentName, setStudentName] = useState("");
     const [tasks, setTasks] = useState([]);
     const [filteredTasks, setFilteredTasks] = useState([]);
+    const [isDocumentDuplicated, setIsDocumentDuplicated] = useState(false);
+    const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
+    const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
@@ -297,7 +300,12 @@ export default function Students(props) {
         .addEventListener('change', e => setMatches( e.matches ));
     }, []);
 
-    /*const white = orange[50];*/
+    const checkDuplicated = (field, callback) => {
+        const isDuplicated = students.some(st => st[field] == formik.values[field]);
+        if (isDuplicated) {
+            callback();
+        }
+    }
 
     return(
         <>
@@ -312,7 +320,7 @@ export default function Students(props) {
                 <div className="flex justify-end">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
-                <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
+                <Modal buttonDisabled={isDocumentDuplicated || isEmailDuplicated || isPhoneNumberDuplicated} icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                     <form className="pt-6 mb-4"    
                         method="POST"
                         id="form"
@@ -348,7 +356,10 @@ export default function Students(props) {
                             <div className="mb-4">
                             <CommonInput 
                                     label="Documento"    
-                                    onBlur={formik.handleBlur}
+                                    onBlur={() => checkDuplicated("document", () => setIsDocumentDuplicated(true))}
+                                    onFocus={() => setIsDocumentDuplicated(false)}
+                                    isInvalid={isDocumentDuplicated}
+                                    invalidMessage={"Documento ya registrado"}
                                     value={formik.values.document}
                                     name="document"
                                     htmlFor="document"
@@ -361,7 +372,10 @@ export default function Students(props) {
                             <div className="mb-4">
                                 <CommonInput 
                                     label="Email"    
-                                    onBlur={formik.handleBlur}
+                                    onBlur={() => checkDuplicated("email", () => setIsEmailDuplicated(true))}
+                                    onFocus={() => setIsEmailDuplicated(false)}
+                                    isInvalid={isEmailDuplicated}
+                                    invalidMessage={"Email ya registrado"}
                                     value={formik.values.email}
                                     name="email"
                                     htmlFor="email"
@@ -374,7 +388,10 @@ export default function Students(props) {
                             <div className="mb-4">
                             <CommonInput 
                                     label="Numero de telefono"    
-                                    onBlur={formik.handleBlur}
+                                    onBlur={() => checkDuplicated("phoneNumber", () => setIsPhoneNumberDuplicated(true))}
+                                    onFocus={() => setIsPhoneNumberDuplicated(false)}
+                                    isInvalid={isPhoneNumberDuplicated}
+                                    invalidMessage={"Numero ya registrado"}
                                     value={formik.values.phoneNumber}
                                     name="phoneNumber"
                                     htmlFor="phoneNumber"

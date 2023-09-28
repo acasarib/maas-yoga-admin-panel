@@ -23,6 +23,8 @@ export default function Professors(props) {
     const [professorToEdit, setProfessorToEdit] = useState({});
     const [professorDetail, setProfessorDetail] = useState(null);
     const [professorModal, setProfessorModal] = useState(null);
+    const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
+    const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
@@ -143,7 +145,12 @@ export default function Professors(props) {
         }
     }, [professors, professorDetail]);
 
-    /*const white = orange[50];*/
+    const checkDuplicated = (field, callback) => {
+        const isDuplicated = professors.some(st => st[field] == formik.values[field]);
+        if (isDuplicated) {
+            callback();
+        }
+    }
 
     return(
         <>
@@ -196,7 +203,10 @@ export default function Professors(props) {
                             <div className="mb-4">
                                 <CommonInput 
                                     label="Numero de contacto"    
-                                    onBlur={formik.handleBlur}
+                                    onBlur={() => checkDuplicated("phoneNumber", () => setIsPhoneNumberDuplicated(true))}
+                                    onFocus={() => setIsPhoneNumberDuplicated(false)}
+                                    isInvalid={isPhoneNumberDuplicated}
+                                    invalidMessage={"Numero ya registrado"}
                                     value={formik.values.phoneNumber}
                                     name="phoneNumber"
                                     htmlFor="phoneNumber"
@@ -209,7 +219,10 @@ export default function Professors(props) {
                             <div className="mb-4">
                                 <CommonInput 
                                     label="Email"    
-                                    onBlur={formik.handleBlur}
+                                    onBlur={() => checkDuplicated("email", () => setIsEmailDuplicated(true))}
+                                    onFocus={() => setIsEmailDuplicated(false)}
+                                    isInvalid={isEmailDuplicated}
+                                    invalidMessage={"Email ya registrado"}
                                     value={formik.values.email}
                                     name="email"
                                     htmlFor="email"
