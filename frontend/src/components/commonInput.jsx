@@ -19,12 +19,16 @@ export default function CommonInput(props) {
                 type={props.type} 
                 placeholder={props.placeholder} 
                 onChange={props.onChange}
+                onFocus={props.onFocus}
                 onBlur={props.onBlur}
                 value={props.value}
                 name={props.name}
                 htmlFor={props.htmlFor}
                 onKeyDown={handleOnKeyDown}
             />
+            {props.isInvalid === true && 
+            <div className="text-red-600">{props.invalidMessage}</div>
+            }
         </>
     );
 } 
