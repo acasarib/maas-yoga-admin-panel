@@ -133,11 +133,15 @@ export default function Courses(props) {
         setSelectedOption(arr)
     };
 
-    const getStudents = (students) => {
-        students.forEach(student => {
-            student.label = student.name + ' ' + student.lastName;
-            student.value = student.id;
-        })
+    const getStudents = (course) => {
+        let students = [];
+        if(course.students) {
+            course.students.forEach(student => {
+                student.label = student.name + ' ' + student.lastName;
+                student.value = student.id;
+            })
+            students = course.students;
+        }
         return students;
     }
 
@@ -357,7 +361,9 @@ export default function Courses(props) {
                         setEdit(false);
                         setNewProfessor(false);
                         setCourseProfessors([]);
-                        await addStudent(courseId, selectedOption);
+                        if(selectedOption.length > 0) {
+                            await addStudent(courseId, selectedOption);
+                        }
                   }else{
                         const response = await newCourse(body);
                         setNewProfessor(false);
@@ -481,7 +487,7 @@ export default function Courses(props) {
                                 <label className="block text-gray-700 text-sm font-bold mb-2">
                                     Asignar alumnos
                                 </label>
-                                <Select isMulti onChange={handleChange} options={students} defaultValue={edit ? getStudents(courseToEdit.students) : []} />
+                                <Select isMulti onChange={handleChange} options={students} defaultValue={(edit && (courseToEdit.students)) ? getStudents(courseToEdit) : []} />
                         </div>
                         {courseProfessors.length > 0 && (<>
                         <label className="block text-gray-700 text-sm font-bold mb-2">
