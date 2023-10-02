@@ -109,10 +109,17 @@ export const getById = async (id) => {
 };
 
 export const getAll = async () => {
-  return course.findAll({ include: [
+  let courses = course.findAll({ include: [
     student,
     { model: courseTask, include:[student] },
   ]});
+  let professorCourses = professorCourse.findAll();
+  courses = await courses;
+  professorCourses = await professorCourses;
+  courses.forEach(course => {
+    course.dataValues.periods = professorCourses.filter(pc => pc.courseId == course.id);
+  });
+  return courses;
 };
 
 export const setStudentsToCourse = async (students, courseId) => {
