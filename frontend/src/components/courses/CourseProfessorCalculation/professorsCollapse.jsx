@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -12,6 +12,10 @@ import HailIcon from '@mui/icons-material/Hail';
 
 export default function ProfessorsCollapse({ professors, onShowPayments,from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        console.log(professors)
+    }, [professors])
 
     return (<>
     <ListItemButton onClick={() => setIsOpen(!isOpen)}>
