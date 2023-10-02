@@ -70,7 +70,8 @@ export default function Professors(props) {
     const columns = useMemo(() => [
         {
             name: 'Nombre',
-            selector: row => <div className="underline text-yellow-900 mx-1" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
+            selector: row => row.name,
+            cell: row => <div className="underline text-yellow-900 mx-1" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
             sortable: true,
             searchable: true,
         },
