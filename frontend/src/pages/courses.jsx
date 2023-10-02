@@ -94,7 +94,6 @@ export default function Courses(props) {
     }
 
     const openEditModal = (course) => {
-        console.log(course);
         setEdit(true);
         setIsDateSelected(true);
         setDisplayModal(true);
@@ -102,6 +101,13 @@ export default function Courses(props) {
         setCourseToEdit(course);
         setStartAt(dayjs(new Date(course.startAt)));
         setEndAt(dayjs(new Date(course.endAt)));
+        if(course.periods?.length > 0) {
+            let periods = [];
+            course.periods.forEach(period => {
+              periods.push(period);
+            })
+            setCourseProfessors(periods);
+        }
     }
 
     const openStudentsModal = (students, courseName) => {
@@ -343,7 +349,7 @@ export default function Courses(props) {
             description: edit ? courseToEdit.description : '',
             startAt: edit ? dayjs(new Date(courseToEdit.startAt)) : startAt,
             endAt: edit ? dayjs(new Date(courseToEdit.endAt)) : endAt,
-            professors: edit ? courseToEdit.professors : [],
+            professors: edit ? courseToEdit.periods : [],
         },
             onSubmit: async (values, { resetForm }) => {
                 const body = {

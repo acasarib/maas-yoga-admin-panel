@@ -644,6 +644,7 @@ export const Provider = ({ children }) => {
             getHeadquarterById,
             getItemById,
             getLogs,
+            getProfessorById,
             user,
         }}>
             <GoogleApiProvider clientId={user?.googleDriveCredentials?.clientId}>
