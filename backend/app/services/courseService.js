@@ -5,7 +5,7 @@ import { course, student, courseTask, studentCourseTask, payment, professorCours
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
 const paymentBelongToProfessor = (payment, professor) => {
-  const paymentDate = payment.at;
+  const paymentDate = payment.operativeResult;
   return professor.dataValues.periods.find(period => period.startAt <= paymentDate && period.endAt >= paymentDate);
 }
 
