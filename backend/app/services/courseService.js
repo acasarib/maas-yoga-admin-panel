@@ -184,7 +184,7 @@ export const calcProfessorsPayments = async (from, to) => {
   endDate.setHours(23, 59, 59, 999);
   const paymentsInRange = await payment.findAll({
     where: {
-      at: {
+      operativeResult: {
         [Op.between]: [startDate, endDate]
       },
       courseId: {
