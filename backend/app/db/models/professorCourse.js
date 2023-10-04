@@ -7,8 +7,8 @@ const professorCourse = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     },
-    startAt: { type: Sequelize.DataTypes.DATE, allowNull: false },
-    endAt: { type: Sequelize.DataTypes.DATE, allowNull: false },
+    startAt: { type: Sequelize.DataTypes.DATEONLY, allowNull: false },
+    endAt: { type: Sequelize.DataTypes.DATEONLY, allowNull: false },
     criteria: Sequelize.STRING,
     criteriaValue: Sequelize.INTEGER,
   }, { 
