@@ -5,8 +5,17 @@ import { course, student, courseTask, studentCourseTask, payment, professorCours
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
 const paymentBelongToProfessor = (payment, professor) => {
-  const paymentDate = payment.operativeResult;
-  return professor.dataValues.periods.find(period => period.startAt <= paymentDate && period.endAt >= paymentDate);
+  try {
+    const paymentDate = payment.at;
+    return professor.dataValues.periods.find(period => {
+      const from = new Date(period.startAt);
+      const to = new Date(period.endAt);
+      to.setHours(23, 59, 59, 999);
+      return from <= paymentDate && to >= paymentDate
+    }); 
+  } catch {
+    return false;
+  }
 }
 
 const getProfessorPeriodsInCourse = async (courseId) => {
@@ -184,7 +193,7 @@ export const calcProfessorsPayments = async (from, to) => {
   endDate.setHours(23, 59, 59, 999);
   const paymentsInRange = await payment.findAll({
     where: {
-      operativeResult: {
+      at: {
         [Op.between]: [startDate, endDate]
       },
       courseId: {
@@ -204,7 +213,6 @@ export const calcProfessorsPayments = async (from, to) => {
   for (const c of coursesInRange) {
     c.professors = await getProfessorPeriodsInCourse(c.id);
   }
-
   
   for (const paymentRange of paymentsInRange) {
     const paidCourse = coursesInRange.find(c => c.id == paymentRange.courseId);
