@@ -6,7 +6,7 @@ import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
 const paymentBelongToProfessor = (payment, professor) => {
   try {
-    const paymentDate = payment.at;
+    const paymentDate = payment.operativeResult;
     return professor.dataValues.periods.find(period => {
       const from = new Date(period.startAt);
       const to = new Date(period.endAt);
