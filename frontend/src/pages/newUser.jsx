@@ -17,6 +17,7 @@ export default function NewUser(props) {
     const [disabled, setDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [canCreateUser, setCanCreateUser] = useState(false);
+    const [googleDriveAccess, setGoogleDriveAccess] = useState(false);
     const [displayModal, setDisplayModal] = useState(false);
     const { changeAlertStatusAndMessage, newUser, users } = useContext(Context);
     const [opResult, setOpResult] = useState('Verificando usuarios...');
@@ -102,7 +103,8 @@ export default function NewUser(props) {
           password: values.password,
           lastName: values.lastName,
           firstName: values. firstName,
-          permissionCreateUser: canCreateUser
+          permissionCreateUser: canCreateUser,
+          permissionGoogleDrive: googleDriveAccess,
         };
         setIsLoading(true);
         try {
@@ -217,6 +219,14 @@ export default function NewUser(props) {
                         color: orange[500],
                       },
                     }} />} label="Permitir crear usuarios" />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel control={<Checkbox  checked={googleDriveAccess} onChange={(e) => setGoogleDriveAccess(e.target.checked)} sx={{
+                      color: orange[500],
+                      '&.Mui-checked': {
+                        color: orange[500],
+                      },
+                    }} />} label="Acceso a Google Drive" />
                   </FormGroup>
                 </form>
         </>} />
