@@ -6,6 +6,7 @@ import { useState } from "react";
 import GreenBudget from "../badget/green";
 import PendingBudget from "../badget/pendingBudget";
 import RedBudget from "../badget/red";
+import { getMonthNames } from "../../utils";
 
 export default function StudentCalendar({ periods }) {
     const [currentYear, setCurrentYear] = useState(null);
