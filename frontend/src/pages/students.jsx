@@ -18,9 +18,10 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import AddTaskIcon from '@mui/icons-material/AddTask';
+import StudentDetailModal from "../components/modal/studentDetailModal";
 
 export default function Students(props) {
-    const { students, isLoadingStudents, deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
+    const { students, isLoadingStudents, deleteStudent, editStudent, getStudentDetailsById, newStudent, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [spinnerOn, setSpinnerOn] = useState(false);
@@ -38,6 +39,8 @@ export default function Students(props) {
     const [isDocumentDuplicated, setIsDocumentDuplicated] = useState(false);
     const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
     const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
+    const [studentDetail, setStudentDetail] = useState(null);
+    const [studentModal, setStudentModal] = useState(null);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
@@ -116,10 +119,25 @@ export default function Students(props) {
         }
     }
 
+    const handleOnClickStudent = async (student) => {
+        getStudentDetailsById(student.id);
+        setStudentDetail(student);
+    }
+
+    useEffect(() => {
+        if (studentDetail !== null) {
+            const st = students.find(s => s?.id === studentDetail?.id);
+            setStudentModal(JSON.parse(JSON.stringify(st)));
+        } else {
+            setStudentModal(null);
+        }
+    }, [students, studentDetail]);
+
     const columns = [
         {
             name: 'Nombre',
             selector: row => row.name,
+            cell: row => <div className="underline text-yellow-900 mx-1 cursor-pointer" onClick={() => handleOnClickStudent(row)}>{row.name}</div>,
             sortable: true,
             searchable: true,
         },
@@ -430,6 +448,7 @@ export default function Students(props) {
                     noDataComponent="Este curso no posee tareas"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} /></>)}
+                <StudentDetailModal isOpen={studentDetail !== null} onClose={() => setStudentDetail(null)} student={studentModal} />
             </Container>
         </>
     );

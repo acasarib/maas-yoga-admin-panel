@@ -1,4 +1,4 @@
-import { student, course, courseTask } from "../db/index.js";
+import { student, course, courseTask, payment } from "../db/index.js";
 
 /**
  * 
@@ -21,7 +21,7 @@ export const editById = async (studentParam, id) => {
 };
 
 export const getById = async (id) => {
-  return student.findByPk(id, { include: [course, courseTask] });
+  return student.findByPk(id, { include: [course, courseTask, payment] });
 };
 
 export const getAll = async () => {
