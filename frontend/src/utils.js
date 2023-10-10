@@ -2,6 +2,13 @@ export function capitalizeFirstCharacter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+export function getMonthNames() {
+    return [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+}
+
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

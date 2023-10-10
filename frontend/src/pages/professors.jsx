@@ -71,7 +71,7 @@ export default function Professors(props) {
         {
             name: 'Nombre',
             selector: row => row.name,
-            cell: row => <div className="underline text-yellow-900 mx-1" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
+            cell: row => <div className="underline text-yellow-900 mx-1 cursor-pointer" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
             sortable: true,
             searchable: true,
         },

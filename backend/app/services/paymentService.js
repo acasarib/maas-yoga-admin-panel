@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { payment, course, student, user, file } from "../db/index.js";
+import { payment, course, student, user, file, professor } from "../db/index.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 import * as logService from "./logService.js";
 
@@ -46,7 +46,7 @@ export const getAllByCourseId = async (courseId) => {
 export const getAll = async (specification) => {
   return payment.findAll({
     where: specification.getSequelizeSpecification(),
-    include: specification.getSequelizeSpecificationAssociations([user, student, course, file])
+    include: specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file])
   });
 };
 
