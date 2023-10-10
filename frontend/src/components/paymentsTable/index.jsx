@@ -118,6 +118,8 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     }
 
     const getStudentFullName = (row) => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "";
+    
+    const getProfessorFullName = (row) => row.professor !== null ? row?.professor?.name + ' ' + row?.professor?.lastName : "";
 
     const getItemById = itemId => {
         let item = "";
@@ -166,6 +168,13 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 sortable: true,
                 searchable: true,
                 selector: row => getStudentFullName(row),
+            },
+            {
+                name: 'Profesor',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getProfessorFullName(row)}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => getProfessorFullName(row),
             },
             {
                 name: 'Informado por',

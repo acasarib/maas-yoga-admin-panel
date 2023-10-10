@@ -186,6 +186,28 @@ export const Provider = ({ children }) => {
         }
     }
 
+    const getStudentDetailsById = async studentId => {
+        const localStudent = getStudentById(studentId);
+        if (localStudent) {
+            if ("courseTasks" in localStudent) {
+                return localStudent;
+            }
+            const student = await studentsService.getStudent(studentId);
+            setStudents(prev => prev.map(s => {
+                if (s.id === studentId) {
+                    return student;
+                } else {
+                    return s;
+                }
+            }))
+            return student;
+        } else {
+            const student = await studentsService.getStudent(studentId);
+            setStudents(prev => [...students, student]);
+            return student;
+        }
+    }
+
     const newProfessorPayment = async (professorId, courseId, periodFrom, periodTo, value) => {
         const payment = {
             professorId,
@@ -490,6 +512,71 @@ export const Provider = ({ children }) => {
         }));
     }
 
+    const getPendingPaymentsByCourseFromStudent = student => {
+        const series = (from, to) => {
+            from = new Date(from);
+            to = new Date(to);
+            function getFirstDayDateOfMonth(date) {
+                return new Date(date.getFullYear(), date.getMonth(), 1);
+            }
+            let serieDates = [];
+            serieDates.push(getFirstDayDateOfMonth(from));
+            while (from < to) {
+                from.setMonth(from.getMonth() + 1);
+                serieDates.push(getFirstDayDateOfMonth(from));
+            }
+            return serieDates;
+        }
+        
+        
+        const courses = [];
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth()+1;
+        student.courses.forEach(course => {
+            const periods = {};
+            series(course.startAt, course.endAt)
+            .forEach(date => {
+                const year = date.getFullYear();
+                const month = date.getMonth() +1;
+                if (!(year in periods)) {
+                    periods[year] = {};
+                    for (let i = 1; i <= 12; i++) {
+                        periods[year][i] = false;
+                    }
+                }
+                if ((year > currentYear) || (month > currentMonth && year == currentYear)) {
+                    periods[year][month] = "waiting";
+                } else {
+                    periods[year][month] = "not_paid";
+                }
+            });
+            student.payments.forEach(payment => {
+                if (payment.courseId != course.id)
+                    return
+                const operativeResult = new Date(payment.operativeResult);
+                const year = operativeResult.getFullYear();
+                const month = operativeResult.getMonth() +1;
+                if (year in periods && month in periods[year]) {
+                    periods[year][month] = "paid";
+                }
+            });
+            let years = Object.keys(periods);
+            let isUpToDate = true;
+            while (isUpToDate && years.length > 0) {
+                const y = years.pop();
+                let m = 1;
+                while (isUpToDate && m <= 12) {
+                    if (periods[y][m] === 'not_paid') {
+                        isUpToDate = false;
+                    }
+                    m++;
+                }
+            }
+            courses.push({ ...course, periods, isUpToDate })
+        });
+        return courses;        
+    }
+
     const getTemplate = async templateId => {
         console.log("getTemplate ", templateId);
         const localTemplate = templates.find(t => t.id === templateId);
@@ -632,6 +719,8 @@ export const Provider = ({ children }) => {
             newCategory,
             verifyClazz,
             getProfessorDetailsById,
+            getStudentDetailsById,
+            getPendingPaymentsByCourseFromStudent,
             newProfessorPayment,
             editPayment,
             professors,
