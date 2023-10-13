@@ -76,9 +76,9 @@ export default {
    * /payments/{id} [PUT]
    * @returns HttpStatus ok and @Payment updated
    */
-  updateUnverifiedPayment: async (req, res, next) => {
+  updatePayment: async (req, res, next) => {
     try {
-      const updatedPayment = await paymentService.updateUnverifiedPayment(req.params.id, req.body, req.user.id);
+      const updatedPayment = await paymentService.updatePayment(req.params.id, req.body, req.user.id);
       res.status(StatusCodes.OK).json(updatedPayment);
     } catch (e) {
       next(e);

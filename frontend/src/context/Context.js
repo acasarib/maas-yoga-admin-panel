@@ -152,9 +152,11 @@ export const Provider = ({ children }) => {
     }, [categories]);
 
     const merge = (item1, item2) => {
-        for (let key in item1)
-            item1[key] = item2[key];
-        return item1;
+        for (let key in item1) {
+            if (key in item2)
+                item1[key] = item2[key];
+        }
+        return JSON.parse(JSON.stringify(item1));
     }
 
     const getCourseById = courseId => courses.find(course => course.id === courseId);
@@ -251,7 +253,6 @@ export const Provider = ({ children }) => {
     };
 
     const editPayment = async payment => {
-        console.log(payment)
         try {
             const editedPayment = await paymentsService.editPayment(payment);
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue editado exitosamente!')
@@ -358,9 +359,15 @@ export const Provider = ({ children }) => {
     }
 
     const editStudent = async (studentId, student) => {
-        await studentsService.editStudent(studentId, student);
+        const editedStudent = await studentsService.editStudent(studentId, student);
         changeAlertStatusAndMessage(true, 'success', 'El estudiante fue editado exitosamente!')
-        setStudents(current => current.map(s => s.id === studentId ? merge(s, student) : s));
+        setStudents(current => current.map(s => s.id === studentId ? merge(s, editedStudent) : s));
+    }
+
+    const editCollege = async (collegeId, college) => {
+        const editedCollege = await collegesService.editCollege(collegeId, college);
+        changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!')
+        setColleges(current => current.map(c => c.id === collegeId ? merge(c, editedCollege) : c));
     }
     
     const editClazz = async (clazzId, clazz) => {
@@ -661,8 +668,8 @@ export const Provider = ({ children }) => {
         return data;
     }
 
-    const updateUnverifiedPayment = async (data, paymentId) => {
-        await paymentsService.updateUnverifiedPayment(data, paymentId);
+    const updatePayment = async (data, paymentId) => {
+        await paymentsService.updatePayment(data, paymentId);
     }
 
     return (
@@ -727,10 +734,11 @@ export const Provider = ({ children }) => {
             newProfessor,
             deleteProfessor,
             editProfessor,
+            editCollege,
             users,
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
-            updateUnverifiedPayment,
+            updatePayment,
             getHeadquarterById,
             getItemById,
             getLogs,
