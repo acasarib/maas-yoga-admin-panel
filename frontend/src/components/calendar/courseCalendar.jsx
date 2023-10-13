@@ -6,6 +6,7 @@ import moment from 'moment';
 import { Context } from "../../context/Context";
 import { useState } from "react";
 import { randomColor } from "../../utils";
+import { formatDateDDMMYY } from "../../utils";
 
 const localizer = momentLocalizer(moment);
 
@@ -23,11 +24,15 @@ export default function CourseCalendar({ course }) {
             bgColor = randomColor();
             textColor = "#000000";
         }
+        const [startYear, startMonth, startDay] = period.startAt.split("-");
+        const startAt = new Date(parseInt(startYear), parseInt(startMonth)-1, parseInt(startDay));
+        const [endYear, endMonth, endDay] = period.endAt.split("-");
+        const endAt = new Date(parseInt(endYear), parseInt(endMonth)-1, parseInt(endDay), 1)
         return {
             title: professorPeriod.name + " " + professorPeriod.lastName,
             professor: professorPeriod,
-            start: new Date(period.startAt),
-            end: new Date(period.endAt),
+            start: startAt,
+            end: endAt,
             hexColor: bgColor,
             textColor: textColor,
         }
@@ -72,7 +77,8 @@ export default function CourseCalendar({ course }) {
         <div className="flex flex-col my-4">
             {parsedPeriods.map(period => (<div className="flex items-center">
                 <div style={{height: "16px", width: "16px", backgroundColor: period.hexColor, borderRadius: "6px"}}></div>
-                <div className="ml-1">{period.professor.name + " " + period.professor.lastName}</div>
+                <div className="ml-1">{`${formatDateDDMMYY(period.start)} - ${formatDateDDMMYY(period.end)}`}</div>
+                <div className="ml-1 font-bold">{period.professor.name + " " + period.professor.lastName}</div>
             </div>))}
         </div>
         <Calendar
