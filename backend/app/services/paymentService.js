@@ -50,7 +50,7 @@ export const getAll = async (specification) => {
   });
 };
 
-export const updateUnverifiedPayment = async (id, data, userId) => {
+export const updatePayment = async (id, data, userId) => {
   if (data.verified)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "Can not change verified with this endpoint" });
   await payment.update(data, { where: { id } });

@@ -9,7 +9,8 @@ export const deleteById = async (id) => {
 };
 
 export const editById = async (headquarterParam, id) => {
-  return headquarter.update(headquarterParam, { where: { id } });
+  await headquarter.update(headquarterParam, { where: { id } });
+  return getById(id);
 };
 
 export const getById = async (id) => {

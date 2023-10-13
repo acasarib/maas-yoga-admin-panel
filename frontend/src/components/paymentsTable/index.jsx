@@ -10,7 +10,7 @@ import { PAYMENT_OPTIONS } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
 
 export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment }) {
-    const { deletePayment, user, categories, verifyPayment, updateUnverifiedPayment, changeAlertStatusAndMessage } = useContext(Context);
+    const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);
@@ -37,7 +37,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
 
     const handleVerifyPayment = async () => {
         setVerifying(true);
-        await updateUnverifiedPayment({ type: verifingPaymentMethod.value }, payment.id);
+        await updatePayment({ type: verifingPaymentMethod.value }, payment.id);
         await verifyPayment(payment.id);
         setVerifying(false);
         setPayment(null);

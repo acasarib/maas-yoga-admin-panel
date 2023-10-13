@@ -17,7 +17,8 @@ export const deleteById = async (id) => {
 };
 
 export const editById = async (studentParam, id) => {
-  return student.update(studentParam, { where: { id } });
+  await student.update(studentParam, { where: { id } });
+  return getById(id);
 };
 
 export const getById = async (id) => {

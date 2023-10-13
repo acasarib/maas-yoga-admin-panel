@@ -155,11 +155,10 @@ export default function Colleges(props) {
                   name: values.name,
                   location: values.location,
                 };
-                console.log(body)
                 setIsLoading(true);
                 try {
                   if(edit) {
-                        await collegesService.editCollege(collegeId, body);
+                        await editCollege(collegeId, body);
                         setEdit(false);
                         if(selectedOption.length > 0) {
                             await addCoursesToCollege(collegeId, selectedOption);

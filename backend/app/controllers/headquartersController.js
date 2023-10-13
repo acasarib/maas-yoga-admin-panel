@@ -36,8 +36,8 @@ export default {
    */
   editById: async (req, res, next) => {
     try {
-      await headquarterService.editById(req.body, req.params.id);
-      res.status(StatusCodes.OK).send();
+      const editedHeadquarter = await headquarterService.editById(req.body, req.params.id);
+      res.status(StatusCodes.OK).json(editedHeadquarter);
     } catch (e) {
       next(e);
     }

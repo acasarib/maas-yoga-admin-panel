@@ -120,7 +120,7 @@ export default {
                 })
         });
     },
-    updateUnverifiedPayment(data, paymentId) {
+    updatePayment(data, paymentId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
