@@ -1,6 +1,8 @@
 import * as dotenv from "dotenv";
-import cron from "node-cron";
-import { createMonthlyProfessorPayments } from "./app/client/scheduledCronTasks.js";
+import fs from "fs";
+import https from "https";
+//import cron from "node-cron";
+//import { createMonthlyProfessorPayments } from "./app/client/scheduledCronTasks.js";
 dotenv.config();
 import express, { json } from "express";
 const app = express();
@@ -12,6 +14,7 @@ import cors from "cors";
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS || "*";
 const port = process.env.BACKEND_PORT || 3000;
+const useSsl = process.env.USE_SSL_CERTIFICATE;
 
 app.use(
   cors({
@@ -23,16 +26,22 @@ app.use(json());
 
 app.use("/api/v1", routes);
 
-import { sequelize } from "./app/db/index.js";
-import createFirstUserIfNotExists from "./app/seeders/firstUserSeed.js";
 
-try {
-  await sequelize.sync({ alter: true });
-  console.log("Connection to db successful");
-  createFirstUserIfNotExists();
-} catch(e) {
-  console.log("Could not connect db");
-  console.log(e);
-}
 app.use(errorHandler);
-app.listen(port, () => console.log(`listening on port ${port}`));
+
+  
+if (useSsl === "true") {
+  console.log("https");
+  try {
+    const options = {
+      key: fs.readFileSync(process.env.SSL_CERTIFICATE_KEY_PATH),
+      cert: fs.readFileSync(process.env.SSL_CERTIFICATE_PATH)
+    };
+    https.createServer(options, app).listen(port);
+  } catch(e) {
+    console.log(e);
+  }
+} else {
+  console.log("http");
+  app.listen(port, () => console.log(`listening on port ${port}`));
+}

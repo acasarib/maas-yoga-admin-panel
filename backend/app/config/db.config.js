@@ -3,7 +3,7 @@ export const config = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   host: process.env.POSTGRES_HOST,
-  sslConnection: process.env.BACKEND_SSL_DB_CONNECTION === undefined ? true : Boolean(process.env.BACKEND_SSL_DB_CONNECTION),
+  sslConnection: (process.env.BACKEND_SSL_DB_CONNECTION === undefined || process.env.BACKEND_SSL_DB_CONNECTION === "false") ? false : true,
   dialect: "postgres",
   pool: {
     max: 5,
