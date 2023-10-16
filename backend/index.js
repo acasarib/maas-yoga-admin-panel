@@ -26,6 +26,18 @@ app.use(json());
 
 app.use("/api/v1", routes);
 
+import { sequelize } from "./app/db/index.js";
+import createFirstUserIfNotExists from "./app/seeders/firstUserSeed.js";
+
+try {
+  await sequelize.sync({ alter: true });
+  console.log("Connection to db successful");
+  createFirstUserIfNotExists();
+} catch(e) {
+  console.log("Could not connect db");
+  console.log(e);
+}
+
 
 app.use(errorHandler);
 
