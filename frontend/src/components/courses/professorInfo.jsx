@@ -24,9 +24,20 @@ export default function ProfessorInfo(props) {
             criteriaValue: criteriaValue,
             professorId: id
         }
-        props.pushProfessor(professor);
+        if(props.periodToEdit.professorId) {
+            professor.id = props.periodToEdit.id;
+            props.editProfessor(professor, props.periodToEdit.id);
+        }else {
+            props.pushProfessor(professor);
+        }
         setIsProfessorSelected(false);
+        setCriteria(null);
+        setCriteriaValue(null);
+        setStartAt(dayjs(new Date()));
+        setEndAt(dayjs(new Date()));
     }
+
+    const getProfessorById = professorId => props.professors.find(professor => professor.id === professorId);
 
     const cancel = () => {
         setCriteria(null);
@@ -45,6 +56,31 @@ export default function ProfessorInfo(props) {
         }
     }, [criteriaCheck])
 
+    useEffect(() => {
+        if(props.edit && (props.periodToEdit.endAt)) {
+            if(criteria === 'student') {
+                setCriteriaCheck(true);
+                setCriteria('student');
+            }else {
+                setCriteriaCheck(false);
+            }
+        }
+    }, [criteria])
+    
+
+    useEffect(() => {
+        if(props.edit && (props.periodToEdit.endAt)) {
+            console.log(props.periodToEdit)
+            setEndAt(dayjs(new Date(props.periodToEdit.endAt)));
+            setStartAt(dayjs(new Date(props.periodToEdit.startAt)));
+            setCriteria(props.periodToEdit.criteria);
+            setCriteriaValue(props.periodToEdit.criteriaValue);
+            setId(props.periodToEdit.professorId);
+            setIsProfessorSelected(true);
+        }
+    }, [props.periodToEdit])
+    
+
     return (
         <div className="my-3 bg-gray-100 p-3 rounded">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -54,7 +90,7 @@ export default function ProfessorInfo(props) {
                     setId(e.id);
                     setIsProfessorSelected(true);
                 }
-            } options={props.professors} className="z-50"/>
+            } defaultValue={props.periodToEdit.professorId ? getProfessorById(props.periodToEdit.professorId) : null} options={props.professors} className="z-50"/>
             {isProfessorSelected && (<><div className="my-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                     Profesor desde
@@ -111,7 +147,7 @@ export default function ProfessorInfo(props) {
                     className="hover:bg-orange-550 bg-orange-300 hover:text-white rounded-md border border-transparent px-4 py-2 text-base font-medium text-yellow-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 sm:text-sm"
                     onClick={() => addProfessor()}
                 >
-                    Agregar
+                    {props.periodToEdit.professorId ? 'Editar' : 'Agregar'}
                 </button>
                 <button
                     type="button"
