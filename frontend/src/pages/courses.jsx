@@ -52,6 +52,7 @@ export default function Courses(props) {
     const [newProfessor, setNewProfessor] = useState(false);
     const [courseProfessors, setCourseProfessors] = useState([]);
     const [courseDetails, setCourseDetails] = useState(null);
+    const [periodToEdit, setPeriodToEdit] = useState({});
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -131,6 +132,18 @@ export default function Courses(props) {
         setDisplayTasksModal(true);
         setTasksList(tasks);
         setCourseName(courseName);
+    }
+
+    const editPeriod = (period, id) => {
+        courseProfessors.forEach((p, index) => {
+            if(p.id && (p.id === id)) {
+                let prfs = courseProfessors;
+                prfs[index] = period;
+                setCourseProfessors(prfs);
+            }
+        })
+        setPeriodToEdit({});
+        setNewProfessor(false);
     }
 
     var handleChange = (selectedOpt) => {
@@ -506,7 +519,7 @@ export default function Courses(props) {
                                 Profesores
                         </label>
                         {courseProfessors.map((prf, index) => 
-                            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}>{getProfessorName(prf.professorId)}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setCourseProfessors(courseProfessors.filter((professor, idx) => idx !== index))}><CloseIcon /></button></div>
+                            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}><div>{getProfessorName(prf.professorId)}</div><div>{edit && <button type="button" className="p-1 rounded-full bg-orange-200 ml-2" onClick={() => {setPeriodToEdit(prf); setNewProfessor(true)}}><EditIcon /></button>}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setCourseProfessors(courseProfessors.filter((professor, idx) => idx !== index))}><CloseIcon /></button></div></div>
                         )}</>)}
                         {!newProfessor && (<div className="mb-4 mt-2 flex items-center justify-start">
                             <label className="block text-gray-700 text-sm font-bold">
@@ -517,7 +530,7 @@ export default function Courses(props) {
                                 }
                             }/>
                         </div>)}
-                        {newProfessor && (<ProfessorInfo professors={professors} closeNewProfessor={(value) => setNewProfessor(value)} pushProfessor={(v) => {
+                        {newProfessor && (<ProfessorInfo edit={edit} periodToEdit={periodToEdit} professors={professors} editProfessor={(v, idx) => editPeriod(v, idx)} closeNewProfessor={(value) => {setNewProfessor(value); setPeriodToEdit({})}} pushProfessor={(v) => {
                                 setCourseProfessors([...courseProfessors, v]);
                                 setNewProfessor(false);
                             }
