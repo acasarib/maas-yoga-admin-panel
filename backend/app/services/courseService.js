@@ -11,12 +11,12 @@ const paymentBelongToProfessor = (payment, professor) => {
       const from = new Date(period.startAt);
       const to = new Date(period.endAt);
       to.setHours(23, 59, 59, 999);
-      return from <= paymentDate && to >= paymentDate
+      return from <= paymentDate && to >= paymentDate;
     }); 
   } catch {
     return false;
   }
-}
+};
 
 const getProfessorPeriodsInCourse = async (courseId) => {
   const rawPeriods = await professorCourse.findAll({ where: { courseId } });
@@ -44,7 +44,7 @@ const getProfessorPeriodsInCourse = async (courseId) => {
     });
   });
   return professors;
-}
+};
 
 const checkOverlappingProfessorsPeriods = (professors) => {
   const professorMap = {};
@@ -69,23 +69,23 @@ const checkOverlappingProfessorsPeriods = (professors) => {
       }
     }
   }
-}
+};
 
 const createProfessorCourse = async (courseId, professorsCourseParam) => {
   professorsCourseParam.forEach(pc => pc.courseId = courseId);
   await professorCourse.bulkCreate(professorsCourseParam);
-}
+};
 
 const getCollectedByStudent = (professorPayment, criteriaValue) => {
   const amountByStudent = parseFloat(criteriaValue);
   return amountByStudent * professorPayment.totalStudents;
-}
+};
 
 const getCollectedByPercentage = (professorPayment, criteriaValue) => {
   const percentage = parseFloat(criteriaValue);
   const total = professorPayment.collectedByPayments;
   return (percentage / 100) * total;
-}
+};
 
 export const create = async (courseParam) => {
   const createdCourse = await course.create(courseParam);
@@ -174,11 +174,11 @@ export const setStudentsToTask = async (students, courseTaskId) => {
 export const getStudentsByCourseTask = async (courseTaskId) => {
   return studentCourseTask.findAll({
     where: { courseTaskId }
-  })
+  });
 };
 
 export const setCompletedStudentTask = async (studentCourseTaskParam, courseTaskId, studentId) => {
-  studentCourseTask.update(studentCourseTaskParam, { where: { courseTaskId, studentId } })
+  studentCourseTask.update(studentCourseTaskParam, { where: { courseTaskId, studentId } });
 };
 
 /**
@@ -193,7 +193,7 @@ export const calcProfessorsPayments = async (from, to) => {
   endDate.setHours(23, 59, 59, 999);
   const paymentsInRange = await payment.findAll({
     where: {
-      at: {
+      operativeResult: {
         [Op.between]: [startDate, endDate]
       },
       courseId: {
@@ -223,7 +223,7 @@ export const calcProfessorsPayments = async (from, to) => {
           prof.result = {
             payments: [],
             period: paidPeriod,
-          }
+          };
         }
         prof.result.payments.push(paymentRange);
       }
@@ -231,8 +231,8 @@ export const calcProfessorsPayments = async (from, to) => {
   }
   for (const course of coursesInRange) {
     course.dataValues.collectedByPayments = paymentsInRange
-                                .filter(p => p.courseId == course.id)
-                                .reduce((total, p) => total + p.value, 0);
+      .filter(p => p.courseId == course.id)
+      .reduce((total, p) => total + p.value, 0);
     for (const prof of course.professors) {
       if ("result" in prof) {
         prof.result.courseId = course.id;
@@ -242,15 +242,15 @@ export const calcProfessorsPayments = async (from, to) => {
         prof.result.totalStudents = prof.result.payments.map(p => p.studentId);
         prof.result.totalStudents = utils.removeDuplicated(prof.result.totalStudents).length;
         prof.result.collectedByProfessor = prof.result.period.criteria === CRITERIA_COURSES.STUDENT
-                                            ? getCollectedByStudent(prof.result, prof.result.period.criteriaValue) 
-                                            : getCollectedByPercentage(prof.result, prof.result.period.criteriaValue);
+          ? getCollectedByStudent(prof.result, prof.result.period.criteriaValue) 
+          : getCollectedByPercentage(prof.result, prof.result.period.criteriaValue);
         prof.dataValues.result = prof.result;
       }
     }
     course.dataValues.professors = course.professors; 
   }
   return coursesInRange;
-}
+};
 
 export const addProfessorPayments = async (data, informerId = null) => {
   const payments = data.map(d => ({
@@ -279,9 +279,9 @@ export const addProfessorPayments = async (data, informerId = null) => {
     }
   }
   return paymentsAdded;
-}
+};
 
 export const addProfessorPayment = async (payment, from, to, informerId) => {
   const amountAdded = await addProfessorPayments([payment], from, to, informerId);
   return amountAdded === 1;
-}
+};
