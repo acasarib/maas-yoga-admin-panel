@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CommonInput from "../commonInput";
 import dayjs from 'dayjs';
 import Select from 'react-select';
@@ -96,8 +96,8 @@ export default function ProfessorInfo(props) {
                     Profesor desde
                 </label>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                        <DateTimePicker
+                    <DemoContainer components={['DatePicker', 'DatePicker']}>
+                        <DatePicker
                         label="Seleccionar fecha"
                         value={startAt}
                         onChange={(v) => setStartAt(v)}
@@ -108,8 +108,8 @@ export default function ProfessorInfo(props) {
                     Profesor hasta
                 </label>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                        <DateTimePicker
+                    <DemoContainer components={['DatePicker', 'DatePicker']}>
+                        <DatePicker
                         label="Seleccionar fecha"
                         value={endAt}
                         onChange={(v) => setEndAt(v)}
