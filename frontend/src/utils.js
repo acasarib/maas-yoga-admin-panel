@@ -112,6 +112,12 @@ export function dateToYYYYMMDD(date) {
     return year + '-' + month + '-' + day;
 }
 
+export function splitDate(date) {
+    const [fromYear, fromMonth, fromDay] = date.split("-");
+    date = new Date(fromYear, fromMonth -1, fromDay);
+    return date;
+}
+
 export function toMonthsNames(from, to) {
     if (typeof from === "string" && from.includes("-") && from.length === 10) {
         const [fromYear, fromMonth, fromDay] = from.split("-");
