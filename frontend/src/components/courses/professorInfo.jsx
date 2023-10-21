@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CommonInput from "../commonInput";
 import dayjs from 'dayjs';
 import Select from 'react-select';
+import { dateToYYYYMMDD, splitDate } from "../../utils";
 
 export default function ProfessorInfo(props) {
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -18,8 +19,8 @@ export default function ProfessorInfo(props) {
 
     const addProfessor = () => {
         const professor = {
-            startAt: startAt,
-            endAt: endAt,
+            startAt: dateToYYYYMMDD(startAt.$d),
+            endAt: dateToYYYYMMDD(endAt.$d),
             criteria: criteria,
             criteriaValue: criteriaValue,
             professorId: id
@@ -66,13 +67,12 @@ export default function ProfessorInfo(props) {
             }
         }
     }, [criteria])
-    
 
     useEffect(() => {
         if(props.edit && (props.periodToEdit.endAt)) {
             console.log(props.periodToEdit)
-            setEndAt(dayjs(new Date(props.periodToEdit.endAt)));
-            setStartAt(dayjs(new Date(props.periodToEdit.startAt)));
+            setEndAt(dayjs(splitDate(props.periodToEdit.endAt)));
+            setStartAt(dayjs(splitDate(props.periodToEdit.startAt)));
             setCriteria(props.periodToEdit.criteria);
             setCriteriaValue(props.periodToEdit.criteriaValue);
             setId(props.periodToEdit.professorId);
@@ -95,27 +95,23 @@ export default function ProfessorInfo(props) {
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                     Profesor desde
                 </label>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                        <DateTimePicker
+                    <DemoContainer components={['DatePicker', 'DatePicker']}>
+                        <DatePicker
                         label="Seleccionar fecha"
                         value={startAt}
                         onChange={(v) => setStartAt(v)}
                         />
                     </DemoContainer>
-                </LocalizationProvider>
                 <label className="block text-gray-700 text-sm font-bold mb-2 mt-2">
                     Profesor hasta
                 </label>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                        <DateTimePicker
+                    <DemoContainer components={['DatePicker', 'DatePicker']}>
+                        <DatePicker
                         label="Seleccionar fecha"
                         value={endAt}
                         onChange={(v) => setEndAt(v)}
                         />
                     </DemoContainer>
-                </LocalizationProvider>
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-4">
