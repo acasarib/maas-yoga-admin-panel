@@ -3,9 +3,9 @@
   "name": "Maas Yoga Admin Panel",
   "icons": [
     {
-      "src": "maas-yoga-desktop-logo-low.png",
+      "src": "maas_3colores.png",
       "type": "image/png",
-      "sizes": "150x60"
+      "sizes": "1979x802"
     }
   ],
   "start_url": ".",
