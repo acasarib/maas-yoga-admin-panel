@@ -80,6 +80,10 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
                 }
                 periods[year][start.month].dictedByProfessor = true;
                 start.month = start.month+1;
+                if (start.month >= 13) {
+                    start.month = 1;
+                    start.year++;
+                }
             }
         }
         for (const payment of payments) {
