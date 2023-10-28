@@ -25,6 +25,15 @@ export const getById = async (id) => {
   return student.findByPk(id, { include: [course, courseTask, payment] });
 };
 
+export const pendingPayments = async (id) => {
+  const data = {
+    payments: await payment.findAll({ where: { studentId: id } }),
+    
+    //pendingPayments: 
+  }
+  return data;
+};
+
 export const getAll = async () => {
   return student.findAll({ include: [course] });
 };
