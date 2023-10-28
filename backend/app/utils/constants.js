@@ -23,6 +23,11 @@ const CRITERIA_COURSES = {
   STUDENT: "student",
   PERCENTAGE: "percentage"
 }
+const STUDENT_MONTHS_CONDITIONS = {
+  PAID: "PAID",
+  NOT_TAKEN: "NOT_TAKEN",
+  NOT_PAID: "NOT_PAID",
+}
 
 // https://sequelize.org/docs/v6/core-concepts/model-querying-basics/
 const ALLOWED_SEQUELIZE_OPERATIONS = [
@@ -59,4 +64,5 @@ export {
   DAYS,
   CRITERIA_COURSES,
   LOG_PAYMENT_ACTIONS,
+  STUDENT_MONTHS_CONDITIONS,
 };
