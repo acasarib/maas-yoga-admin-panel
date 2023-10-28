@@ -58,6 +58,18 @@ export default {
   },
 
   /**
+   * /students/{id}/payments [GET]
+   * @returns HttpStatus ok and @Student
+   */
+  pendingPayments: async (req, res, next) => {
+    try {
+      res.status(StatusCodes.OK).json(await studentService.pendingPayments(req.params.id));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /students [GET]
    * @returns HttpStatus ok and array of @Student
    */
