@@ -28,6 +28,7 @@ services:
       dockerfile: Dockerfile.${NODE_ENV}
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - 9229:9229 #debbuger
     depends_on:
       - "db"
     environment:
