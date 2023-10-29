@@ -15,7 +15,8 @@ export function sleep(ms) {
 
 export function formatDateDDMMYY(date) {
     try {
-
+        if (typeof date == "string")
+            date = new Date(date);
         let day = date.getDate();
         let month = date.getMonth() +1;
         if (day < 10)
@@ -100,6 +101,8 @@ function keyDayToPrettyDay(key) {
 }
 
 export function dateToYYYYMMDD(date) {
+    if (typeof date == "string")
+        date = new Date(date);
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     if (month < 10) {

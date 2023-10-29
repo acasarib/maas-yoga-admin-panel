@@ -24,7 +24,7 @@ export const editById = async (studentParam, id) => {
 };
 
 export const getById = async (id) => {
-  return student.findByPk(id, { include: [course, courseTask, payment] });
+  return student.findByPk(id, { include: [course, courseStudent, courseTask, payment] });
 };
 
 export const pendingPaymentsByStudentId = async (id) => {

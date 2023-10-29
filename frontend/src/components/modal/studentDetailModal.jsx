@@ -9,7 +9,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { Context } from "../../context/Context";
 import List from '@mui/material/List';
 import StudentCalendar from "../calendar/studentCalendar";
-import { toMonthsNames } from "../../utils";
+import { formatDateDDMMYY, toMonthsNames } from "../../utils";
 import RedBudget from "../badget/red";
 
 export default function StudentDetailModal({ isOpen, onClose, student }) {
@@ -44,6 +44,7 @@ function Course({ course }) {
         <ListItemText primary={<>{course.title} {course.isUpToDate === false && <RedBudget className="ml-2">Pago pendiente</RedBudget>}</>} secondary={toMonthsNames(course.startAt, course.endAt)} />
     </ListItemButton>
     <Collapse className="ml-10" in={isOpen} timeout="auto" unmountOnExit>
+        <div className="my-2">Fecha de inscripción: {formatDateDDMMYY(course.memberSince)}</div>
         <StudentCalendar periods={course.periods}/>
     </Collapse>
     </>);

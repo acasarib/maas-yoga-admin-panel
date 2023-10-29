@@ -540,6 +540,8 @@ export const Provider = ({ children }) => {
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth()+1;
         student.courses.forEach(course => {
+            let memberSince = student.courseStudents.find(cs => cs.courseId == course.id).createdAt;
+            memberSince = new Date(memberSince);
             const periods = {};
             series(course.startAt, course.endAt)
             .forEach(date => {
@@ -552,9 +554,18 @@ export const Provider = ({ children }) => {
                     }
                 }
                 if ((year > currentYear) || (month > currentMonth && year == currentYear)) {
-                    periods[year][month] = "waiting";
+                    periods[year][month] = {
+                        status: "waiting"
+                    };
                 } else {
-                    periods[year][month] = "not_paid";
+                    periods[year][month] = {
+                        status: "not_paid"
+                    };
+                }
+                if (!((year > memberSince.getFullYear()) || (month > (memberSince.getMonth()) && year == memberSince.getFullYear()))) {
+                    periods[year][month] = {
+                        status: "not_taken"
+                    };
                 }
             });
             student.payments.forEach(payment => {
@@ -564,7 +575,10 @@ export const Provider = ({ children }) => {
                 const year = operativeResult.getFullYear();
                 const month = operativeResult.getMonth() +1;
                 if (year in periods && month in periods[year]) {
-                    periods[year][month] = "paid";
+                    periods[year][month] = {
+                        status: "paid",
+                        payment,
+                    };
                 }
             });
             let years = Object.keys(periods);
@@ -573,13 +587,13 @@ export const Provider = ({ children }) => {
                 const y = years.pop();
                 let m = 1;
                 while (isUpToDate && m <= 12) {
-                    if (periods[y][m] === 'not_paid') {
+                    if (periods[y][m].status === 'not_paid') {
                         isUpToDate = false;
                     }
                     m++;
                 }
             }
-            courses.push({ ...course, periods, isUpToDate })
+            courses.push({ ...course, memberSince, periods, isUpToDate })
         });
         return courses;        
     }
