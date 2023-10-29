@@ -6,7 +6,11 @@ import { useState } from "react";
 import GreenBudget from "../badget/green";
 import PendingBudget from "../badget/pendingBudget";
 import RedBudget from "../badget/red";
-import { getMonthNames } from "../../utils";
+import { formatDateDDMMYY, getMonthNames } from "../../utils";
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import BlueBudget from "../badget/blue";
+import Tooltip from '@mui/material/Tooltip';
 
 export default function StudentCalendar({ periods }) {
     const [currentYear, setCurrentYear] = useState(null);
@@ -20,13 +24,15 @@ export default function StudentCalendar({ periods }) {
     }
 
     const getMonthDetail = month => {
-        const status = periods[currentYear][month];
+        const status = periods[currentYear][month].status;
         if (status == 'paid') {
-            return (<GreenBudget>Pagado</GreenBudget>);
+            return (<Tooltip title={"Fecha que se realizo el pago: " + formatDateDDMMYY(periods[currentYear][month].payment.at)}><span><GreenBudget><CheckIcon fontSize="small"/>Pagado</GreenBudget></span></Tooltip>);
         } else if (status == 'waiting') {
             return (<PendingBudget>Pendiente</PendingBudget>);
         } else if (status == 'not_paid') {
-            return (<RedBudget>No pagado</RedBudget>);
+            return (<RedBudget><CloseIcon fontSize="small"/>No pagado</RedBudget>);
+        } else if (status == 'not_taken') {
+            return (<BlueBudget>No inscripto</BlueBudget>);
         }
     }
 
