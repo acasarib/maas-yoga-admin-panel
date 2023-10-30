@@ -53,6 +53,7 @@ export default function Courses(props) {
     const [courseProfessors, setCourseProfessors] = useState([]);
     const [courseDetails, setCourseDetails] = useState(null);
     const [periodToEdit, setPeriodToEdit] = useState({});
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -212,11 +213,6 @@ export default function Courses(props) {
             sortable: true,
         },
         {
-            name: 'Duración',
-            selector: row => row.duration,
-            sortable: true,
-        },
-        {
             name: 'Alumnos',
             selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title)}>Ver alumnos</button></div>)},
             sortable: true,
@@ -359,7 +355,23 @@ export default function Courses(props) {
         },
     ];
 
+    useEffect(() => {
+        const handleWindowResize = () => {
+        setWindowWidth(window.innerWidth);
+        };
 
+        window.addEventListener('resize', handleWindowResize);
+
+        return () => {
+        window.removeEventListener('resize', handleWindowResize);
+        };
+    }, []);
+
+    let style = {};
+
+    if (windowWidth >= 768) {
+        style.minWidth = '750px';
+    }
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -541,19 +553,19 @@ export default function Courses(props) {
                 } />
                 <TaskModal isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
-                <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal style={style} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                         columns={studentsColumns}
                         data={studentsLists}
                         noDataComponent="Este curso aun no posee alumnos"
                         pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     /></div></>} />
-                <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={isTaskStudentModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos de la tarea ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal style={style} hiddingButton icon={<SchoolIcon />} open={isTaskStudentModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos de la tarea ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={taskStudentsColumns}
                     data={studentsLists}
                     noDataComponent="Esta tarea aun no posee alumnos"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
-                <Modal style={{ minWidth: '750px' }} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal style={style} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={taskColumn}
                     data={tasksLists}
                     noDataComponent="Este curso aun no posee tareas"
