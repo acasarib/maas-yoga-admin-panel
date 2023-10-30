@@ -51,7 +51,7 @@ export default function Modal(props) {
                     </div>
                   </div>
                 </div>
-                <div className="w-full flex bg-orange-50 px-4 py-3 sm:flex-row-reverse sm:px-6">
+                <div className={`w-full flex bg-orange-50 px-4 py-3 sm:flex-row-reverse sm:px-6 ${props.hiddenFooter ? "hidden" : ""}`}>
                   {!props.hiddingButton && (<ButtonPrimary
                     className="w-full sm:w-auto sm:ml-2 mr-1 sm:mr-0"
                     disabled={props.buttonDisabled}

@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import Modal from "../components/modal";
-import AddIcon from '@mui/icons-material/Add';
-import { orange } from '@mui/material/colors';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import "react-datepicker/dist/react-datepicker.css";
-import coursesService from "../services/coursesService";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Select from 'react-select';
@@ -22,11 +19,14 @@ import TaskModal from "../components/courses/taskModal";
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import ProfessorInfo from "../components/courses/professorInfo";
 import CourseDetailModal from "../components/modal/courseDetailModal";
+import ButtonPrimary from "../components/button/primary";
+import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 
 export default function Courses(props) {
     const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context);
@@ -228,7 +228,7 @@ export default function Courses(props) {
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openAddTaskmodal(row.id, row.title)}><AddTaskIcon /></button><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
+            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openAddTaskmodal(row.id, row.title)}><Tooltip title="Agregar tarea"><AddTaskIcon /></Tooltip></button><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><Tooltip title="Borrar"><DeleteIcon /></Tooltip></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><Tooltip title="Editar"><EditIcon /></Tooltip></button></div>)
         },
             sortable: true,
         },
@@ -433,7 +433,7 @@ export default function Courses(props) {
                     noDataComponent={opResult}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => {
                             setDisplayModal(true);
                             setStartAt(dayjs(new Date()));

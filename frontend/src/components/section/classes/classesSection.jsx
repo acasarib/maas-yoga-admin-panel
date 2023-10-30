@@ -285,7 +285,7 @@ export default function ClassesSection(props) {
             onDelete={openDeleteModal}
             onEdit={openEditModal}
         />
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-6">
             <PlusButton onClick={() => setDisplayModal(true)}/>
         </div>
         <Modal onClose={onCloseModal} className="modal-responsive w-full md:w-10/12 lg:w-8/12 xl:w-7-12 2xl:w-6/12" icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar clase' : 'Agregar clase'} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>

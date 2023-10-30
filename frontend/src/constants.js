@@ -5,7 +5,14 @@ export const LOG_PAYMENT_ACTIONS = {
     CREATE: "CREATE",
     DELETE: "DELETE",
     VERIFICATION: "VERIFICATION",
-  };
+};
+
+export const STUDENT_MONTHS_CONDITIONS = {
+    PAID: "PAID",
+    NOT_TAKEN: "NOT_TAKEN",
+    NOT_PAID: "NOT_PAID",
+    PENDING: "PENDING",
+}
 
 export const PAYMENT_OPTIONS = [
     {

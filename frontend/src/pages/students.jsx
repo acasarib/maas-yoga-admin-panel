@@ -19,6 +19,8 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import StudentDetailModal from "../components/modal/studentDetailModal";
+import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
+import ButtonPrimary from "../components/button/primary";
 
 export default function Students(props) {
     const { students, isLoadingStudents, deleteStudent, editStudent, getStudentDetailsById, newStudent, changeAlertStatusAndMessage } = useContext(Context);
@@ -41,9 +43,12 @@ export default function Students(props) {
     const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
     const [studentDetail, setStudentDetail] = useState(null);
     const [studentModal, setStudentModal] = useState(null);
+    const [isOpenPendingPaymentsModal, setIsOpenPendingPaymentsModal] = useState(false);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
+
+    const switchPendingPaymentsModal = () => setIsOpenPendingPaymentsModal(!isOpenPendingPaymentsModal);
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -335,9 +340,13 @@ export default function Students(props) {
                     responsive
                     noDataComponent={opResult}
                 />
-                <div className="flex justify-end">
+                <div className="flex justify-between mt-6">
+                    <div>
+                        <ButtonPrimary onClick={switchPendingPaymentsModal}>Ver alumnos deudores</ButtonPrimary>
+                    </div>
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
+                <PendingPaymentsModal isOpen={isOpenPendingPaymentsModal} onClose={switchPendingPaymentsModal}/>
                 <Modal buttonDisabled={isDocumentDuplicated || isEmailDuplicated || isPhoneNumberDuplicated} icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                     <form className="pt-6 mb-4"    
                         method="POST"

@@ -201,7 +201,7 @@ export default function Colleges(props) {
                     noDataComponent={opResult}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal icon={<AccountBalanceIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar sede' : 'Agregar sede'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
