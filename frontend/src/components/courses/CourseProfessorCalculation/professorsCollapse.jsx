@@ -13,10 +13,6 @@ import HailIcon from '@mui/icons-material/Hail';
 export default function ProfessorsCollapse({ professors, onShowPayments,from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        console.log(professors)
-    }, [professors])
-
     return (<>
     <ListItemButton onClick={() => setIsOpen(!isOpen)}>
         <ListItemIcon className="text-yellow-900">

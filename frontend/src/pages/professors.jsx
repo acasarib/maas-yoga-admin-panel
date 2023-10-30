@@ -163,7 +163,7 @@ export default function Professors(props) {
                     responsive
                     noDataComponent={opResult}
                 />
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar profesor' : 'Agregar profesor'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>

@@ -161,7 +161,7 @@ export default function Tasks(props) {
                         </TabContext>
                     </Box>
                 </ThemeProvider>
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal icon={<AssignmentTurnedInIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar tarea' : 'Agregar tarea'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>

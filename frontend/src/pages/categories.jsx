@@ -194,7 +194,7 @@ export default function Categories(props) {
                     responsive
                     noDataComponent={opResult}
                 />
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal onClose={closeModal} icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar rubro' : 'Agregar rubro'} buttonDisabled={activeView === 0 ? category.title === "" : items.length === 0} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>

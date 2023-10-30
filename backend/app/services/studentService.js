@@ -28,6 +28,9 @@ export const getById = async (id) => {
 };
 
 export const pendingPaymentsByStudentId = async (id) => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const previousMonth = now.getMonth();
   const response = {
     courses: {}
   };
@@ -51,15 +54,20 @@ export const pendingPaymentsByStudentId = async (id) => {
     const year = coursePeriod.year;
     const month = coursePeriod.month;
     const isMemberInPeriod = year > sinceYear || (sinceYear == year && month >= sinceMonth);
+    const isPendingPeriod = currentYear < year || (currentYear == year && month >= previousMonth);
     if (!(year in response.courses[courseId].periods))
       response.courses[courseId].periods[year] = {};
     let status;
     if (isMemberInPeriod) {
-      const periodPayment = findFirstPaymentAt(year, month, studentPayments);
+      const periodPayment = findFirstPaymentAt(year, month, courseId, studentPayments);
       if (periodPayment) {
         status = {
           condition: STUDENT_MONTHS_CONDITIONS.PAID,
           payment: periodPayment,
+        };
+      } else if (isPendingPeriod) {
+        status = {
+          condition: STUDENT_MONTHS_CONDITIONS.PENDING,
         };
       } else {
         status = {
@@ -78,6 +86,9 @@ export const pendingPaymentsByStudentId = async (id) => {
 };
 
 export const pendingPayments = async () => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() +1;
   const response = {
     students: {}
   };
@@ -109,16 +120,21 @@ export const pendingPayments = async () => {
       const year = coursePeriod.year;
       const month = coursePeriod.month;
       const isMemberInPeriod = year > sinceYear || (sinceYear == year && month >= sinceMonth);
+      const isPendingPeriod = currentYear < year || (currentYear == year && month > currentMonth);
       if (!(year in response.students[studentId].courses[courseId].periods))
         response.students[studentId].courses[courseId].periods[year] = {};
       let status;
       if (isMemberInPeriod) {
-        const periodPayment = findFirstPaymentAt(year, month, studentPayments, studentId);
+        const periodPayment = findFirstPaymentAt(year, month, courseId, studentPayments, studentId);
         if (periodPayment) {
           status = {
             condition: STUDENT_MONTHS_CONDITIONS.PAID,
             payment: periodPayment,
           };
+        } else if (isPendingPeriod) {
+          status = {
+            condition: STUDENT_MONTHS_CONDITIONS.PENDING,
+          }
         } else {
           status = {
             condition: STUDENT_MONTHS_CONDITIONS.NOT_PAID,
@@ -133,16 +149,43 @@ export const pendingPayments = async () => {
       response.students[studentId].courses[courseId].periods[year][month] = status;
     });
   });
-
-  return response;
+  return onlyNotPaidStudents(response);
 };
 
 export const getAll = async () => {
   return student.findAll({ include: [course] });
 };
 
-const findFirstPaymentAt = (year, month, payments, studentId = null) => {
-  const matchYearAndMonth = (p) => p.operativeResult.getFullYear() == year && ((p.operativeResult.getMonth()+1) == month);
+const onlyNotPaidStudents = (data) => {
+  const studentIds = Object.keys(data.students);
+  for (const studentId of studentIds) {
+    const studentCoursesIds = Object.keys(data.students[studentId].courses);
+    for (const courseId of studentCoursesIds) {
+      const courseYears = Object.keys(data.students[studentId].courses[courseId].periods);
+      let hasAnyNotPaidPaymentCourse = false;
+      for (const year of courseYears) {
+        const months = Object.keys(data.students[studentId].courses[courseId].periods[year]);
+        for (const month of months) {
+          const periodCondition = data.students[studentId].courses[courseId].periods[year][month].condition;
+          if (periodCondition === STUDENT_MONTHS_CONDITIONS.NOT_PAID) {
+            hasAnyNotPaidPaymentCourse = true;
+            break;
+          }
+        }
+      }
+      if (!hasAnyNotPaidPaymentCourse) {
+        delete data.students[studentId].courses[courseId]
+      }
+    }
+    if (Object.keys(data.students[studentId].courses).length == 0) {
+      delete data.students[studentId];
+    }
+  }
+  return data;
+}
+
+const findFirstPaymentAt = (year, month, courseId, payments, studentId = null) => {
+  const matchYearAndMonth = (p) => p.courseId == courseId && p.operativeResult.getFullYear() == year && ((p.operativeResult.getMonth()+1) == month);
   const byStudentId = studentId != null;
   if (byStudentId)
     return payments.find(p => matchYearAndMonth(p) && p.studentId == studentId);

@@ -136,7 +136,7 @@ export default function NewUser(props) {
               responsive
               noDataComponent={opResult}
             />
-            <div className="flex justify-end">
+            <div className="flex justify-end mt-6">
               <PlusButton onClick={() => setDisplayModal(true)}/>
             </div>
         </Container>

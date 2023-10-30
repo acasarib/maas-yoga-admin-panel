@@ -24,6 +24,19 @@ export default {
                 })
         });
     },
+    getPendingPayments() {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + 'api/v1/students/payments/pending', {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     newStudents(students) {
         return new Observable(async (subscriber) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
