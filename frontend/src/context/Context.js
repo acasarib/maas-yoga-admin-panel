@@ -617,6 +617,20 @@ export const Provider = ({ children }) => {
         return courses;        
     }
 
+    const updateInscriptionDate = async (studentId, courseId, inscriptionDate) => {
+        await coursesService.updateInscriptionDate(studentId, courseId, inscriptionDate);
+        const copyStudents = JSON.parse(JSON.stringify(students));
+        copyStudents.forEach(st => {
+            if (st.id == studentId) 
+                st.courseStudents.forEach(cs => {
+                    if (cs.courseId == courseId) 
+                        cs.createdAt = inscriptionDate;
+                });
+        });
+        setStudents(copyStudents);
+        changeAlertStatusAndMessage(true, 'success', 'Fecha actualizada')
+    }
+
     const getTemplate = async templateId => {
         console.log("getTemplate ", templateId);
         const localTemplate = templates.find(t => t.id === templateId);
@@ -743,6 +757,7 @@ export const Provider = ({ children }) => {
             deleteCourse,
             newCourse,
             editCourse,
+            updateInscriptionDate,
             addStudent,
             editTask,
             deleteTask,

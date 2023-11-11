@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 import { StatusCodes } from "http-status-codes";
-import { course, student, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
+import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
 const paymentBelongToProfessor = (payment, professor) => {
@@ -138,6 +138,10 @@ export const setStudentsToCourse = async (students, courseId) => {
   const courseTasks = await courseTask.findAll({ where: { courseId } });
   courseTasks.forEach(cTask => cTask.setStudents(studentsDb));
   return course.findByPk(courseId, { include: [student] });
+};
+
+export const updateInscriptionDate = async (courseId, studentId, inscriptionDate) => {
+  await courseStudent.update({ createdAt: inscriptionDate }, { where: { studentId, courseId }});
 };
 
 export const addCourseTask = async (courseTaskParam, courseId) => {
