@@ -11,9 +11,9 @@ export default function FilterPaymentOperativeResult({ onChange }) {
     const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
 
     useEffect(() => {
-        //console.log(at);
-        //console.log(new Date(at));
         if (selectedDate !== null) {
+            selectedDate.$d.setMilliseconds(0);
+            selectedDate.$d.setSeconds(0);
             selectedDate.$d.setHours(0);
             selectedDate.$d.setMinutes(0);
             selectedDate.$d.setDate(1);

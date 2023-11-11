@@ -146,6 +146,8 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 name: 'Importe',
                 cell: row => <span className={`${row.value >= 0 ? "text-gray-800" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{'$' + withSeparators(row.value)}</span>,
                 sortable: true,
+                searchable: true,
+                selector: row => row.value.toString(),
                 //maxWidth: '80px'
             },
             {
