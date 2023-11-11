@@ -10,7 +10,6 @@ import { orange } from '@mui/material/colors';
 import "react-datepicker/dist/react-datepicker.css";
 import { PAYMENT_OPTIONS } from "../../../constants";
 import dayjs from 'dayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../../../components/paymentsTable";
@@ -374,7 +373,6 @@ export default function PaymentsSection(props) {
                     onChange={handleChangeNote}
                 />
             </div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                     <div className="mt-4">
@@ -395,7 +393,6 @@ export default function PaymentsSection(props) {
                         />
                     </div>
                 </div>
-            </LocalizationProvider>
         </div>
         {(edit && (paymentToEdit.file && (paymentToEdit.file !== null))) && (
         <>

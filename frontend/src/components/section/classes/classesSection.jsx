@@ -8,7 +8,6 @@ import { Context } from "../../../context/Context";
 import dayjs from 'dayjs';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import ClassesTable from "../../classesTable";
@@ -134,7 +133,6 @@ export default function ClassesSection(props) {
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                         Fecha de inicio
                     </label>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                             <DateTimePicker
                             label="Seleccionar fecha"
@@ -142,13 +140,11 @@ export default function ClassesSection(props) {
                             onChange={(newValue) => setStartAt(newValue)}
                             />
                         </DemoContainer>
-                    </LocalizationProvider>
                 </div>
                 <div className="mb-4 relative col-span-2">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                         Fecha de finalización
                     </label>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                             <DateTimePicker
                             label="Seleccionar fecha"
@@ -156,7 +152,6 @@ export default function ClassesSection(props) {
                             onChange={(newValue) => setEndAt(newValue)}
                             />
                         </DemoContainer>
-                    </LocalizationProvider>
                 </div>
                 <div className="mb-4">
                     <CommonInput 

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import 'dayjs/locale/es';
@@ -37,7 +36,6 @@ export default function FilterPaymentOperativeResult({ onChange }) {
     <div>
         <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Resultado operativo</span>
         <div className="flex">
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                 <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                     <DateTimePicker
                         views={['year', 'month']}
@@ -46,7 +44,6 @@ export default function FilterPaymentOperativeResult({ onChange }) {
                         onChange={(newValue) => setSelectedDate(newValue)}
                     />
                 </DemoContainer>
-            </LocalizationProvider>
         </div>
     </div>
     );

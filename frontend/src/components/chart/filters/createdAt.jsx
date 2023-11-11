@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
@@ -46,7 +45,6 @@ export default function FilterPaymentCreatedAt({ onChange }) {
             <div className="my-auto flex">
                 {typeCriteriaSelected !== null && 
                     <>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                             <DateTimePicker
                             label="Seleccionar fecha"
@@ -54,10 +52,8 @@ export default function FilterPaymentCreatedAt({ onChange }) {
                             onChange={(newValue) => setAt(newValue)}
                             />
                         </DemoContainer>
-                    </LocalizationProvider>
                     {typeCriteriaSelected.value === "between" &&
                     <><span className="mx-2">y</span>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                             <DateTimePicker
                             label="Seleccionar fecha"
@@ -65,7 +61,6 @@ export default function FilterPaymentCreatedAt({ onChange }) {
                             onChange={(newValue) => setAt2(newValue)}
                             />
                         </DemoContainer>
-                    </LocalizationProvider>
                     </>
                     }
                     </>
