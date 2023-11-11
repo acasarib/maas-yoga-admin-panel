@@ -67,6 +67,19 @@ export default {
                 })
         });
     },
+    updateInscriptionDate(studentId, courseId, inscriptionDate) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .put(baseUrl + `api/v1/courses/${courseId}/students/${studentId}/update-inscription-date`, { inscriptionDate }, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     deleteCourse(courseId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
