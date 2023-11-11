@@ -51,7 +51,7 @@ const checkOverlappingProfessorsPeriods = (professors) => {
 
   for (const prof of professors) {
     const { professorId, startAt, endAt } = prof;
-    const isValidRange = startAt < endAt;
+    const isValidRange = startAt <= endAt;
     if (!isValidRange) {
       throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid range for professor id="+professorId+ " verify that startAt < endAt" });
     }
