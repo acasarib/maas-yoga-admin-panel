@@ -11,7 +11,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
@@ -462,7 +461,6 @@ export default function Courses(props) {
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                                 Fecha de inicio
                             </label>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                                     <DateTimePicker
                                     label="Seleccionar fecha"
@@ -473,13 +471,11 @@ export default function Courses(props) {
                                     }}
                                     />
                                 </DemoContainer>
-                            </LocalizationProvider>
                         </div>
                         <div className="mb-4 relative col-span-2">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                                 Fecha de finalizacion
                             </label>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                                     <DateTimePicker
                                     label="Seleccionar fecha"
@@ -490,7 +486,6 @@ export default function Courses(props) {
                                     }}
                                     />
                                 </DemoContainer>
-                            </LocalizationProvider>
                         </div>
                         {isDateSelected && (<><div className="grid grid-cols-2 gap-4">
                             <div className="mb-4">
