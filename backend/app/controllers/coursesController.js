@@ -86,6 +86,19 @@ export default {
   },
 
   /**
+   * /courses/{id}/students/{studentId}/update-inscription-date [PUT]
+   * @returns HttpStatus ok
+   */
+  updateInscriptionDate: async (req, res, next) => {
+    try {
+      await courseService.updateInscriptionDate(req.params.id, req.params.studentId, req.body.inscriptionDate);
+      res.status(StatusCodes.OK).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /courses/{id}/tasks [POST]
    * @returns HttpStatus ok and @CourseTask
    */

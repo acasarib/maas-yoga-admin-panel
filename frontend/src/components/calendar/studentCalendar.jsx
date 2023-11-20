@@ -33,7 +33,7 @@ export default function StudentCalendar({ periods }) {
         } else if (status == STUDENT_MONTHS_CONDITIONS.NOT_PAID) {
             return (<RedBudget><CloseIcon fontSize="small"/>No pagado</RedBudget>);
         } else if (status == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN) {
-            return (<BlueBudget>No inscripto</BlueBudget>);
+            return (<BlueBudget>Inscripto</BlueBudget>);
         }
     }
 

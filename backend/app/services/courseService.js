@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 import { StatusCodes } from "http-status-codes";
-import { course, student, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
+import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 
 const paymentBelongToProfessor = (payment, professor) => {
@@ -51,7 +51,7 @@ const checkOverlappingProfessorsPeriods = (professors) => {
 
   for (const prof of professors) {
     const { professorId, startAt, endAt } = prof;
-    const isValidRange = startAt < endAt;
+    const isValidRange = startAt <= endAt;
     if (!isValidRange) {
       throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid range for professor id="+professorId+ " verify that startAt < endAt" });
     }
@@ -138,6 +138,10 @@ export const setStudentsToCourse = async (students, courseId) => {
   const courseTasks = await courseTask.findAll({ where: { courseId } });
   courseTasks.forEach(cTask => cTask.setStudents(studentsDb));
   return course.findByPk(courseId, { include: [student] });
+};
+
+export const updateInscriptionDate = async (courseId, studentId, inscriptionDate) => {
+  await courseStudent.update({ createdAt: inscriptionDate }, { where: { studentId, courseId }});
 };
 
 export const addCourseTask = async (courseTaskParam, courseId) => {

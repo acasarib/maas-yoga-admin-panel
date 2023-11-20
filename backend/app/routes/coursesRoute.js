@@ -9,6 +9,7 @@ router.put("/:id", verifyToken, controller.editById);
 router.get("/:id", verifyToken, controller.getById);
 router.get("/", verifyToken, controller.getAll);
 router.put("/:id/students", verifyToken, controller.setStudentsToCourse);
+router.put("/:id/students/:studentId/update-inscription-date", verifyToken, controller.updateInscriptionDate);
 
 router.post("/:courseId/tasks", verifyToken, controller.addCourseTask);
 router.put("/tasks/:id", verifyToken, controller.editCourseTask);
