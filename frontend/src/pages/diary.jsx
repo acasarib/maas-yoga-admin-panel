@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
@@ -9,8 +9,10 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from "../components/container";
 import Table from "../components/table";
 import { Context } from "../context/Context";
+import diaryService from "../services/diaryService";
 
 export default function Diary(props) {
+    const [users, setUsers] = useState([]);
 
     const { students  } = useContext(Context);
     const theme = createTheme({
@@ -64,6 +66,14 @@ export default function Diary(props) {
     ];
 
     const handleChangeTabValue = (_, newValue) => setTabValue(newValue);
+
+    useEffect(() => {
+        const getUsers = async () => {
+            const response = await diaryService.getUsers();
+            setUsers(response);
+        }
+        getUsers();
+    }, [])
 
     return (<>
         <Container title="Agenda" className="max-w-full">
