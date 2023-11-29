@@ -1,4 +1,3 @@
-import axios from './interceptors';
 
 export default {
     getUsers() {
@@ -13,8 +12,7 @@ export default {
                 "offset": 0
             }
             const baseUrl = process.env.REACT_APP_DIARY_BACKEND_HOST;
-            axios
-                .post(baseUrl + 'search', data, {})
+            fetch(baseUrl + 'search', {method: 'POST', body: JSON.stringify(data)})
                 .then((response) => {
                     console.log(response);
                     console.log(response.data);
