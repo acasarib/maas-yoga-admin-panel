@@ -13,11 +13,8 @@ export default {
             }
             const baseUrl = process.env.REACT_APP_DIARY_BACKEND_HOST;
             fetch(baseUrl + 'search', {method: 'POST', body: JSON.stringify(data)})
-                .then((response) => {
-                    console.log(response);
-                    console.log(response.data);
-                    resolve(response.data);
-                })
+                .then(response => response.json())
+                .then(data => resolve(data))
                 .catch((error) => {
                     reject(error.data)
                 })
