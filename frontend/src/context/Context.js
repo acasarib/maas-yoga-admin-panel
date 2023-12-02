@@ -13,6 +13,7 @@ import { CASH_PAYMENT_TYPE, STUDENT_MONTHS_CONDITIONS } from "../constants";
 import logsService from "../services/logsService";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
+import agendaService from "../services/agendaService";
 
 export const Context = createContext();
 
@@ -43,6 +44,7 @@ export const Provider = ({ children }) => {
     const [isLoadingProfessors, setIsLoadingProfessors] = useState(true);
     const [logs, setLogs] = useState([]);
     const [logsInit, setLogsInit] = useState(false);
+    const [agendaLocations, setAgendaLocations] = useState([]);
 
     useEffect(() => {
         if (user === null) return;
@@ -128,6 +130,15 @@ export const Provider = ({ children }) => {
             setProfessors(pfrs);
             setIsLoadingProfessors(false);
         }
+        const getAgendaLocations = async () => {
+            const locations = await agendaService.getLocations();
+            locations.forEach(location => {
+                location.label = location.nombre;
+                location.value = location.id;
+            });
+            setAgendaLocations(locations);
+        }
+        
         getUsers();
         getStudents();
         getCourses();
@@ -138,7 +149,12 @@ export const Provider = ({ children }) => {
         getClazzes();
         getCategories();
         getProffesors();
+        getAgendaLocations();
     }, [user]);
+
+    const getAgendaCashValues = async (year, month, location) => {
+        return agendaService.getCash(year, month, location);
+    }
 
     useEffect(() => {
         const formatedItems = [];
@@ -721,6 +737,8 @@ export const Provider = ({ children }) => {
 
     return (
         <Context.Provider value={{
+            agendaLocations,
+            getAgendaCashValues,
             colleges,
             courses,
             students,

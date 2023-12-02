@@ -21,6 +21,7 @@ services:
       - REACT_APP_BACKEND_PORT=${BACKEND_PORT}
       - REACT_APP_BACKEND_HOST=${BACKEND_HOST}
       - REACT_APP_HEALTHCHECK=${REACT_APP_HEALTHCHECK}
+      - REACT_APP_AGENDA_URL=${FRONTEND_AGENDA_URL}
   maas-yoga-admin-panel-api:
     restart: always
     build:
