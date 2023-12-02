@@ -9,6 +9,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from "../components/container";
 import Table from "../components/table";
 import diaryService from "../services/diaryService";
+import AgendaPayments from "../components/section/agenda/agendaPayments";
 
 export default function Diary(props) {
     const [users, setUsers] = useState([]);
@@ -108,7 +109,7 @@ export default function Diary(props) {
                                 paginationPerPage={24}
                             />
                         </TabPanel>
-                        <TabPanel className="pt-4" value="2">Blah 2</TabPanel>
+                        <TabPanel className="pt-4" value="2"><AgendaPayments/></TabPanel>
                         <TabPanel className="pt-4" value="3">Blah 3</TabPanel>
                     </TabContext>
                 </Box>
