@@ -8,6 +8,7 @@ import Select from 'react-select';
 import DoneIcon from '@mui/icons-material/Done';
 import { PAYMENT_OPTIONS } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
+import CustomCheckbox from "../checkbox/customCheckbox";
 
 export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment }) {
     const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage } = useContext(Context);
@@ -17,6 +18,9 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     const [verifyModal, setVerifyModal] = useState(false);
     const [verifying, setVerifying] = useState(false);
     const [verifingPaymentMethod, setVerifingPaymentMethod] = useState(null);
+    const [showDischarges, setShowDischarges] = useState(false);
+    const [showIncomes, setShowIncomes] = useState(false);
+    const [filteredPayments, setFilteredPayments] = useState([]);
 
     const getBalanceForAllPayments = () => {
         let value = 0;
@@ -202,17 +206,59 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
 
     useEffect(() => {
         getBalanceForAllPayments();
+        setFilteredPayments(payments);
     }, [payments]);
+
+    useEffect(() => {
+        setFilteredPayments(payments);
+    }, [])
+    
+
+    useEffect(() => {
+        if(showDischarges) {
+            const discharges = payments.filter(payment => payment.value < 0);
+            setFilteredPayments(discharges);
+        }else {
+            setFilteredPayments(payments);
+        }
+    }, [showDischarges])
+
+    useEffect(() => {
+        if(showIncomes) {
+            const incomes = payments.filter(payment => payment.value >= 0);
+            setFilteredPayments(incomes);
+        }else {
+            setFilteredPayments(payments);
+        }
+    }, [showIncomes])
 
     return(
         <>
             <Table
                 className={`rounded-3xl shadow-lg ${className}`}
                 columns={columns}
-                data={payments}
+                data={filteredPayments}
                 noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
                 pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
             />
+            <div className="flex flex-row my-4">
+                <CustomCheckbox
+                    checked={showDischarges}
+                    labelOn="Mostrar egresos"
+                    labelOff="Mostrar egresos"
+                    className="ml-2"
+                    disabled={showIncomes}
+                    onChange={() => setShowDischarges(!showDischarges)}
+                />
+                <CustomCheckbox
+                    checked={showIncomes}
+                    labelOn="Mostrar ingresos"
+                    labelOff="Mostrar ingresos"
+                    className="ml-2"
+                    disabled={showDischarges}
+                    onChange={() => setShowIncomes(!showIncomes)}
+                />          
+            </div>
             <div className="bg-orange-200 rounded-2xl px-8 py-4 mt-8 md:flex md:justify-between">
                 <div className="md:mr-12 flex flex-col lg:flex-row items-center"><span className="mb-2 md:mb-0">Total: </span><span className={`${getBalanceForAllPayments() >= 0 ? "text-gray-800" : "text-red-800"} w-full text-center font-bold bg-white ml-2 rounded-2xl py-2 px-3`}>${withSeparators(getBalanceForAllPayments())}</span></div>
                 <div className="mt-2 md:mt-0 md:mx-12 flex flex-col lg:flex-row items-center"><span className="mb-2 md:mb-0">Ingresos: </span><span className="w-full text-center text-gray-800 font-bold bg-white rounded-2xl py-2 px-3 ml-2">${withSeparators(getPayments())}</span></div>
