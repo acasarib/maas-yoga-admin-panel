@@ -10,7 +10,7 @@ import { PAYMENT_OPTIONS } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
 import CustomCheckbox from "../checkbox/customCheckbox";
 
-export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment }) {
+export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment, editMode }) {
     const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -197,7 +197,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
             },
             {
                 name: 'Acciones',
-                cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button>{canVerify && (<button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openVerifyModal(row)}><DoneIcon /></button>)}<button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>),
+                cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button>{canVerify && (<button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openVerifyModal(row)}><DoneIcon /></button>)}{editMode && (<button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button>)}</div>),
                 sortable: true,
             },
         ];

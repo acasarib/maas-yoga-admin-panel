@@ -1,6 +1,6 @@
 
 export default {
-    getUsers() {
+    getUsers(limit, offset) {
         return new Promise((resolve, reject) => {
             const data = {
                 "string": null,
@@ -8,8 +8,8 @@ export default {
                 "id_permiso": "3",
                 "id_cuota": null,
                 "indexed_user": null,
-                "limit": 25,
-                "offset": 0
+                "limit": limit,
+                "offset": offset
             }
             const baseUrl = process.env.REACT_APP_DIARY_BACKEND_HOST;
             fetch(baseUrl + 'search', {method: 'POST', body: JSON.stringify(data)})

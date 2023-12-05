@@ -13,6 +13,9 @@ import AgendaPayments from "../components/section/agenda/agendaPayments";
 
 export default function Diary(props) {
     const [users, setUsers] = useState([]);
+    const [limit, setLimit] = useState(25);
+    const [offset, setOffset] = useState(0);
+    const [usersPage, setUsersPage] = useState(1);
 
     const theme = createTheme({
         palette: {
@@ -78,11 +81,21 @@ export default function Diary(props) {
         return newColumns;
     }, [users]); 
 
+    const getMoreUsers = async (page, totalRows) => {
+        if(page > usersPage) {
+            const newOffset = totalRows + 25;
+            const response = await diaryService.getUsers(25, newOffset);
+            const totalUsers = users.concat(response);
+            setUsersPage(page);
+            setUsers(totalUsers);
+        }
+    }
+
     const handleChangeTabValue = (_, newValue) => setTabValue(newValue);
 
     useEffect(() => {
         const getUsers = async () => {
-            const response = await diaryService.getUsers();
+            const response = await diaryService.getUsers(limit, offset);
             setUsers(response);
         }
         getUsers();
@@ -104,6 +117,7 @@ export default function Diary(props) {
                             <Table
                                 columns={columns}
                                 data={users}
+                                onChangePage={(page, totalRows) => getMoreUsers(page, totalRows)}
                                 pagination paginationRowsPerPageOptions={[25]}
                                 responsive
                                 paginationPerPage={24}

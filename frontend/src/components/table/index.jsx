@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import SearchBar from "./searchBar";
 
-export default function Table({ className = "", columns, data, ...rest }) {
+export default function Table({ className = "", columns, onChangePage, data, ...rest }) {
     const [searchableColumns, setSearchableColumns] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [typeValue, setTypeValue] = useState(searchableColumns[0]?.name);
@@ -60,6 +60,7 @@ export default function Table({ className = "", columns, data, ...rest }) {
                 className={`rounded-3xl shadow-lg mt-1 ${className}`}
                 columns={columns}
                 data={dataFiltered}
+                onChangePage={onChangePage}
                 paginationComponentOptions={{ rowsPerPageText: 'Filas por pagina:', rangeSeparatorText: 'de', noRowsPerPage: false, selectAllRowsItem: false, selectAllRowsItemText: 'Todo' }}
                 {...rest}
             />
