@@ -47,7 +47,7 @@ export default function Balance(props) {
                             />
                     </div>
                 </div>
-                <PaymentsTable dateField={chartByCreatedAt ? "createdAt" : "at"} className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
+                <PaymentsTable editMode={false} dateField={chartByCreatedAt ? "createdAt" : "at"} className="mt-4" onDelete={handleOnDeletePayment} payments={payments} isLoading={false}/>
             </Container>
             <ChartFilterModal isOpen={isModalOpen} closeModal={switchModal} onApplyFilter={onApplyFilter} />
         </>
