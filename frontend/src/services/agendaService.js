@@ -14,7 +14,7 @@ export default {
             month,
             limit: 25,
             offset: 0,
-            indexed: 0,
+            indexed: 1,
             id_usuario: null,
             all: null,
         }
