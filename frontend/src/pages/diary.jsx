@@ -86,16 +86,20 @@ export default function Diary(props) {
     }, [users]); 
 
     const getMoreUsers = async (page, totalRows) => {
-        if(page > usersPage) {
-            const newOffset = totalRows + 25;
-            const activeUsers = await diaryService.getUsers(25, newOffset, 2);
-            const disableUsers = await diaryService.getUsers(25, newOffset, 3);
-            const newUsers = activeUsers.concat(disableUsers);
-            const totalUsers = users.concat(newUsers);
-            setShowActive(false);
-            setShowDisabled(false);
-            setUsersPage(page);
-            setUsers(totalUsers);
+        console.log(page, usersPage);
+        const newOffset = (totalRows / 2) + 25;
+        const activeUsers = await diaryService.getUsers(25, newOffset, '2');
+        const disableUsers = await diaryService.getUsers(25, newOffset, '3');
+        const newUsers = activeUsers.concat(disableUsers);
+        setUsers(users.concat(newUsers));
+        setUsersPage(page);
+        if(showDisabled){
+            const disabledUsrs = users.filter(user => user.id_estado === '3');
+            setFilteredStudents(disabledUsrs);
+        }
+        if(showActive){
+                const activeUsrs = users.filter(user => user.id_estado === '2');
+                setFilteredStudents(activeUsrs);
         }
     }
 
@@ -107,26 +111,32 @@ export default function Diary(props) {
             const disableUsers = await diaryService.getUsers(limit, offset, 3);
             const totalUsers = activeUsers.concat(disableUsers);
             setUsers(totalUsers);
+            setFilteredStudents(totalUsers);
         }
         getUsers();
     }, [])
 
     useEffect(() => {
-        setFilteredStudents(users);
-    }, [users]);
-
-    useEffect(() => {
-        setFilteredStudents(users);
-    }, [])
+      setFilteredStudents(users);
+    }, [users])
+    
     
     useEffect(() => {
-      const disabledUsers = users.filter(user => user.id_estado === '3');
-      setFilteredStudents(disabledUsers);
+        if(showDisabled){
+            const disabledUsers = users.filter(user => user.id_estado === '3');
+            setFilteredStudents(disabledUsers);
+        }else{
+            setFilteredStudents(users);
+        }
     }, [showDisabled])
 
     useEffect(() => {
-        const activeUsers = users.filter(user => user.id_estado === '2');
-        setFilteredStudents(activeUsers);
+        if(showActive){
+            const activeUsers = users.filter(user => user.id_estado === '2');
+            setFilteredStudents(activeUsers);
+        }else{
+            setFilteredStudents(users);
+        }
     }, [showActive])
 
     return (<>
@@ -146,7 +156,7 @@ export default function Diary(props) {
                                 columns={columns}
                                 data={filteredStudents}
                                 onChangePage={(page, totalRows) => getMoreUsers(page, totalRows)}
-                                pagination paginationRowsPerPageOptions={[25]}
+                                pagination paginationRowsPerPageOptions={[24]}
                                 responsive
                                 paginationPerPage={24}
                             />
