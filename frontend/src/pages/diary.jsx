@@ -10,12 +10,16 @@ import Container from "../components/container";
 import Table from "../components/table";
 import diaryService from "../services/diaryService";
 import AgendaPayments from "../components/section/agenda/agendaPayments";
+import CustomCheckbox from "../components/checkbox/customCheckbox";
 
 export default function Diary(props) {
     const [users, setUsers] = useState([]);
     const [limit, setLimit] = useState(25);
     const [offset, setOffset] = useState(0);
     const [usersPage, setUsersPage] = useState(1);
+    const [showActive, setShowActive] = useState(false);
+    const [showDisabled, setShowDisabled] = useState(false);
+    const [filteredStudents, setFilteredStudents] = useState([]);
 
     const theme = createTheme({
         palette: {
@@ -84,8 +88,12 @@ export default function Diary(props) {
     const getMoreUsers = async (page, totalRows) => {
         if(page > usersPage) {
             const newOffset = totalRows + 25;
-            const response = await diaryService.getUsers(25, newOffset);
-            const totalUsers = users.concat(response);
+            const activeUsers = await diaryService.getUsers(25, newOffset, 2);
+            const disableUsers = await diaryService.getUsers(25, newOffset, 3);
+            const newUsers = activeUsers.concat(disableUsers);
+            const totalUsers = users.concat(newUsers);
+            setShowActive(false);
+            setShowDisabled(false);
             setUsersPage(page);
             setUsers(totalUsers);
         }
@@ -95,11 +103,31 @@ export default function Diary(props) {
 
     useEffect(() => {
         const getUsers = async () => {
-            const response = await diaryService.getUsers(limit, offset);
-            setUsers(response);
+            const activeUsers = await diaryService.getUsers(limit, offset, 2);
+            const disableUsers = await diaryService.getUsers(limit, offset, 3);
+            const totalUsers = activeUsers.concat(disableUsers);
+            setUsers(totalUsers);
         }
         getUsers();
     }, [])
+
+    useEffect(() => {
+        setFilteredStudents(users);
+    }, [users]);
+
+    useEffect(() => {
+        setFilteredStudents(users);
+    }, [])
+    
+    useEffect(() => {
+      const disabledUsers = users.filter(user => user.id_estado === '3');
+      setFilteredStudents(disabledUsers);
+    }, [showDisabled])
+
+    useEffect(() => {
+        const activeUsers = users.filter(user => user.id_estado === '2');
+        setFilteredStudents(activeUsers);
+    }, [showActive])
 
     return (<>
         <Container title="Agenda" className="max-w-full">
@@ -116,12 +144,30 @@ export default function Diary(props) {
                         <TabPanel className="pt-4" value="1">
                             <Table
                                 columns={columns}
-                                data={users}
+                                data={filteredStudents}
                                 onChangePage={(page, totalRows) => getMoreUsers(page, totalRows)}
                                 pagination paginationRowsPerPageOptions={[25]}
                                 responsive
                                 paginationPerPage={24}
                             />
+                            <div className="flex flex-row my-4">
+                                <CustomCheckbox
+                                    checked={showActive}
+                                    labelOn="Mostrar activos"
+                                    labelOff="Mostrar activos"
+                                    className="ml-2"
+                                    disabled={showDisabled}
+                                    onChange={() => setShowActive(!showActive)}
+                                />
+                                <CustomCheckbox
+                                    checked={showDisabled}
+                                    labelOn="Mostrar no activos"
+                                    labelOff="Mostrar no activos"
+                                    className="ml-2"
+                                    disabled={showActive}
+                                    onChange={() => setShowDisabled(!showDisabled)}
+                                />          
+                            </div>
                         </TabPanel>
                         <TabPanel className="pt-4" value="2"><AgendaPayments/></TabPanel>
                         <TabPanel className="pt-4" value="3">Blah 3</TabPanel>
