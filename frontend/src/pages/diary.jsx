@@ -10,6 +10,7 @@ import Container from "../components/container";
 import Table from "../components/table";
 import diaryService from "../services/diaryService";
 import AgendaPayments from "../components/section/agenda/agendaPayments";
+import AgendaBalance from "../components/section/agenda/agendaBalance";
 import CustomCheckbox from "../components/checkbox/customCheckbox";
 
 export default function Diary(props) {
@@ -180,7 +181,7 @@ export default function Diary(props) {
                             </div>
                         </TabPanel>
                         <TabPanel className="pt-4" value="2"><AgendaPayments/></TabPanel>
-                        <TabPanel className="pt-4" value="3">Blah 3</TabPanel>
+                        <TabPanel className="pt-4" value="3"><AgendaBalance/></TabPanel>
                     </TabContext>
                 </Box>
             </ThemeProvider>
