@@ -5,6 +5,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Table from "../../table";
+import CustomCheckbox from "../../checkbox/customCheckbox";
 
 export default function AgendaPayments() {
 
@@ -14,6 +15,7 @@ export default function AgendaPayments() {
     const [localAgendaLocations, setLocalAgendaLocations] = useState([]); 
     const [selectedAgendaLocation, setSelectedAgendaLocation] = useState('');
     const [agendaCashValues, setAgendaCashValues] = useState([])
+    const [accreditedOnly, setAccreditedOnly] = useState(true)
 
     useEffect(() => {
         const fetchData = async (year, month, location) => {
@@ -26,11 +28,7 @@ export default function AgendaPayments() {
             fetchData(year, month, location)
         }
     }, [selectedAgendaLocation, selectedDate]);
-    
 
-    useEffect(() => {
-        console.log(agendaCashValues);
-    }, [agendaCashValues]);
 
     useEffect(() => {
         setLocalAgendaLocations([allLocation,...agendaLocations]);
@@ -52,8 +50,25 @@ export default function AgendaPayments() {
         },
         {
             name: 'Acreditado',
+            maxWidth: '80px',
             cell: row => row.acreditado == '0' ? 'No' : 'Si',
             selector: row => row.acreditado,
+            sortable: true,
+            searchable: false,
+        },
+        {
+            name: 'Descripcion',
+            selector: row => row.descripcion,
+            cell: (row) => (<><div className="flex flex-col justify-center">
+            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+              <div className="group relative inline-block text-yellow-900 mx-1">{row.descripcion}
+                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                  {row.descripcion}
+                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>
+              </div>
+            </div>
+            </div></>),
             sortable: true,
             searchable: true,
         },
@@ -61,6 +76,7 @@ export default function AgendaPayments() {
             name: 'Fecha',
             selector: row => row.fecha,
             sortable: true,
+            maxWidth: '180px',
             searchable: true,
         },
         {
@@ -78,8 +94,8 @@ export default function AgendaPayments() {
     ];
 
     return(<>
-        <div className="flex w-full">
-            <div className="w-6/12">
+        <div className="flex w-full mb-4">
+            <div className="w-4/12 pr-2">
                 <TextField
                     id="search-bar-type"
                     select
@@ -87,7 +103,7 @@ export default function AgendaPayments() {
                     className="w-full"
                     value={selectedAgendaLocation}
                     onChange={(e) => setSelectedAgendaLocation(e.target.value)}
-                    size="small"
+                    size=""
                     
                     >
                     {localAgendaLocations.map(location => (
@@ -97,14 +113,18 @@ export default function AgendaPayments() {
                     ))}
                 </TextField>
             </div>
-            <div className="w-6/12">
-
-            <DateTimePicker
-                views={['year', 'month']}
-                label="Seleccionar fecha"
-                value={selectedDate}
-                onChange={(newValue) => setSelectedDate(newValue)}
+            <div className="w-4/12 pr-2">
+                <DateTimePicker
+                    views={['year', 'month']}
+                    label="Seleccionar fecha"
+                    value={selectedDate}
+                    onChange={(newValue) => setSelectedDate(newValue)}
+                    className="w-full"
                 />
+            </div>
+            <div className="w-4/12">
+                <label>Acreditado</label>
+                <CustomCheckbox className="p-0" labelOn={"Si"} labelOff={"No"} onChange={() => setAccreditedOnly(!accreditedOnly)} checked={accreditedOnly}/>
             </div>
         </div>
         <Table
