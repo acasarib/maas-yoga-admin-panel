@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import BarChart from "./barChart";
 
-export default function MonthlyChart({ data, height, field }) {
+export default function MonthlyChart({ data, height, field, valueField = 'value' }) {
 
     const [parsedData, setParsedData] = useState([]);
     const getMinDay = data => Math.min(...Object.keys(data));
@@ -16,10 +16,11 @@ export default function MonthlyChart({ data, height, field }) {
             data.forEach(d => {
                 const at = new Date(d[field]);
                 const day = at.getDate();
+                const value = typeof d[valueField] == 'string' ? parseFloat(d[valueField]) : d[valueField]
                 if (day in parsedData) {
-                    parsedData[day].value += d.value;
+                    parsedData[day].value += value
                 } else {
-                    parsedData[day] = { value: d.value, percentage: 0 };
+                    parsedData[day] = { value: value, percentage: 0 };
                 }
             });
             const maxValue = getMaxValue(parsedData);
