@@ -9,6 +9,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import { PAYMENT_OPTIONS } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
 import CustomCheckbox from "../checkbox/customCheckbox";
+import TableSummary from '../table/summary'
 
 export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment, editMode }) {
     const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage } = useContext(Context);
@@ -23,11 +24,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     const [filteredPayments, setFilteredPayments] = useState([]);
 
     const getBalanceForAllPayments = () => {
-        let value = 0;
-        payments.forEach(payment => {
-            value = value + payment.value;
-        });
-        return value;
+        return payments.reduce((total, payment) => total + payment.value, 0);
     }
 
     const handleDeletePayment = async () => {
@@ -205,7 +202,6 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     }, [categories, dateField]); 
 
     useEffect(() => {
-        getBalanceForAllPayments();
         setFilteredPayments(payments);
     }, [payments]);
 
@@ -259,11 +255,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                     onChange={() => setShowIncomes(!showIncomes)}
                 />          
             </div>
-            <div className="bg-orange-200 rounded-2xl px-8 py-4 mt-8 md:flex md:justify-between">
-                <div className="md:mr-12 flex flex-col lg:flex-row items-center"><span className="mb-2 md:mb-0">Total: </span><span className={`${getBalanceForAllPayments() >= 0 ? "text-gray-800" : "text-red-800"} w-full text-center font-bold bg-white ml-2 rounded-2xl py-2 px-3`}>${withSeparators(getBalanceForAllPayments())}</span></div>
-                <div className="mt-2 md:mt-0 md:mx-12 flex flex-col lg:flex-row items-center"><span className="mb-2 md:mb-0">Ingresos: </span><span className="w-full text-center text-gray-800 font-bold bg-white rounded-2xl py-2 px-3 ml-2">${withSeparators(getPayments())}</span></div>
-                <div className="mt-2 md:mt-0 md:mx-12 flex flex-col lg:flex-row items-center"><span className="mb-2 md:mb-0">Egresos: </span><span className="w-full text-center text-red-800 font-bold bg-white rounded-2xl py-2 px-3 ml-2">${withSeparators(getDischarges())}</span></div>
-            </div>
+            <TableSummary total={getBalanceForAllPayments()} incomes={getPayments()} expenses={getDischarges()}/>
             <Modal onClose={() => setPayment(null)} icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
                 {payment !== null &&
                     <div>Esta a punto de eliminar el pago con el importe de <span className="font-bold">{payment.value}$</span>{payment.fileId !== null && ", este pago tiene asociado un comprobante el cual tambien sera eliminado."}</div>
