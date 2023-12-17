@@ -1,10 +1,10 @@
 
 export default {
-    getUsers(limit, offset) {
+    getUsers(limit, offset, idState) {
         return new Promise((resolve, reject) => {
             const data = {
                 "string": null,
-                "id_estado": "2",
+                "id_estado": idState,
                 "id_permiso": "3",
                 "id_cuota": null,
                 "indexed_user": null,
