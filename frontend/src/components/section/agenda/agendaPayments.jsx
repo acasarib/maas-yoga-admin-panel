@@ -7,13 +7,12 @@ import MenuItem from '@mui/material/MenuItem';
 import Table from "../../table";
 import CustomCheckbox from "../../checkbox/customCheckbox";
 import TableSummary from '../../table/summary'
+import SelectAgendaLocations from '../../select/selectAgendaLocations'
 
 export default function AgendaPayments() {
 
-    const { agendaLocations, getAgendaCashValues } = useContext(Context);
-    const allLocation = { id: 'all', label:"Todas", value: 'all' };
+    const { getAgendaCashValues } = useContext(Context);
     const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
-    const [localAgendaLocations, setLocalAgendaLocations] = useState([]); 
     const [selectedAgendaLocation, setSelectedAgendaLocation] = useState('');
     const [agendaCashValues, setAgendaCashValues] = useState([])
     const [accreditedOnly, setAccreditedOnly] = useState(true)
@@ -40,16 +39,6 @@ export default function AgendaPayments() {
             
         }))
     }, [accreditedOnly, agendaCashValues])
-
-    useEffect(() => {
-        setLocalAgendaLocations([allLocation,...agendaLocations]);
-    }, [agendaLocations]);
-
-    useEffect(() => {
-        if (localAgendaLocations.length > 0) {
-            setSelectedAgendaLocation(localAgendaLocations.filter(l => l.id == 'all')[0]);
-        }
-    }, [localAgendaLocations]);
 
     const getTotalCash = () => localAgendaCashValues.reduce((total, cashValue) => total + parseFloat(cashValue.valor), 0)
 
@@ -109,22 +98,7 @@ export default function AgendaPayments() {
     return(<>
         <div className="flex w-full mb-4">
             <div className="w-4/12 pr-2">
-                <TextField
-                    id="search-bar-type"
-                    select
-                    label="Sede"
-                    className="w-full"
-                    value={selectedAgendaLocation}
-                    onChange={(e) => setSelectedAgendaLocation(e.target.value)}
-                    size=""
-                    
-                    >
-                    {localAgendaLocations.map(location => (
-                        <MenuItem key={location.id} value={location}>
-                            {location.label}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                <SelectAgendaLocations value={selectedAgendaLocation} onChange={setSelectedAgendaLocation}/>
             </div>
             <div className="w-4/12">
                 <DateTimePicker
