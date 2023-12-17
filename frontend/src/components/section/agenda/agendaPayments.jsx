@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Table from "../../table";
 import CustomCheckbox from "../../checkbox/customCheckbox";
+import TableSummary from '../../table/summary'
 
 export default function AgendaPayments() {
 
@@ -16,6 +17,7 @@ export default function AgendaPayments() {
     const [selectedAgendaLocation, setSelectedAgendaLocation] = useState('');
     const [agendaCashValues, setAgendaCashValues] = useState([])
     const [accreditedOnly, setAccreditedOnly] = useState(true)
+    const [localAgendaCashValues, setLocalAgendaCashValues] = useState([])
 
     useEffect(() => {
         const fetchData = async (year, month, location) => {
@@ -29,6 +31,15 @@ export default function AgendaPayments() {
         }
     }, [selectedAgendaLocation, selectedDate]);
 
+    useEffect(() => {
+        setLocalAgendaCashValues(agendaCashValues.filter(cashValue => {
+            if (accreditedOnly)
+                return cashValue.acreditado == '1'
+            else
+                return cashValue.acreditado == '0'
+            
+        }))
+    }, [accreditedOnly, agendaCashValues])
 
     useEffect(() => {
         setLocalAgendaLocations([allLocation,...agendaLocations]);
@@ -39,6 +50,8 @@ export default function AgendaPayments() {
             setSelectedAgendaLocation(localAgendaLocations.filter(l => l.id == 'all')[0]);
         }
     }, [localAgendaLocations]);
+
+    const getTotalCash = () => localAgendaCashValues.reduce((total, cashValue) => total + parseFloat(cashValue.valor), 0)
 
     const columns = [
         {
@@ -113,7 +126,7 @@ export default function AgendaPayments() {
                     ))}
                 </TextField>
             </div>
-            <div className="w-4/12 pr-2">
+            <div className="w-4/12">
                 <DateTimePicker
                     views={['year', 'month']}
                     label="Seleccionar fecha"
@@ -123,15 +136,16 @@ export default function AgendaPayments() {
                 />
             </div>
             <div className="w-4/12">
-                <label>Acreditado</label>
+                <label style={{paddingLeft: "9px"}}>Acreditado</label>
                 <CustomCheckbox className="p-0" labelOn={"Si"} labelOff={"No"} onChange={() => setAccreditedOnly(!accreditedOnly)} checked={accreditedOnly}/>
             </div>
         </div>
         <Table
             columns={columns}
-            data={agendaCashValues}
+            data={localAgendaCashValues}
             pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
             responsive
         />
+        <TableSummary total={getTotalCash()} incomes={getTotalCash()} expenses={0}/>
     </>);
 } 
