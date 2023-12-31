@@ -13,7 +13,7 @@ export default function AddProfessorPaymentModal({ criteriaValue, totalStudents,
         },
         {
             value: 'amount_students',
-            label: 'Cantidad de pagos'
+            label: 'Cantidad de alumnos'
         },
     ]
     const [value, setValue] = useState({
@@ -61,7 +61,7 @@ export default function AddProfessorPaymentModal({ criteriaValue, totalStudents,
             <>
                 <div className="mt-4">
                     <CommonInput 
-                        label="Cantidad de estudiantes"
+                        label="Cantidad de alumnos"
                         name="amount-payments"
                         className="block font-bold text-sm text-gray-700 mb-2"
                         type="number" 
@@ -78,10 +78,10 @@ export default function AddProfessorPaymentModal({ criteriaValue, totalStudents,
                     <p className="font-bold">Detalle del informe</p>
                     <p>Profesor: <span className="font-bold">{professorName}</span></p>
                     <p>Periodo: <span className="font-bold">{period}</span></p>
-                    <p>Estudiantes que abonaron: <span className="font-bold">{totalStudents}</span></p>
+                    <p>Alumnos que abonaron: <span className="font-bold">{totalStudents}</span></p>
                     <p>Pagos registrados en el periodo: <span className="font-bold">{payments.length}</span></p>
                     {value.value == 'amount_students' && amountStudents != '' && 
-                        <p>Estudiantes seleccionados: <span className="font-bold">{amountStudents}</span></p>
+                        <p>Alumnos seleccionados: <span className="font-bold">{amountStudents}</span></p>
                     }
                     <p>{criteria}</p>
                     <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? total : totalByStudents}</span></p>
