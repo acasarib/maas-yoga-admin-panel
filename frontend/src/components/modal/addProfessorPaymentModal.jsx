@@ -77,7 +77,7 @@ export default function AddProfessorPaymentModal({ criteriaValue, totalStudents,
                 <div className="mt-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
                     <p className="font-bold">Detalle del informe</p>
                     <p>Profesor: <span className="font-bold">{professorName}</span></p>
-                    <p>Periodo: <span className="font-bold">{period}</span></p>
+                    <p>Periodo que dicta el profesor: <span className="font-bold">{period}</span></p>
                     <p>Alumnos que abonaron: <span className="font-bold">{totalStudents}</span></p>
                     <p>Pagos registrados en el periodo: <span className="font-bold">{payments.length}</span></p>
                     {value.value == 'amount_students' && amountStudents != '' && 
