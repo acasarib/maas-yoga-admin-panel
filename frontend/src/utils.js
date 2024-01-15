@@ -62,6 +62,18 @@ export function formatPaymentValue(value) {
     return "$" + value.toLocaleString("es-ES");
 }
 
+export function isByStudent(criteria) {
+    return criteria.split("-")[0] === "student"
+}
+
+export function isByPercentage(criteria) {
+    return criteria.split("-")[0] === "percentage"
+}
+
+export function isByAssistance(criteria) {
+    return criteria.split("-")[1] === "assistance"
+}
+
 export function twoDigits(minutes) {
     return String(minutes).padStart(2, '0');
 }
