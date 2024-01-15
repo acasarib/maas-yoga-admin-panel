@@ -21,14 +21,16 @@ const FIRST_USER_EMAIL = "email@email.com";
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const CRITERIA_COURSES = {
   STUDENT: "student",
-  PERCENTAGE: "percentage"
-}
+  PERCENTAGE: "percentage",
+  PERCENTAGE_ASSISTANCE: "percentage-assistance",
+  STUDENT_ASSISTANCE: "student-assistance"
+};
 const STUDENT_MONTHS_CONDITIONS = {
   PAID: "PAID",
   NOT_TAKEN: "NOT_TAKEN",
   NOT_PAID: "NOT_PAID",
   PENDING: "PENDING",
-}
+};
 
 // https://sequelize.org/docs/v6/core-concepts/model-querying-basics/
 const ALLOWED_SEQUELIZE_OPERATIONS = [
