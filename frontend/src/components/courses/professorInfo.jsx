@@ -141,7 +141,7 @@ export default function ProfessorInfo(props) {
                     name="criteriaValue"
                     id="criteriaValue" 
                     type="number" 
-                    placeholder={isCriteriaByStudent() ? "Porcentaje" : "Cantidad por alumno"}
+                    placeholder={isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}
                     onChange={(e) => setCriteriaValue(e.target.value)}
                 />
             </div>
