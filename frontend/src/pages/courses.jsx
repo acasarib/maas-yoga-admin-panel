@@ -519,7 +519,7 @@ export default function Courses(props) {
                                 <label className="block text-gray-700 text-sm font-bold mb-2">
                                     Asignar alumnos
                                 </label>
-                                <Select isMulti onChange={handleChange} options={students} defaultValue={(edit && (courseToEdit.students)) ? getStudents(courseToEdit) : []} />
+                                <Select className="z-100" isMulti onChange={handleChange} options={students} defaultValue={(edit && (courseToEdit.students)) ? getStudents(courseToEdit) : []} />
                         </div>
                         {courseProfessors.length > 0 && (<>
                         <label className="block text-gray-700 text-sm font-bold mb-2">
