@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import PaidIcon from '@mui/icons-material/Paid';
-import { dateToYYYYMMDD, formatDateDDMMYY, toMonthsNames } from "../../../utils";
+import { dateToYYYYMMDD, formatDateDDMMYY, isByAssistance, isByPercentage, toMonthsNames } from "../../../utils";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import List from '@mui/material/List';
 import SchoolIcon from '@mui/icons-material/School';
@@ -26,7 +26,8 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     const { informPayment } = useContext(Context);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen)
-    const criteria = professor.result.period.criteria === "percentage" ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante`
+    let criteria = isByPercentage(professor.result.period.criteria) ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante.`
+    criteria = isByAssistance(professor.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
     const period = toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)
 
     const addPayment = async (value) => {
@@ -50,6 +51,13 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     const alreadyInformedPayment = () => {
         const fromTo = toMonthsNames(from, to);
         return professor.payments.some(payment => toMonthsNames(payment.periodFrom, payment.periodTo) === fromTo);
+    }
+
+    const handleInform = () => {
+        if (isByAssistance(professor.result.period.criteria))
+            toggleModal()
+        else
+            addPayment()
     }
 
     return (<>
@@ -108,7 +116,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemText primary="Criterio" secondary={criteria} />
             </ListItem>
             <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
-                <ButtonPrimary disabled={alreadyInformedPayment()} onClick={toggleModal}>Informar</ButtonPrimary>
+                <ButtonPrimary disabled={alreadyInformedPayment()} onClick={handleInform}>Informar</ButtonPrimary>
                 <ButtonPrimary onClick={() => onShowPayments(professor.result.payments)}>Ver pagos</ButtonPrimary>
             </div>
         </List>

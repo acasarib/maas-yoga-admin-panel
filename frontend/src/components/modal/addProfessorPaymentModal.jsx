@@ -43,7 +43,8 @@ export default function AddProfessorPaymentModal({ criteriaValue, totalStudents,
             return
         }
         setError(false)
-        setTotalByStudents(criteriaValue * amountStudents)
+        const paymentValue = payments[0].value
+        setTotalByStudents((criteriaValue/100) * paymentValue * amountStudents)
     }, [amountStudents])
     
 
@@ -83,7 +84,7 @@ export default function AddProfessorPaymentModal({ criteriaValue, totalStudents,
                     {value.value == 'amount_students' && amountStudents != '' && 
                         <p>Alumnos seleccionados: <span className="font-bold">{amountStudents}</span></p>
                     }
-                    <p>{criteria}</p>
+                    <p>{criteria.split(".")[0]}</p>
                     <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? total : totalByStudents}</span></p>
                 </div>
                 
