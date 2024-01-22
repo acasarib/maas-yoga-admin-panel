@@ -11,7 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CustomCheckbox from "../checkbox/customCheckbox";
 
 export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment, editMode }) {
-    const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage } = useContext(Context);
+    const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage, getCourseById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [isDeletingPayment, setIsDeletingPayment] = useState(false);
@@ -121,17 +121,34 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
         }
     }
 
-    const getStudentFullName = (row) => row.student !== null ? row?.student?.name + ' ' + row?.student?.lastName : "";
+    const getStudentFullName = (row) => {
+        if(row.student !== null){
+            return row?.student?.name + ' ' + row?.student?.lastName;
+        }else {
+            if (row.user?.firstName) {
+                return row.user.firstName + ' ' + row.user.lastName;
+            } else {
+                return "Sistema";
+            }
+        }
+    }
     
     const getProfessorFullName = (row) => row.professor !== null ? row?.professor?.name + ' ' + row?.professor?.lastName : "";
 
-    const getItemById = itemId => {
+    const getItemById = (row) => {
         let item = "";
-        try {
-            const newItem = categories.find(category => category.items.find(item => item.id === itemId)).items.find(item => item.id === itemId);
-            item = newItem.title;
-        }catch {
-            item = "";
+        if(row.itemId !== null) {
+            try {
+                const newItem = categories.find(category => category.items.find(item => item.id === row.itemId)).items.find(item => item.id === row.itemId);
+                item = newItem.title;
+            }catch {
+                item = "";
+            }
+        }else {
+            if((row.student !== null) && (row.courseId !== null)) {
+                const course = getCourseById(row.courseId);
+                if(typeof course !== "undefined")  item = course?.title;
+            }
         }
         return item;
     }
@@ -163,7 +180,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
             },
             {
                 name: 'Detalle',
-                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row.itemId)}</span>,
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row)}</span>,
                 sortable: true,
                 searchable: true,
                 selector: row => getItemById(row.itemId),
