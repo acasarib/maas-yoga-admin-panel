@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import PaidIcon from '@mui/icons-material/Paid';
-import { dateToYYYYMMDD, formatDateDDMMYY, toMonthsNames } from "../../../utils";
+import { dateToYYYYMMDD, formatDateDDMMYY, isByAssistance, isByPercentage, toMonthsNames } from "../../../utils";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import List from '@mui/material/List';
 import SchoolIcon from '@mui/icons-material/School';
@@ -17,18 +17,25 @@ import ListItemText from '@mui/material/ListItemText';
 import ButtonPrimary from "../../button/primary";
 import { Context } from "../../../context/Context";
 import { CASH_PAYMENT_TYPE } from "../../../constants";
+import AddProfessorPaymentModal from "../../modal/addProfessorPaymentModal"
 
 export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const { informPayment } = useContext(Context);
 
-    const addPayment = async () => {
+    const toggleModal = () => setIsModalOpen(!isModalOpen)
+    let criteria = isByPercentage(professor.result.period.criteria) ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante.`
+    criteria = isByAssistance(professor.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
+    const period = toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)
+
+    const addPayment = async (value) => {
         const parsedFrom = dateToYYYYMMDD(from.$d);
         const parsedTo = dateToYYYYMMDD(to.$d);
         const payment = {
             type: CASH_PAYMENT_TYPE,
-            value: professor.result.collectedByProfessor * -1,
+            value: value || professor.result.collectedByProfessor * -1,
             at: new Date(),
             operativeResult: new Date(),
             periodFrom: parsedFrom,
@@ -44,6 +51,13 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     const alreadyInformedPayment = () => {
         const fromTo = toMonthsNames(from, to);
         return professor.payments.some(payment => toMonthsNames(payment.periodFrom, payment.periodTo) === fromTo);
+    }
+
+    const handleInform = () => {
+        if (isByAssistance(professor.result.period.criteria))
+            toggleModal()
+        else
+            addPayment()
     }
 
     return (<>
@@ -99,13 +113,14 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemIcon className="text-yellow-900">
                     <PercentIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Criterio" secondary={professor.result.period.criteria === "percentage" ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante`} />
+                <ListItemText primary="Criterio" secondary={criteria} />
             </ListItem>
             <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
-                <ButtonPrimary disabled={alreadyInformedPayment()} onClick={() => addPayment()}>Informar</ButtonPrimary>
+                <ButtonPrimary disabled={alreadyInformedPayment()} onClick={handleInform}>Informar</ButtonPrimary>
                 <ButtonPrimary onClick={() => onShowPayments(professor.result.payments)}>Ver pagos</ButtonPrimary>
             </div>
         </List>
+        <AddProfessorPaymentModal totalStudents={professor.result.totalStudents} criteria={criteria} criteriaValue={professor.result.period.criteriaValue} period={period} total={professor.result.collectedByProfessor} payments={professor.result.payments} addPayment={addPayment} isOpen={isModalOpen} onClose={toggleModal} professorName={professor.name}/>
     </Collapse>
     </>);
 } 

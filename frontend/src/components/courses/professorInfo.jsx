@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CommonInput from "../commonInput";
 import dayjs from 'dayjs';
@@ -13,8 +12,29 @@ export default function ProfessorInfo(props) {
     const [criteria, setCriteria] = useState('percentage'); 
     const [criteriaValue, setCriteriaValue] = useState(null);   
     const [id, setId] = useState(null); 
-    const [criteriaCheck, setCriteriaCheck] = useState(false);
     const [isProfessorSelected, setIsProfessorSelected] = useState(false);
+
+    const handleChangeCriteria = ({ student, percentage, assistance }) => {
+        console.log({ student, percentage, assistance });
+        if (student) {
+            setCriteria(isCriteriaByAssistance() ? 'student-assistance':'student')
+        } else if (percentage) {
+            setCriteria(isCriteriaByAssistance() ? 'percentage-assistance':'percentage')
+        } else if (assistance) {
+            setCriteria(criteria.split("-")[0] + "-assistance")
+        } else {
+            setCriteria(criteria.split("-")[0])
+        }
+    }
+
+    useEffect(() => {
+        console.log("criteria", criteria);
+    }, [criteria])
+    
+
+    const isCriteriaByStudent = () => criteria.split("-")[0] === 'student'
+    const isCriteriaByPercentage = () => criteria.split("-")[0] === 'percentage'
+    const isCriteriaByAssistance = () => criteria.split("-")[1] === 'assistance'
 
     const addProfessor = () => {
         const professor = {
@@ -47,25 +67,6 @@ export default function ProfessorInfo(props) {
         setIsProfessorSelected(false);
         props.closeNewProfessor(false);
     }
-
-    useEffect(() => {
-        if(criteriaCheck) {
-            setCriteria('student');
-        }else {
-            setCriteria('percentage');
-        }
-    }, [criteriaCheck])
-
-    useEffect(() => {
-        if(props.edit && (props.periodToEdit.endAt)) {
-            if(criteria === 'student') {
-                setCriteriaCheck(true);
-                setCriteria('student');
-            }else {
-                setCriteriaCheck(false);
-            }
-        }
-    }, [criteria])
 
     useEffect(() => {
         if(props.edit && (props.periodToEdit.endAt)) {
@@ -116,23 +117,31 @@ export default function ProfessorInfo(props) {
                 <label className="block text-gray-700 text-sm font-bold mb-4">
                     Pago del profesor por:
                 </label>
-                <div className="flex items-center mb-4 ml-2 md:ml-4">
-                    <input onChange={() => setCriteriaCheck(!criteriaCheck)} name="criteria" id="criteria-percentage" type="radio" checked={!criteriaCheck} value="percentage" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                    <label htmlFor="criteria-percentage" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
-                </div>
-                <div className="flex items-center ml-2 md:ml-4">
-                    <input onChange={() => setCriteriaCheck(!criteriaCheck)} name="criteria" id="criteria-student" checked={criteriaCheck} value="student" type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                    <label htmlFor="criteria-student" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
+                <div className="divide-y">
+                    <div className="sm:flex mb-2">
+                        <div className="flex items-center ml-2 md:ml-4">
+                            <input onChange={(e) => handleChangeCriteria({percentage: e.target.value})} name="criteria" id="criteria-percentage" type="radio" checked={isCriteriaByPercentage()} value="percentage" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                            <label htmlFor="criteria-percentage" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Porcentaje</label>
+                        </div>
+                        <div className="flex items-center ml-2 mt-2 sm:mt-0 sm:ml-4">
+                            <input onChange={(e) => handleChangeCriteria({student: e.target.value})} name="criteria" id="criteria-student" checked={isCriteriaByStudent()} value="student" type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                            <label htmlFor="criteria-student" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
+                        </div>
+                    </div>
+                    <div className="flex items-center pt-2 ml-2 md:ml-4">
+                        <input onChange={(e) => handleChangeCriteria({assistance: e.target.checked})} name="assistance" id="assistance" type="checkbox" checked={isCriteriaByAssistance()} value="assistance" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                        <label htmlFor="assistance" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Por asistencia</label>
+                    </div>
                 </div>
             </div>
             <div className="mb-4 w-3/6">
                 <CommonInput 
-                    label={!criteriaCheck ? "Porcentaje" : "Cantidad por alumno"}    
+                    label={isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}    
                     value={criteriaValue}
                     name="criteriaValue"
                     id="criteriaValue" 
                     type="number" 
-                    placeholder={!criteriaCheck ? "Porcentaje" : "Cantidad por alumno"}
+                    placeholder={isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}
                     onChange={(e) => setCriteriaValue(e.target.value)}
                 />
             </div>

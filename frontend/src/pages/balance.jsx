@@ -35,7 +35,7 @@ export default function Balance(props) {
             <Container title="Balance">
                 <div className="grid grid-cols-1 md:grid-cols-4 md:gap-x-4 mb-14">
                     <div className="col-span-1">
-                        <ChartSelector currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
+                        <ChartSelector allowCustom currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
                     </div>
                     <div className="col-span-3">
                         <Chart

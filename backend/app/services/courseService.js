@@ -233,6 +233,7 @@ export const calcProfessorsPayments = async (from, to) => {
       }
     }
   }
+  const isCriteriaByStudent = (criteria) => criteria === CRITERIA_COURSES.STUDENT || criteria === CRITERIA_COURSES.STUDENT_ASSISTANCE;
   for (const course of coursesInRange) {
     course.dataValues.collectedByPayments = paymentsInRange
       .filter(p => p.courseId == course.id)
@@ -245,7 +246,7 @@ export const calcProfessorsPayments = async (from, to) => {
         prof.result.collectedByPayments = prof.result.payments.reduce((total, p) => total + p.value, 0);
         prof.result.totalStudents = prof.result.payments.map(p => p.studentId);
         prof.result.totalStudents = utils.removeDuplicated(prof.result.totalStudents).length;
-        prof.result.collectedByProfessor = prof.result.period.criteria === CRITERIA_COURSES.STUDENT
+        prof.result.collectedByProfessor = isCriteriaByStudent(prof.result.period.criteria)
           ? getCollectedByStudent(prof.result, prof.result.period.criteriaValue) 
           : getCollectedByPercentage(prof.result, prof.result.period.criteriaValue);
         prof.dataValues.result = prof.result;
