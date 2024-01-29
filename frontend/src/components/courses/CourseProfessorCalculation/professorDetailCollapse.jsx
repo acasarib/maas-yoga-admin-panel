@@ -120,7 +120,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ButtonPrimary onClick={() => onShowPayments(professor.result.payments)}>Ver pagos</ButtonPrimary>
             </div>
         </List>
-        <AddProfessorPaymentModal totalStudents={professor.result.totalStudents} criteria={criteria} criteriaValue={professor.result.period.criteriaValue} period={period} total={professor.result.collectedByProfessor} payments={professor.result.payments} addPayment={addPayment} isOpen={isModalOpen} onClose={toggleModal} professorName={professor.name}/>
+        <AddProfessorPaymentModal criteriaType={professor.result.period.criteria} totalStudents={professor.result.totalStudents} criteria={criteria} criteriaValue={professor.result.period.criteriaValue} period={period} total={professor.result.collectedByProfessor} payments={professor.result.payments} addPayment={addPayment} isOpen={isModalOpen} onClose={toggleModal} professorName={professor.name}/>
     </Collapse>
     </>);
 } 
