@@ -6,14 +6,14 @@ const Item = ({ selected, title, onSelect }) => (<>
 </div>
 </>);
 
-export default function ChartSelector({ allowCustom, currentChartSelected, onChange }) {
+export default function ChartSelector({ allowCustom, allowWeek = true, allowMonth = true, allowYear = true, currentChartSelected, onChange }) {
 
     return(
         <>
         <div className={`w-full h-full`}>
-            <Item selected={currentChartSelected === "year"} title="Anual" onSelect={() => onChange("year")}/>
-            <Item selected={currentChartSelected === "month"} title="Mensual" onSelect={() => onChange("month")}/>
-            <Item selected={currentChartSelected === "week"} title="Semanal" onSelect={() => onChange("week")}/>
+            {allowYear && <Item selected={currentChartSelected === "year"} title="Anual" onSelect={() => onChange("year")}/>}
+            {allowMonth && <Item selected={currentChartSelected === "month"} title="Mensual" onSelect={() => onChange("month")}/>}
+            {allowWeek && <Item selected={currentChartSelected === "week"} title="Semanal" onSelect={() => onChange("week")}/>}
             {allowCustom && <Item selected={currentChartSelected === "custom"} title="Personalizado" onSelect={() => onChange("custom")}/>}
         </div>
         </>
