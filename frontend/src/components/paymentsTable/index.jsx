@@ -145,6 +145,9 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
             if((row.student !== null) && (row.courseId !== null)) {
                 const course = getCourseById(row.courseId);
                 if(typeof course !== "undefined")  item = course?.title;
+            }else if((row.courseId !== null) && (row.value < 0) && (row.student === null) && (row.professorId !== null)) {
+                const course = getCourseById(row.courseId);
+                if(typeof course !== "undefined")  item = course?.title;
             }
         }
         return item;
