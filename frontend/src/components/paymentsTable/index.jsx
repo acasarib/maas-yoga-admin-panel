@@ -187,7 +187,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row)}</span>,
                 sortable: true,
                 searchable: true,
-                selector: row => getItemById(row.itemId),
+                selector: row => getItemById(row),
             },
             {
                 name: 'Abonado por',
