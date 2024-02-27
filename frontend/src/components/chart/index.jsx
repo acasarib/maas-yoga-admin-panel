@@ -61,17 +61,17 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         const now = new Date();
         const fetchDataByYear = async () => {
             now.setFullYear(now.getFullYear() + chartPeriodIterator);
-            const response = await paymentsService.getAllByYear(now, chartByCreatedAt);
+            const response = await paymentsService.getAllByYear(chartByCreatedAt, now);
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
             now.setMonth(now.getMonth() + chartPeriodIterator);
-            const response = await paymentsService.getAllByMonth(now, chartByCreatedAt);
+            const response = await paymentsService.getAllByMonth(chartByCreatedAt, now);
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
             now.setDate(now.getDate() + chartPeriodIterator * 7);
-            const response = await paymentsService.getAllByWeek(now, chartByCreatedAt);
+            const response = await paymentsService.getAllByWeek(chartByCreatedAt, now);
             onChangeWeekData(response);
         };
         if (currentChartSelected === "year")
