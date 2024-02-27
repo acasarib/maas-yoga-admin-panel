@@ -187,6 +187,8 @@ export default {
         });
     },
     getAllByYear(byCreatedAt, from = new Date()) {
+        from.setSeconds(0)
+        from.setMilliseconds(0)
         const startOfYear = new Date(from.getFullYear(), 0, 1).getTime();
         const endOfYear = new Date(from.getFullYear(), 11, 31).getTime();
         const field = byCreatedAt ? "createdAt" : "at";
@@ -194,6 +196,8 @@ export default {
             .then(data => ({ data, period: { from: startOfYear, to: endOfYear } }));
     },
     getAllByMonth(byCreatedAt, from = new Date()) {
+        from.setSeconds(0)
+        from.setMilliseconds(0)
         const startOfMonth = new Date(from.getFullYear(), from.getMonth(), 1).getTime();
         const endOfMonth = new Date(from.getFullYear(), from.getMonth() + 1, 0).getTime();
         const field = byCreatedAt ? "createdAt" : "at";
@@ -201,6 +205,8 @@ export default {
             .then(data => ({ data, period: { from: startOfMonth, to: endOfMonth } }));
     },
     getAllByWeek(byCreatedAt, from = new Date()) {
+        from.setSeconds(0)
+        from.setMilliseconds(0)
         let prevMonday = from;
         prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() == 1 ? 7 : (prevMonday.getDay() + (7 - 1)) % 7 ));
         prevMonday.setHours(0);
@@ -209,6 +215,8 @@ export default {
         until.setDate(prevMonday.getDate() + 6);
         until.setHours(23);
         until.setMinutes(59);
+        from.setSeconds(59)
+        from.setMilliseconds(999)
         until = until.getTime();
         prevMonday = prevMonday.getTime();
         const field = byCreatedAt ? "createdAt" : "at";
