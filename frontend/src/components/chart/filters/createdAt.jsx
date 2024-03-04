@@ -29,8 +29,12 @@ export default function FilterPaymentCreatedAt({ onChange }) {
             const isBetween = typeCriteriaSelected.value === "between";
             at.$d.setHours(0);
             at.$d.setMinutes(0);
+            at.$d.setSeconds(0);
+            at.$d.setMilliseconds(0);
             at2.$d.setHours(23);
             at2.$d.setMinutes(59);
+            at2.$d.setSeconds(59);
+            at2.$d.setMilliseconds(999);
             onChange(`createdAt ${typeCriteriaSelected.value} ${at.$d.getTime()}${isBetween ? ":" + at2.$d.getTime() : ""}`);
         }
     }, [typeCriteriaSelected, at, at2]);
