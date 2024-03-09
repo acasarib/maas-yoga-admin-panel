@@ -3,6 +3,7 @@ import Modal from '../../modal'
 import StudentCalendar from '../../calendar/studentCalendar'
 import DangerousIcon from '@mui/icons-material/Dangerous';
 import Tooltip from '@mui/material/Tooltip';
+import CheckIcon from '@mui/icons-material/Check';
 
 const StudentCoursesInfo = ({ student }) => {
 
@@ -20,8 +21,9 @@ const StudentCoursesInfo = ({ student }) => {
 			<StudentCalendar periods={student.pendingPayments}/>
 		</Modal>
 		<div className='flex'>
-			<div className='underline text-yellow-900 mx-1 cursor-pointer' onClick={() => setIsOpen(true)}>Ver pagos a este curso</div>
+			<div className='underline text-yellow-900 mx-1 cursor-pointer' onClick={() => setIsOpen(true)}>Ver pagos</div>
 			{student.currentMonth == 'NOT_PAID' && <Tooltip title="Mes actual impago"><DangerousIcon style={{ color: '#FF676D' }}/></Tooltip>}
+			{student.currentMonth == 'PAID' && <Tooltip title="Al dia"><CheckIcon style={{ color: '#72EA8D' }}/></Tooltip>}
 		</div>
 		</>)
 }
