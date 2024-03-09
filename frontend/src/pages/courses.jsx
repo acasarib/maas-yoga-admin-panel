@@ -26,9 +26,10 @@ import ProfessorInfo from "../components/courses/professorInfo";
 import CourseDetailModal from "../components/modal/courseDetailModal";
 import ButtonPrimary from "../components/button/primary";
 import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
+import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
 
 export default function Courses(props) {
-    const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context);
+    const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -113,15 +114,15 @@ export default function Courses(props) {
         }
     }
 
-    const openStudentsModal = (students, courseName) => {
+    const openStudentsModal = async (students, courseName, courseId) => {
         setDisplayStudentsModal(true);
         setDisplayTasksModal(false);
-        setStudentsLists(students);
+        setStudentsLists(await getStudentsByCourse(courseId));
         setCourseName(courseName);
     }
     
-    const openStudentsTaskModal = (students, courseName, id) => {
-        setStudentsLists(students);
+    const openStudentsTaskModal = async (students, courseName, id) => {
+        setStudentsLists(await getStudentsByCourse(courseId));
         setCourseName(courseName);
         setDisplayTasksModal(false);
         setIsTaskStudentModal(true);
@@ -213,7 +214,7 @@ export default function Courses(props) {
         },
         {
             name: 'Alumnos',
-            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title)}>Ver alumnos</button></div>)},
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title, row.id)}>Ver alumnos</button></div>)},
             sortable: true,
         },
         {
@@ -260,6 +261,11 @@ export default function Courses(props) {
             </div>
           </div></>)},
             sortable: true,
+        },
+        {
+            name: 'Pagos',
+            cell: row => (<StudentCoursesInfo student={row}/>),
+            sortable: false,
         },
         {
             name: 'Numero de telefono',
@@ -526,7 +532,7 @@ export default function Courses(props) {
                                 Profesores
                         </label>
                         {courseProfessors.map((prf, index) => 
-                            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}><div>{getProfessorName(prf.professorId)}</div><div>{edit && <button type="button" className="p-1 rounded-full bg-orange-200 ml-2" onClick={() => {setPeriodToEdit(prf); setNewProfessor(true)}}><EditIcon /></button>}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setCourseProfessors(courseProfessors.filter((professor, idx) => idx !== index))}><CloseIcon /></button></div></div>
+                            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}><div>{getProfessorName(prf.professorId)}</div><div>{edit && <button type="button" className="p-1 rounded-full bg-orange-200 ml-2" onClick={() => {setPeriodToEdit(prf); setNewProfessor(true)}}><EditIcon /></button>}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setCourseProfessors(courseProfessors)}><CloseIcon /></button></div></div>
                         )}</>)}
                         {!newProfessor && (<div className="mb-4 mt-2 flex items-center justify-start">
                             <label className="block text-gray-700 text-sm font-bold">
@@ -548,7 +554,7 @@ export default function Courses(props) {
                 } />
                 <TaskModal isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
-                <Modal style={style} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal size="large" style={style} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                         columns={studentsColumns}
                         data={studentsLists}
                         noDataComponent="Este curso aun no posee alumnos"

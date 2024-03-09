@@ -94,4 +94,17 @@ export default {
     }
   },
 
+  /**
+   * /students/courses/{courseId} [GET]
+   * @returns HttpStatus ok and array of @Student
+   */
+  getStudentsByCourse: async (req, res, next) => {
+    try {
+      const students = await studentService.getStudentsByCourse(req.params.courseId);
+      res.status(StatusCodes.OK).json(students);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };

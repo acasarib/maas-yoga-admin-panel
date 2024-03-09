@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import { student, course, courseTask, payment, sequelize, courseStudent } from "../db/index.js";
 import { STUDENT_MONTHS_CONDITIONS } from "../utils/constants.js";
+import utils from "../utils/functions.js";
 
 /**
  * 
@@ -88,7 +89,7 @@ export const pendingPaymentsByStudentId = async (id) => {
 export const pendingPayments = async () => {
   const now = new Date();
   const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() +1;
+  const currentMonth = now.getMonth() + 1;
   const response = {
     students: {}
   };
@@ -116,7 +117,7 @@ export const pendingPayments = async () => {
         }
       }
       const sinceYear = since.getFullYear();
-      const sinceMonth = since.getMonth() +1;
+      const sinceMonth = since.getMonth() + 1;
       const year = coursePeriod.year;
       const month = coursePeriod.month;
       const isMemberInPeriod = year > sinceYear || (sinceYear == year && month >= sinceMonth);
@@ -156,6 +157,73 @@ export const getAll = async () => {
   return student.findAll({ include: [course] });
 };
 
+export const getStudentsByCourse = async (courseId) => {
+  const c = await course.findOne({ include: [student], where: { id: courseId } })
+  let courseStartAt = c.startAt
+  courseStartAt.setHours(0);
+  courseStartAt.setMinutes(0);
+  courseStartAt.setSeconds(0);
+  courseStartAt.setMilliseconds(0);
+  let courseEndAt = c.endAt
+  courseEndAt.setHours(23);
+  courseEndAt.setMinutes(59);
+  courseEndAt.setSeconds(59);
+  courseEndAt.setMilliseconds(999);
+  const studentsIds = c.students.map(c => c.id)
+  const payments = await payment.findAll({ where: { courseId, studentId: {
+    [Op.in]: studentsIds
+  } } })
+  const dateSeries = utils.getMonthlyDateSeries(courseStartAt, courseEndAt)
+  const getPaymentByYearAndMonthAndStudentId = (year, month, studentId) => {
+    return payments.find(p => {
+      if (p.studentId == studentId) {
+        const date = p.operativeResult
+        return year == date.getFullYear() && (date.getMonth()+1) == month
+      } else {
+        return false
+      }
+    })
+  }
+  const now = new Date()
+  const currentMonth = now.getMonth()+1
+  const currentYear = now.getFullYear()
+  c.dataValues.students.forEach(s => {
+    const st = s.dataValues
+    st.pendingPayments = {}
+    st.currentMonth = STUDENT_MONTHS_CONDITIONS.NOT_PAID
+    dateSeries.forEach(date => {
+      const year = date.getFullYear()
+      const month = date.getMonth()+1
+      if (!(year in st.pendingPayments)) {
+        st.pendingPayments[year] = {}
+      }
+      const paymentByYearAndMonth = getPaymentByYearAndMonthAndStudentId(year, month, st.id)
+      if (paymentByYearAndMonth) {
+        st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.PAID, payment: paymentByYearAndMonth }
+        if (year == currentYear && month == currentMonth) {
+          st.currentMonth = STUDENT_MONTHS_CONDITIONS.PAID
+        }
+      } else {
+        const studentMemberSince = st.courseStudent.createdAt;
+        const yearSince = studentMemberSince.getMonth() +1
+        const monthSince = studentMemberSince.getFullYear()
+        if (yearSince < year) {
+          st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.NOT_PAID }
+        } else if (yearSince == year) {
+          if (monthSince < month) {
+            st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.NOT_PAID }
+          } else {
+            st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.NOT_TAKEN }
+          }
+        } else {
+          st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.NOT_TAKEN }
+        }
+      }
+    })
+  })
+  return c.dataValues.students
+};
+
 const onlyNotPaidStudents = (data) => {
   const studentIds = Object.keys(data.students);
   for (const studentId of studentIds) {
@@ -185,7 +253,7 @@ const onlyNotPaidStudents = (data) => {
 }
 
 const findFirstPaymentAt = (year, month, courseId, payments, studentId = null) => {
-  const matchYearAndMonth = (p) => p.courseId == courseId && p.operativeResult.getFullYear() == year && ((p.operativeResult.getMonth()+1) == month);
+  const matchYearAndMonth = (p) => p.courseId == courseId && p.operativeResult.getFullYear() == year && ((p.operativeResult.getMonth() + 1) == month);
   const byStudentId = studentId != null;
   if (byStudentId)
     return payments.find(p => matchYearAndMonth(p) && p.studentId == studentId);
@@ -207,7 +275,7 @@ const getStudentCourseMemberSince = async (id = null) => {
       attributes: ["createdAt", "courseId"],
     },
   }
-  if (id != null) 
+  if (id != null)
     options.where = { id };
   const sts = await student.findAll(options);
   const result = {};
@@ -239,11 +307,11 @@ const getCoursesPeriodByStudentId = async (studentId = null) => {
       )) as month
     FROM course c JOIN course_student cs on c.id = cs.course_id
     `;
-    if (studentId != null) {
-      query += " WHERE student_id = :studentId;"
-    } else {
-      query += ";";
-    }
+  if (studentId != null) {
+    query += " WHERE student_id = :studentId;"
+  } else {
+    query += ";";
+  }
   const result = await sequelize.query(query, {
     replacements: { studentId },
     type: sequelize.QueryTypes.SELECT,
