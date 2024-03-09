@@ -24,6 +24,19 @@ export default {
                 })
         });
     },
+    getStudentsByCourse(courseId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/students/courses/${courseId}`, {}, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getPendingPayments() {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

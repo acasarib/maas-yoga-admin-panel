@@ -204,6 +204,10 @@ export const Provider = ({ children }) => {
         }
     }
 
+    const getStudentsByCourse = (courseId) => {
+        return studentsService.getStudentsByCourse(courseId);
+    }
+
     const getStudentDetailsById = async studentId => {
         const localStudent = getStudentById(studentId);
         if (localStudent) {
@@ -791,6 +795,7 @@ export const Provider = ({ children }) => {
             editCategory,
             newCategory,
             verifyClazz,
+            getStudentsByCourse,
             getProfessorDetailsById,
             getStudentDetailsById,
             getPendingPaymentsByCourseFromStudent,

@@ -18,5 +18,17 @@ export default {
       day = '0' + day;
     }
     return year + '-' + month + '-' + day;
+  },
+
+  getMonthlyDateSeries(fromDate, toDate) {
+    const dateSeries = [];
+    let currentDate = new Date(fromDate);
+  
+    while (currentDate <= toDate) {
+      dateSeries.push(new Date(currentDate));
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+  
+    return dateSeries;
   }
 };
