@@ -10,5 +10,6 @@ router.post("/register", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), 
 router.delete("/:email", controller.deleteByEmail);
 router.post("/login", controller.login);
 router.get("/", controller.getAll);
+router.put("/:email", controller.editByEmail);
 
 export default router;
