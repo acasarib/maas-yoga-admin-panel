@@ -61,4 +61,17 @@ export default {
     }
   },
 
+  /**
+   * /users/{email} [PUT]
+   * @returns HttpStatus ok and array of @Template
+   */
+  editByEmail: async (req, res, next) => {
+    try {
+      const editedUser = await userService.editByEmail(req.params.email, req.body);
+      res.status(StatusCodes.OK).json(editedUser);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };
