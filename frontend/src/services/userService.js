@@ -32,6 +32,32 @@ export default {
                 })
         });
     },
+    deleteUser(email) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .delete(baseUrl + `api/v1/users/${email}`, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    updateUser(email, user) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .put(baseUrl + `api/v1/users/${email}`, user, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getUsers() {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
