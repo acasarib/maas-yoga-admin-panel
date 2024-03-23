@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import request from "request";
 
 export const create = async (userParam) => {
-  const encryptedPassword = await bcrypt.hash(userParam.password, 10);
+  const encryptedPassword = await encryptPassword(userParam.password);
   userParam.password = encryptedPassword;
   const userByEmail = await user.findOne({ where: { email: userParam.email } });
   if (userByEmail)
@@ -18,9 +18,13 @@ export const deleteByEmail = async (email) => {
 };
 
 export const login = async (email, password) => {
-  const userDb = await user.scope("withPassword").findOne({ where: { email } });
+  let userDb = await user.scope("withPassword").findOne({ where: { email } });
   if (!userDb)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
+  if (userDb.password == null) {
+    await changePassword(userDb.email, password);
+    userDb = await user.scope("withPassword").findOne({ where: { email } });
+  }
   const result = bcrypt.compareSync(password, userDb.password);
   if (!result)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
@@ -45,9 +49,25 @@ export const getAll = async () => {
   return user.findAll();
 };
 
+export const editByEmail = async (email, userParam) => {
+  if ("password" in userParam && userParam.password != null) {
+    userParam.password = await encryptPassword(userParam.password);
+  }
+  await user.update(userParam, { where: { email } });
+  return user.findOne({ where: { email } });
+};
+
 function getUserPermissions(user) {
   const permissionsKeys = Object.keys(user).filter(key => key.startsWith("permission") && user[key]);
   return permissionsKeys.map(permission => permission.replace(/[A-Z]/g, letter => `_${letter}`).toUpperCase());
+}
+
+async function encryptPassword(password) {
+  return bcrypt.hash(password, 10);
+}
+
+async function changePassword(email, newPassword) {
+  return editByEmail(email, { password: newPassword });
 }
 
 function getGoogleDriveCredentials() {
