@@ -317,6 +317,17 @@ export const Provider = ({ children }) => {
         setPayments(current => current.filter(p => p.id !== id));
     }
 
+    const deleteUser = async (email) => {
+        await userService.deleteUser(email);
+        setUsers(current => current.filter(p => p.email !== email));
+    }
+
+    const editUser = async (email, user) => {
+        const editedUser = await userService.updateUser(email, user);
+        changeAlertStatusAndMessage(true, 'success', 'El usuario fue editado exitosamente!')
+        setUsers(current => current.map(s => s.email === email ? merge(s, editedUser) : s));
+    }
+
     const deleteCollege = async collegeId => {
         await collegesService.deleteCollege(collegeId);
         changeAlertStatusAndMessage(true, 'success', 'La sede fue borrada exitosamente!')
@@ -772,6 +783,7 @@ export const Provider = ({ children }) => {
             newCollege,
             newClazz,
             newUser,
+            deleteUser,
             deleteStudent,
             editStudent,
             newStudent,
@@ -787,6 +799,7 @@ export const Provider = ({ children }) => {
             associateTask,
             changeTaskStatus,
             newTemplate,
+            editUser,
             getTemplate,
             editTemplate,
             editClazz,
