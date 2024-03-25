@@ -22,7 +22,9 @@ export default function CommonInput(props) {
                 onFocus={props.onFocus}
                 onBlur={props.onBlur}
                 value={props.value}
+                autoComplete={props.autoComplete}
                 name={props.name}
+                role={props.role}
                 htmlFor={props.htmlFor}
                 onKeyDown={handleOnKeyDown}
             />

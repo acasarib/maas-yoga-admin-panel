@@ -11,43 +11,81 @@ import Table from "../components/table";
 import { orange } from '@mui/material/colors';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function NewUser(props) {
 
     const [disabled, setDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [canCreateUser, setCanCreateUser] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [edit, setEdit] = useState(false);
+    const [userEmail, setUserEmail] = useState(null); 
     const [googleDriveAccess, setGoogleDriveAccess] = useState(false);
+    const [userToEdit, setUserToEdit] = useState({});
+    const [userToDelete, setUserToDelete] = useState('');
+    const [restorePass, setRestorePass] = useState(false);
     const [displayModal, setDisplayModal] = useState(false);
-    const { changeAlertStatusAndMessage, newUser, users } = useContext(Context);
+    const [editPass, setEditPass] = useState(false);
+    const { changeAlertStatusAndMessage, deleteUser, editUser, newUser, users } = useContext(Context);
     const [opResult, setOpResult] = useState('Verificando usuarios...');
 
     const setDisplay = (value) => {
       setDisplayModal(value);
+      setEdit(value);
+      setUserToEdit({});
+      setRestorePass(false);
+      setEditPass(false);
+      setDeleteModal(value);
   }
 
-    const validate = (values) => {
-        const errors = {};
-        if (!values.email) {
-          errors.email = 'Campo requerido';
-          setDisabled(true);
-        } else if (!values.password) {
-          errors.password = 'Campo requerido';
-          setDisabled(true);
-        } else if (!values.lastName) {
-          errors.password = 'Campo requerido';
-          setDisabled(true);
-        } else if (!values.firstName) {
-          errors.password = 'Campo requerido';
-          setDisabled(true);
-        } else if (values.password.length < 3) {
-          errors.password = 'Te falta completar los 3 dígitos';
-          setDisabled(true);
-        } else {
-          setDisabled(false);
-        }
-        return errors;
-    };
+  const openDeleteModal = (user) => {
+    setDeleteModal(true);
+    setUserEmail(user.email);
+    setUserToDelete(user.firstName + ' ' + user.lastName)
+  }
+
+const openEditModal = async (user) => {
+    setUserToEdit(user);
+    setEdit(true);
+    setDisplayModal(true);
+}
+
+const handleDeleteUser = async (email) => {
+  setIsLoading(true);
+  try{
+      await deleteUser(userEmail);
+      changeAlertStatusAndMessage(true, 'success', 'Usuario eliminado con éxitosamente!');
+  }catch {
+      changeAlertStatusAndMessage(true, 'error', 'El usuario no pudo ser eliminado... Por favor inténtelo nuevamente.');
+  }
+  setIsLoading(false);
+  setDeleteModal(false);
+}
+
+const validate = (values) => {
+    const errors = {};
+    if (!values.email) {
+      errors.email = 'Campo requerido';
+      setDisabled(true);
+    } else if (!edit && !values.password) {
+      errors.password = 'Campo requerido';
+      setDisabled(true);
+    } else if (!values.lastName) {
+      errors.password = 'Campo requerido';
+      setDisabled(true);
+    } else if (!values.firstName) {
+      errors.password = 'Campo requerido';
+      setDisabled(true);
+    } else if (!edit && values.password.length < 3) {
+      errors.password = 'Te falta completar los 3 dígitos';
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+    return errors;
+};
 
     const columns = [
       {
@@ -87,20 +125,32 @@ export default function NewUser(props) {
             var date = day + '/' + month + '/' + year; return date},
         sortable: true,
     },
+    {
+      name: 'Acciones',
+      cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
+      },
+      sortable: true,
+    },
   ];
 
+  useEffect(() => {
+   if(userToEdit.permissionCreateUser) setCanCreateUser(userToEdit.permissionCreateUser);
+   if(userToEdit.permissionGoogleDrive) setGoogleDriveAccess(userToEdit.permissionGoogleDrive);
+  }, [userToEdit])
+  
+
     const formik = useFormik({
+      enableReinitialize: true,
       initialValues: {
-        email: '',
-        firstName: '',
-        lastName: '',
-        password: '',
+        email: edit ? userToEdit.email : '',
+        firstName: edit ? userToEdit.firstName : '',
+        lastName: edit ? userToEdit.lastName : '',
+        password: ''
       },
       validate,
       onSubmit: async (values) => {
         const body = {
           email: values.email,
-          password: values.password,
           lastName: values.lastName,
           firstName: values. firstName,
           permissionCreateUser: canCreateUser,
@@ -108,8 +158,20 @@ export default function NewUser(props) {
         };
         setIsLoading(true);
         try {
-          await newUser(body);
-          changeAlertStatusAndMessage(true, 'success', 'El usuario fue creado con éxito!');
+          console.log(edit, 'hola');
+          if(edit) {
+            if(restorePass) body.password = null;
+            if(editPass) body.password = values.password;
+            await editUser(userToEdit.email, body);
+            setEdit(false);
+            setUserToEdit({});
+            setRestorePass(false);
+            setEditPass(false);
+          }else {
+            body.password = values.password;
+            await newUser(body);
+            changeAlertStatusAndMessage(true, 'success', 'El usuario fue creado con éxito!');
+          }
           setDisplayModal(false);
           setIsLoading(false);
         } catch (error) {
@@ -140,10 +202,12 @@ export default function NewUser(props) {
               <PlusButton onClick={() => setDisplayModal(true)}/>
             </div>
         </Container>
-        <Modal icon={<PersonAddIcon />} buttonDisabled={disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Agregando...</span></>) : <span>Agregar</span>} onClick={formik.handleSubmit} children={<>
+        <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteUser} children={<><div>{`Esta a punto de elimnar el usuario ${userToDelete}. ¿Desea continuar?`}</div></>} />
+        <Modal icon={<PersonAddIcon />} buttonDisabled={edit ? false : disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                 <form className="pt-6 mb-4 sm:mx-auto"    
                     method="POST"
                     id="form"
+                    autoComplete="off"
                     onSubmit={formik.handleSubmit}
                 >
                   <div className="mb-4 flex flex-col sm:flex-row w-full">
@@ -188,8 +252,10 @@ export default function NewUser(props) {
                           name="email"
                           htmlFor="email"
                           id="email" 
+                          autoComplete="new-password"
                           type="text" 
                           placeholder="Email" 
+                          role="presentation"
                           onChange={formik.handleChange}
                       />
                     {formik.touched.email && formik.errors.email ? (
@@ -197,37 +263,68 @@ export default function NewUser(props) {
                     ) : null}
                   </div>
                   <div className="mb-6">
-                    <CommonInput 
-                            label="Contraseña"    
-                            onBlur={formik.handleBlur}
-                            value={formik.values.password}
-                            name="password"
-                            htmlFor="password"
-                            id="password" 
-                            type="password" 
-                            placeholder="******************"
-                            onChange={formik.handleChange}
-                    />
-                    {formik.touched.password && formik.errors.password ? (
-                        <div className="text-red-500">{formik.errors.password}</div>
-                    ) : null}
+                  {edit && (<>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Contraseña
+                    </label>
+                  <div className="flex flex-wrap gap-2"><FormGroup>
+                    <FormControlLabel control={<Checkbox  checked={restorePass} onChange={(e) => setRestorePass(e.target.checked)} sx={{
+                      color: orange[500],
+                      '&.Mui-checked': {
+                        color: orange[500],
+                      },
+                    }} />} label="Reseteo de contraseña" />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel control={<Checkbox  checked={editPass} onChange={(e) => setEditPass(e.target.checked)} sx={{
+                      color: orange[500],
+                      '&.Mui-checked': {
+                        color: orange[500],
+                      },
+                    }} />} label="Editar contraseña" />
+                  </FormGroup>
                   </div>
-                  <FormGroup>
-                    <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
-                      color: orange[500],
-                      '&.Mui-checked': {
+                  </>)}
+                    {((edit && editPass) || !edit) && (<>
+                      <CommonInput 
+                        label="Contraseña"    
+                        onBlur={formik.handleBlur}
+                        value={formik.values.password}
+                        name="password"
+                        htmlFor="password"
+                        autoComplete="new-password"
+                        id="password" 
+                        type="password" 
+                        role="presentation"
+                        placeholder="******************"
+                        onChange={formik.handleChange}
+                    />
+                   {formik.touched.password && formik.errors.password ? (
+                       <div className="text-red-500">{formik.errors.password}</div>
+                   ) : null}
+                    </>)}
+                  </div>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Atributos
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <FormGroup>
+                      <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
                         color: orange[500],
-                      },
-                    }} />} label="Permitir crear usuarios" />
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControlLabel control={<Checkbox  checked={googleDriveAccess} onChange={(e) => setGoogleDriveAccess(e.target.checked)} sx={{
-                      color: orange[500],
-                      '&.Mui-checked': {
+                        '&.Mui-checked': {
+                          color: orange[500],
+                        },
+                      }} />} label="Permitir crear usuarios" />
+                    </FormGroup>
+                    <FormGroup>
+                      <FormControlLabel control={<Checkbox  checked={googleDriveAccess} onChange={(e) => setGoogleDriveAccess(e.target.checked)} sx={{
                         color: orange[500],
-                      },
-                    }} />} label="Acceso a Google Drive" />
-                  </FormGroup>
+                        '&.Mui-checked': {
+                          color: orange[500],
+                        },
+                      }} />} label="Acceso a Google Drive" />
+                    </FormGroup>
+                  </div>
                 </form>
         </>} />
       </>
