@@ -6,12 +6,12 @@ import { Context } from "../../context/Context";
 import { dateToString, withSeparators } from "../../utils";
 import Select from 'react-select';
 import DoneIcon from '@mui/icons-material/Done';
-import { PAYMENT_OPTIONS } from "../../constants";
+import { PAYMENT_OPTIONS, TABLE_SEARCH_CRITERIA } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
 import CustomCheckbox from "../checkbox/customCheckbox";
 import TableSummary from '../table/summary'
 
-export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment, editMode }) {
+export default function PaymentsTable({ dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, onDelete = () => {}, canVerify, editPayment, editMode }) {
     const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage, getCourseById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -160,6 +160,15 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     const columns = useMemo(() => {
         const newColumns = [
             {
+                name: 'Identificador',
+                searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
+                hidden: true,
+                selector: row => row.id,
+                sortable: true,
+                searchable: true,
+                cell: () => <></>,
+            },
+            {
                 name: 'Fecha',
                 selector: row => dateToString(row[dateField]),
                 sortable: true,
@@ -255,6 +264,8 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     return(
         <>
             <Table
+                defaultSearchValue={defaultSearchValue}
+                defaultTypeValue={defaultTypeValue}
                 className={`rounded-3xl shadow-lg ${className}`}
                 columns={columns}
                 data={filteredPayments}

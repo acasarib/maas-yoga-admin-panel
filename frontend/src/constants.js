@@ -14,6 +14,11 @@ export const STUDENT_MONTHS_CONDITIONS = {
     PENDING: "PENDING",
 }
 
+export const TABLE_SEARCH_CRITERIA = {
+    EQUAL: "EQUAL",
+    CONTAINS: "CONTAINS",
+}
+
 export const PAYMENT_OPTIONS = [
     {
         label: 'Mercado pago',

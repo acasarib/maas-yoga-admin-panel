@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import SearchBar from "./searchBar";
+import { TABLE_SEARCH_CRITERIA } from "../../constants";
 
-export default function Table({ className = "", columns, onChangePage, data, ...rest }) {
+export default function Table({ className = "", columns, onChangePage, defaultSearchValue, defaultTypeValue, data, ...rest }) {
     const [searchableColumns, setSearchableColumns] = useState([]);
-    const [searchValue, setSearchValue] = useState("");
-    const [typeValue, setTypeValue] = useState(searchableColumns[0]?.name);
+    const [searchValue, setSearchValue] = useState(defaultSearchValue !== undefined ? defaultSearchValue : "");
+    const [typeValue, setTypeValue] = useState(defaultTypeValue !== undefined ? defaultTypeValue : searchableColumns[0]?.name);
     const [dataFiltered, setDataFiltered] = useState(data);
 
     const getCurrentFilteringColumn = () => columns.filter(column => column.name === typeValue)[0];
@@ -26,13 +27,24 @@ export default function Table({ className = "", columns, onChangePage, data, ...
                 }));
             } else {
                 const columnSelector = currentFilteringColumn.selector;
+                const searchCriteria = currentFilteringColumn.searchCriteria !== undefined ? currentFilteringColumn.searchCriteria : TABLE_SEARCH_CRITERIA.CONTAINS
                 if (typeof columnSelector !== "function")
                     throw Error(`The column ${currentFilteringColumn.name} has no selector defined`);
                 setDataFiltered(data.filter(d => {
-                    const dataValue = columnSelector(d);
+                    let dataValue = columnSelector(d);
+                    if (typeof dataValue === 'number') {
+                        dataValue = ""+dataValue;
+                    }
                     if (dataValue === null)
                         return false;
-                    return dataValue.toLowerCase().includes(searchValue.toLowerCase());
+                    switch (searchCriteria) {
+                        case TABLE_SEARCH_CRITERIA.CONTAINS:
+                            return dataValue.toLowerCase().includes(searchValue.toLowerCase())
+                        case TABLE_SEARCH_CRITERIA.EQUAL: 
+                            return dataValue === searchValue
+                        default:
+                            return dataValue.toLowerCase().includes(searchValue.toLowerCase())
+                    }
                 }));
             }
         } else {
@@ -44,7 +56,7 @@ export default function Table({ className = "", columns, onChangePage, data, ...
         const searchableColumns = columns.filter(column => "searchable" in column && column.searchable);
         searchableColumns.unshift({ name: "Todo", searchable: true });
         setSearchableColumns(searchableColumns);
-        setTypeValue("Todo")
+        setTypeValue(defaultTypeValue !== undefined ? defaultTypeValue : "Todo")
     }, [columns]);
     
     return(
@@ -58,7 +70,7 @@ export default function Table({ className = "", columns, onChangePage, data, ...
             />}
             <DataTable
                 className={`rounded-3xl shadow-lg mt-1 ${className}`}
-                columns={columns}
+                columns={columns.filter(col => col.hidden !== true)}
                 data={dataFiltered}
                 onChangePage={onChangePage}
                 paginationComponentOptions={{ rowsPerPageText: 'Filas por pagina:', rangeSeparatorText: 'de', noRowsPerPage: false, selectAllRowsItem: false, selectAllRowsItemText: 'Todo' }}

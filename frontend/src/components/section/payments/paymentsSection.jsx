@@ -23,7 +23,7 @@ import StorageIconButton from "../../button/storageIconButton";
 import { useRef } from "react";
 import useDrivePicker from 'react-google-drive-picker'
 
-export default function PaymentsSection(props) {
+export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
@@ -307,7 +307,14 @@ export default function PaymentsSection(props) {
     return (
         <>
         <div className="mb-6 md:my-6 md:mx-4">
-            <PaymentsTable editMode={true} editPayment={(payment) => openEditPayment(payment)} payments={payments.filter(p => p.verified)} isLoading={isLoadingPayments}/>
+            <PaymentsTable
+                editMode={true}
+                editPayment={(payment) => openEditPayment(payment)}
+                payments={payments.filter(p => p.verified)}
+                isLoading={isLoadingPayments}
+                defaultSearchValue={defaultSearchValue}
+                defaultTypeValue={defaultTypeValue}
+            />
         </div>
         <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{edit ? 'Editando...' : 'Informando...'}</span></>) : <span>{edit ? 'Editar' : 'Informar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">

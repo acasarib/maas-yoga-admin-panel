@@ -13,6 +13,11 @@ export default function Modal(props) {
     props.setDisplay(false)
   }
 
+  const handleOnClickPrimaryButton = () => {
+    onClose()
+    props.onClick()
+  }
+
   const getModalSize = (size) => {
     if (size === "medium"){
       return "md:max-w-screen-md"
@@ -55,7 +60,7 @@ export default function Modal(props) {
                   {!props.hiddingButton && (<ButtonPrimary
                     className="w-full sm:w-auto sm:ml-2 mr-1 sm:mr-0"
                     disabled={props.buttonDisabled}
-                    onClick={props.onClick}
+                    onClick={handleOnClickPrimaryButton}
                     >
                     {props.buttonText}
                   </ButtonPrimary>)}
