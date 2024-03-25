@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PaymentsSection from "../components/section/payments/paymentsSection";
 import LogsPaymentSection from "../components/section/payments/logsPaymentSection";
 import Box from '@mui/material/Box';
@@ -10,6 +10,7 @@ import { orange } from '@mui/material/colors';
 import UnverifiedPaymentsSections from "../components/section/payments/unverifiedPaymentsSection";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from "../components/container";
+import useQueryParam from "../hooks/useQueryParam";
 
 export default function Payments(props) {
 
@@ -26,7 +27,8 @@ export default function Payments(props) {
         },
     });
 
-    const [tabValue, setTabValue] = useState("1");
+    const [tabValue, setTabValue] = useQueryParam("tab", "1");
+    const [defaultIdPayment] = useQueryParam("id", undefined);
 
     const handleChangeTabValue = (_, newValue) => setTabValue(newValue);
 
@@ -42,8 +44,18 @@ export default function Payments(props) {
                                 <Tab label="Registros" value="3" />
                             </TabList>
                         </Box>
-                        <TabPanel className="pt-4" value="1"><PaymentsSection/></TabPanel>
-                        <TabPanel className="pt-4" value="2"><UnverifiedPaymentsSections/></TabPanel>
+                        <TabPanel className="pt-4" value="1">
+                            <PaymentsSection
+                                defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
+                                defaultSearchValue={defaultIdPayment}
+                            />
+                        </TabPanel>
+                        <TabPanel className="pt-4" value="2">
+                            <UnverifiedPaymentsSections
+                                defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
+                                defaultSearchValue={defaultIdPayment}
+                            />
+                        </TabPanel>
                         <TabPanel className="pt-4" value="3"><LogsPaymentSection/></TabPanel>
                     </TabContext>
                 </Box>

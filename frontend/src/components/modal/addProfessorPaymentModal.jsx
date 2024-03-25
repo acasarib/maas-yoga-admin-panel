@@ -34,7 +34,6 @@ export default function AddProfessorPaymentModal({ criteriaType, criteriaValue, 
     }
 
     useEffect(() => {
-        console.log(criteriaType, "criteriaType");
         if (amountStudents == '') {
             setError(false)
             return
