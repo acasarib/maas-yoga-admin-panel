@@ -14,6 +14,7 @@ import logsService from "../services/logsService";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
 import agendaService from "../services/agendaService";
+import { series } from "../utils";
 
 export const Context = createContext();
 
@@ -242,14 +243,14 @@ export const Provider = ({ children }) => {
             value: value*-1,
             verified: false,
         }
-        const createdPayment = await informPayment(payment);
-        //const professor = await professorsService.getProfessor(professorId);
-        setProfessors(prev => prev.map(p => {
+        await informPayment(payment);
+        const professor = await professorsService.getProfessor(professorId);
+        setProfessors(JSON.parse(JSON.stringify(professors.map(p => {
             if (p.id === professorId) {
-                p.payments.push(createdPayment);
+                return professor
             }
             return p;
-        }));
+        }))));
     }
 
     const informPayment = async payment => {
@@ -569,23 +570,6 @@ export const Provider = ({ children }) => {
     };
 
     const getPendingPaymentsByCourseFromStudent = student => {
-        const series = (from, to) => {
-            from = new Date(from);
-            to = new Date(to);
-            function getFirstDayDateOfMonth(date) {
-                return new Date(date.getFullYear(), date.getMonth(), 1);
-            }
-            let serieDates = [];
-            serieDates.push(getFirstDayDateOfMonth(from));
-            while (from < to) {
-                from.setMonth(from.getMonth() + 1);
-                serieDates.push(getFirstDayDateOfMonth(from));
-            }
-            serieDates.pop();
-            return serieDates;
-        }
-        
-        
         const courses = [];
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth()+1;
@@ -766,6 +750,7 @@ export const Provider = ({ children }) => {
             isLoadingColleges,
             isLoadingCourses,
             isLoadingPayments,
+            isLoadingProfessors,
             isLoadingStudents,
             isLoadingTasks,
             isLoadingTemplates,

@@ -58,7 +58,6 @@ export default function Courses(props) {
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
-        setEdit(false);
         setDisplayStudentsModal(value);
         setAddTaskModal(value);
         setDisplayTasksModal(value);

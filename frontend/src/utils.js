@@ -9,6 +9,42 @@ export function getMonthNames() {
     ];
 }
 
+/**
+ * 
+ * @param {String} from 
+ * @param {String} to 
+ * @returns {Array<Date>} series between from and to
+ * Example:
+ * 
+ * Input:
+ * from="2024-01-01"
+ * to="2024-03-31"
+ * 
+ * Output:
+ * [Date("2024-01-01"), Date("2024-02-01"), Date("2024-03-01")]
+ */
+export function series(from, to) {
+    if (from.length == 10) {
+        from = from + "T00:00:00"
+    }
+    if (to.length == 10) {
+        to = to + "T23:59:59"
+    }
+    from = new Date(from);
+    to = new Date(to);
+    function getFirstDayDateOfMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+    let serieDates = [];
+    serieDates.push(getFirstDayDateOfMonth(from));
+    while (from < to) {
+        from.setMonth(from.getMonth() + 1);
+        serieDates.push(getFirstDayDateOfMonth(from));
+    }
+    serieDates.pop();
+    return serieDates;
+}
+
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
