@@ -10,7 +10,8 @@ import CurrencyInput from "../input/currencyInput";
 import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
 import { Context } from "../../context/Context";
 
-export default function ProfessorCalendar({ professor, courseId, enabledPeriods, payments }) {
+export default function ProfessorCalendar({ onAddPayment, professor, courseId, enabledPeriods, payments }) {
+    
     const [currentYear, setCurrentYear] = useState(null);
     const [periods, setPeriods] = useState({});
     const years = Object.keys(periods);
@@ -31,7 +32,7 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
                 const monthDetails = periods[currentYear][month];
                 if (!monthDetails.paid) {
                     if (monthDetails.dictedByProfessor) {
-                        return <NoPayments year={currentYear} month={month} professor={professor} courseId={courseId}/>;
+                        return <NoPayments onAddPayment={onAddPayment} year={currentYear} month={month} professor={professor} courseId={courseId}/>;
                     } else {
                         return "no disponible";
                     }
@@ -87,6 +88,9 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
             }
         }
         for (const payment of payments) {
+            if (payment.courseId != courseId) {
+                continue
+            }
             let start = toCustomDateObj(payment.periodFrom);
             let end = toCustomDateObj(payment.periodTo);
             while ((start.year < end.year) || (start.year  === end.year && start.month <= end.month)) {
@@ -133,7 +137,7 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
     </>);
 } 
 
-function NoPayments({ month, year, courseId, professor }) {
+function NoPayments({ month, year, courseId, professor, onAddPayment }) {
     const { newProfessorPayment } = useContext(Context);
     const [addingPayment, setAddingPayment] = useState(false);
     const [value, setValue] = useState("");
@@ -150,11 +154,12 @@ function NoPayments({ month, year, courseId, professor }) {
         }
     }, [addingPayment]);
 
-    const handleOnCreatePayment = () => {
+    const handleOnCreatePayment = async () => {
         const m = addLeadingZeroLessTen(month);
         const from = `${year}-${m}-01`;
         const to = `${year}-${m}-${getLastDayOfMonth(year, month)}`;
-        newProfessorPayment(professor.id, courseId, from, to, value);
+        await newProfessorPayment(professor.id, courseId, from, to, value);
+        onAddPayment()
         toggleAddingPayment();
     }
 

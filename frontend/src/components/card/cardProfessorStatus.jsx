@@ -1,0 +1,69 @@
+import React from 'react'
+import SimpleCard from './simpleCard'
+import { series } from '../../utils'
+import WarningAlert from '../alert/warning'
+import DangerAlert from '../alert/danger'
+import SuccessAlert from '../alert/success'
+
+const CardProfessorStatus = ({ professor }) => {
+
+	const owedPeriods = []
+	const notVerifiedPeriods = []
+
+	const getPaymentAt = (month, year, courseId) => {
+		return professor.payments.find(payment => {
+			if (!("periodFrom" in payment && "periodTo" in payment)) {
+				return false;
+			}
+			if (courseId != payment.courseId) {
+				return false
+			}
+			const paymentFrom = new Date(payment.periodFrom + "T00:00:00")
+			const paymentTo = new Date(payment.periodTo + "T23:59:59")
+			const paymentFromMonth = paymentFrom.getMonth()+1
+			const paymentToMonth = paymentFrom.getMonth()+1
+			const paymentToYear = paymentTo.getFullYear()
+			const paymentFromYear = paymentTo.getFullYear()
+			const sameMonth = month == paymentFromMonth && month == paymentToMonth
+			const sameYear = year == paymentFromYear && year == paymentToYear
+			return sameMonth && sameYear
+		})
+	}
+
+	professor?.courses?.forEach(course => {
+		course.professorCourse.forEach(period => {
+			const seriesPeriod = series(period.startAt, period.endAt)
+			seriesPeriod.forEach(dateMonth => {
+				const year = dateMonth.getFullYear();
+				const month = dateMonth.getMonth() +1;
+				const payment = getPaymentAt(month, year, course.id)
+				if (payment) {
+					if (!payment.verified) {
+						notVerifiedPeriods.push({year,month, payment})
+					}
+				} else {
+					owedPeriods.push({year,month, course})
+				}
+			})
+		})
+	})
+
+
+	
+  return (
+    <SimpleCard>
+			{owedPeriods.length == 0 && notVerifiedPeriods == 0 &&
+			<SuccessAlert title="Al dia">No hay pagos pendientes.</SuccessAlert>
+			}
+			{owedPeriods.length > 0 &&
+			<DangerAlert title="Pago pendiente">Se debe generar un pago para los siguientes periodos.</DangerAlert>
+			
+			}
+			{notVerifiedPeriods.length > 0 &&
+			<WarningAlert title="Verificacion de pagos">Los siguientes pagos han sido generados pero no se han verificado aun.</WarningAlert>
+			}
+    </SimpleCard>
+  )
+}
+
+export default CardProfessorStatus

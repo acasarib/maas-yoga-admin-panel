@@ -43,7 +43,7 @@ export default function ProfessorPayments(props) {
 
     return(
         <>
-            <Container title="Calculo de pagos">
+            <Container title="Calculo de pagos" items={[{ name: "Movimientos", href: "/home/payments" }, { name: "Calculo de pagos" }]}>
                 <h2 className="text-xl mb-2">Rango:</h2>
                 <div className="flex">
                     <div>

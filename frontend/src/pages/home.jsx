@@ -30,6 +30,7 @@ import HamburgerButton from "../components/button/hanmburger";
 import ProfessorPayments from "./professorPayments";
 import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import ProfessorDetail from "./professorDetail";
 
 export default function Home(props) {
     const { setUser } = useContext(Context);
@@ -140,12 +141,12 @@ export default function Home(props) {
                             </div>
                             <div className="p-4">
                             <ul className="space-y-1">
-                                <NavItem onClick={closeSidebar} target={"payments"} isActive={props.payments} icon={<PaidIcon/>}>Movimientos</NavItem>
+                                <NavItem onClick={closeSidebar} target={"payments"} isActive={props.payments || props.professorPayments} icon={<PaidIcon/>}>Movimientos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"tasks"} isActive={props.tasks} icon={<AssignmentIcon/>}>Tareas pendientes</NavItem>
                                 <NavItem onClick={closeSidebar} target={"balance"} isActive={props.balance} icon={<BalanceIcon/>}>Balance</NavItem>
                                 <NavItem onClick={closeSidebar} target={"students"} isActive={props.students} icon={<SchoolIcon/>}>Alumnos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
-                                <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors} icon={<HailIcon/>}>Profesores</NavItem>
+                                <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors || props.professorDetail} icon={<HailIcon/>}>Profesores</NavItem>
                                 <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
                                 <NavItem onClick={closeSidebar} target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
@@ -179,6 +180,7 @@ export default function Home(props) {
                     {props.imports && (<><Imports/></>)}
                     {props.diary && (<><Diary/></>)}
                     {props.professorPayments && (<><ProfessorPayments/></>)}
+                    {props.professorDetail && (<><ProfessorDetail/></>)}
                     {props.professors && (<><Professors/></>)}
                 </main>
                 </div>

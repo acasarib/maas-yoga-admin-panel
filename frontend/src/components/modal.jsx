@@ -14,7 +14,6 @@ export default function Modal(props) {
   }
 
   const handleOnClickPrimaryButton = () => {
-    onClose()
     props.onClick()
   }
 
