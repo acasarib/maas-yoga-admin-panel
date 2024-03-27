@@ -4,8 +4,10 @@ import { series } from '../../utils'
 import WarningAlert from '../alert/warning'
 import DangerAlert from '../alert/danger'
 import SuccessAlert from '../alert/success'
+import ProfessorPaymentNotVerifiedList from '../list/professorPaymentNotVerifiedList'
+import ProfessorPaymentPendingList from '../list/professorPaymentPendingList'
 
-const CardProfessorStatus = ({ professor }) => {
+const CardProfessorStatus = ({ professor, onAddPayment, onDeletePayment }) => {
 
 	const owedPeriods = []
 	const notVerifiedPeriods = []
@@ -39,10 +41,19 @@ const CardProfessorStatus = ({ professor }) => {
 				const payment = getPaymentAt(month, year, course.id)
 				if (payment) {
 					if (!payment.verified) {
-						notVerifiedPeriods.push({year,month, payment})
+						notVerifiedPeriods.push({year,month, payment, course})
 					}
 				} else {
-					owedPeriods.push({year,month, course})
+					const date = new Date()
+					const currentYear = date.getFullYear()
+					const currentMonth = date.getMonth()+1
+					if (year < currentYear) {
+						owedPeriods.push({year,month, course})
+					} else if (year === currentYear) {
+						if (month < currentMonth) {
+							owedPeriods.push({year,month, course})
+						}
+					}
 				}
 			})
 		})
@@ -53,15 +64,17 @@ const CardProfessorStatus = ({ professor }) => {
   return (
     <SimpleCard>
 			{owedPeriods.length == 0 && notVerifiedPeriods == 0 &&
+			<div className='mb-4'>
 			<SuccessAlert title="Al dia">No hay pagos pendientes.</SuccessAlert>
-			}
-			{owedPeriods.length > 0 &&
+			</div>}
+			{owedPeriods.length > 0 && <div className='mb-4'>
 			<DangerAlert title="Pago pendiente">Se debe generar un pago para los siguientes periodos.</DangerAlert>
-			
-			}
-			{notVerifiedPeriods.length > 0 &&
+			<ProfessorPaymentPendingList periods={owedPeriods}/>
+			</div>}
+			{notVerifiedPeriods.length > 0 && <div className='mb-4'>
 			<WarningAlert title="Verificacion de pagos">Los siguientes pagos han sido generados pero no se han verificado aun.</WarningAlert>
-			}
+			<ProfessorPaymentNotVerifiedList onDeletePayment={onDeletePayment} onAddPayment={onAddPayment} periods={notVerifiedPeriods}/>
+			</div>}
     </SimpleCard>
   )
 }

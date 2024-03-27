@@ -183,10 +183,10 @@ export const Provider = ({ children }) => {
     const getUserById = userId => users.find(user => user.id == userId);
     const getProfessorById = professorId => professors.find(professor => professor.id == professorId);
 
-    const getProfessorDetailsById = async professorId => {
+    const getProfessorDetailsById = async (professorId, force = false) => {
         const localProfessor = getProfessorById(professorId);
         if (localProfessor) {
-            if ("courses" in localProfessor) {
+            if (force === false && ("courses" in localProfessor)) {
                 return localProfessor;
             }
             const professor = await professorsService.getProfessor(professorId);
@@ -316,6 +316,7 @@ export const Provider = ({ children }) => {
     const deletePayment = async (id) => {
         await paymentsService.deletePayment(id);
         setPayments(current => current.filter(p => p.id !== id));
+        changeAlertStatusAndMessage(true, 'success', 'El pago fue eliminado');
     }
 
     const deleteUser = async (email) => {

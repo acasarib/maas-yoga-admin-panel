@@ -28,11 +28,15 @@ export const create = async (paymentParam, informerId) => {
 
 export const deleteById = async (id, userId) => {
   const p = await payment.findByPk(id);
-  if (p.fileId) {
-    file.destroy({ where: { id: p.fileId } });
+  if (p) {
+    if (p.fileId) {
+      file.destroy({ where: { id: p.fileId } });
+    }
+    logService.deletePayment(userId);
+    return p.destroy();
+  } else {
+    throw ({ statusCode: 404, message: "Payment not found"})
   }
-  logService.deletePayment(userId);
-  return p.destroy();
 };
 
 export const getAllByStudentId = async (studentId) => {
