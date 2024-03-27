@@ -230,7 +230,14 @@ function isLastDayOfMonth(date) {
     return nextDay.getMonth() !== month;
 }
 
-function getMonthName(date) {
+export function getMonthName(date) {
     const options = { month: 'long' };
     return date.toLocaleDateString('es-ES', options);
+}
+
+export function getMonthNameByMonthNumber(monthNumber) {
+    const year = new Date().getFullYear();
+    const date = new Date(year, monthNumber - 1); 
+    date.setDate(monthNumber);
+    return getMonthName(date)
 }

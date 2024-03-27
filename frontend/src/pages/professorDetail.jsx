@@ -18,7 +18,7 @@ const ProfessorDetail = () => {
 	const [professor, setProfessor] = useState(null)
 	const [activeView, setActiveView] = useState(0);
 	const [activeSection, setActiveSection] = useState("");
-	const { professors, isLoadingProfessors, getProfessorDetailsById } = useContext(Context);
+	const { isLoadingProfessors, getProfessorDetailsById } = useContext(Context);
 	const onCancelImport = () => setActiveSection("");
 
 
@@ -39,6 +39,10 @@ const ProfessorDetail = () => {
 		setProfessor(await getProfessorDetailsById(professorId))
 	}
 
+	const onDeletePayment = async () => {
+		setProfessor(await getProfessorDetailsById(professorId, true))
+	}
+
 	const Menu = () => (<>
 		<div className='flex'>
 
@@ -48,7 +52,7 @@ const ProfessorDetail = () => {
 			<div className="w-6/12 ml-2 flex flex-col">
 				<CardItem className="mb-4" icon={<LocalLibraryIcon/>} onClick={() => setActiveSection("courses")}>Cursos</CardItem>
 				<CardItem className="mb-8" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
-				<CardProfessorStatus professor={professor}/>
+				<CardProfessorStatus onDeletePayment={onDeletePayment} onAddPayment={onAddPayment} professor={professor}/>
 			</div>
 		</div>
 	</>);
