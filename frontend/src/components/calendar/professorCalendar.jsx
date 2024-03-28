@@ -9,6 +9,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CurrencyInput from "../input/currencyInput";
 import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
 import { Context } from "../../context/Context";
+import Link from "../link/link";
 
 export default function ProfessorCalendar({ onAddPayment, professor, courseId, enabledPeriods, payments }) {
     
@@ -34,16 +35,16 @@ export default function ProfessorCalendar({ onAddPayment, professor, courseId, e
                     if (monthDetails.dictedByProfessor) {
                         return <NoPayments onAddPayment={onAddPayment} year={currentYear} month={month} professor={professor} courseId={courseId}/>;
                     } else {
-                        return "no disponible";
+                        return "No disponible";
                     }
                 }
                 if (!monthDetails.verified) {
-                    return "pago sin verificar $" + monthDetails.payment.value *-1;
+                    return (<><Link to={`/home/payments?id=${monthDetails?.payment?.id}&tab=2`}>Pago</Link> sin verificar ${monthDetails.payment.value *-1}</>);
                 }
                 const hasMonthPaid = "payment" in monthDetails;
                 const title = hasMonthPaid ? `$${monthDetails.payment.value *-1} por ${monthDetails.payment.type}` : "error";
-                const monthStatus = "pago realizado $" + monthDetails.payment.value *-1;
-                return (<Tooltip title={title}><span>{monthStatus}</span></Tooltip>)
+                const monthStatus = "realizado $" + monthDetails.payment.value *-1;
+                return (<Tooltip title={title}><span><Link to={`/home/payments?id=${monthDetails.payment.id}`}>Pago</Link> {monthStatus}</span></Tooltip>)
             } else {
                 return "no hay datos";
             }
@@ -164,7 +165,7 @@ function NoPayments({ month, year, courseId, professor, onAddPayment }) {
     }
 
     return !addingPayment ? 
-    <>no hay pagos <span onClick={toggleAddingPayment} className="underline cursor-pointer">agregar</span></>
+    <>No hay pagos <span onClick={toggleAddingPayment} className="underline cursor-pointer">agregar</span></>
     : 
         <div className="flex flex-end items-center">
             <div className="w-2/6">

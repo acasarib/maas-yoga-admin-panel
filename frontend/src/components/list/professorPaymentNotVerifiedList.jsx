@@ -1,23 +1,10 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import DoneIcon from '@mui/icons-material/Done';
 import { Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Context } from '../../context/Context';
 import { capitalizeFirstCharacter, getMonthNameByMonthNumber } from '../../utils';
 
-const ProfessorPaymentNotVerifiedList = ({ periods, onAddPayment, onDeletePayment }) => {
-
-  const { verifyPayment, deletePayment } = useContext(Context)
-
-  const onConfirmPayment = async (payment) => {
-    await verifyPayment(payment.id)
-    onAddPayment();
-  }
-
-  const handleOnDeletePayment = async (payment) => {
-    await deletePayment(payment.id)
-    onDeletePayment()
-  }
+const ProfessorPaymentNotVerifiedList = ({ periods, onClickVerifyPayment, onClickDeletePayment }) => {
 
   const formatCurrency = (period) => {
     let paymentValue = period.payment.value.toString();
@@ -29,7 +16,7 @@ const ProfessorPaymentNotVerifiedList = ({ periods, onAddPayment, onDeletePaymen
     return formatter.format(paymentValue)    
   }
 
-  return (
+  return (<>
     <ul className="bg-white shadow overflow-hidden sm:rounded-md mx-auto">
       {periods.map((period, index) =>
       <li key={index} className={`${index > 0 && "border-t border-gray-200"}`}>
@@ -43,10 +30,10 @@ const ProfessorPaymentNotVerifiedList = ({ periods, onAddPayment, onDeletePaymen
 
             <div className="mt-1 max-w-2xl text-sm text-gray-500">
               <Tooltip title="Verificar">
-                <button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => onConfirmPayment(period.payment)}><DoneIcon /></button>
+                <button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => onClickVerifyPayment(period.payment)}><DoneIcon /></button>
               </Tooltip>
               <Tooltip title="Eliminar">
-                <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => handleOnDeletePayment(period.payment)}><DeleteIcon /></button>
+                <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => onClickDeletePayment(period.payment)}><DeleteIcon /></button>
               </Tooltip>
             </div>
           </div>
@@ -54,7 +41,7 @@ const ProfessorPaymentNotVerifiedList = ({ periods, onAddPayment, onDeletePaymen
       </li>
       )}
     </ul>
-  )
+  </>)
 }
 
 export default ProfessorPaymentNotVerifiedList
