@@ -18,15 +18,15 @@ import ButtonPrimary from "../../button/primary";
 import { Context } from "../../../context/Context";
 import { CASH_PAYMENT_TYPE } from "../../../constants";
 import AddProfessorPaymentModal from "../../modal/addProfessorPaymentModal"
-import UseModal from "../../../hooks/useModal";
+import useModal from "../../../hooks/useModal";
 import PaymentAlreadyAddedWarningModal from "../../modal/paymentAlreadyAddedWarningModal";
 
 export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const { informPayment } = useContext(Context);
-    const addProfessorPaymentModal = UseModal()
-    const paymentAlreadyAddedWarningModal = UseModal()
+    const addProfessorPaymentModal = useModal()
+    const paymentAlreadyAddedWarningModal = useModal()
 
     let criteria = isByPercentage(professor.result.period.criteria) ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante.`
     criteria = isByAssistance(professor.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;

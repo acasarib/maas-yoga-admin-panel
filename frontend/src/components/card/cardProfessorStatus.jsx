@@ -7,7 +7,7 @@ import SuccessAlert from '../alert/success'
 import ProfessorPaymentNotVerifiedList from '../list/professorPaymentNotVerifiedList'
 import ProfessorPaymentPendingList from '../list/professorPaymentPendingList'
 
-const CardProfessorStatus = ({ professor, onAddPayment, onDeletePayment }) => {
+const CardProfessorStatus = ({ professor, onClickVerifyPayment, onClickDeletePayment }) => {
 
 	const owedPeriods = []
 	const notVerifiedPeriods = []
@@ -65,15 +65,21 @@ const CardProfessorStatus = ({ professor, onAddPayment, onDeletePayment }) => {
     <SimpleCard>
 			{owedPeriods.length == 0 && notVerifiedPeriods == 0 &&
 			<div className='mb-4'>
-			<SuccessAlert title="Al dia">No hay pagos pendientes.</SuccessAlert>
+				<SuccessAlert title="Al dia">No hay pagos pendientes.</SuccessAlert>
 			</div>}
-			{owedPeriods.length > 0 && <div className='mb-4'>
-			<DangerAlert title="Pago pendiente">Se debe generar un pago para los siguientes periodos.</DangerAlert>
-			<ProfessorPaymentPendingList periods={owedPeriods}/>
+			{owedPeriods.length > 0 && 
+			<div className='mb-4'>
+				<DangerAlert title="Pago pendiente">Se debe generar un pago para los siguientes periodos.</DangerAlert>
+				<ProfessorPaymentPendingList periods={owedPeriods}/>
 			</div>}
-			{notVerifiedPeriods.length > 0 && <div className='mb-4'>
-			<WarningAlert title="Verificacion de pagos">Los siguientes pagos han sido generados pero no se han verificado aun.</WarningAlert>
-			<ProfessorPaymentNotVerifiedList onDeletePayment={onDeletePayment} onAddPayment={onAddPayment} periods={notVerifiedPeriods}/>
+			{notVerifiedPeriods.length > 0 && 
+			<div className='mb-4'>
+				<WarningAlert title="Verificacion de pagos">Los siguientes pagos han sido generados pero no se han verificado aun.</WarningAlert>
+				<ProfessorPaymentNotVerifiedList
+					onClickDeletePayment={onClickDeletePayment}
+					onClickVerifyPayment={onClickVerifyPayment}
+					periods={notVerifiedPeriods}
+				/>
 			</div>}
     </SimpleCard>
   )

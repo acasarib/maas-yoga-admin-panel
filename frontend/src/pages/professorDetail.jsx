@@ -12,12 +12,18 @@ import ProfessorPayments from '../components/section/professor/ProfessorPayments
 import ProfessorCard from '../components/card/professorCard';
 import SimpleCard from '../components/card/simpleCard';
 import CardProfessorStatus from '../components/card/cardProfessorStatus';
+import VerifyPaymentModal from '../components/modal/verifyPaymentModal';
+import useModal from '../hooks/useModal';
+import DeletePaymentModal from '../components/modal/deletePaymentModal';
 
 const ProfessorDetail = () => {
 	let { professorId } = useParams();
 	const [professor, setProfessor] = useState(null)
 	const [activeView, setActiveView] = useState(0);
 	const [activeSection, setActiveSection] = useState("");
+	const [payment, setPayment] = useState(null);
+	const verifyPaymentModal = useModal()
+	const deletePaymentModal = useModal()
 	const { isLoadingProfessors, getProfessorDetailsById } = useContext(Context);
 	const onCancelImport = () => setActiveSection("");
 
@@ -35,11 +41,27 @@ const ProfessorDetail = () => {
 		}
 	}, [isLoadingProfessors])
 
-	const onAddPayment = async () => {
-		setProfessor(await getProfessorDetailsById(professorId))
+	const onClickVerifyPayment = (payment) => {
+		setPayment(payment)
+		verifyPaymentModal.open()
 	}
 
-	const onDeletePayment = async () => {
+	const handleOnCloseVerifyPaymentModal = () => {
+		onAddPayment()
+		verifyPaymentModal.close()
+	}
+
+	const onClickDeletePayment = async (payment) => {
+		setPayment(payment)
+		deletePaymentModal.open()
+	}
+
+	const handleOnCloseDeletePaymentModal = () => {
+		onAddPayment()
+		deletePaymentModal.close()
+	}
+
+	const onAddPayment = async () => {
 		setProfessor(await getProfessorDetailsById(professorId, true))
 	}
 
@@ -52,7 +74,7 @@ const ProfessorDetail = () => {
 			<div className="w-6/12 ml-2 flex flex-col">
 				<CardItem className="mb-4" icon={<LocalLibraryIcon/>} onClick={() => setActiveSection("courses")}>Cursos</CardItem>
 				<CardItem className="mb-8" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
-				<CardProfessorStatus onDeletePayment={onDeletePayment} onAddPayment={onAddPayment} professor={professor}/>
+				<CardProfessorStatus onClickDeletePayment={onClickDeletePayment} onClickVerifyPayment={onClickVerifyPayment} professor={professor}/>
 			</div>
 		</div>
 	</>);
@@ -65,7 +87,13 @@ const ProfessorDetail = () => {
 		{index === 1 && 
 			(<>
 			{activeSection === "courses" && <ProfessorCourses onAddPayment={onAddPayment} professor={professor} onCancel={onCancelImport}/>}
-			{activeSection === "payments" && <ProfessorPayments onCancel={onCancelImport}/>}
+			{activeSection === "payments" && 
+				<ProfessorPayments
+					onClickDeletePayment={onClickDeletePayment}
+					onClickVerifyPayment={onClickVerifyPayment}
+					professor={professor}
+					onCancel={onCancelImport}
+				/>}
 			</>)
 		}</>
 	)
@@ -83,6 +111,8 @@ const ProfessorDetail = () => {
 					animateHeight
 					style={{ overflow: 'auto', padding: '4px'}}
 				/>
+				<VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
+				<DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
 			</>
 			}
     </Container>
