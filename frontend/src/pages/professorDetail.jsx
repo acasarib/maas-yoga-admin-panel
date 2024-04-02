@@ -15,7 +15,7 @@ import VerifyPaymentModal from '../components/modal/verifyPaymentModal';
 import useModal from '../hooks/useModal';
 import DeletePaymentModal from '../components/modal/deletePaymentModal';
 import AddProfessorPaymentModal from '../components/modal/addProfessorPaymentModal';
-import { isByAssistance, isByPercentage, toMonthsNames } from '../utils';
+import { isByAssistance, isByPercentage, series, toMonthsNames } from '../utils';
 import { CASH_PAYMENT_TYPE } from '../constants';
 
 const ProfessorDetail = () => {
@@ -79,9 +79,26 @@ const ProfessorDetail = () => {
 	const onClickAddProfessorPayment = async ({ from, to, professorId, courseId }) => {
 		const data = await calcProfessorsPayments(from, to, professorId, courseId);
 		try {
-			setProfessorPaymentData({...data[0].professors[0], from, to })
+			setProfessorPaymentData({...data[0].professors[0], from, to, courseId })
 		} catch (e) {
-
+			const targetPeriod = from.slice(0, -3);
+			const course = professor.courses.find(c => c.id == courseId)
+			const period = course.professorCourse.find(pc => {
+				const pcSeries = series(pc.startAt, pc.endAt)
+				const formatPcSerie = (pcSerie) => {
+					let month = pcSerie.getMonth()+1
+					month = month < 10 ? '0' + month : month
+					return pcSerie.getFullYear() + "-" + month
+				}
+				return pcSeries.some(pcSerie => formatPcSerie(pcSerie) == targetPeriod)
+			})
+			setProfessorPaymentData({
+				result: { period, ...professor, totalStudents: 0, payments: [], collectedByProfessor: 0, courseId },
+				from,
+				to,
+				courseId,
+				id: professorId,
+			})
 		}
 		addProfessorPaymentModal.open()
 	}
@@ -172,7 +189,7 @@ const ProfessorDetail = () => {
 					criteriaValue={professorPaymentData.result.period.criteriaValue}
 					period={getPeriod()}
 					selectedPeriod={professorPaymentData.from}
-					courseId={professorPaymentData.result.courseId}
+					courseId={professorPaymentData.courseId}
 					total={professorPaymentData.result.collectedByProfessor}
 					payments={professorPaymentData.result.payments}
 					addPayment={addProfessorPayment}

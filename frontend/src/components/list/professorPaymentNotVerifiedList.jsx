@@ -2,19 +2,9 @@ import React from 'react'
 import DoneIcon from '@mui/icons-material/Done';
 import { Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { capitalizeFirstCharacter, getMonthNameByMonthNumber } from '../../utils';
+import { capitalizeFirstCharacter, formatPaymentValue, getMonthNameByMonthNumber } from '../../utils';
 
 const ProfessorPaymentNotVerifiedList = ({ periods, onClickVerifyPayment, onClickDeletePayment }) => {
-
-  const formatCurrency = (period) => {
-    let paymentValue = period.payment.value.toString();
-    paymentValue = paymentValue.replace("-", "");
-    let formatter = new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP'
-    })
-    return formatter.format(paymentValue)    
-  }
 
   return (<>
     <ul className="bg-white shadow overflow-hidden sm:rounded-md mx-auto">
@@ -23,7 +13,7 @@ const ProfessorPaymentNotVerifiedList = ({ periods, onClickVerifyPayment, onClic
         <div className="px-4 py-5 sm:px-6">
           <div className="flex items-center justify-between">
             <div className='flex flex-col'>
-              <h3 className="text-lg leading-6 font-medium text-gray-900">{formatCurrency(period)}</h3>
+              <h3 className="text-lg leading-6 font-medium text-gray-900">{formatPaymentValue(period.payment.value)}</h3>
               <p className="text-sm font-medium text-gray-500">{capitalizeFirstCharacter(getMonthNameByMonthNumber(period.month))} {period.year}</p>
               <p className="text-sm font-medium text-gray-500">Curso: {period.course.title}</p>
             </div>

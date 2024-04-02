@@ -4,12 +4,9 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useState } from "react";
 import Tooltip from '@mui/material/Tooltip';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
-import CurrencyInput from "../input/currencyInput";
-import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
-import { Context } from "../../context/Context";
+import { addLeadingZeroLessTen, formatPaymentValue, getLastDayOfMonth } from "../../utils";
 import Link from "../link/link";
+import PlusButton from "../button/plus";
 
 export default function ProfessorCalendar({ onClickAddProfessorPayment, professor, courseId, enabledPeriods, payments }) {
     
@@ -38,17 +35,39 @@ export default function ProfessorCalendar({ onClickAddProfessorPayment, professo
                         return "No disponible";
                     }
                 }
-                if (!monthDetails.verified) {
-                    return (<><Link to={`/home/payments?id=${monthDetails?.payment?.id}&tab=2`}>Pago</Link> sin verificar ${monthDetails.payment.value *-1}</>);
+                const itemList = monthDetails.payments.map((payment, index) => {
+                    let item;
+                    if (!payment.verified) {
+                        item = (<><Link to={`/home/payments?id=${payment.id}&tab=2`}>Pago</Link> sin verificar {formatPaymentValue(payment.value)}</>);
+                    } else {
+                        const title = `${formatPaymentValue(payment.value *-1)} por ${payment.type}`;
+                        const monthStatus = "realizado " + formatPaymentValue(payment.value *-1);
+                        item = (<Tooltip title={title}><span><Link to={`/home/payments?id=${payment.id}`}>Pago</Link> {monthStatus}</span></Tooltip>)
+                    }
+                    return <div key={index}>{item}</div>
+                })
+
+                const handleOnCreatePayment = async () => {
+                    const m = addLeadingZeroLessTen(month);
+                    const from = `${currentYear}-${m}-01`;
+                    const to = `${currentYear}-${m}-${getLastDayOfMonth(currentYear, month)}`;
+                    onClickAddProfessorPayment({ from, to, professorId: monthDetails.payments[0].professorId, courseId: monthDetails.payments[0].courseId })
                 }
-                const hasMonthPaid = "payment" in monthDetails;
-                const title = hasMonthPaid ? `$${monthDetails.payment.value *-1} por ${monthDetails.payment.type}` : "error";
-                const monthStatus = "realizado $" + monthDetails.payment.value *-1;
-                return (<Tooltip title={title}><span><Link to={`/home/payments?id=${monthDetails.payment.id}`}>Pago</Link> {monthStatus}</span></Tooltip>)
+
+                return (
+                    <div className="flex">
+                        <div>{itemList}</div>
+                        <Tooltip title={"Agregar"}>
+                            <div className="w-5 h-5 ml-4">
+                                <PlusButton className="w-5 h-5" fontSize={"small"} onClick={handleOnCreatePayment}/>
+                            </div>
+                        </Tooltip>
+                    </div>)
             } else {
                 return "no hay datos";
             }
-        } catch {
+        } catch(e) {
+            console.log(e);
             return "";
         }
     }
@@ -75,7 +94,7 @@ export default function ProfessorCalendar({ onClickAddProfessorPayment, professo
                     for (let i = 1; i <= 12; i++) {
                         periods[year][i] = {
                             dictedByProfessor: false,
-                            verified: false,
+                            payments: [],
                             paid: false,
                         }
                     }
@@ -101,15 +120,18 @@ export default function ProfessorCalendar({ onClickAddProfessorPayment, professo
                     for (let i = 1; i <= 12; i++) {
                         periods[year][i] = {
                             dictedByProfessor: false,
-                            verified: false,
+                            payments: [],
                             paid: false,
                         }
                     }
                 }
                 periods[year][start.month].paid = true;
-                periods[year][start.month].verified = payment.verified;
-                periods[year][start.month].payment = payment;
+                periods[year][start.month].payments.push(payment)
                 start.month = start.month+1;
+                if (start.month >= 13) {
+                    start.month = 1;
+                    start.year++;
+                }
             }
         }
         setCurrentYear(Object.keys(periods)[0]);

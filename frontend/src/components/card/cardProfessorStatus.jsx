@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import SimpleCard from './simpleCard'
-import { capitalizeFirstCharacter, getMonthNameByMonthNumber, series } from '../../utils'
+import { capitalizeFirstCharacter, formatPaymentValue, getMonthNameByMonthNumber, series } from '../../utils'
 import WarningAlert from '../alert/warning'
 import DangerAlert from '../alert/danger'
 import SuccessAlert from '../alert/success'
@@ -51,22 +51,10 @@ function SliderMonthCard({ payments, title }) {
 		return month + " " + year
 	}
 
-	const formatCurrency = (value) => {
-		let paymentValue = value.toString();
-		paymentValue = paymentValue.replace("-", "");
-		let formatter = new Intl.NumberFormat('es-CL', {
-			style: 'currency',
-			currency: 'CLP',
-			minimumFractionDigits: 0,
-        	maximumFractionDigits: 2
-		})
-		return formatter.format(paymentValue)    
-	}
-
 	return <SimpleCard>
 		{currentIndex !== null ? 
 		<div>
-			<h3 className='text-lg leading-6 font-medium text-gray-900'>{formatCurrency(indexPayments[currentIndex].value)}</h3>
+			<h3 className='text-lg leading-6 font-medium text-gray-900'>{formatPaymentValue(indexPayments[currentIndex].value)}</h3>
 			<p className="text-sm font-medium text-gray-500">{title}</p>
 			<div className="text-sm font-medium text-gray-500 flex">
 				<div className={`cursor-pointer ${currentIndex === 0 ? "invisible" : ""}`}>
