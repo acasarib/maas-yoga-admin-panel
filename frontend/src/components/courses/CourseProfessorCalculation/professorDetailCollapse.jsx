@@ -39,7 +39,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
             type: CASH_PAYMENT_TYPE,
             value: value || professor.result.collectedByProfessor * -1,
             at: new Date(),
-            operativeResult: new Date(),
+            operativeResult: new Date(parsedFrom.slice(0, -2) + "15"),
             periodFrom: parsedFrom,
             periodTo: parsedTo,
             verified: false,
@@ -62,10 +62,8 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     const isAlreadyInformedPayment = alreadyInformedPayment();
 
     const handleInform = () => {
-        if (isByAssistance(professor.result.period.criteria))
-            addProfessorPaymentModal.open()
-        else
-            addPayment()
+        paymentAlreadyAddedWarningModal.close()
+        addProfessorPaymentModal.open()
     }
 
     return (<>
@@ -138,6 +136,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
             criteria={criteria}
             criteriaValue={professor.result.period.criteriaValue}
             period={period}
+            courseId={professor.result.courseId}
             total={professor.result.collectedByProfessor}
             payments={professor.result.payments}
             addPayment={addPayment}

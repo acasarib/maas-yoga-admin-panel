@@ -5,7 +5,7 @@ import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import ProfessorCalendar from '../../calendar/professorCalendar';
 
-function Course({ course, payments, professor, onAddPayment }) {
+function Course({ course, payments, professor, onClickAddProfessorPayment }) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (<>
@@ -17,15 +17,15 @@ function Course({ course, payments, professor, onAddPayment }) {
 			{isOpen ? <ExpandLess /> : <ExpandMore />}
 	</ListItemButton>
 	<Collapse in={isOpen} timeout="auto" unmountOnExit>
-		<ProfessorCalendar onAddPayment={onAddPayment} professor={professor} courseId={course.id} enabledPeriods={course.professorCourse} payments={payments}/>
+		<ProfessorCalendar onClickAddProfessorPayment={onClickAddProfessorPayment} professor={professor} courseId={course.id} enabledPeriods={course.professorCourse} payments={payments}/>
 	</Collapse>
 	</>);
 }
 
-const ProfessorCourses = ({ onCancel, professor, onAddPayment }) => {
+const ProfessorCourses = ({ onCancel, professor, onClickAddProfessorPayment }) => {
   return (
 	<ProfessorModule title="Cursos" onCancel={onCancel}>
-		{professor?.courses?.map(course => <Course onAddPayment={onAddPayment} key={course.id} professor={professor} course={course} payments={professor.payments}/>)}
+		{professor?.courses?.map(course => <Course onClickAddProfessorPayment={onClickAddProfessorPayment} key={course.id} professor={professor} course={course} payments={professor.payments}/>)}
 		{professor?.courses?.length == 0 && <h1 className='text-xl md:text-2xl text-center'>No hay cursos</h1>}
 
     </ProfessorModule>

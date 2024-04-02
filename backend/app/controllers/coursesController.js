@@ -210,7 +210,7 @@ export default {
    */
   calcProfessorsPayments: async (req, res, next) => {
     try {
-      const details = await courseService.calcProfessorsPayments(req.body.from, req.body.to);
+      const details = await courseService.calcProfessorsPayments(req.body.from, req.body.to, req.body.professorId, req.body.courseId);
       res.status(StatusCodes.OK).json(details);
     } catch (e) {
       console.log(e);

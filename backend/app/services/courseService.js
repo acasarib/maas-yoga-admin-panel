@@ -190,7 +190,7 @@ export const setCompletedStudentTask = async (studentCourseTaskParam, courseTask
  * @param {String} from in format yyyy-mm-dd
  * @param {String} to in format yyyy-mm-dd
  */
-export const calcProfessorsPayments = async (from, to) => {
+export const calcProfessorsPayments = async (from, to, professorId, courseId) => {
   const startDate = new Date(from);
   const endDate = new Date(to);
   startDate.setHours(0, 0, 0, 0);
@@ -200,8 +200,11 @@ export const calcProfessorsPayments = async (from, to) => {
       operativeResult: {
         [Op.between]: [startDate, endDate]
       },
-      courseId: {
-        [Op.not]: null
+      courseId: 
+        courseId === undefined ? { [Op.not]: null }
+         : { [Op.eq]: courseId },
+      value: {
+        [Op.gt]: 0
       }
     }
   });
@@ -215,7 +218,17 @@ export const calcProfessorsPayments = async (from, to) => {
     }
   });
   for (const c of coursesInRange) {
-    c.professors = await getProfessorPeriodsInCourse(c.id);
+    const professorPeriodsInCourse = await getProfessorPeriodsInCourse(c.id);
+    if (professorId == undefined) {
+      c.professors = professorPeriodsInCourse;
+    } else {
+      const prof = professorPeriodsInCourse.find(p => p.id == professorId)
+      if (prof) {
+        c.professors = [prof];
+      } else {
+        c.professors = []
+      }
+    }
   }
   
   for (const paymentRange of paymentsInRange) {

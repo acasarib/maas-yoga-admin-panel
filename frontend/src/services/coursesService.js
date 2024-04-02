@@ -172,10 +172,10 @@ export default {
                 })
         });
     },
-    calcProfessorsPayments(from, to) {
+    calcProfessorsPayments(from, to, professorId, courseId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
-            const period = { from, to };
+            const period = { from, to, professorId, courseId };
             axios
                 .post(baseUrl + `api/v1/courses/calc-professors-payments`, period, {})
                 .then((response) => {

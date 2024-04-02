@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Modal from "../modal";
 import HailIcon from '@mui/icons-material/Hail';
 import Select from "react-select";
 import CommonInput from "../commonInput";
 import ButtonPrimary from "../button/primary";
+import { Context } from "../../context/Context";
+import { getMonthNameByMonthNumber, isByAssistance } from "../../utils";
+import ButtonSecondary from "../button/secondary";
 
-export default function AddProfessorPaymentModal({ criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
+export default function AddProfessorPaymentModal({ allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
+    const { getCourseById } = useContext(Context)
+    const course = getCourseById(courseId)
+    const [manualValue, setManualValue] = useState("")
+    const [manualValueEnabled, setManualValueEnabled] = useState(false)
     const values = [
         {
             value: 'default',
@@ -25,6 +32,11 @@ export default function AddProfessorPaymentModal({ criteriaType, criteriaValue, 
     const [error, setError] = useState(false)
 
     const handleInform = () => {
+        if (manualValueEnabled) {
+            addPayment(parseFloat(manualValue) *-1)
+            onClose()
+            return
+        }
         if (value.value == 'default') {
             addPayment()
         } else {
@@ -58,11 +70,39 @@ export default function AddProfessorPaymentModal({ criteriaType, criteriaValue, 
         setAmountStudents("")
         setValue(e)
     }
+
+    const enableManualValue = () => {
+        setManualValueEnabled(true)
+    }
+    
+    const disableManualValue = () => {
+        setManualValueEnabled(false)
+    }
+
+    const formatSelectedPeriod = () => {
+        const [year, month] = selectedPeriod.split("-")
+        return year +  " " + getMonthNameByMonthNumber(month)
+    }
     
     return(
         <Modal hiddingButton open={isOpen} icon={<HailIcon/>} setDisplay={onClose} title={'Profesor ' + professorName + " (" + period + ")"}>
-            <Select className="mt-4" placeholder="Seleccionar" value={value} onChange={handleChangeSelectValue} options={values} />
-
+            {isOpen && <>
+            {allowManualValue && manualValueEnabled ? <div>
+                <CommonInput
+                    label="Monto"    
+                    value={manualValue}
+                    name="value"
+                    htmlFor="value"
+                    id="value" 
+                    type="number" 
+                    placeholder="Monto"
+                    onChange={(e) => setManualValue(e.target.value)}
+                />
+            </div>
+            
+            :
+            <>
+            {isByAssistance(criteriaType) && <Select className="mt-4" placeholder="Seleccionar" value={value} onChange={handleChangeSelectValue} options={values} />}
 
             {value.value == 'amount_students' && 
             <>
@@ -84,7 +124,9 @@ export default function AddProfessorPaymentModal({ criteriaType, criteriaValue, 
                 <div className="mt-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
                     <p className="font-bold">Detalle del informe</p>
                     <p>Profesor: <span className="font-bold">{professorName}</span></p>
+                    <p>Curso: <span className="font-bold">{course?.title}</span></p>
                     <p>Periodo que dicta el profesor: <span className="font-bold">{period}</span></p>
+                    {selectedPeriod && <p>Periodo seleccionado: <span className="font-bold">{formatSelectedPeriod()}</span></p>}
                     <p>Alumnos que abonaron: <span className="font-bold">{totalStudents}</span></p>
                     <p>Pagos registrados en el periodo: <span className="font-bold">{payments.length}</span></p>
                     {value.value == 'amount_students' && amountStudents != '' && 
@@ -93,9 +135,14 @@ export default function AddProfessorPaymentModal({ criteriaType, criteriaValue, 
                     <p>{criteria.split(".")[0]}</p>
                     <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? total : totalByStudents}</span></p>
                 </div>
-                
             </div>
+            </>
+            }
             <ButtonPrimary className="mt-2" onClick={handleInform}>Informar</ButtonPrimary>
+            {allowManualValue && 
+                <> {manualValueEnabled ? <ButtonSecondary className="mt-2 ml-2" onClick={disableManualValue}>Calcular monto</ButtonSecondary> : <ButtonSecondary className="mt-2 ml-2" onClick={enableManualValue}>Otro monto</ButtonSecondary>}
+                </>}
+            </>}
         </Modal>
     );
 }
