@@ -95,7 +95,15 @@ export function dateToString(str) {
 }
 
 export function formatPaymentValue(value) {
-    return "$" + value.toLocaleString("es-ES");
+    let paymentValue = value.toString();
+    paymentValue = paymentValue.replace("-", "");
+    let formatter = new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    })
+    return formatter.format(paymentValue)    
 }
 
 export function isByStudent(criteria) {
