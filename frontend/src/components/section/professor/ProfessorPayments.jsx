@@ -9,6 +9,20 @@ const ProfessorPayments = ({ onCancel, professor, onClickDeletePayment, onClickV
         payments={professor.payments}
         isLoading={false}
         canVerify
+        columnsProps={[
+          {
+            name: "Abonado por",
+            hidden: true
+          },
+          {
+            name: "Profesor",
+            hidden: true
+          },
+          {
+            name: "Comprobante",
+            hidden: true
+          },
+        ]}
         onClickDeletePayment={onClickDeletePayment}
         onClickVerifyPayment={onClickVerifyPayment}
       />
