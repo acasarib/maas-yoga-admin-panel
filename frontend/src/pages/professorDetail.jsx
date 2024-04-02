@@ -66,14 +66,13 @@ const ProfessorDetail = () => {
 	}
 
 	const Menu = () => (<>
-		<div className='flex'>
-
-			<div className='w-6/12 mr-2'>
+		<div className='sm:flex'>
+			<div className='w-full sm:w-6/12 mb-4 sm:mb-0 sm:mr-2'>
 				<ProfessorCard professor={professor}/>
 			</div>
-			<div className="w-6/12 ml-2 flex flex-col">
+			<div className="w-full sm:w-6/12 sm:ml-2 flex flex-col">
 				<CardItem className="mb-4" icon={<LocalLibraryIcon/>} onClick={() => setActiveSection("courses")}>Cursos</CardItem>
-				<CardItem className="mb-8" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
+				<CardItem className="mb-4 sm:mb-8" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
 				<CardProfessorStatus onClickDeletePayment={onClickDeletePayment} onClickVerifyPayment={onClickVerifyPayment} professor={professor}/>
 			</div>
 		</div>
@@ -101,20 +100,20 @@ const ProfessorDetail = () => {
 
   return (
     <Container disableTitle className="max-w-full" items={[{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}` }]}>
-			{professor !== null &&
-			<>
-				<h1 className='text-2xl md:text-3xl text-center mb-12'>{professor?.name} {professor?.lastName}</h1>
-				<ViewSlider
-					renderView={renderView}
-					numViews={2}
-					activeView={activeView}
-					animateHeight
-					style={{ overflow: 'auto', padding: '4px'}}
-				/>
-				<VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
-				<DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
-			</>
-			}
+		{professor !== null &&
+		<>
+			<h1 className='text-2xl md:text-3xl text-center mb-12'>{professor?.name} {professor?.lastName}</h1>
+			<ViewSlider
+				renderView={renderView}
+				numViews={2}
+				activeView={activeView}
+				animateHeight
+				style={{ overflow: 'auto', padding: '4px'}}
+			/>
+			<VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
+			<DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
+		</>
+		}
     </Container>
   )
 }
