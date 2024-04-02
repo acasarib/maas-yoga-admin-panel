@@ -119,7 +119,6 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
 
     const getUserFullName = (row) => {
         let user = null
-        console.log(row);
         if (row.user && row.user !== undefined && row.user !== null) {
             user = row.user
         } else if ("userId" in row)  {

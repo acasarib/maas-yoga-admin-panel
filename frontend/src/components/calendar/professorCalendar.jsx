@@ -11,7 +11,7 @@ import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
 import { Context } from "../../context/Context";
 import Link from "../link/link";
 
-export default function ProfessorCalendar({ onAddPayment, professor, courseId, enabledPeriods, payments }) {
+export default function ProfessorCalendar({ onClickAddProfessorPayment, professor, courseId, enabledPeriods, payments }) {
     
     const [currentYear, setCurrentYear] = useState(null);
     const [periods, setPeriods] = useState({});
@@ -33,7 +33,7 @@ export default function ProfessorCalendar({ onAddPayment, professor, courseId, e
                 const monthDetails = periods[currentYear][month];
                 if (!monthDetails.paid) {
                     if (monthDetails.dictedByProfessor) {
-                        return <NoPayments onAddPayment={onAddPayment} year={currentYear} month={month} professor={professor} courseId={courseId}/>;
+                        return <NoPayments onClickAddProfessorPayment={onClickAddProfessorPayment} year={currentYear} month={month} professor={professor} courseId={courseId}/>;
                     } else {
                         return "No disponible";
                     }
@@ -138,44 +138,14 @@ export default function ProfessorCalendar({ onAddPayment, professor, courseId, e
     </>);
 } 
 
-function NoPayments({ month, year, courseId, professor, onAddPayment }) {
-    const { newProfessorPayment } = useContext(Context);
-    const [addingPayment, setAddingPayment] = useState(false);
-    const [value, setValue] = useState("");
-    const currencyInputRef = React.createRef();
-
-    const toggleAddingPayment = () => {
-        setAddingPayment(!addingPayment);
-        setValue("");
-    }
-
-    useEffect(() => {
-        if (addingPayment && currencyInputRef !== null) {
-            currencyInputRef.current.focus();
-        }
-    }, [addingPayment]);
+function NoPayments({ month, year, courseId, professor, onClickAddProfessorPayment }) {
 
     const handleOnCreatePayment = async () => {
         const m = addLeadingZeroLessTen(month);
         const from = `${year}-${m}-01`;
         const to = `${year}-${m}-${getLastDayOfMonth(year, month)}`;
-        await newProfessorPayment(professor.id, courseId, from, to, value);
-        onAddPayment()
-        toggleAddingPayment();
+        onClickAddProfessorPayment({ from, to, professorId: professor.id, courseId })
     }
 
-    return !addingPayment ? 
-    <>No hay pagos <span onClick={toggleAddingPayment} className="underline cursor-pointer">agregar</span></>
-    : 
-        <div className="flex flex-end items-center">
-            <div className="w-2/6">
-                <CurrencyInput
-                    innerref={currencyInputRef}
-                    value={value}
-                    onChange={(e) => setValue(e)}
-                />
-            </div>
-            <CheckIcon onClick={handleOnCreatePayment} className="mx-2 cursor-pointer"/>
-            <CloseIcon onClick={toggleAddingPayment} className="cursor-pointer"/>
-        </div>
+    return <>No hay pagos <span onClick={handleOnCreatePayment} className="underline cursor-pointer">agregar</span></>
 }

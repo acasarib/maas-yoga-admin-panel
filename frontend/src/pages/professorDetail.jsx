@@ -10,11 +10,13 @@ import PaidIcon from '@mui/icons-material/Paid';
 import ProfessorCourses from '../components/section/professor/professorCourses';
 import ProfessorPayments from '../components/section/professor/ProfessorPayments';
 import ProfessorCard from '../components/card/professorCard';
-import SimpleCard from '../components/card/simpleCard';
 import CardProfessorStatus from '../components/card/cardProfessorStatus';
 import VerifyPaymentModal from '../components/modal/verifyPaymentModal';
 import useModal from '../hooks/useModal';
 import DeletePaymentModal from '../components/modal/deletePaymentModal';
+import AddProfessorPaymentModal from '../components/modal/addProfessorPaymentModal';
+import { isByAssistance, isByPercentage, toMonthsNames } from '../utils';
+import { CASH_PAYMENT_TYPE } from '../constants';
 
 const ProfessorDetail = () => {
 	let { professorId } = useParams();
@@ -22,9 +24,11 @@ const ProfessorDetail = () => {
 	const [activeView, setActiveView] = useState(0);
 	const [activeSection, setActiveSection] = useState("");
 	const [payment, setPayment] = useState(null);
+	const [professorPaymentData, setProfessorPaymentData] = useState(null);
 	const verifyPaymentModal = useModal()
 	const deletePaymentModal = useModal()
-	const { isLoadingProfessors, getProfessorDetailsById } = useContext(Context);
+	const addProfessorPaymentModal = useModal()
+	const { isLoadingProfessors, getProfessorDetailsById, calcProfessorsPayments, informPayment } = useContext(Context);
 	const onCancelImport = () => setActiveSection("");
 
 
@@ -65,6 +69,50 @@ const ProfessorDetail = () => {
 		setProfessor(await getProfessorDetailsById(professorId, true))
 	}
 
+	useEffect(() => {
+		if (professorPaymentData != null) {
+			addProfessorPaymentModal.open()
+		}
+	}, [professorPaymentData])
+	
+
+	const onClickAddProfessorPayment = async ({ from, to, professorId, courseId }) => {
+		const data = await calcProfessorsPayments(from, to, professorId, courseId);
+		try {
+			setProfessorPaymentData({...data[0].professors[0], from, to })
+		} catch (e) {
+
+		}
+		addProfessorPaymentModal.open()
+	}
+
+	const addProfessorPayment = async (value) => {
+        const payment = {
+            type: CASH_PAYMENT_TYPE,
+            value: value || professorPaymentData.result.collectedByProfessor * -1,
+            at: new Date(),
+            operativeResult: new Date(professorPaymentData.from.slice(0, -2) + "15"),
+            periodFrom: professorPaymentData.from,
+            periodTo: professorPaymentData.to,
+            verified: false,
+            courseId: professorPaymentData.result.courseId,
+            professorId: professorPaymentData.id
+        }
+        informPayment(payment);
+		setProfessorPaymentData(null);
+		onAddPayment();
+    }
+
+	const getProfessorCriteria = () => {
+		let criteria = isByPercentage(professorPaymentData.result.period.criteria) ? `Se debe pagar el ${professorPaymentData.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professorPaymentData.result.period.criteriaValue}$ por cada estudiante.`
+		criteria = isByAssistance(professorPaymentData.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
+		return criteria
+	}
+
+	const getPeriod = () => {
+		return toMonthsNames(professorPaymentData.result.period.startAt, professorPaymentData.result.period.endAt)
+	}
+
 	const Menu = () => (<>
 		<div className='sm:flex'>
 			<div className='w-full sm:w-6/12 mb-4 sm:mb-0 sm:mr-2'>
@@ -85,7 +133,7 @@ const ProfessorDetail = () => {
 		}
 		{index === 1 && 
 			(<>
-			{activeSection === "courses" && <ProfessorCourses onAddPayment={onAddPayment} professor={professor} onCancel={onCancelImport}/>}
+			{activeSection === "courses" && <ProfessorCourses onClickAddProfessorPayment={onClickAddProfessorPayment} professor={professor} onCancel={onCancelImport}/>}
 			{activeSection === "payments" && 
 				<ProfessorPayments
 					onClickDeletePayment={onClickDeletePayment}
@@ -97,6 +145,10 @@ const ProfessorDetail = () => {
 		}</>
 	)
 	
+	const handleOnCloseAddProfessorPaymentModal = () => {
+		setProfessorPaymentData(null);
+		addProfessorPaymentModal.close()
+	}
 
   return (
     <Container disableTitle className="max-w-full" items={[{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}` }]}>
@@ -112,6 +164,24 @@ const ProfessorDetail = () => {
 			/>
 			<VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
 			<DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
+			{professorPaymentData != null &&
+				<AddProfessorPaymentModal
+					criteriaType={professorPaymentData.result.period.criteria}
+					totalStudents={professorPaymentData.result.totalStudents}
+					criteria={getProfessorCriteria()}
+					criteriaValue={professorPaymentData.result.period.criteriaValue}
+					period={getPeriod()}
+					selectedPeriod={professorPaymentData.from}
+					courseId={professorPaymentData.result.courseId}
+					total={professorPaymentData.result.collectedByProfessor}
+					payments={professorPaymentData.result.payments}
+					addPayment={addProfessorPayment}
+					isOpen={addProfessorPaymentModal.isOpen}
+					onClose={handleOnCloseAddProfessorPaymentModal}
+					professorName={professorPaymentData.name}
+					allowManualValue
+				/>
+			}
 		</>
 		}
     </Container>

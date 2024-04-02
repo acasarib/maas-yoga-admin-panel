@@ -238,7 +238,7 @@ export const Provider = ({ children }) => {
             periodFrom,
             periodTo,
             at: new Date(),
-            operativeResult: new Date(),
+            operativeResult: new Date(periodFrom.slice(0, -2) + "15"),
             type: CASH_PAYMENT_TYPE,
             value: value*-1,
             verified: false,
@@ -708,8 +708,8 @@ export const Provider = ({ children }) => {
         setPayments(current => current.map(payment => payment.clazzId === clazz.id ? ({ ...payment, verified: true }) : payment));
     }
 
-    const calcProfessorsPayments = async (from, to) => {
-        let data = await coursesService.calcProfessorsPayments(from, to);
+    const calcProfessorsPayments = async (from, to, professorId, courseId) => {
+        let data = await coursesService.calcProfessorsPayments(from, to, professorId, courseId);
         data.forEach(d => {
             d.professors = d.professors.filter(professor => "result" in professor);
             d.professorsNames = d.professors.map(p => p.name);
