@@ -24,8 +24,9 @@ function Course({ course, payments, professor, onAddPayment }) {
 
 const ProfessorCourses = ({ onCancel, professor, onAddPayment }) => {
   return (
-		<ProfessorModule title="Cursos" onCancel={onCancel}>
-			{professor?.courses?.map(course => <Course onAddPayment={onAddPayment} key={course.id} professor={professor} course={course} payments={professor.payments}/>)}
+	<ProfessorModule title="Cursos" onCancel={onCancel}>
+		{professor?.courses?.map(course => <Course onAddPayment={onAddPayment} key={course.id} professor={professor} course={course} payments={professor.payments}/>)}
+		{professor?.courses?.length == 0 && <h1 className='text-xl md:text-2xl text-center'>No hay cursos</h1>}
 
     </ProfessorModule>
 
