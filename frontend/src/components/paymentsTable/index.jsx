@@ -13,8 +13,8 @@ import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
 
-export default function PaymentsTable({ dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
-    const { user, categories, changeAlertStatusAndMessage, getCourseById } = useContext(Context);
+export default function PaymentsTable({ columnsProps = [],dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
+    const { user, categories, changeAlertStatusAndMessage, getCourseById, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
     const deletePaymentModal = useModal()
@@ -108,11 +108,27 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
         deletePaymentModal.close();
     }
 
-    const getUserFullName = (row) => {
-        if (row.user && row.user !== undefined && row.user !== null) {
-            return row.user.firstName + ' ' + row.user.lastName;
+    const getVerifierUserFullName = (row) => {
+        if (row.verifiedBy && row.verifiedBy !== undefined && row.verifiedBy !== null) {
+            const user = getUserById(row.verifiedBy)
+            return user.firstName + ' ' + user.lastName;
         } else {
-            return "Sistema";
+            return "No verificado"
+        }
+    }
+
+    const getUserFullName = (row) => {
+        let user = null
+        console.log(row);
+        if (row.user && row.user !== undefined && row.user !== null) {
+            user = row.user
+        } else if ("userId" in row)  {
+            user = getUserById(row.userId)
+        }
+        if (user) {
+            return user.firstName + ' ' + user.lastName;
+        } else {
+            return "Sistema"
         }
     }
 
@@ -156,7 +172,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     }
 
     const columns = useMemo(() => {
-        const newColumns = [
+        const defaultColumns = [
             {
                 name: 'Identificador',
                 searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
@@ -180,7 +196,6 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 sortable: true,
                 searchable: true,
                 selector: row => row.value.toString(),
-                //maxWidth: '80px'
             },
             {
                 name: 'Modo de pago',
@@ -218,6 +233,13 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 selector: row => getUserFullName(row),
             },
             {
+                name: 'Verificado por',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getVerifierUserFullName(row)}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => getVerifierUserFullName(row),
+            },
+            {
                 name: 'Comprobante',
                 cell: row => (<>{(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
                 </a>}</>),
@@ -250,8 +272,20 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 sortable: true,
             },
         ];
-        return newColumns;
-    }, [categories, dateField]); 
+        const columns = []
+        const columnsPropsNames = columnsProps.map(col => col.name)
+        defaultColumns.forEach(col => {
+            if (columnsPropsNames.includes(col.name)) {
+                const colProp = columnsProps.find(c => c.name === col.name)
+                if (!colProp.hidden) {
+                    columns.push(col)
+                }
+            } else {
+                columns.push(col)
+            }
+        })
+        return columns;
+    }, [categories, dateField, columnsProps]); 
 
     useEffect(() => {
         setFilteredPayments(payments);

@@ -797,6 +797,7 @@ export const Provider = ({ children }) => {
             getStudentsByCourse,
             getProfessorDetailsById,
             getStudentDetailsById,
+            getUserById,
             getPendingPaymentsByCourseFromStudent,
             newProfessorPayment,
             editPayment,
