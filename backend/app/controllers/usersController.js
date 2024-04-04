@@ -35,6 +35,20 @@ export default {
   },
 
   /**
+   * /users/change-password [PUT]
+   * @returns JWT token
+   */
+  changeMyPassword: async (req, res, next) => {
+    try {
+      const { newPassword } = req.body;
+      await userService.changePasswordByUserId(req.user.id, newPassword);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /users/login [POST]
    * @returns JWT token
    */
