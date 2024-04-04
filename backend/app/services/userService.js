@@ -45,6 +45,16 @@ export const login = async (email, password) => {
   });
 };
 
+/**
+ * Change the current password of one user with a new password
+ * @param {UUID} userId user id of the target user to set the new password
+ * @param {String} newPassword raw new password
+ */
+export const changePasswordByUserId = async (userId, newPassword) => {
+  const newEncryptedPassword = await encryptPassword(newPassword);
+  user.update({ password: newEncryptedPassword }, { where: { id: userId } });
+};
+
 export const getAll = async () => {
   return user.findAll();
 };
