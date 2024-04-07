@@ -25,7 +25,15 @@ export const editById = async (studentParam, id) => {
 };
 
 export const getById = async (id) => {
-  return student.findByPk(id, { include: [course, courseStudent, courseTask, payment] });
+  const st = await student.findByPk(id, { include: [course, courseStudent, courseTask, payment] });
+  for (const c of st.dataValues.courses) {
+    if (c.needsRegistration) {
+      const registrationPayment = await getRegistrationPaymentId(id, c.id);
+      const registrationPaymentId = registrationPayment?.dataValues?.id
+      c.dataValues.registrationPaymentId = registrationPaymentId
+    }
+  }
+  return st;
 };
 
 export const pendingPaymentsByStudentId = async (id) => {
@@ -289,6 +297,10 @@ const getStudentCourseMemberSince = async (id = null) => {
     })
   }
   return result;
+}
+
+const getRegistrationPaymentId = async (studentId, courseId) => {
+  return payment.findOne({ where: { isRegistrationPayment: true, studentId, courseId } })
 }
 
 const getCoursesPeriodByStudentId = async (studentId = null) => {

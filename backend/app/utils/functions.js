@@ -30,5 +30,9 @@ export default {
     }
   
     return dateSeries;
+  },
+
+  isNumber(value) {
+    return (typeof value === 'number' || typeof value === 'string') && !isNaN(Number(value));
   }
 };
