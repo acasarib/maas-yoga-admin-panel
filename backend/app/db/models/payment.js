@@ -16,6 +16,10 @@ const payment = (sequelize) => {
       type: Sequelize.FLOAT,
       allowNull: false,
     },
+    discount: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+    },
     at: {
       type: Sequelize.DataTypes.DATE,
       allowNull: false,
