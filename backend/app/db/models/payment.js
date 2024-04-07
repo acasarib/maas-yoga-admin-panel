@@ -41,6 +41,11 @@ const payment = (sequelize) => {
       allowNull: false,
       defaultValue: false,
     },
+    isRegistrationPayment: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     note: {
       type: Sequelize.STRING,
       allowNull: true,

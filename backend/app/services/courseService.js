@@ -205,6 +205,9 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
          : { [Op.eq]: courseId },
       value: {
         [Op.gt]: 0
+      },
+      isRegistrationPayment: {
+        [Op.eq]: false
       }
     }
   });
