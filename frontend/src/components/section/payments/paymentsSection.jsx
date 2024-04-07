@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import paymentsService from "../../../services/paymentsService";
 import Select from 'react-select';
 import CommonInput from "../../../components/commonInput";
@@ -22,6 +22,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import StorageIconButton from "../../button/storageIconButton";
 import { useRef } from "react";
 import useDrivePicker from 'react-google-drive-picker'
+import useToggle from "../../../hooks/useToggle";
+import { betweenZeroAnd100 } from "../../../utils";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
@@ -45,6 +47,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [operativeResult, setOperativeResult] = useState(dayjs(new Date()));
     const [templateModal, setTemplateModal] = useState(false);
     const [templateTitle, setTemplateTitle] = useState('');
+    const discountCheckbox = useToggle()
+    const [discount, setDiscount] = useState("")
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [templateId, setTemplateId] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -122,6 +126,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setEdit(value);
         setPaymentAt(dayjs(new Date()));
         setOperativeResult(dayjs(new Date()));
+        setDiscount("");
+        discountCheckbox.disable();
         setAmmount(null);
         setSelectedStudent(null);
         setPaymentMethod(null);
@@ -262,6 +268,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
             driveFileId: driveFile?.id,
+            discount: discountCheckbox.value ? discount : null,
         }  
         try{
             if(edit) {
@@ -295,6 +302,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setSelectedCourse(null);
         setSelectedStudent(null);
         setSelectedClazz(null);
+        setDiscount("");
+        discountCheckbox.disable();
         setHaveFile(false);
         setNote('');
         setEdit(false);
@@ -302,6 +311,14 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
         setIsDischarge(false);
+    }
+
+    const handleChangeDiscount = newValue => {
+        if (newValue != "") {
+            newValue = parseFloat(newValue);
+            newValue = betweenZeroAnd100(newValue);
+        }
+        setDiscount(newValue)
     }
 
     return (
@@ -326,6 +343,26 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} defaultValue={(edit && !isDischarge) ? selectedCourse : {}} /></div>
             </div>)}</>)}
+            {(selectedCourse !== null && selectedStudent !== null) && 
+                <div className="col-span-2 md:col-span-2">
+                    <div className="flex items-center mb-2">
+                        <input onChange={discountCheckbox.toggle} name="discount" id="discount" type="checkbox" checked={discountCheckbox.value} value="discount" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                        <label htmlFor="discount" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Aplicar descuento</label>
+                    </div>
+                    <div>
+                        <CommonInput 
+                            disabled={!discountCheckbox.value}
+                            label="Descuento"
+                            name="title"
+                            className="block font-bold text-sm text-gray-700 mb-2"
+                            type="number" 
+                            placeholder="0%" 
+                            value={discount}
+                            onChange={(e) => handleChangeDiscount(e.target.value)}
+                        />
+                    </div>
+                </div>
+            }
             <div className="col-span-2 md:col-span-1 pb-1">
                 <CommonInput 
                     label="Importe"

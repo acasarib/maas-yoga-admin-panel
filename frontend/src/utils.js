@@ -243,6 +243,17 @@ export function getMonthName(date) {
     return date.toLocaleDateString('es-ES', options);
 }
 
+
+export function betweenZeroAnd100(number) {
+    if (number < 0) {
+        return 0;
+    } else if (number > 100) {
+        return 100;
+    } else {
+        return number;
+    }
+}
+
 export function getMonthNameByMonthNumber(monthNumber) {
     const year = new Date().getFullYear();
     const date = new Date(year, monthNumber - 1); 
