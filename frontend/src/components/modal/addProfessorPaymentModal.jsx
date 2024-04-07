@@ -7,10 +7,13 @@ import ButtonPrimary from "../button/primary";
 import { Context } from "../../context/Context";
 import { getMonthNameByMonthNumber, isByAssistance } from "../../utils";
 import ButtonSecondary from "../button/secondary";
+import useToggle from "../../hooks/useToggle";
+import PaymentInfo from "../paymentInfo";
 
 export default function AddProfessorPaymentModal({ allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
     const { getCourseById } = useContext(Context)
     const course = getCourseById(courseId)
+    const isViewingPayments = useToggle()
     const [manualValue, setManualValue] = useState("")
     const [manualValueEnabled, setManualValueEnabled] = useState(false)
     const values = [
@@ -121,6 +124,16 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, cou
                 </div>
             </>}
             <div>
+                {isViewingPayments.value ? 
+                <div>
+                    <div>
+                        {payments.map(payment => <PaymentInfo key={payment.id} payment={payment}/>)}
+                    </div>
+                    <div className="underline cursor-pointer" onClick={isViewingPayments.disable}>
+                        Ocultar pagos
+                    </div>
+                </div>
+                :
                 <div className="mt-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
                     <p className="font-bold">Detalle del informe</p>
                     <p>Profesor: <span className="font-bold">{professorName}</span></p>
@@ -134,7 +147,9 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, cou
                     }
                     <p>{criteria.split(".")[0]}</p>
                     <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? total : totalByStudents}</span></p>
+                    <p className="underline cursor-pointer" onClick={isViewingPayments.enable}>Ver pagos</p>
                 </div>
+                }
             </div>
             </>
             }

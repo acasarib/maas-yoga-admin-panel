@@ -53,6 +53,7 @@ export default {
                 "professorId": paymentInfo.professorId,
                 "verified": paymentInfo.verified,
                 "driveFileId": paymentInfo.driveFileId,
+                "discount": paymentInfo.discount,
             }    
             axios
                 .post(baseUrl + `api/v1/payments`, data, {})
