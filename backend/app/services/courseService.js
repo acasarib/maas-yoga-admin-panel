@@ -76,25 +76,31 @@ const createProfessorCourse = async (courseId, professorsCourseParam) => {
   await professorCourse.bulkCreate(professorsCourseParam);
 };
 
+const applyDiscountToPayment = payment => {
+  if (payment.discount == null) {
+    return payment.value; //Without discount
+  }
+  return payment.value * ((100 - payment.discount) / 100)
+}
+
 const getCollectedByStudent = (profData) => {
   let total = 0;
   const payments = profData.payments;
-  const applyDiscountToPayment = payment => {
-    if (payment.discount == null) {
-      return payment.value; //Without discount
-    }
-    return payment.value * ((100 - payment.discount) / 100)
-  }
   for (const p of payments) {
     total += applyDiscountToPayment(p)
   }
   return total;
 };
 
-const getCollectedByPercentage = (professorPayment, criteriaValue) => {
+const getCollectedByPercentage = (profData, criteriaValue) => {
   const percentage = parseFloat(criteriaValue);
-  const total = professorPayment.collectedByPayments;
-  return (percentage / 100) * total;
+  let total = 0;
+  const payments = profData.payments;
+  for (const p of payments) {
+    let value = applyDiscountToPayment(p)
+    total += (percentage / 100) * value;
+  }
+  return total;
 };
 
 export const create = async (courseParam) => {
