@@ -27,6 +27,8 @@ import CourseDetailModal from "../components/modal/courseDetailModal";
 import ButtonPrimary from "../components/button/primary";
 import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
+import useQueryParam from "../hooks/useQueryParam";
+import { TABLE_SEARCH_CRITERIA } from "../constants";
 
 export default function Courses(props) {
     const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
@@ -54,6 +56,8 @@ export default function Courses(props) {
     const [courseDetails, setCourseDetails] = useState(null);
     const [periodToEdit, setPeriodToEdit] = useState({});
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [defaultIdPayment] = useQueryParam("id", undefined);
+
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -186,6 +190,15 @@ export default function Courses(props) {
     }
 
     const columns = [
+        {
+            name: 'Identificador',
+            searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
+            hidden: true,
+            selector: row => row.id,
+            sortable: true,
+            searchable: true,
+            cell: () => <></>,
+        },
         {
             name: 'Título',
             cell: row => {return (<><div className="flex flex-col justify-center" onClick={() => handleOnClickCourse(row)}>
@@ -446,6 +459,8 @@ export default function Courses(props) {
                 <Table
                     columns={columns}
                     data={courses}
+                    defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
+                    defaultSearchValue={defaultIdPayment}
                     noDataComponent={opResult}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
