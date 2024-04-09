@@ -65,16 +65,6 @@ export function formatDateDDMMYY(date) {
     }
 }
 
-export function withSeparators(number) {
-    try {
-        if (typeof number === 'string')
-        number = parseFloat(number);
-        return number.toLocaleString('es-ES');
-    } catch {
-        return number;
-    }
-}
-
 export function dateDiffInDays(date1, date2) {
     const diff = date1.getTime() - date2.getTime();
     const days = Math.ceil(diff / (1000 * 3600 * 24));
@@ -95,15 +85,19 @@ export function dateToString(str) {
 }
 
 export function formatPaymentValue(value) {
-    let paymentValue = value.toString();
-    paymentValue = paymentValue.replace("-", "");
-    let formatter = new Intl.NumberFormat('es-CL', {
-        style: 'currency',
-        currency: 'CLP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2
-    })
-    return formatter.format(paymentValue)    
+    try {
+        let paymentValue = value.toString();
+        paymentValue = paymentValue.replace("-", "");
+        let formatter = new Intl.NumberFormat('es-CL', {
+            style: 'currency',
+            currency: 'CLP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })
+        return formatter.format(paymentValue)    
+    } catch (e) {
+        return value;
+    }
 }
 
 export function isByStudent(criteria) {
