@@ -132,12 +132,14 @@ const ProfessorDetail = () => {
 
 	const Menu = () => (<>
 		<div className='sm:flex'>
-			<div className='w-full sm:w-6/12 mb-4 sm:mb-0 sm:mr-2'>
+			<div className='w-full xl:w-4/12 sm:w-6/12 mb-4 sm:mb-0 sm:mr-2'>
 				<ProfessorCard professor={professor}/>
 			</div>
-			<div className="w-full sm:w-6/12 sm:ml-2 flex flex-col">
-				<CardItem className="mb-4" icon={<LocalLibraryIcon/>} onClick={() => setActiveSection("courses")}>Cursos</CardItem>
-				<CardItem className="mb-4 sm:mb-8" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
+			<div className="w-full sm:w-8/12 sm:ml-2 flex flex-col">
+				<div className='sm:flex mb-4 sm:mb-8'>
+					<CardItem className="sm:w-6/12 sm:mr-2 mb-4 sm:mb-0" icon={<LocalLibraryIcon/>} onClick={() => setActiveSection("courses")}>Cursos</CardItem>
+					<CardItem className="sm:w-6/12" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
+				</div>
 				<CardProfessorStatus onClickDeletePayment={onClickDeletePayment} onClickVerifyPayment={onClickVerifyPayment} professor={professor}/>
 			</div>
 		</div>

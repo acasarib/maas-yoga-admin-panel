@@ -9,10 +9,11 @@ import ProfessorPaymentPendingList from '../list/professorPaymentPendingList'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
-function SliderMonthCard({ payments, title }) {
+function SliderMonthCard({ payments, title, all = false }) {
 	const [currentIndex, setCurrentIndex] = useState(null)
 	const [indexPayments, setIndexPayments] = useState([])
 	const removeDays = date => date.slice(0, -3);
+	const total = payments.reduce((total, payment) => total + payment.value, 0);
 	
 	useEffect(() => {
 		const indexPayments = []
@@ -51,19 +52,22 @@ function SliderMonthCard({ payments, title }) {
 		return month + " " + year
 	}
 
-	return <SimpleCard>
+	return <SimpleCard className={"w-full h-full"}>
 		{currentIndex !== null ? 
 		<div>
-			<h3 className='text-lg leading-6 font-medium text-gray-900'>{formatPaymentValue(indexPayments[currentIndex].value)}</h3>
+			<h3 className='text-lg leading-6 text-gray-900 font-bold mb-1'>{formatPaymentValue(all ? total : indexPayments[currentIndex].value)}</h3>
 			<p className="text-sm font-medium text-gray-500">{title}</p>
 			<div className="text-sm font-medium text-gray-500 flex">
-				<div className={`cursor-pointer ${currentIndex === 0 ? "invisible" : ""}`}>
-					<ArrowLeftIcon onClick={onClickPreviousArrow}/>
-				</div>
-				{formatDate(indexPayments[currentIndex].date)}
-				<div className={`cursor-pointer ${currentIndex === indexPayments.length-1 ? "invisible" : ""}`}>
-					<ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>
-				</div>
+				{!all &&
+				<>
+					<div className={`cursor-pointer ${currentIndex === 0 ? "invisible" : ""}`}>
+						<ArrowLeftIcon onClick={onClickPreviousArrow}/>
+					</div>
+					{formatDate(indexPayments[currentIndex].date)}
+					<div className={`cursor-pointer ${currentIndex === indexPayments.length-1 ? "invisible" : ""}`}>
+						<ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>
+					</div>
+				</>}
 			</div>
 		</div>
 		: 
@@ -134,12 +138,15 @@ const CardProfessorStatus = ({ professor, onClickVerifyPayment, onClickDeletePay
 	
   return (
     <SimpleCard>
-		<div className='lg:flex mb-4'>
-			<div className='mb-2 lg:mb-0 lg:mr-1 w-full'>
+		<div className='xl:flex mb-4'>
+			<div className='mb-2 xl:mb-0 xl:mr-2 xl:w-4/12'>
 				<SliderMonthCard payments={verifiedPayments} title="Pagos verificados"/>
 			</div>
-			<div className='lg:ml-1 w-full'>
+			<div className='mb-2 xl:mb-0 xl:mr-2 xl:w-4/12'>
 				<SliderMonthCard payments={notVerifiedPayments} title="Pagos no verificados"/>
+			</div>
+			<div className='xl:w-4/12'>
+				<SliderMonthCard payments={verifiedPayments} all title="Total recaudado"/>
 			</div>
 		</div>
 		{owedPeriods.length == 0 && notVerifiedPeriods == 0 &&
