@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useMemo } from "react";
 import Table from "../table";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Context } from "../../context/Context";
-import { dateToString, withSeparators } from "../../utils";
+import { dateToString, formatPaymentValue } from "../../utils";
 import DoneIcon from '@mui/icons-material/Done';
 import { TABLE_SEARCH_CRITERIA } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
@@ -192,7 +192,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
             },
             {
                 name: 'Importe',
-                cell: row => <span className={`${row.value >= 0 ? "text-gray-800" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{'$' + withSeparators(row.value)}</span>,
+                cell: row => <span className={`${row.value >= 0 ? "text-gray-800" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}</span>,
                 sortable: true,
                 searchable: true,
                 selector: row => row.value.toString(),
