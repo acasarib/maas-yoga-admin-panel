@@ -21,8 +21,9 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
     const [showDischarges, setShowDischarges] = useState(false);
     const [showIncomes, setShowIncomes] = useState(false);
     const [filteredPayments, setFilteredPayments] = useState([]);
+    const [tableSummary, setTableSummary] = useState({ total: 0, incomes: 0, expenses: 0 })
 
-    const getBalanceForAllPayments = () => {
+    const getBalanceForAllPayments = (payments) => {
         return payments.reduce((total, payment) => total + payment.value, 0);
     }
 
@@ -60,7 +61,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
         }
     }
 
-    const getPayments = () => {
+    const getPayments = (payments) => {
         let value = 0;
         payments.forEach(payment => {
             if(payment.value >= 0) {
@@ -70,7 +71,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
         return value;
     }
 
-    const getDischarges = () => {
+    const getDischarges = (payments) => {
         let value = 0;
         payments.forEach(payment => {
             if(payment.value < 0) {
@@ -293,7 +294,16 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
     useEffect(() => {
         setFilteredPayments(payments);
     }, [])
-    
+
+    const updateTableSummary = payments =>  {
+        setTableSummary({
+            total: getBalanceForAllPayments(payments),
+            incomes: getPayments(payments),
+            expenses: getDischarges(payments),
+        })
+    }
+
+    useEffect(() => updateTableSummary(filteredPayments), [filteredPayments])
 
     useEffect(() => {
         if(showDischarges) {
@@ -320,6 +330,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
                 defaultTypeValue={defaultTypeValue}
                 className={`rounded-3xl shadow-lg ${className}`}
                 columns={columns}
+                onFilterData={(newFilteredPayments) => updateTableSummary(newFilteredPayments)}
                 data={filteredPayments}
                 noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
                 pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -342,7 +353,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
                     onChange={() => setShowIncomes(!showIncomes)}
                 />          
             </div>
-            <TableSummary total={getBalanceForAllPayments()} incomes={getPayments()} expenses={getDischarges()}/>
+            <TableSummary total={tableSummary.total} incomes={tableSummary.incomes} expenses={tableSummary.expenses}/>
             <DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
             <VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
         </>
