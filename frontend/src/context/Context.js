@@ -125,7 +125,7 @@ export const Provider = ({ children }) => {
         const getProffesors = async () => {
             const pfrs = await professorsService.getProffesors();
             pfrs.forEach(professor => {
-                professor.label = professor.name;
+                professor.label = professor.name + " " + professor.lastName;
                 professor.value = professor.id;
             })
             setProfessors(pfrs);
@@ -356,7 +356,7 @@ export const Provider = ({ children }) => {
 
     const newProfessor = async (professor) => {
         const createdProfessor = await professorsService.newProfessor(professor);
-        createdProfessor.label = professor.name;
+        createdProfessor.label = professor.name + " " + professor.lastName;
         createdProfessor.value = professor.id;
         changeAlertStatusAndMessage(true, 'success', 'El profesor fue agregado exitosamente!')
         setProfessors(current => [...current, createdProfessor]);

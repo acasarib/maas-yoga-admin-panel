@@ -278,9 +278,14 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
         prof.result.collectedByPayments = prof.result.payments.reduce((total, p) => total + p.value, 0);
         prof.result.totalStudents = prof.result.payments.map(p => p.studentId);
         prof.result.totalStudents = utils.removeDuplicated(prof.result.totalStudents).length;
-        prof.result.collectedByProfessor = isCriteriaByStudent(prof.result.period.criteria)
-          ? getCollectedByStudent(prof.result) 
-          : getCollectedByPercentage(prof.result, prof.result.period.criteriaValue);
+        const criteria = prof.result.period.criteria;
+        if (criteria == CRITERIA_COURSES.ASSISTANT) {
+          prof.result.collectedByProfessor = prof.result.period.criteriaValue;
+        } else {
+          prof.result.collectedByProfessor = isCriteriaByStudent(prof.result.period.criteria)
+            ? getCollectedByStudent(prof.result) 
+            : getCollectedByPercentage(prof.result, prof.result.period.criteriaValue);
+        }
         prof.dataValues.result = prof.result;
       }
     }

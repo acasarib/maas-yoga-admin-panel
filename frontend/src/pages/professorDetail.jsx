@@ -15,7 +15,7 @@ import VerifyPaymentModal from '../components/modal/verifyPaymentModal';
 import useModal from '../hooks/useModal';
 import DeletePaymentModal from '../components/modal/deletePaymentModal';
 import AddProfessorPaymentModal from '../components/modal/addProfessorPaymentModal';
-import { isByAssistance, isByPercentage, series, toMonthsNames } from '../utils';
+import { formatPaymentValue, isByAssistance, isByAssistant, isByPercentage, series, toMonthsNames } from '../utils';
 import { CASH_PAYMENT_TYPE } from '../constants';
 
 const ProfessorDetail = () => {
@@ -121,8 +121,11 @@ const ProfessorDetail = () => {
     }
 
 	const getProfessorCriteria = () => {
-		let criteria = isByPercentage(professorPaymentData.result.period.criteria) ? `Se debe pagar el ${professorPaymentData.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professorPaymentData.result.period.criteriaValue}$ por cada estudiante.`
-		criteria = isByAssistance(professorPaymentData.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
+		let periodCriteria = professorPaymentData.result.period.criteria;
+		let criteriaValue = professorPaymentData.result.period.criteriaValue;
+		let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
+					: isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
+					: `Se debe pagar ${formatPaymentValue(criteriaValue)}$ por cada estudiante.`
 		return criteria
 	}
 

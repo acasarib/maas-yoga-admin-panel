@@ -442,11 +442,7 @@ export default function Courses(props) {
               },
     });
 
-    const handleRadioButtons = e => formik.values.criteria = e.target.value;
-
-    useEffect(() => {
-        console.log('Cantidad seleccionada ' + selectedOption.length + '...');
-    }, [selectedOption])
+    const removeCourseProfessor = professor => setCourseProfessors(courseProfessors.filter(p => p.id !== professor.id));
 
     useEffect(() => {
         if(students.length === 0 && !isLoadingStudents)
@@ -546,7 +542,7 @@ export default function Courses(props) {
                                 Profesores
                         </label>
                         {courseProfessors.map((prf, index) => 
-                            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}><div>{getProfessorName(prf.professorId)}</div><div>{edit && <button type="button" className="p-1 rounded-full bg-orange-200 ml-2" onClick={() => {setPeriodToEdit(prf); setNewProfessor(true)}}><EditIcon /></button>}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setCourseProfessors(courseProfessors)}><CloseIcon /></button></div></div>
+                            <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}><div>{getProfessorName(prf.professorId)}</div><div>{edit && <button type="button" className="p-1 rounded-full bg-orange-200 ml-2" onClick={() => {setPeriodToEdit(prf); setNewProfessor(true)}}><EditIcon /></button>}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => removeCourseProfessor(prf)}><CloseIcon /></button></div></div>
                         )}</>)}
                         {!newProfessor && (<div className="mb-4 mt-2 flex items-center justify-start">
                             <label className="block text-gray-700 text-sm font-bold">

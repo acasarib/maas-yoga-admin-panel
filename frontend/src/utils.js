@@ -112,6 +112,10 @@ export function isByAssistance(criteria) {
     return criteria.split("-")[1] === "assistance"
 }
 
+export function isByAssistant(criteria) {
+    return criteria === "assistant"
+}
+
 export function twoDigits(minutes) {
     return String(minutes).padStart(2, '0');
 }
