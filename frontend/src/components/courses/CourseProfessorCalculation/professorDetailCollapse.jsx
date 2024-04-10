@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import PaidIcon from '@mui/icons-material/Paid';
-import { dateToYYYYMMDD, formatDateDDMMYY, isByAssistance, isByPercentage, toMonthsNames } from "../../../utils";
+import { dateToYYYYMMDD, formatDateDDMMYY, formatPaymentValue, isByAssistance, isByAssistant, isByPercentage, toMonthsNames } from "../../../utils";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import List from '@mui/material/List';
 import SchoolIcon from '@mui/icons-material/School';
@@ -27,9 +27,12 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     const { informPayment } = useContext(Context);
     const addProfessorPaymentModal = useModal()
     const paymentAlreadyAddedWarningModal = useModal()
-
-    let criteria = isByPercentage(professor.result.period.criteria) ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante.`
-    criteria = isByAssistance(professor.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
+    let periodCriteria = professor.result.period.criteria;
+    let criteriaValue = professor.result.period.criteriaValue;
+    let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
+                : isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
+                : `Se debe pagar ${formatPaymentValue(criteriaValue)}$ por cada estudiante.`
+    criteria = isByAssistance(periodCriteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
     const period = toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)
 
     const addPayment = async (value) => {

@@ -24,7 +24,8 @@ const CRITERIA_COURSES = {
   STUDENT: "student",
   PERCENTAGE: "percentage",
   PERCENTAGE_ASSISTANCE: "percentage-assistance",
-  STUDENT_ASSISTANCE: "student-assistance"
+  STUDENT_ASSISTANCE: "student-assistance",
+  ASSISTANT: "assistant",
 };
 const STUDENT_MONTHS_CONDITIONS = {
   PAID: "PAID",
