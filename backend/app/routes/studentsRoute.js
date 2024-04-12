@@ -12,5 +12,6 @@ router.get("/:id/payments/pending", verifyToken, controller.pendingPaymentsByStu
 router.get("/payments/pending", verifyToken, controller.pendingPayments);
 router.get("/", verifyToken, controller.getAll);
 router.get("/courses/:courseId", verifyToken, controller.getStudentsByCourse);
+router.put("/:studentId/courses/:courseId/suspend", verifyToken, controller.suspendStudentFromCourse);
 
 export default router;
