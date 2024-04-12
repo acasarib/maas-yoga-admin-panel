@@ -28,7 +28,7 @@ import ButtonPrimary from "../components/button/primary";
 import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
 import useQueryParam from "../hooks/useQueryParam";
-import { TABLE_SEARCH_CRITERIA } from "../constants";
+import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
 
 export default function Courses(props) {
     const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
@@ -124,17 +124,23 @@ export default function Courses(props) {
         setCourseName(courseName);
     }
     
-    const openStudentsTaskModal = async (students, courseName, id) => {
-        setStudentsLists(await getStudentsByCourse(courseId));
+    const openStudentsTaskModal = async (_, courseName, id) => {
+        let students = await getStudentsByCourse(courseId)
+        students = students.map(st => {
+            st.studentCourseTask = st.courseTasks.filter(c => c.courseId === courseId)[0].studentCourseTask
+            return st;
+        })
+        setStudentsLists(students);
         setCourseName(courseName);
         setDisplayTasksModal(false);
         setIsTaskStudentModal(true);
         setTaskId(id);
     }
 
-    const openTasksModal = (tasks, courseName) => {
+    const openTasksModal = (tasks, courseName, courseId) => {
         setDisplayTasksModal(true);
         setTasksList(tasks);
+        setCourseId(courseId)
         setCourseName(courseName);
     }
 
@@ -231,7 +237,7 @@ export default function Courses(props) {
         },
         {
             name: 'Tareas',
-            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title)}>Ver tareas</button></div>)},
+            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title, row.id)}>Ver tareas</button></div>)},
             sortable: true,
         },
         {
@@ -282,6 +288,11 @@ export default function Courses(props) {
         {
             name: 'Numero de telefono',
             selector: row => row.phoneNumber,
+            sortable: true,
+        },
+        {
+            name: 'Estado',
+            selector: row => row.status === STUDENT_STATUS.ACTIVE ? "Activo" : "Suspendido",
             sortable: true,
         },
     ];
@@ -357,12 +368,7 @@ export default function Courses(props) {
         },
         {
             name: 'Estado de la tarea',
-            selector: row => {if(row.studentCourseTask.completed) {
-                return 'Completada'
-            }else {
-                return 'No completada'
-            }
-            },
+            selector: row => row.studentCourseTask.completed ? 'Completada' : 'No completada'
         },
         {
             name: 'Acciones',
