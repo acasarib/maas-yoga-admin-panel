@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
-import { student, course, courseTask, payment, sequelize, courseStudent } from "../db/index.js";
-import { STUDENT_MONTHS_CONDITIONS } from "../utils/constants.js";
+import { student, course, courseTask, payment, sequelize, courseStudent, courseStudentSuspend, studentCourseTask } from "../db/index.js";
+import { STUDENT_MONTHS_CONDITIONS, STUDENT_STATUS } from "../utils/constants.js";
 import utils from "../utils/functions.js";
 
 /**
@@ -166,7 +166,10 @@ export const getAll = async () => {
 };
 
 export const getStudentsByCourse = async (courseId) => {
-  const c = await course.findOne({ include: [student], where: { id: courseId } })
+  const c = await course.findOne({ include: [{
+    model: student,
+    include: [courseTask]
+  }], where: { id: courseId } })
   let courseStartAt = c.startAt
   courseStartAt.setHours(0);
   courseStartAt.setMinutes(0);
@@ -195,10 +198,15 @@ export const getStudentsByCourse = async (courseId) => {
   const now = new Date()
   const currentMonth = now.getMonth()+1
   const currentYear = now.getFullYear()
-  c.dataValues.students.forEach(s => {
+  for (const s of c.dataValues.students) {
     const st = s.dataValues
     st.pendingPayments = {}
-    st.currentMonth = STUDENT_MONTHS_CONDITIONS.NOT_PAID
+    st.suspendedPeriods = await courseStudentSuspend.findAll({ where: { studentId: st.id, courseId } });
+    st.suspendedPeriods = st.suspendedPeriods.map(sp => ({ suspendedAt: sp.suspendedAt, suspendedEndAt: sp.suspendedEndAt }))
+    st.suspendedPeriodsParsed = await getSuspendedPeriods(st.suspendedPeriods)
+    st.status = getStudentStatus(st.suspendedPeriodsParsed);
+    const isThisMonthSuspended = st.suspendedPeriodsParsed.includes(currentYear+"-"+(currentMonth < 10 ? "0"+currentMonth : currentMonth))
+    st.currentMonth = isThisMonthSuspended ? STUDENT_MONTHS_CONDITIONS.SUSPEND : STUDENT_MONTHS_CONDITIONS.NOT_PAID
     dateSeries.forEach(date => {
       const year = date.getFullYear()
       const month = date.getMonth()+1
@@ -228,9 +236,30 @@ export const getStudentsByCourse = async (courseId) => {
         }
       }
     })
-  })
+    calcSuspendedPaymentsBySuspendedPeriods(st.suspendedPeriodsParsed, st.pendingPayments)
+  }
   return c.dataValues.students
 };
+
+export const suspendStudentFromCourse = async (studentId, courseId, from, to) => {
+  const currentSuspension = await courseStudentSuspend.findOne({ where: { studentId, courseId } });
+  const data = { courseId, studentId, suspendedAt: from, suspendedEndAt: to }
+  if (currentSuspension) {
+    courseStudentSuspend.update(data, { where: { courseId, studentId }});
+  } else {
+    courseStudentSuspend.create(data);
+  }
+}
+
+const calcSuspendedPaymentsBySuspendedPeriods = (suspendedPeriods, pendingPayments) => {
+  suspendedPeriods.forEach(sp => {
+    let [yearSuspended, monthSuspended] = sp.split("-")
+    monthSuspended = parseInt(monthSuspended)
+    if (yearSuspended in pendingPayments && monthSuspended in pendingPayments[yearSuspended]) {
+      pendingPayments[yearSuspended][monthSuspended] = {condition: STUDENT_MONTHS_CONDITIONS.SUSPEND}
+    }
+  })
+}
 
 const onlyNotPaidStudents = (data) => {
   const studentIds = Object.keys(data.students);
@@ -258,6 +287,41 @@ const onlyNotPaidStudents = (data) => {
     }
   }
   return data;
+}
+
+const getStudentStatus = (suspendedPeriods) => {
+  const now = new Date()
+  let currentMonth = now.getMonth()+1
+  const currentYear = now.getFullYear()
+  currentMonth = currentMonth < 10 ? "0" + currentMonth : currentMonth
+  const isThisMonthSuspended = suspendedPeriods.includes(currentYear+"-"+currentMonth)
+  return isThisMonthSuspended ? STUDENT_STATUS.SUSPEND : STUDENT_STATUS.ACTIVE
+}
+
+const getSuspendedPeriods = async (suspendPeriods) => {
+  const monthsSuspended = []
+  for (const sp of suspendPeriods) {
+    const from = sp.suspendedAt;
+    let to = sp.suspendedEndAt;
+    if (to === null) {
+      const now = new Date()
+      to = now.getFullYear()+"-"+now.getMonth()+1
+    }
+    let [year, month] = from.split("-")
+    let [targetYear, targetMonth] = to.split("-")
+    month = parseInt(month)
+    if (targetYear < year)
+      return;
+    while (year <= targetYear) {
+      while ((year < targetYear && month <= 12) || (month <= targetMonth)) {
+        monthsSuspended.push(year+"-"+(month < 10 ? "0" + month : month))
+        month++
+      }
+      year++
+      month = 1
+    }
+  }
+  return monthsSuspended;
 }
 
 const findFirstPaymentAt = (year, month, courseId, payments, studentId = null) => {
