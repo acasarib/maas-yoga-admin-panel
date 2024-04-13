@@ -221,8 +221,8 @@ export const getStudentsByCourse = async (courseId) => {
         }
       } else {
         const studentMemberSince = st.courseStudent.createdAt;
-        const yearSince = studentMemberSince.getMonth() +1
-        const monthSince = studentMemberSince.getFullYear()
+        const monthSince = studentMemberSince.getMonth() +1
+        const yearSince = studentMemberSince.getFullYear()
         if (yearSince < year) {
           st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.NOT_PAID }
         } else if (yearSince == year) {
@@ -241,14 +241,21 @@ export const getStudentsByCourse = async (courseId) => {
   return c.dataValues.students
 };
 
-export const suspendStudentFromCourse = async (studentId, courseId, from, to) => {
-  const currentSuspension = await courseStudentSuspend.findOne({ where: { studentId, courseId } });
+export const suspendStudentFromCourse = async (studentId, courseId, from, to = null) => {
+  const whereStudentCourseFrom = { where: { studentId, courseId, suspendedAt: from } }
+  const currentSuspendPeriod = await courseStudentSuspend.findOne(whereStudentCourseFrom)
   const data = { courseId, studentId, suspendedAt: from, suspendedEndAt: to }
-  if (currentSuspension) {
-    courseStudentSuspend.update(data, { where: { courseId, studentId }});
+  if (currentSuspendPeriod) {
+    courseStudentSuspend.update(data, whereStudentCourseFrom);
   } else {
     courseStudentSuspend.create(data);
   }
+}
+
+export const deleteSuspendStudentFromCourse = async (studentId, courseId, from, to = null) => {
+  const data = { courseId, studentId, suspendedAt: from, suspendedEndAt: to }
+  const suspendPeriod = await courseStudentSuspend.findOne({ where: data });
+  suspendPeriod.destroy()
 }
 
 const calcSuspendedPaymentsBySuspendedPeriods = (suspendedPeriods, pendingPayments) => {

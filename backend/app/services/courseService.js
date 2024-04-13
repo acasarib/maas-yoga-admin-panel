@@ -3,6 +3,7 @@ import utils from "../utils/functions.js";
 import { StatusCodes } from "http-status-codes";
 import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
+import { getStudentsByCourse } from './studentService.js'
 
 const paymentBelongToProfessor = (payment, professor) => {
   try {
@@ -127,9 +128,17 @@ export const editById = async (courseParam, id) => {
 };
 
 export const getById = async (id) => {
-  const c = await course.findByPk(id, { include: [student, courseTask] });
+  const c = await course.findByPk(id, { include: [
+    { model: courseTask, include:[student] },
+    payment] });
   const professorsWithPeriods = await getProfessorPeriodsInCourse(c.id);
-  c.dataValues.professors = professorsWithPeriods;
+  c.dataValues.students = await getStudentsByCourse(c.id)
+  c.dataValues.periods = []
+  for (const professor of professorsWithPeriods) {
+    const professorPeriods = professor.dataValues.periods.map(pp => ({ ...pp, professorId: professor.id }))
+    c.dataValues.periods = [...c.dataValues.periods, ...professorPeriods]
+
+  }
   return c;
 };
 
