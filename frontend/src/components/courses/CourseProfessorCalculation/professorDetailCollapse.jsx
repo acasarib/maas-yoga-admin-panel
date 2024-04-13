@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import PaidIcon from '@mui/icons-material/Paid';
-import { dateToYYYYMMDD, formatDateDDMMYY, isByAssistance, isByPercentage, toMonthsNames } from "../../../utils";
+import { dateToYYYYMMDD, formatDateDDMMYY, formatPaymentValue, isByAssistance, isByAssistant, isByPercentage, toMonthsNames } from "../../../utils";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import List from '@mui/material/List';
 import SchoolIcon from '@mui/icons-material/School';
@@ -18,16 +18,21 @@ import ButtonPrimary from "../../button/primary";
 import { Context } from "../../../context/Context";
 import { CASH_PAYMENT_TYPE } from "../../../constants";
 import AddProfessorPaymentModal from "../../modal/addProfessorPaymentModal"
+import useModal from "../../../hooks/useModal";
+import PaymentAlreadyAddedWarningModal from "../../modal/paymentAlreadyAddedWarningModal";
 
 export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to, onInformPayment }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const { informPayment } = useContext(Context);
-
-    const toggleModal = () => setIsModalOpen(!isModalOpen)
-    let criteria = isByPercentage(professor.result.period.criteria) ? `Se debe pagar el ${professor.result.period.criteriaValue}% del total de ingresos.` : `Se debe pagar ${professor.result.period.criteriaValue}$ por cada estudiante.`
-    criteria = isByAssistance(professor.result.period.criteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
+    const addProfessorPaymentModal = useModal()
+    const paymentAlreadyAddedWarningModal = useModal()
+    let periodCriteria = professor.result.period.criteria;
+    let criteriaValue = professor.result.period.criteriaValue;
+    let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
+                : isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
+                : `Se debe pagar ${formatPaymentValue(criteriaValue)}$ por cada estudiante.`
+    criteria = isByAssistance(periodCriteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
     const period = toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)
 
     const addPayment = async (value) => {
@@ -37,7 +42,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
             type: CASH_PAYMENT_TYPE,
             value: value || professor.result.collectedByProfessor * -1,
             at: new Date(),
-            operativeResult: new Date(),
+            operativeResult: new Date(parsedFrom.slice(0, -2) + "15"),
             periodFrom: parsedFrom,
             periodTo: parsedTo,
             verified: false,
@@ -48,16 +53,20 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
         onInformPayment(payment);
     }
 
-    const alreadyInformedPayment = () => {
+    const getAlreadyInformedPayment = () => {
         const fromTo = toMonthsNames(from, to);
-        return professor.payments.some(payment => toMonthsNames(payment.periodFrom, payment.periodTo) === fromTo);
+        return professor.payments.find(payment => toMonthsNames(payment.periodFrom, payment.periodTo) === fromTo);
     }
 
+    const alreadyInformedPayment = () => {
+        return getAlreadyInformedPayment() !== undefined;
+    }
+
+    const isAlreadyInformedPayment = alreadyInformedPayment();
+
     const handleInform = () => {
-        if (isByAssistance(professor.result.period.criteria))
-            toggleModal()
-        else
-            addPayment()
+        paymentAlreadyAddedWarningModal.close()
+        addProfessorPaymentModal.open()
     }
 
     return (<>
@@ -116,11 +125,34 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemText primary="Criterio" secondary={criteria} />
             </ListItem>
             <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
-                <ButtonPrimary disabled={alreadyInformedPayment()} onClick={handleInform}>Informar</ButtonPrimary>
+                {isAlreadyInformedPayment ?
+                    <ButtonPrimary onClick={paymentAlreadyAddedWarningModal.open}>Informar</ButtonPrimary>
+                    :
+                    <ButtonPrimary onClick={handleInform}>Informar</ButtonPrimary>
+                }
                 <ButtonPrimary onClick={() => onShowPayments(professor.result.payments)}>Ver pagos</ButtonPrimary>
             </div>
         </List>
-        <AddProfessorPaymentModal criteriaType={professor.result.period.criteria} totalStudents={professor.result.totalStudents} criteria={criteria} criteriaValue={professor.result.period.criteriaValue} period={period} total={professor.result.collectedByProfessor} payments={professor.result.payments} addPayment={addPayment} isOpen={isModalOpen} onClose={toggleModal} professorName={professor.name}/>
+        <AddProfessorPaymentModal
+            criteriaType={professor.result.period.criteria}
+            totalStudents={professor.result.totalStudents}
+            criteria={criteria}
+            criteriaValue={professor.result.period.criteriaValue}
+            period={period}
+            courseId={professor.result.courseId}
+            total={professor.result.collectedByProfessor}
+            payments={professor.result.payments}
+            addPayment={addPayment}
+            isOpen={addProfessorPaymentModal.isOpen}
+            onClose={addProfessorPaymentModal.close}
+            professorName={professor.name}
+        />
+        <PaymentAlreadyAddedWarningModal
+            payment={getAlreadyInformedPayment()}
+            onConfirmWarning={handleInform}
+            isOpen={paymentAlreadyAddedWarningModal.isOpen}
+            onClose={paymentAlreadyAddedWarningModal.close}
+        />
     </Collapse>
     </>);
 } 

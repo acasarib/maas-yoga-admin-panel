@@ -16,12 +16,14 @@ export default function App() {
           <Route path="/home/balance" element={<Home balance />} />
           <Route path="/home/classes" element={<Home classes />} />
           <Route path="/home/courses" element={<Home courses />} />
+          <Route path="/home/courses/:courseId" element={<Home courseDetail />} />
           <Route path="/home/students" element={<Home students />} />
           <Route path="/home/colleges" element={<Home colleges />} />
           <Route path="/home/categories" element={<Home categories />} />
           <Route path="/home/imports" element={<Home imports />} />
           <Route path="/home/diary" element={<Home diary />} />
           <Route path="/home/professors" element={<Home professors />} />
+          <Route path="/home/professors/:professorId" element={<Home professorDetail />} />
           <Route path="/home/professor-payments" element={<Home professorPayments />} />
         </Routes>
       </Router>

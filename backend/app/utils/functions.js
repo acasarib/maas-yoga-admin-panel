@@ -20,6 +20,12 @@ export default {
     return year + '-' + month + '-' + day;
   },
 
+  /**
+   * 
+   * @param {Date} fromDate 
+   * @param {Date} toDate 
+   * @returns Array<Date>
+   */
   getMonthlyDateSeries(fromDate, toDate) {
     const dateSeries = [];
     let currentDate = new Date(fromDate);
@@ -30,5 +36,9 @@ export default {
     }
   
     return dateSeries;
+  },
+
+  isNumber(value) {
+    return (typeof value === 'number' || typeof value === 'string') && !isNaN(Number(value));
   }
 };

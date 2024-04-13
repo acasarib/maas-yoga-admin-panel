@@ -107,4 +107,43 @@ export default {
     }
   },
 
+  /**
+   * /students/{studentId}/courses/{courseId}/suspend?from={from}&to={to} [PUT]
+   * @param studentId
+   * @param courseId
+   * @param from from when the student suspension begins
+   * @param to until when the student suspension ends (can be null if suspension not ends yet)
+   * Format of from/to must be in format yyyy-mm
+   * @returns HttpStatus ok no content if suspension was edited
+   */
+  suspendStudentFromCourse: async (req, res, next) => {
+    try {
+      const { from, to } = req.query;
+      const { courseId, studentId } = req.params;
+      await studentService.suspendStudentFromCourse(studentId, courseId, from, to);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /students/{studentId}/courses/{courseId}/suspend?from={from}&to={to} [DELETE]
+   * @param studentId
+   * @param courseId
+   * @param from from when the student suspension begins
+   * @param to until when the student suspension ends (can be null if suspension not ends yet)
+   * Format of from/to must be in format yyyy-mm
+   * @returns HttpStatus ok no content if suspension was deleted
+   */
+  deleteSuspendStudentFromCourse: async (req, res, next) => {
+    try {
+      const { from, to } = req.query;
+      const { courseId, studentId } = req.params;
+      await studentService.deleteSuspendStudentFromCourse(studentId, courseId, from, to);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
 };

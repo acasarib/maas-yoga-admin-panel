@@ -75,7 +75,7 @@ export default function CourseCalendar({ course }) {
 
     return (<>
         <div className="flex flex-col my-4">
-            {parsedPeriods.map(period => (<div className="flex items-center">
+            {parsedPeriods.map((period, index) => (<div key={index} className="flex items-center">
                 <div style={{height: "16px", width: "16px", backgroundColor: period.hexColor, borderRadius: "6px"}}></div>
                 <div className="ml-1">{`${formatDateDDMMYY(period.start)} - ${formatDateDDMMYY(period.end)}`}</div>
                 <div className="ml-1 font-bold">{period.professor.name + " " + period.professor.lastName}</div>
