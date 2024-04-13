@@ -11,7 +11,7 @@ const courseStudentSuspend = (sequelize) => {
       primaryKey: true
     },
     suspendedAt: { type: Sequelize.STRING, allowNull: false, primaryKey: true },
-    suspendedEndAt: { type: Sequelize.STRING, allowNull: true, primaryKey: true },
+    suspendedEndAt: { type: Sequelize.STRING, allowNull: true },
   }, { tableName: "student_course_suspend", timestamps: false });
   courseStudentSuspend.associate = function (models) {
     // associations can be defined here
