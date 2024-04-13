@@ -3,16 +3,9 @@ import axios from './interceptors';
 export default {
     newCourse(courseData) {
         return new Promise((resolve, reject) => {
-            const data = {
-                "title": courseData.title,
-                "description": courseData.description,
-                "startAt": courseData.startAt,
-                "endAt": courseData.endAt,
-                "professors": courseData.professors
-            }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + 'api/v1/courses', data, {})
+                .post(baseUrl + 'api/v1/courses', courseData, {})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -49,16 +42,9 @@ export default {
     },
     editCourse(courseId, courseData) {
         return new Promise((resolve, reject) => {
-            const data = {
-                "title": courseData.title,
-                "description": courseData.description,
-                "startAt": courseData.startAt,
-                "endAt": courseData.endAt,
-                "professors":courseData.professors,
-            }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/courses/${courseId}`, data, {})
+                .put(baseUrl + `api/v1/courses/${courseId}`, courseData, {})
                 .then((response) => {
                     resolve(response.data);
                 })

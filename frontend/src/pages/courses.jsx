@@ -23,6 +23,7 @@ import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import ProfessorInfo from "../components/courses/professorInfo";
+import CustomCheckbox from "../components/checkbox/customCheckbox";
 import CourseDetailModal from "../components/modal/courseDetailModal";
 import ButtonPrimary from "../components/button/primary";
 import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
@@ -47,6 +48,7 @@ export default function Courses(props) {
     const [tasksLists, setTasksList] = useState([]);
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
+    const [needsRegistration, setNeedsRegistration] = useState(false);
     const [taskId, setTaskId] = useState(null);
     const [isDateSelected, setIsDateSelected] = useState(false);
     const [newProfessor, setNewProfessor] = useState(false);
@@ -65,6 +67,7 @@ export default function Courses(props) {
         setIsTaskStudentModal(value);
         setIsDateSelected(false);
         setNewProfessor(false);
+        setNeedsRegistration(false);
         setStartAt(dayjs(new Date()));
         setEndAt(dayjs(new Date()));
         setCourseProfessors([]);
@@ -103,6 +106,7 @@ export default function Courses(props) {
         setDisplayModal(true);
         setCourseId(course.id);
         setCourseToEdit(course);
+        setNeedsRegistration(course.needsRegistration);
         setStartAt(dayjs(new Date(course.startAt)));
         setEndAt(dayjs(new Date(course.endAt)));
         if(course.periods?.length > 0) {
@@ -220,6 +224,11 @@ export default function Courses(props) {
         {
             name: 'Tareas',
             selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title)}>Ver tareas</button></div>)},
+            sortable: true,
+        },
+        {
+            name: 'Posee matrícula',
+            selector: row => row.needsRegistration ? "Sí" : "No" ?? "No",
             sortable: true,
         },
         {
@@ -372,6 +381,11 @@ export default function Courses(props) {
         };
     }, []);
 
+    useEffect(() => {
+      console.log(needsRegistration);
+    }, [needsRegistration])
+    
+
     let style = {};
 
     if (windowWidth >= 768) {
@@ -386,11 +400,14 @@ export default function Courses(props) {
             startAt: edit ? dayjs(new Date(courseToEdit.startAt)) : startAt,
             endAt: edit ? dayjs(new Date(courseToEdit.endAt)) : endAt,
             professors: edit ? courseToEdit.periods : [],
+            needsRegistration: edit ? courseToEdit.needsRegistration : needsRegistration,
         },
             onSubmit: async (values, { resetForm }) => {
+                console.log(needsRegistration);
                 const body = {
                   title: values.title,
                   description: values.description,
+                  needsRegistration: needsRegistration,
                   startAt: startAt,
                   endAt: endAt,
                   professors: courseProfessors,
@@ -416,6 +433,7 @@ export default function Courses(props) {
                         }
                   }
                   setIsDateSelected(false);
+                  setNeedsRegistration(false);
                   setIsLoading(false);
                   resetForm();
                   setDisplayModal(false);
@@ -423,6 +441,7 @@ export default function Courses(props) {
                 changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser informado... Por favor inténtelo nuevamente.')
                   setIsLoading(false);
                   setCourseProfessors([]);
+                  setNeedsRegistration(false);
                   setNewProfessor(false);
                   resetForm();
                   setDisplayModal(false);
@@ -473,7 +492,6 @@ export default function Courses(props) {
                                     value={formik.values.startAt}
                                     onChange={(newValue) => {
                                         setStartAt(newValue);
-                                        setIsDateSelected(true);
                                     }}
                                     />
                                 </DemoContainer>
@@ -488,11 +506,19 @@ export default function Courses(props) {
                                     value={formik.values.endAt}
                                     onChange={(newValue) => {
                                         setEndAt(newValue);
-                                        setIsDateSelected(true);
                                     }}
                                     />
                                 </DemoContainer>
                         </div>
+                        <div className="mb-4">
+                                <CustomCheckbox
+                                    checked={needsRegistration}
+                                    labelOn="Posee matrícula"
+                                    labelOff="Posee matrícula"
+                                    className="ml-2"
+                                    onChange={() => {setIsDateSelected(true); setNeedsRegistration(!needsRegistration);}}
+                                />
+                            </div>
                         {isDateSelected && (<><div className="grid grid-cols-2 gap-4">
                             <div className="mb-4">
                                 <CommonInput 
