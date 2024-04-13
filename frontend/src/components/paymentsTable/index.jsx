@@ -1,48 +1,30 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import Table from "../table";
 import DeleteIcon from '@mui/icons-material/Delete';
-import Modal from "../modal";
 import { Context } from "../../context/Context";
-import { dateToString, withSeparators } from "../../utils";
-import Select from 'react-select';
+import { dateToString, formatPaymentValue } from "../../utils";
 import DoneIcon from '@mui/icons-material/Done';
-import { PAYMENT_OPTIONS } from "../../constants";
+import { TABLE_SEARCH_CRITERIA } from "../../constants";
 import EditIcon from '@mui/icons-material/Edit';
 import CustomCheckbox from "../checkbox/customCheckbox";
 import TableSummary from '../table/summary'
+import { Tooltip } from "@mui/material";
+import VerifyPaymentModal from "../modal/verifyPaymentModal";
+import useModal from "../../hooks/useModal";
+import DeletePaymentModal from "../modal/deletePaymentModal";
 
-export default function PaymentsTable({ dateField = "at", className = "", payments, isLoading, onDelete = () => {}, canVerify, editPayment, editMode }) {
-    const { deletePayment, user, categories, verifyPayment, updatePayment, changeAlertStatusAndMessage, getCourseById } = useContext(Context);
+export default function PaymentsTable({ columnsProps = [],dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
+    const { user, categories, changeAlertStatusAndMessage, getCourseById, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
-    const [deleteModal, setDeleteModal] = useState(false);
-    const [isDeletingPayment, setIsDeletingPayment] = useState(false);
-    const [verifyModal, setVerifyModal] = useState(false);
-    const [verifying, setVerifying] = useState(false);
-    const [verifingPaymentMethod, setVerifingPaymentMethod] = useState(null);
+    const verifyPaymentModal = useModal()
+    const deletePaymentModal = useModal()
     const [showDischarges, setShowDischarges] = useState(false);
     const [showIncomes, setShowIncomes] = useState(false);
     const [filteredPayments, setFilteredPayments] = useState([]);
+    const [tableSummary, setTableSummary] = useState({ total: 0, incomes: 0, expenses: 0 })
 
-    const getBalanceForAllPayments = () => {
+    const getBalanceForAllPayments = (payments) => {
         return payments.reduce((total, payment) => total + payment.value, 0);
-    }
-
-    const handleDeletePayment = async () => {
-        setIsDeletingPayment(true);
-        await deletePayment(payment.id);
-        setIsDeletingPayment(false);
-        setPayment(null);
-        setDeleteModal(false);
-        onDelete(payment.id);
-    }
-
-    const handleVerifyPayment = async () => {
-        setVerifying(true);
-        await updatePayment({ type: verifingPaymentMethod.value }, payment.id);
-        await verifyPayment(payment.id);
-        setVerifying(false);
-        setPayment(null);
-        setVerifyModal(false);
     }
 
     const openEditModal = (payment) => {
@@ -79,7 +61,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
         }
     }
 
-    const getPayments = () => {
+    const getPayments = (payments) => {
         let value = 0;
         payments.forEach(payment => {
             if(payment.value >= 0) {
@@ -89,7 +71,7 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
         return value;
     }
 
-    const getDischarges = () => {
+    const getDischarges = (payments) => {
         let value = 0;
         payments.forEach(payment => {
             if(payment.value < 0) {
@@ -100,21 +82,53 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     }
 
     const openDeleteModal = (payment) => {
-        setPayment(payment);
-        setDeleteModal(true);
+        if (typeof onClickDeletePayment == 'function') {
+            onClickDeletePayment(payment)
+        } else {
+            setPayment(payment);
+            deletePaymentModal.open()
+        }
     }
 
     const openVerifyModal = (payment) => {
-        setPayment(payment);
-        setVerifingPaymentMethod(PAYMENT_OPTIONS.find(po => po.value === payment.type));
-        setVerifyModal(true);
+        if (typeof onClickVerifyPayment == 'function') {
+            onClickVerifyPayment(payment)
+        } else {
+            setPayment(payment);
+            verifyPaymentModal.open()
+        }
+    }
+
+    const handleOnCloseVerifyPaymentModal = () => {
+        setPayment(null);
+        verifyPaymentModal.close();
+    }
+
+    const handleOnCloseDeletePaymentModal = () => {
+        setPayment(null);
+        deletePaymentModal.close();
+    }
+
+    const getVerifierUserFullName = (row) => {
+        if (row.verifiedBy && row.verifiedBy !== undefined && row.verifiedBy !== null) {
+            const user = getUserById(row.verifiedBy)
+            return user.firstName + ' ' + user.lastName;
+        } else {
+            return "No verificado"
+        }
     }
 
     const getUserFullName = (row) => {
+        let user = null
         if (row.user && row.user !== undefined && row.user !== null) {
-            return row.user.firstName + ' ' + row.user.lastName;
+            user = row.user
+        } else if ("userId" in row)  {
+            user = getUserById(row.userId)
+        }
+        if (user) {
+            return user.firstName + ' ' + user.lastName;
         } else {
-            return "Sistema";
+            return "Sistema"
         }
     }
 
@@ -158,7 +172,16 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     }
 
     const columns = useMemo(() => {
-        const newColumns = [
+        const defaultColumns = [
+            {
+                name: 'Identificador',
+                searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
+                hidden: true,
+                selector: row => row.id,
+                sortable: true,
+                searchable: true,
+                cell: () => <></>,
+            },
             {
                 name: 'Fecha',
                 selector: row => dateToString(row[dateField]),
@@ -169,11 +192,10 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
             },
             {
                 name: 'Importe',
-                cell: row => <span className={`${row.value >= 0 ? "text-gray-800" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{'$' + withSeparators(row.value)}</span>,
+                cell: row => <span className={`${row.value >= 0 ? "text-gray-800" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}</span>,
                 sortable: true,
                 searchable: true,
                 selector: row => row.value.toString(),
-                //maxWidth: '80px'
             },
             {
                 name: 'Modo de pago',
@@ -211,6 +233,13 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                 selector: row => getUserFullName(row),
             },
             {
+                name: 'Verificado por',
+                cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getVerifierUserFullName(row)}</span>,
+                sortable: true,
+                searchable: true,
+                selector: row => getVerifierUserFullName(row),
+            },
+            {
                 name: 'Comprobante',
                 cell: row => (<>{(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
                 </a>}</>),
@@ -218,12 +247,45 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
             },
             {
                 name: 'Acciones',
-                cell: row => (<div className="flex w-full justify-center"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button>{canVerify && (<button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openVerifyModal(row)}><DoneIcon /></button>)}{editMode && (<button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button>)}</div>),
+                cell: row => (<>
+                    <div className="flex w-full justify-center">
+                        <Tooltip title="Eliminar">
+                            <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}>
+                                <DeleteIcon />
+                            </button>
+                        </Tooltip>
+                        {canVerify && (
+                            <Tooltip title="Verificar">
+                                <button className={`rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1 ${row.verified ? "invisible" : ""}`} onClick={() => openVerifyModal(row)}>
+                                    <DoneIcon />
+                                </button>
+                            </Tooltip>)
+                        }
+                        {editMode && (
+                            <Tooltip title="Editar">
+                                <button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}>
+                                    <EditIcon />
+                                </button>
+                            </Tooltip>)
+                        }
+                    </div></>),
                 sortable: true,
             },
         ];
-        return newColumns;
-    }, [categories, dateField]); 
+        const columns = []
+        const columnsPropsNames = columnsProps.map(col => col.name)
+        defaultColumns.forEach(col => {
+            if (columnsPropsNames.includes(col.name)) {
+                const colProp = columnsProps.find(c => c.name === col.name)
+                if (!colProp.hidden) {
+                    columns.push(col)
+                }
+            } else {
+                columns.push(col)
+            }
+        })
+        return columns;
+    }, [categories, dateField, columnsProps]); 
 
     useEffect(() => {
         setFilteredPayments(payments);
@@ -232,7 +294,16 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     useEffect(() => {
         setFilteredPayments(payments);
     }, [])
-    
+
+    const updateTableSummary = payments =>  {
+        setTableSummary({
+            total: getBalanceForAllPayments(payments),
+            incomes: getPayments(payments),
+            expenses: getDischarges(payments),
+        })
+    }
+
+    useEffect(() => updateTableSummary(filteredPayments), [filteredPayments])
 
     useEffect(() => {
         if(showDischarges) {
@@ -255,8 +326,11 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
     return(
         <>
             <Table
+                defaultSearchValue={defaultSearchValue}
+                defaultTypeValue={defaultTypeValue}
                 className={`rounded-3xl shadow-lg ${className}`}
                 columns={columns}
+                onFilterData={(newFilteredPayments) => updateTableSummary(newFilteredPayments)}
                 data={filteredPayments}
                 noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
                 pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -279,23 +353,9 @@ export default function PaymentsTable({ dateField = "at", className = "", paymen
                     onChange={() => setShowIncomes(!showIncomes)}
                 />          
             </div>
-            <TableSummary total={getBalanceForAllPayments()} incomes={getPayments()} expenses={getDischarges()}/>
-            <Modal onClose={() => setPayment(null)} icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
-                {payment !== null &&
-                    <div>Esta a punto de eliminar el pago con el importe de <span className="font-bold">{payment.value}$</span>{payment.fileId !== null && ", este pago tiene asociado un comprobante el cual tambien sera eliminado."}</div>
-                }
-            </Modal>
-            <Modal onClose={() => setPayment(null)} icon={<DoneIcon />} open={verifyModal} setDisplay={() => setVerifyModal(false)} title="Verificar pago" buttonText={verifying ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Verificando...</span></>) : <span>Verificar</span>} onClick={handleVerifyPayment}>
-                {payment !== null &&
-                    <div>
-                        <div>Esta a punto de verificar el pago con el importe de <span className="font-bold">{payment.value}$</span></div>
-                        <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</label>
-                            <Select value={verifingPaymentMethod} onChange={setVerifingPaymentMethod} options={PAYMENT_OPTIONS} />
-                        </div>
-                    </div>
-                }
-            </Modal>
+            <TableSummary total={tableSummary.total} incomes={tableSummary.incomes} expenses={tableSummary.expenses}/>
+            <DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
+            <VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
         </>
     );
 } 

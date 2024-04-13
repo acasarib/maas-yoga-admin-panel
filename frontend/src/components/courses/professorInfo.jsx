@@ -13,10 +13,11 @@ export default function ProfessorInfo(props) {
     const [criteriaValue, setCriteriaValue] = useState(null);   
     const [id, setId] = useState(null); 
     const [isProfessorSelected, setIsProfessorSelected] = useState(false);
-
-    const handleChangeCriteria = ({ student, percentage, assistance }) => {
-        console.log({ student, percentage, assistance });
-        if (student) {
+    
+    const handleChangeCriteria = ({ student, percentage, assistance, assistant }) => {
+        if (assistant) {
+            setCriteria("assistant")
+        } else if (student) {
             setCriteria(isCriteriaByAssistance() ? 'student-assistance':'student')
         } else if (percentage) {
             setCriteria(isCriteriaByAssistance() ? 'percentage-assistance':'percentage')
@@ -35,6 +36,7 @@ export default function ProfessorInfo(props) {
     const isCriteriaByStudent = () => criteria.split("-")[0] === 'student'
     const isCriteriaByPercentage = () => criteria.split("-")[0] === 'percentage'
     const isCriteriaByAssistance = () => criteria.split("-")[1] === 'assistance'
+    const isCriteriaByAssistant = () => criteria === 'assistant'
 
     const addProfessor = () => {
         const professor = {
@@ -127,8 +129,12 @@ export default function ProfessorInfo(props) {
                             <input onChange={(e) => handleChangeCriteria({student: e.target.value})} name="criteria" id="criteria-student" checked={isCriteriaByStudent()} value="student" type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
                             <label htmlFor="criteria-student" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Estudiante</label>
                         </div>
+                        <div className="flex items-center ml-2 mt-2 sm:mt-0 sm:ml-4">
+                            <input onChange={(e) => handleChangeCriteria({assistant: e.target.value})} name="criteria" id="assistant" checked={isCriteriaByAssistant()} value="assistant" type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
+                            <label htmlFor="assistant" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Asistir</label>
+                        </div>
                     </div>
-                    <div className="flex items-center pt-2 ml-2 md:ml-4">
+                    <div className={`flex items-center pt-2 ml-2 md:ml-4 ${isCriteriaByAssistant() && "hidden"}`}>
                         <input onChange={(e) => handleChangeCriteria({assistance: e.target.checked})} name="assistance" id="assistance" type="checkbox" checked={isCriteriaByAssistance()} value="assistance" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
                         <label htmlFor="assistance" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Por asistencia</label>
                     </div>
@@ -136,12 +142,12 @@ export default function ProfessorInfo(props) {
             </div>
             <div className="mb-4 w-3/6">
                 <CommonInput 
-                    label={isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}    
+                    label={isCriteriaByAssistant() ? "Monto por asistir" : isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}    
                     value={criteriaValue}
                     name="criteriaValue"
                     id="criteriaValue" 
                     type="number" 
-                    placeholder={isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}
+                    placeholder={isCriteriaByAssistant() ? "Monto" : isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}
                     onChange={(e) => setCriteriaValue(e.target.value)}
                 />
             </div>

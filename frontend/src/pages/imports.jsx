@@ -7,17 +7,14 @@ import ImportStudents from "../components/section/imports/students";
 import ImportSubscriptionClasses from "../components/section/imports/subscriptionClasses";
 import ImportDischarges from "../components/section/imports/discharges";
 import Container from "../components/container";
+import CardItem from "../components/card/cardItem";
 
 export default function Imports() {
     const [activeView, setActiveView] = useState(0);
     const [activeImport, setActiveImport] = useState("");
 
     const ImportItem = ({ icon, children, item, disabled = false }) => (
-    <div onClick={() => !disabled && setActiveImport(item)}>
-        <span className={`justify-center ${disabled ? "bg-gray-200" : "bg-orange-50 hover:bg-orange-100 cursor-pointer"} text-yellow-900 shadow-lg flex items-center rounded-xl font-bold text-sm py-4 px-4`}>
-            {icon}<span className="ml-3">{children}</span>
-        </span>
-    </div>);
+        <CardItem icon={icon} disabled={disabled} onClick={() => !disabled && setActiveImport(item)}>{children}</CardItem>);
 
     useEffect(() => {
         setActiveView((activeImport === "") ? 0 : 1);

@@ -12,6 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import BlueBudget from "../badget/blue";
 import Tooltip from '@mui/material/Tooltip';
 import { STUDENT_MONTHS_CONDITIONS } from "../../constants";
+import YellowBudget from "../badget/yellow";
 
 export default function StudentCalendar({ periods }) {
     const [currentYear, setCurrentYear] = useState(null);
@@ -34,6 +35,8 @@ export default function StudentCalendar({ periods }) {
             return (<RedBudget><CloseIcon fontSize="small"/>No pagado</RedBudget>);
         } else if (status == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN) {
             return (<BlueBudget>Inscripto</BlueBudget>);
+        } else if (status == STUDENT_MONTHS_CONDITIONS.SUSPEND) {
+            return (<YellowBudget>Suspendido</YellowBudget>);
         }
     }
 

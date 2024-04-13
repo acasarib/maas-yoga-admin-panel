@@ -4,13 +4,12 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useState } from "react";
 import Tooltip from '@mui/material/Tooltip';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
-import CurrencyInput from "../input/currencyInput";
-import { addLeadingZeroLessTen, getLastDayOfMonth } from "../../utils";
-import { Context } from "../../context/Context";
+import { addLeadingZeroLessTen, formatPaymentValue, getLastDayOfMonth } from "../../utils";
+import Link from "../link/link";
+import PlusButton from "../button/plus";
 
-export default function ProfessorCalendar({ professor, courseId, enabledPeriods, payments }) {
+export default function ProfessorCalendar({ onClickAddProfessorPayment, professor, courseId, enabledPeriods, payments }) {
+    
     const [currentYear, setCurrentYear] = useState(null);
     const [periods, setPeriods] = useState({});
     const years = Object.keys(periods);
@@ -31,22 +30,44 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
                 const monthDetails = periods[currentYear][month];
                 if (!monthDetails.paid) {
                     if (monthDetails.dictedByProfessor) {
-                        return <NoPayments year={currentYear} month={month} professor={professor} courseId={courseId}/>;
+                        return <NoPayments onClickAddProfessorPayment={onClickAddProfessorPayment} year={currentYear} month={month} professor={professor} courseId={courseId}/>;
                     } else {
-                        return "no disponible";
+                        return "No disponible";
                     }
                 }
-                if (!monthDetails.verified) {
-                    return "pago sin verificar $" + monthDetails.payment.value *-1;
+                const itemList = monthDetails.payments.map((payment, index) => {
+                    let item;
+                    if (!payment.verified) {
+                        item = (<><Link to={`/home/payments?id=${payment.id}&tab=2`}>Pago</Link> sin verificar {formatPaymentValue(payment.value)}</>);
+                    } else {
+                        const title = `${formatPaymentValue(payment.value *-1)} por ${payment.type}`;
+                        const monthStatus = "realizado " + formatPaymentValue(payment.value *-1);
+                        item = (<Tooltip title={title}><span><Link to={`/home/payments?id=${payment.id}`}>Pago</Link> {monthStatus}</span></Tooltip>)
+                    }
+                    return <div key={index}>{item}</div>
+                })
+
+                const handleOnCreatePayment = async () => {
+                    const m = addLeadingZeroLessTen(month);
+                    const from = `${currentYear}-${m}-01`;
+                    const to = `${currentYear}-${m}-${getLastDayOfMonth(currentYear, month)}`;
+                    onClickAddProfessorPayment({ from, to, professorId: monthDetails.payments[0].professorId, courseId: monthDetails.payments[0].courseId })
                 }
-                const hasMonthPaid = "payment" in monthDetails;
-                const title = hasMonthPaid ? `$${monthDetails.payment.value *-1} por ${monthDetails.payment.type}` : "error";
-                const monthStatus = "pago realizado $" + monthDetails.payment.value *-1;
-                return (<Tooltip title={title}><span>{monthStatus}</span></Tooltip>)
+
+                return (
+                    <div className="flex">
+                        <div>{itemList}</div>
+                        <Tooltip title={"Agregar"}>
+                            <div className="w-5 h-5 ml-4">
+                                <PlusButton className="w-5 h-5" fontSize={"small"} onClick={handleOnCreatePayment}/>
+                            </div>
+                        </Tooltip>
+                    </div>)
             } else {
                 return "no hay datos";
             }
-        } catch {
+        } catch(e) {
+            console.log(e);
             return "";
         }
     }
@@ -73,7 +94,7 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
                     for (let i = 1; i <= 12; i++) {
                         periods[year][i] = {
                             dictedByProfessor: false,
-                            verified: false,
+                            payments: [],
                             paid: false,
                         }
                     }
@@ -87,6 +108,9 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
             }
         }
         for (const payment of payments) {
+            if (payment.courseId != courseId) {
+                continue
+            }
             let start = toCustomDateObj(payment.periodFrom);
             let end = toCustomDateObj(payment.periodTo);
             while ((start.year < end.year) || (start.year  === end.year && start.month <= end.month)) {
@@ -96,15 +120,18 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
                     for (let i = 1; i <= 12; i++) {
                         periods[year][i] = {
                             dictedByProfessor: false,
-                            verified: false,
+                            payments: [],
                             paid: false,
                         }
                     }
                 }
                 periods[year][start.month].paid = true;
-                periods[year][start.month].verified = payment.verified;
-                periods[year][start.month].payment = payment;
+                periods[year][start.month].payments.push(payment)
                 start.month = start.month+1;
+                if (start.month >= 13) {
+                    start.month = 1;
+                    start.year++;
+                }
             }
         }
         setCurrentYear(Object.keys(periods)[0]);
@@ -133,43 +160,14 @@ export default function ProfessorCalendar({ professor, courseId, enabledPeriods,
     </>);
 } 
 
-function NoPayments({ month, year, courseId, professor }) {
-    const { newProfessorPayment } = useContext(Context);
-    const [addingPayment, setAddingPayment] = useState(false);
-    const [value, setValue] = useState("");
-    const currencyInputRef = React.createRef();
+function NoPayments({ month, year, courseId, professor, onClickAddProfessorPayment }) {
 
-    const toggleAddingPayment = () => {
-        setAddingPayment(!addingPayment);
-        setValue("");
-    }
-
-    useEffect(() => {
-        if (addingPayment && currencyInputRef !== null) {
-            currencyInputRef.current.focus();
-        }
-    }, [addingPayment]);
-
-    const handleOnCreatePayment = () => {
+    const handleOnCreatePayment = async () => {
         const m = addLeadingZeroLessTen(month);
         const from = `${year}-${m}-01`;
         const to = `${year}-${m}-${getLastDayOfMonth(year, month)}`;
-        newProfessorPayment(professor.id, courseId, from, to, value);
-        toggleAddingPayment();
+        onClickAddProfessorPayment({ from, to, professorId: professor.id, courseId })
     }
 
-    return !addingPayment ? 
-    <>no hay pagos <span onClick={toggleAddingPayment} className="underline cursor-pointer">agregar</span></>
-    : 
-        <div className="flex flex-end items-center">
-            <div className="w-2/6">
-                <CurrencyInput
-                    innerref={currencyInputRef}
-                    value={value}
-                    onChange={(e) => setValue(e)}
-                />
-            </div>
-            <CheckIcon onClick={handleOnCreatePayment} className="mx-2 cursor-pointer"/>
-            <CloseIcon onClick={toggleAddingPayment} className="cursor-pointer"/>
-        </div>
+    return <>No hay pagos <span onClick={handleOnCreatePayment} className="underline cursor-pointer">agregar</span></>
 }

@@ -16,6 +16,10 @@ const payment = (sequelize) => {
       type: Sequelize.FLOAT,
       allowNull: false,
     },
+    discount: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+    },
     at: {
       type: Sequelize.DataTypes.DATE,
       allowNull: false,
@@ -37,6 +41,11 @@ const payment = (sequelize) => {
       allowNull: true,
     },
     verified: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    isRegistrationPayment: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false,

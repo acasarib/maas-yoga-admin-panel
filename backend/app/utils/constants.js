@@ -1,6 +1,7 @@
 const PERMISSIONS = {
   CREATE_USER: "PERMISSION_CREATE_USER"
 };
+const APP_VERSION = "1.0.0";
 const PAYMENT_TYPES = {
   MERCADO_PAGO: "Mercado pago",
   PAYPAL: "Paypal",
@@ -10,6 +11,10 @@ const PAYMENT_TYPES = {
   DEBIT_ACCOUNT: "Débito de cuenta",
   DEBIT_CARD: "Débito de tarjeta"
 };
+const STUDENT_STATUS = {
+  ACTIVE: "ACTIVE",
+  SUSPEND: "SUSPEND",
+}
 const LOG_PAYMENT_ACTIONS = {
   UPDATE: "UPDATE",
   CREATE: "CREATE",
@@ -23,13 +28,15 @@ const CRITERIA_COURSES = {
   STUDENT: "student",
   PERCENTAGE: "percentage",
   PERCENTAGE_ASSISTANCE: "percentage-assistance",
-  STUDENT_ASSISTANCE: "student-assistance"
+  STUDENT_ASSISTANCE: "student-assistance",
+  ASSISTANT: "assistant",
 };
 const STUDENT_MONTHS_CONDITIONS = {
   PAID: "PAID",
   NOT_TAKEN: "NOT_TAKEN",
   NOT_PAID: "NOT_PAID",
   PENDING: "PENDING",
+  SUSPEND: "SUSPEND",
 };
 
 // https://sequelize.org/docs/v6/core-concepts/model-querying-basics/
@@ -64,8 +71,10 @@ export {
   SPECIFICATION_VALUE_SEPARATOR,
   SPECIFICATION_QUERY_SEPARATOR,
   PAYMENT_TYPES,
+  STUDENT_STATUS,
   DAYS,
   CRITERIA_COURSES,
   LOG_PAYMENT_ACTIONS,
   STUDENT_MONTHS_CONDITIONS,
+  APP_VERSION,
 };

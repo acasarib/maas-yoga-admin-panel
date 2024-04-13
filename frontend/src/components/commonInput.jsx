@@ -26,6 +26,7 @@ export default function CommonInput(props) {
                 name={props.name}
                 role={props.role}
                 htmlFor={props.htmlFor}
+                disabled={props.disabled}
                 onKeyDown={handleOnKeyDown}
             />
             {props.isInvalid === true && 

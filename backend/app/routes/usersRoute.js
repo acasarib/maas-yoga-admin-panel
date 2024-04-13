@@ -7,9 +7,10 @@ import { PERMISSIONS } from "../utils/constants.js";
 const router = express.Router();
 
 router.post("/register", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), body("email").isEmail(), controller.register);
-router.delete("/:email", controller.deleteByEmail);
+router.delete("/:email", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), controller.deleteByEmail);
+router.put("/change-password", verifyToken, controller.changeMyPassword);
 router.post("/login", controller.login);
-router.get("/", controller.getAll);
-router.put("/:email", controller.editByEmail);
+router.get("/", verifyToken, controller.getAll);
+router.put("/:email", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), controller.editByEmail);
 
 export default router;

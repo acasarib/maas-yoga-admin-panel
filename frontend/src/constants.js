@@ -12,6 +12,17 @@ export const STUDENT_MONTHS_CONDITIONS = {
     NOT_TAKEN: "NOT_TAKEN",
     NOT_PAID: "NOT_PAID",
     PENDING: "PENDING",
+    SUSPEND: "SUSPEND",
+}
+
+export const STUDENT_STATUS = {
+    ACTIVE: "ACTIVE",
+    SUSPEND: "SUSPEND",
+}
+
+export const TABLE_SEARCH_CRITERIA = {
+    EQUAL: "EQUAL",
+    CONTAINS: "CONTAINS",
 }
 
 export const PAYMENT_OPTIONS = [

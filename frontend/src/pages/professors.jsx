@@ -10,10 +10,10 @@ import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import CustomRadio from "../components/radio/customRadio";
-import ProfessorDetailModal from "../components/modal/professorDetailModal";
+import { useNavigate } from "react-router-dom";
 
 export default function Professors(props) {
-    const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, getProfessorDetailsById, changeAlertStatusAndMessage } = useContext(Context);
+    const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -21,13 +21,12 @@ export default function Professors(props) {
     const [opResult, setOpResult] = useState('Verificando profesores...');
     const [edit, setEdit] = useState(false);
     const [professorToEdit, setProfessorToEdit] = useState({});
-    const [professorDetail, setProfessorDetail] = useState(null);
-    const [professorModal, setProfessorModal] = useState(null);
     const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
     const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
     const [matches, setMatches] = useState(
         window.matchMedia("(min-width: 700px)").matches
     )
+    const navigate = useNavigate(); 
 
     const [selectedProfessorInvoiceType, setSelectedProfessorInvoiceType] = useState('A');
     const handleOptionChange = (event) => {
@@ -63,8 +62,7 @@ export default function Professors(props) {
     }
 
     const handleOnClickProfessor = async (professor) => {
-        getProfessorDetailsById(professor.id);
-        setProfessorDetail(professor);
+        navigate(`/home/professors/${professor.id}`)
     }
 
     const columns = useMemo(() => [
@@ -136,15 +134,6 @@ export default function Professors(props) {
         .matchMedia("(min-width: 700px)")
         .addEventListener('change', e => setMatches( e.matches ));
     }, []);
-
-    useEffect(() => {
-        if (professorDetail !== null) {
-            const prof = professors.find(p => p?.id === professorDetail?.id);
-            setProfessorModal(JSON.parse(JSON.stringify(prof)));
-        } else {
-            setProfessorModal(null);
-        }
-    }, [professors, professorDetail]);
 
     const checkDuplicated = (field, callback) => {
         const isDuplicated = professors.some(st => st[field] == formik.values[field]);
@@ -273,7 +262,6 @@ export default function Professors(props) {
                 </>
                 } />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar profesor" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteProfessor} children={<><div>Esta a punto de elimnar este profesor. ¿Desea continuar?</div></>} />
-                <ProfessorDetailModal isOpen={professorDetail !== null} onClose={() => setProfessorDetail(null)} professor={professorModal} />
             </Container>
         </>
     );
