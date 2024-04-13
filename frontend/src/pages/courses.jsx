@@ -29,6 +29,7 @@ import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
 import useQueryParam from "../hooks/useQueryParam";
 import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
+import { Link } from "react-router-dom";
 
 export default function Courses(props) {
     const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
@@ -191,10 +192,6 @@ export default function Courses(props) {
        return prfName;
     }
 
-    const handleOnClickCourse = async (course) => {
-        setCourseDetails(course);
-    }
-
     const columns = [
         {
             name: 'Identificador',
@@ -207,16 +204,17 @@ export default function Courses(props) {
         },
         {
             name: 'Título',
-            cell: row => {return (<><div className="flex flex-col justify-center" onClick={() => handleOnClickCourse(row)}>
-            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-              <div className="group cursor-pointer relative inline-block underline text-yellow-900 mx-1 cursor-pointer">{row.title}
-                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
-                  {row.title}
-                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+            cell: row => 
+            <Link to={`/home/courses/${row.id}`} className="flex flex-col justify-center">
+                <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+                    <div className="group cursor-pointer relative inline-block underline text-yellow-900 mx-1 cursor-pointer">{row.title}
+                        <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                        {row.title}
+                        <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            </div></>)},
+            </Link>,
             sortable: true,
             searchable: true,
             selector: row => row.title,

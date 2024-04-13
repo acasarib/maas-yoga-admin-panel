@@ -31,6 +31,7 @@ import ProfessorPayments from "./professorPayments";
 import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import ProfessorDetail from "./professorDetail";
+import CourseDetail from "./courseDetail";
 
 export default function Home(props) {
     const { setUser } = useContext(Context);
@@ -147,7 +148,7 @@ export default function Home(props) {
                                 <NavItem onClick={closeSidebar} target={"students"} isActive={props.students} icon={<SchoolIcon/>}>Alumnos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
                                 <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors || props.professorDetail} icon={<HailIcon/>}>Profesores</NavItem>
-                                <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
+                                <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses || props.courseDetail} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
                                 <NavItem onClick={closeSidebar} target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
                                 <NavItem onClick={closeSidebar} target={"imports"} isActive={props.imports} icon={<ImportExportIcon/>}>Importar datos</NavItem>
@@ -181,6 +182,7 @@ export default function Home(props) {
                     {props.diary && (<><Diary/></>)}
                     {props.professorPayments && (<><ProfessorPayments/></>)}
                     {props.professorDetail && (<><ProfessorDetail/></>)}
+                    {props.courseDetail && (<><CourseDetail/></>)}
                     {props.professors && (<><Professors/></>)}
                 </main>
                 </div>

@@ -98,6 +98,38 @@ export default {
                 })
         });
     },
+    suspendStudentFromCourse(studentId, courseId, from, to) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            let url = `api/v1/students/${studentId}/courses/${courseId}/suspend?from=${from}`
+            if (to != null)
+                url = url + "&to=" + to
+            axios
+                .put(baseUrl + url, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    deleteSuspension(studentId, courseId, from, to) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            let url = `api/v1/students/${studentId}/courses/${courseId}/suspend?from=${from}`
+            if (to != null)
+                url = url + "&to=" + to
+            axios
+                .delete(baseUrl + url, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     editStudent(studentId, student) {
         return new Promise((resolve, reject) => {
             const data = {

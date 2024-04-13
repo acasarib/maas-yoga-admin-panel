@@ -205,6 +205,28 @@ export const Provider = ({ children }) => {
         }
     }
 
+    const getCourseDetailsById = async (courseId, force = false) => {
+        const localCourse = getCourseById(courseId);
+        if (localCourse) {
+            if (force === false) {
+                return localCourse;
+            }
+            const course = await coursesService.getCourse(courseId);
+            setCourses(prev => prev.map(c => {
+                if (c.id === courseId) {
+                    return course;
+                } else {
+                    return c;
+                }
+            }))
+            return course;
+        } else {
+            const course = await coursesService.getCourse(courseId);
+            setProfessors([...courses, course]);
+            return course;
+        }
+    }
+
     const getStudentsByCourse = (courseId) => {
         return studentsService.getStudentsByCourse(courseId);
     }
@@ -532,7 +554,9 @@ export const Provider = ({ children }) => {
     }
 
     const changeTaskStatus = async (courseId, taskId, studentId, taskStatus) => {
+        setIsLoadingCourses(false)
         await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
+        setIsLoadingCourses(true)
         changeAlertStatusAndMessage(true, 'success', 'El estado de la tarea fue editado exitosamente!')
         setCourses(current => current.map(course => {
             if (course.id === courseId) {
@@ -735,6 +759,30 @@ export const Provider = ({ children }) => {
         await paymentsService.updatePayment(data, paymentId);
     }
 
+    const suspendStudentFromCourse = async (studentId, courseId, from, to) => {
+        setIsLoadingCourses(true)
+        await studentsService.suspendStudentFromCourse(studentId, courseId, from, to)
+        setIsLoadingCourses(false)
+    }
+
+    const finishSuspend = async (studentId, courseId, from) => {
+        setIsLoadingCourses(true)
+        const now = new Date()
+        const year = now.getFullYear()
+        let month = now.getMonth()+1
+        month = month < 10 ? "0" + month : month
+        const to = `${year}-${month}`
+        await studentsService.suspendStudentFromCourse(studentId, courseId, from, to)
+        setIsLoadingCourses(false)
+    }
+
+    const deleteSuspension = async (studentId, courseId, from, to) => {
+        setIsLoadingCourses(true)
+        await studentsService.deleteSuspension(studentId, courseId, from, to)
+        setIsLoadingCourses(false)
+    }
+
+
     return (
         <Context.Provider value={{
             agendaLocations,
@@ -747,6 +795,9 @@ export const Provider = ({ children }) => {
             templates,
             clazzes,
             categories,
+            suspendStudentFromCourse,
+            deleteSuspension,
+            finishSuspend,
             items,
             isLoadingColleges,
             isLoadingCourses,
@@ -788,6 +839,7 @@ export const Provider = ({ children }) => {
             editUser,
             getTemplate,
             editTemplate,
+            getCourseDetailsById,
             editClazz,
             deleteClazz,
             deleteCategory,
