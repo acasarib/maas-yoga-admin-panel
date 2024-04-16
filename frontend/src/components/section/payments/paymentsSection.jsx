@@ -24,6 +24,7 @@ import { useRef } from "react";
 import useDrivePicker from 'react-google-drive-picker'
 import useToggle from "../../../hooks/useToggle";
 import { betweenZeroAnd100 } from "../../../utils";
+import CustomCheckbox from "../../../components/checkbox/customCheckbox";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
@@ -54,6 +55,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedClazz, setSelectedClazz] = useState(null);
     const [edit, setEdit] = useState(false);
+    const [registration, setRegistration] = useState(false);
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [openPicker, data, authResponse] = useDrivePicker();
     const [driveFile, setDriveFile] = useState(null);
@@ -216,6 +218,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setEdit(true);
         setOpenModal(true);
         setNote(payment.note);
+        if(payment.isRegistrationPayment){
+            setRegistration(payment.isRegistrationPayment);
+        }
         if(payment.course) {
             setSelectedCourse({label: payment.course.title, value: payment.course.id});
         }
@@ -269,6 +274,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
             driveFileId: driveFile?.id,
             discount: discountCheckbox.value ? discount : null,
+            isRegistrationPayment: registration,
         }  
         try{
             if(edit) {
@@ -342,7 +348,17 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} defaultValue={(edit && !isDischarge) ? selectedCourse : {}} /></div>
-            </div>)}</>)}
+            </div>)}
+            <div className="col-span-2 pb-1">
+                <CustomCheckbox
+                    checked={registration}
+                    labelOn="Corresponde a un pago de matrícula"
+                    labelOff="Corresponde a un pago de matrícula"
+                    className=""
+                    onChange={() => setRegistration(!registration)}
+                />
+            </div>
+            </>)}
             {(selectedCourse !== null && selectedStudent !== null) && 
                 <div className="col-span-2 md:col-span-2">
                     <div className="flex items-center mb-2">
