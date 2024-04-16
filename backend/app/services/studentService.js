@@ -185,8 +185,12 @@ export const getStudentsByCourse = async (courseId) => {
     [Op.in]: studentsIds
   } } })
   const dateSeries = utils.getMonthlyDateSeries(courseStartAt, courseEndAt)
+  const getRegistrationPayment = (studentId) => payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
   const getPaymentByYearAndMonthAndStudentId = (year, month, studentId) => {
     return payments.find(p => {
+      if (p.isRegistrationPayment) {
+        return false
+      }
       if (p.studentId == studentId) {
         const date = p.operativeResult
         return year == date.getFullYear() && (date.getMonth()+1) == month
@@ -200,6 +204,10 @@ export const getStudentsByCourse = async (courseId) => {
   const currentYear = now.getFullYear()
   for (const s of c.dataValues.students) {
     const st = s.dataValues
+    if (c.needsRegistration) {
+      st.registrationPayment = getRegistrationPayment(st.id)
+      st.registrationPaid = st.registrationPayment != undefined;
+    }
     st.pendingPayments = {}
     st.suspendedPeriods = await courseStudentSuspend.findAll({ where: { studentId: st.id, courseId } });
     st.suspendedPeriods = st.suspendedPeriods.map(sp => ({ suspendedAt: sp.suspendedAt, suspendedEndAt: sp.suspendedEndAt }))
