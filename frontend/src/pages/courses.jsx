@@ -298,6 +298,12 @@ export default function Courses(props) {
             sortable: true,
         },
         {
+            name: 'Pagó matrícula',
+            selector: row => row.registrationPaymentId ? 'Si' : 'No',
+            sortable: true,
+            minWidth: '150px'
+        },
+        {
             name: 'Estado',
             selector: row => row.status === STUDENT_STATUS.ACTIVE ? "Activo" : "Suspendido",
             sortable: true,
