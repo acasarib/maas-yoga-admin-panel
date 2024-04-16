@@ -15,7 +15,7 @@ export default function PaymentInfo({ payment }) {
 
     const hasDiscount = payment => payment.discount != null
 
-    const getPaymentValueDiscounted = payment => payment.value * ((100 - payment.discount) / 100)
+    const getOriginalPaymentValue = payment => payment.value / ((100 - payment.discount) / 100)
 
     return (
     <div className="w-full border rounded p-4 shadow-md bg-white mb-4">
@@ -23,8 +23,8 @@ export default function PaymentInfo({ payment }) {
             <div className="w-full flex justify-between">
                 {hasDiscount(payment) ?
                 <div className="flex">
-                    <div className="font-bold text-lg text-gray-400 line-through">{formatPaymentValue(payment.value)}</div>
-                    <div className="font-bold text-lg ml-2">{formatPaymentValue(getPaymentValueDiscounted(payment))}</div>
+                    <div className="font-bold text-lg text-gray-400 line-through">{formatPaymentValue(getOriginalPaymentValue(payment))}</div>
+                    <div className="font-bold text-lg ml-2">{formatPaymentValue(payment.value)}</div>
                     <div className="font-bold text-lg ml-2 flex items-center"><BlueBudget className="px-1">{payment.discount}%</BlueBudget></div>
                 </div>
                 :
