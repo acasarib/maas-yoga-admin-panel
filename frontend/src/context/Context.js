@@ -31,6 +31,8 @@ export const Provider = ({ children }) => {
     const [users, setUsers] = useState([]);
     const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
     const [payments, setPayments] = useState([]);
+    const [secretaryPayments, setSecretaryPayments] = useState([]);
+    const [alreadyAddedSecretaryPayments, setAlreadyAddedSecretaryPayments] = useState(false);
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
     const [isLoadingClazzes, setIsLoadingClazzes] = useState(true);
@@ -152,6 +154,24 @@ export const Provider = ({ children }) => {
         getProffesors();
         getAgendaLocations();
     }, [user]);
+
+    const addSecretaryPaymentsToPayments = async () => {
+        const secretaryPayments = await paymentsService.getSecretaryPayments();
+        setSecretaryPayments(secretaryPayments);
+        setPayments(prev => prev.map(payment => {
+            if ("secretaryPaymentId" in payment && payment.secretaryPaymentId != null) {
+                payment.secretaryPayment = secretaryPayments.find(sp => sp.id == payment.secretaryPaymentId)
+            }
+            return payment;
+        }))
+    }
+
+    useEffect(() => {
+        if (isLoadingPayments || alreadyAddedSecretaryPayments) return
+        addSecretaryPaymentsToPayments()
+        setAlreadyAddedSecretaryPayments(true)
+    }, [payments, isLoadingPayments, alreadyAddedSecretaryPayments])
+    
 
     const getAgendaCashValues = async (year, month, location) => {
         return agendaService.getCash(year, month, location);
@@ -782,6 +802,16 @@ export const Provider = ({ children }) => {
         setIsLoadingCourses(false)
     }
 
+    const getSecretaryPaymentDetail = () => {
+        return secretaryPayments.reduce((max, current) => {
+            if (current.createdAt > max.createdAt) {
+              return current;
+            } else {
+              return max;
+            }
+        }, secretaryPayments[0]);
+    }
+
 
     return (
         <Context.Provider value={{
@@ -797,6 +827,7 @@ export const Provider = ({ children }) => {
             categories,
             suspendStudentFromCourse,
             deleteSuspension,
+            getSecretaryPaymentDetail,
             finishSuspend,
             items,
             isLoadingColleges,
