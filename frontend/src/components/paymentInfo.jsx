@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { formatDateDDMMYY, formatPaymentValue } from "../utils";
 import Link from "./link/link";
 import BlueBudget from "./badget/blue";
+import { Context } from "../context/Context";
 
 export default function PaymentInfo({ payment }) {
+
+    const { getSecretaryPaymentById } = useContext(Context)
+    const secretaryPayment = getSecretaryPaymentById(payment.secretaryPaymentId)
 
     const getUserFullName = (payment) => {
         if (payment.user && payment.user !== undefined && payment.user !== null) {
@@ -32,7 +36,17 @@ export default function PaymentInfo({ payment }) {
                 }
                 <Link to={`/home?tab=${payment.verified ? "1" : "2"}&id=${payment.id}`} className="text-gray-400 text-xs cursor-pointer">#{payment.id}</Link>
             </div>
-            <span>Fecha del pago: {formatDateDDMMYY(new Date(payment.at))}</span>
+            <div>Fecha del pago: {formatDateDDMMYY(new Date(payment.at))}</div>
+            {("secretaryPaymentId" in payment && payment.secretaryPaymentId != null) && <>
+                <div>Pago de secretaria:</div>
+                <ul>
+                    <li>Salario: <span>{formatPaymentValue(secretaryPayment.salary)}</span></li>
+                    <li>Monotributo: <span>{formatPaymentValue(secretaryPayment.monotributo)}</span></li>
+                    <li>S.A.C.: <span>{formatPaymentValue(secretaryPayment.sac)}</span></li>
+                    <li>Horas extras: <span>{formatPaymentValue(secretaryPayment.extraHours)}</span></li>
+                    <li>Tareas extras: <span>{formatPaymentValue(secretaryPayment.extraTasks)}</span></li>
+                </ul>
+            </>}
             <div>Estudiante: {payment?.student?.name} {payment?.student?.lastName}</div>
             <div>Tipo de pago: {payment.type}</div>
             <div>Curso: {payment?.course?.title}</div>
