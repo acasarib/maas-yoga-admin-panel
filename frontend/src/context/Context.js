@@ -201,6 +201,7 @@ export const Provider = ({ children }) => {
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id == headquarterId);
     const getItemById = itemId => categories.find(category => category.items.find(item => item.id == itemId)).items.find(item => item.id == itemId);
     const getUserById = userId => users.find(user => user.id == userId);
+    const getSecretaryPaymentById = spId => secretaryPayments.find(sp => sp.id == spId);
     const getProfessorById = professorId => professors.find(professor => professor.id == professorId);
 
     const getProfessorDetailsById = async (professorId, force = false) => {
@@ -852,6 +853,7 @@ export const Provider = ({ children }) => {
             newClazz,
             newUser,
             deleteUser,
+            getSecretaryPaymentById,
             deleteStudent,
             editStudent,
             newStudent,
