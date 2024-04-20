@@ -154,6 +154,20 @@ export default {
                 })
         });
     },
+    getSecretaryPayments() {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + 'api/v1/payments/secretary', {})
+                .then((response) => {
+                    const secretaryPayments = response.data.map(sp => ({ ...sp, createdAt: new Date(sp.createdAt) }))
+                    resolve(secretaryPayments);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getByQuery(query) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

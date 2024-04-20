@@ -31,9 +31,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById } = useContext(Context);
+    const { user, clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
+    const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
+    const [isSecretaryPayment, setIsSecretaryPayment] = useState(false)
     const [selectedCollege, setSelectedCollege] = useState(null);
     const inputFileRef = useRef(null);
     const [fileId, setFileId] = useState(null);
@@ -275,6 +277,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             driveFileId: driveFile?.id,
             discount: discountCheckbox.value ? discount : null,
             isRegistrationPayment: registration,
+            secretaryPayment: (isDischarge && isSecretaryPayment) ? secretaryPaymentValues : null,
         }  
         try{
             if(edit) {
@@ -327,6 +330,30 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setDiscount(newValue)
     }
 
+    useEffect(() => {
+        const currentSecretaryPaymentValues = getSecretaryPaymentDetail();
+        if (currentSecretaryPaymentValues)
+            setSecretaryPaymentValues(currentSecretaryPaymentValues)
+        else
+            setSecretaryPaymentValues({ salary: 0, monotributo: 0, extraTasks: 0, extraHours: 0, sac: 0 })
+    }, [payments])
+
+    const handleChangeSecretaryPaymentValue = (type, value) => {
+        setSecretaryPaymentValues(prev => ({ ...prev, [type]: value }))
+    }
+
+    useEffect(() => {
+        if (isSecretaryPayment) {
+            const salary = parseFloat(secretaryPaymentValues.salary)
+            const monotributo = parseFloat(secretaryPaymentValues.monotributo)
+            const sac = parseFloat(secretaryPaymentValues.sac)
+            const extraHours = parseFloat(secretaryPaymentValues.extraHours)
+            const extraTasks = parseFloat(secretaryPaymentValues.extraTasks)
+            setAmmount(salary + monotributo + sac + extraHours + extraTasks)
+        }
+    }, [secretaryPaymentValues, isSecretaryPayment])
+    
+
     return (
         <>
         <div className="mb-6 md:my-6 md:mx-4">
@@ -358,7 +385,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     onChange={() => setRegistration(!registration)}
                 />
             </div>
-            </>)}
+        </>)}
             {(selectedCourse !== null && selectedStudent !== null) && 
                 <div className="col-span-2 md:col-span-2">
                     <div className="flex items-center mb-2">
@@ -379,6 +406,74 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     </div>
                 </div>
             }
+            {isDischarge &&
+                <div className="col-span-2 pb-1">
+                    <CustomCheckbox
+                        checked={isSecretaryPayment}
+                        labelOn="Corresponde a un pago de secretaria"
+                        labelOff="Corresponde a un pago de secretaria"
+                        className=""
+                        onChange={() => setIsSecretaryPayment(!isSecretaryPayment)}
+                    />
+                </div>
+            }
+            {isSecretaryPayment && <>
+            <div className="col-span-2 md:col-span-1 pb-1">
+                <CommonInput 
+                    label="Sueldo"
+                    name="Sueldo"
+                    className="block font-bold text-sm text-gray-700 mb-2"
+                    type="number" 
+                    placeholder="Sueldo" 
+                    value={secretaryPaymentValues.salary}
+                    onChange={(e) => handleChangeSecretaryPaymentValue("salary", e.target.value)}
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1 pb-1">
+                <CommonInput 
+                    label="Monotributo"
+                    name="Monotributo"
+                    className="block font-bold text-sm text-gray-700 mb-2"
+                    type="number" 
+                    placeholder="Monotributo" 
+                    value={secretaryPaymentValues.monotributo}
+                    onChange={(e) => handleChangeSecretaryPaymentValue("monotributo", e.target.value)}
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1 pb-1">
+                <CommonInput 
+                    label="Tareas extra"
+                    name="Tareas extra"
+                    className="block font-bold text-sm text-gray-700 mb-2"
+                    type="number" 
+                    placeholder="Tareas extra" 
+                    value={secretaryPaymentValues.extraTasks}
+                    onChange={(e) => handleChangeSecretaryPaymentValue("extraTasks", e.target.value)}
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1 pb-1">
+                <CommonInput 
+                    label="Horas extra"
+                    name="Horas extra"
+                    className="block font-bold text-sm text-gray-700 mb-2"
+                    type="number" 
+                    placeholder="Horas extra" 
+                    value={secretaryPaymentValues.extraHours}
+                    onChange={(e) => handleChangeSecretaryPaymentValue("extraHours", e.target.value)}
+                />
+            </div>
+            <div className="col-span-2 pb-1">
+                <CommonInput 
+                    label="S.A.C."
+                    name="S.A.C."
+                    className="block font-bold text-sm text-gray-700 mb-2"
+                    type="number" 
+                    placeholder="S.A.C." 
+                    value={secretaryPaymentValues.sac}
+                    onChange={(e) => handleChangeSecretaryPaymentValue("sac", e.target.value)}
+                />
+            </div>
+            </>}
             <div className="col-span-2 md:col-span-1 pb-1">
                 <CommonInput 
                     label="Importe"
