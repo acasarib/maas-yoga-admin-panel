@@ -18,6 +18,32 @@ export default {
   },
 
   /**
+   * /payments/secretary [POST]
+   * @returns HttpStatus created and @SecretaryPayment
+   */
+  createSecretaryPayment: async (req, res, next) => {
+    try {
+      const secretaryPaymentCreated = await paymentService.createSecretaryPayment(req.body);
+      res.status(StatusCodes.CREATED).json(secretaryPaymentCreated);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/secretary/latest [GET]
+   * @returns HttpStatus ok and @SecretaryPayment
+   */
+  getSecretaryPayments: async (req, res, next) => {
+    try {
+      const secretaryPayment = await paymentService.getSecretaryPayments();
+      res.status(StatusCodes.OK).json(secretaryPayment);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /payments/{id} [DELETE]
    * @returns HttpStatus no content if was deleted
    */

@@ -4,6 +4,8 @@ import verifyToken from "../middleware/validateToken.js";
 const router = express.Router();
 
 router.post("/", verifyToken, controller.create);
+router.post("/secretary", verifyToken, controller.createSecretaryPayment);
+router.get("/secretary", verifyToken, controller.getSecretaryPayments);
 router.delete("/:id", verifyToken, controller.deleteById);
 router.get("/students/:studentId", verifyToken, controller.getAllByStudentId);
 router.get("/courses/:courseId", verifyToken, controller.getAllByCourseId);
