@@ -151,7 +151,7 @@ const StudentsModule = ({ course }) => {
 			buttonText={"Aplicar"}
 			title={`Pagos de ${activeStudent.name} ${activeStudent.lastName} sobre el curso`}
 		>
-			<StudentCalendar periods={activeStudent.pendingPayments}/>
+			<StudentCalendar periods={activeStudent.pendingPayments} registration={activeStudent.registrationPayment}/>
 		</Modal>
 
 	}

@@ -14,7 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { STUDENT_MONTHS_CONDITIONS } from "../../constants";
 import YellowBudget from "../badget/yellow";
 
-export default function StudentCalendar({ periods }) {
+export default function StudentCalendar({ periods, registration }) {
     const [currentYear, setCurrentYear] = useState(null);
     const years = Object.keys(periods);
     const arrowLeftDisabled = years.filter(year => parseInt(year) < parseInt(currentYear)).length === 0;
@@ -53,6 +53,7 @@ export default function StudentCalendar({ periods }) {
             <ArrowRightIcon className={arrowRightDisabled ? "text-gray-400" : "cursor-pointer"} onClick={() => !arrowRightDisabled && setCurrentYear(parseInt(currentYear)+1)}/>
         </div>
         <div>
+            {registration?.isRegistrationPayment && (<div className="flex flex-wrap items-center justify-center my-2 border border-green-600 w-auto"><CheckIcon color="success" fontSize="small"/><span className="ml-2 text-md">El alumno se encuentra matrículado. Fecha de pago: {formatDateDDMMYY(registration.at)}. Importe: ${registration.value}</span></div>)}
             {currentYear !== null &&
                 Object.keys(periods[currentYear]).map((month, i) =>
                     <div key={i} className={`${i % 2 == 1 && "bg-gray-100"} px-4 py-1`}>
