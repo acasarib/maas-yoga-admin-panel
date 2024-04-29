@@ -151,11 +151,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     }
 
     const handleChangeStudent = (selectedOpt) => {
-        setSelectedStudent(selectedOpt.id);
+        setSelectedStudent({label: selectedOpt.title, value: selectedOpt.id});
     };
 
     const handleChangeCourse = (selectedOpt) => {
-        setSelectedCourse(selectedOpt.id);
+        setSelectedCourse({label: selectedOpt.title, value: selectedOpt.id});
     };
 
     const handleChangeAmmount = (e) => {
