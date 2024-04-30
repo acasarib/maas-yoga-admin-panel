@@ -146,7 +146,7 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, cou
                         <p>Alumnos seleccionados: <span className="font-bold">{amountStudents}</span></p>
                     }
                     <p>{criteria}</p>
-                    <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? formatPaymentValue(total) : totalByStudents}</span></p>
+                    <p className="mt-4">Total a pagar: <span className="font-bold">{value.value == "default" ? formatPaymentValue(total) : formatPaymentValue(totalByStudents)}</span></p>
                     <p className="underline cursor-pointer" onClick={isViewingPayments.enable}>Ver pagos</p>
                 </div>
                 }
