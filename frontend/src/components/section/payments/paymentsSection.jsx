@@ -374,7 +374,14 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
-                <div className="mt-4"><Select onChange={handleChangeCourse} options={courses} defaultValue={(edit && !isDischarge) ? selectedCourse : {}} /></div>
+                <div className="mt-4">
+                    <Select
+                        onChange={handleChangeCourse}
+                        options={courses}
+                        defaultValue={(edit && !isDischarge) ? selectedCourse : {}}
+                        getOptionLabel ={(course)=> course.title}
+                        getOptionValue ={(course)=> course.id}
+                    /></div>
             </div>)}
             <div className="col-span-2 pb-1">
                 <CustomCheckbox

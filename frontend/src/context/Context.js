@@ -62,10 +62,6 @@ export const Provider = ({ children }) => {
         }
         const getCourses = async () => {
             const coursesList = await coursesService.getCourses();
-            coursesList.forEach(course => {
-                course.label = course.title;
-                course.value = course.id;
-            });
             setCourses(coursesList);
             setIsLoadingCourses(false);
         }
