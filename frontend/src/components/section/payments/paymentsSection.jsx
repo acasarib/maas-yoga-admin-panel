@@ -151,11 +151,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     }
 
     const handleChangeStudent = (selectedOpt) => {
-        setSelectedStudent(selectedOpt.id);
+        setSelectedStudent({label: selectedOpt.title, value: selectedOpt.id});
     };
 
     const handleChangeCourse = (selectedOpt) => {
-        setSelectedCourse(selectedOpt.id);
+        setSelectedCourse({label: selectedOpt.title, value: selectedOpt.id});
     };
 
     const handleChangeAmmount = (e) => {
@@ -266,11 +266,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             itemId: selectedItem?.id,
             clazzId: (edit && selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
             headquarterId: (edit && selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
-            courseId: (edit && selectedCourse !== null) ? selectedCourse.value : (isDischarge ? null : selectedCourse),
+            courseId: (edit && selectedCourse !== null) ? selectedCourse.value : (isDischarge ? null : selectedCourse.value),
             type: (edit && paymentMethod !== null) ? paymentMethod.value : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
-            studentId: (edit && selectedStudent !== null) ? selectedStudent.value : (isDischarge ? null : selectedStudent),
+            studentId: (edit && selectedStudent !== null) ? selectedStudent.value : (isDischarge ? null : selectedStudent.value),
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
