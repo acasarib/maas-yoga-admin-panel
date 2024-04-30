@@ -242,7 +242,13 @@ export default function Colleges(props) {
                                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                                     Asignar cursos
                                 </label>
-                                <Select isMulti onChange={handleChange} options={courses} />
+                                <Select
+                                    isMulti
+                                    onChange={handleChange}
+                                    options={courses}
+                                    getOptionLabel ={(course)=> course.title}
+                                    getOptionValue ={(course)=> course.id}
+                                />
                         </div>
                     </form>
                 </>
