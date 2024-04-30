@@ -5,7 +5,7 @@ import Select from "react-select";
 import CommonInput from "../commonInput";
 import ButtonPrimary from "../button/primary";
 import { Context } from "../../context/Context";
-import { getMonthNameByMonthNumber, isByAssistance } from "../../utils";
+import { formatPaymentValue, getMonthNameByMonthNumber, isByAssistance } from "../../utils";
 import ButtonSecondary from "../button/secondary";
 import useToggle from "../../hooks/useToggle";
 import PaymentInfo from "../paymentInfo";
@@ -146,7 +146,7 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, cou
                         <p>Alumnos seleccionados: <span className="font-bold">{amountStudents}</span></p>
                     }
                     <p>{criteria}</p>
-                    <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? total : totalByStudents}</span></p>
+                    <p className="mt-4">Total a pagar: <span className="font-bold">${value.value == "default" ? formatPaymentValue(total) : totalByStudents}</span></p>
                     <p className="underline cursor-pointer" onClick={isViewingPayments.enable}>Ver pagos</p>
                 </div>
                 }
