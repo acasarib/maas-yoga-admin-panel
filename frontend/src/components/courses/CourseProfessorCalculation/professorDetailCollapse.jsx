@@ -31,7 +31,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     let criteriaValue = professor.result.period.criteriaValue;
     let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
                 : isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
-                : `Se debe pagar ${formatPaymentValue(criteriaValue)}$ por cada estudiante.`
+                : `Se debe pagar ${formatPaymentValue(criteriaValue)} por cada estudiante.`
     let criteriaText = isByAssistance(periodCriteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
     const period = toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)
 
