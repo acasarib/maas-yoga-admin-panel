@@ -150,14 +150,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setFilename("");
     }
 
-    const handleChangeStudent = (selectedOpt) => {
-        setSelectedStudent({label: selectedOpt.title, value: selectedOpt.id});
-    };
-
-    const handleChangeCourse = (selectedOpt) => {
-        setSelectedCourse({label: selectedOpt.title, value: selectedOpt.id});
-    };
-
     const handleChangeAmmount = (e) => {
         if(!isDischarge) {
             const fixedNumber = e.target.value;
@@ -224,7 +216,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             setRegistration(payment.isRegistrationPayment);
         }
         if(payment.course) {
-            setSelectedCourse({label: payment.course.title, value: payment.course.id});
+            setSelectedCourse(payment.course);
         }
         if(payment.clazzId) {
             const classes = clazzes.filter(cls => cls.id === payment.clazzId);
@@ -243,7 +235,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             setAmmount(payment.value * -1)
         } else {
             setAmmount(payment.value)
-            setSelectedStudent({label: payment.student.name, value: payment.student.id});
+            setSelectedStudent(payment.student);
         }
         const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
         setPaymentMethod(method[0]);
@@ -330,6 +322,16 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setDiscount(newValue)
     }
 
+    const getOnlyStudentsOfSameCourse = () => {
+        if (selectedCourse == null) {
+            return students;
+        }
+        return students.filter(st => {
+            console.log(selectedCourse, "AK");
+            return st.courses.some(course => course.id == selectedCourse.id)
+        })
+    }
+
     useEffect(() => {
         const currentSecretaryPaymentValues = getSecretaryPaymentDetail();
         if (currentSecretaryPaymentValues)
@@ -352,7 +354,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             setAmmount(salary + monotributo + sac + extraHours + extraTasks)
         }
     }, [secretaryPaymentValues, isSecretaryPayment])
-    
+
 
     return (
         <>
@@ -370,15 +372,22 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
-                <div className="mt-4"><Select onChange={handleChangeStudent} options={students} defaultValue={(edit && !isDischarge) ? selectedStudent : {}} /></div>
+                <div className="mt-4">
+                    <Select
+                        onChange={setSelectedStudent}
+                        options={getOnlyStudentsOfSameCourse()}
+                        value={selectedStudent}
+                        getOptionLabel ={(student)=> `${student?.name} ${student?.lastName}`}
+                        getOptionValue ={(student)=> student.id}
+                    /></div>
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4">
                     <Select
-                        onChange={handleChangeCourse}
+                        onChange={setSelectedCourse}
                         options={courses}
-                        defaultValue={(edit && !isDischarge) ? selectedCourse : {}}
+                        defaultValue={selectedCourse}
                         getOptionLabel ={(course)=> course.title}
                         getOptionValue ={(course)=> course.id}
                     /></div>
