@@ -258,11 +258,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             itemId: selectedItem?.id,
             clazzId: (edit && selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
             headquarterId: (edit && selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
-            courseId: (edit && selectedCourse !== null) ? selectedCourse.value : (isDischarge ? null : selectedCourse.value),
+            courseId: (edit && selectedCourse !== null) ? selectedCourse.id : (isDischarge ? null : selectedCourse.id),
             type: (edit && paymentMethod !== null) ? paymentMethod.value : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
-            studentId: (edit && selectedStudent !== null) ? selectedStudent.value : (isDischarge ? null : selectedStudent.value),
+            studentId: (edit && selectedStudent !== null) ? selectedStudent.id : (isDischarge ? null : selectedStudent.id),
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
@@ -326,10 +326,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         if (selectedCourse == null) {
             return students;
         }
-        return students.filter(st => {
-            console.log(selectedCourse, "AK");
-            return st.courses.some(course => course.id == selectedCourse.id)
-        })
+        return students.filter(st => st.courses.some(course => course.id == selectedCourse.id))
     }
 
     useEffect(() => {
