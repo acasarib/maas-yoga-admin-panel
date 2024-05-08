@@ -258,7 +258,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             itemId: selectedItem?.id,
             clazzId: (edit && selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
             headquarterId: (edit && selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
-            courseId: (edit && selectedCourse !== null) ? selectedCourse.id : (isDischarge ? null : selectedCourse.id),
+            courseId: (edit && selectedCourse !== null) ? selectedCourse?.id : (isDischarge ? null : selectedCourse?.id),
             type: (edit && paymentMethod !== null) ? paymentMethod.value : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
@@ -271,6 +271,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             isRegistrationPayment: registration,
             secretaryPayment: (isDischarge && isSecretaryPayment) ? secretaryPaymentValues : null,
         }  
+        if (data.itemId != null && data.itemId != undefined) {
+            delete data.courseId;
+        }
         try{
             if(edit) {
                 data.id = paymentToEdit.id;
