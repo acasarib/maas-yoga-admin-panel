@@ -1,5 +1,6 @@
 import utils from "../utils/functions.js";
 import * as courseService from "../services/courseService.js";
+import * as paymentService from "../services/paymentService.js";
 
 const createMonthlyProfessorPayments = async () => {
   console.log("Executing: createMonthlyProfessorPayments()");
@@ -24,6 +25,11 @@ const createMonthlyProfessorPayments = async () => {
   console.log(amount + " Payments added successfull");
 }
 
+const addTodayPaymentServices = async () => {
+  paymentService.addTodayPaymentServices()
+}
+
 export {
-  createMonthlyProfessorPayments as createMonthlyProfessorPayments
+  createMonthlyProfessorPayments as createMonthlyProfessorPayments,
+  addTodayPaymentServices
 }

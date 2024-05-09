@@ -31,6 +31,58 @@ export default {
   },
 
   /**
+   * /payments/services [POST]
+   * @returns HttpStatus created and @ServicePayment
+   */
+  createServicePayment: async (req, res, next) => {
+    try {
+      const servicePaymentCreated = await paymentService.createServicePayment(req.body);
+      res.status(StatusCodes.CREATED).json(servicePaymentCreated);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/services [GET]
+   * @returns HttpStatus OK and list of @SecretaryPayment
+   */
+  getServicesPayments: async (req, res, next) => {
+    try {
+      const servicePayments = await paymentService.getServicePayments(req.body);
+      res.status(StatusCodes.OK).json(servicePayments);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/services/{id} [PUT]
+   * @returns HttpStatus OK and @SecretaryPayment updated
+   */
+  updateServicePayment: async (req, res, next) => {
+    try {
+      const updatedServicePayment = await paymentService.updatedServicePayment(req.params.id, req.body);
+      res.status(StatusCodes.OK).json(updatedServicePayment);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/services/{id} [DELETE]
+   * @returns HttpStatus 201 no content
+   */
+  deleteServicePayment: async (req, res, next) => {
+    try {
+      await paymentService.deleteServicePayment(req.params.id);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /payments/secretary/latest [GET]
    * @returns HttpStatus ok and @SecretaryPayment
    */

@@ -54,7 +54,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { secretaryPayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
+const { secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
 
 payment.hasMany(logPayment);
 user.hasMany(logPayment);
@@ -77,6 +77,7 @@ payment.belongsTo(secretaryPayment, { foreignKey: 'secretaryPaymentId' });
 course.hasMany(courseStudentSuspend);
 file.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 item.hasOne(payment,  { foreignKey: { allowNull: true }, targetKey: "id" });
+item.hasOne(servicePayment,  { foreignKey: { allowNull: true }, targetKey: "id" });
 student.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 course.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 clazz.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
@@ -93,6 +94,7 @@ payment.belongsTo(professor, { foreignKey: { allowNull: true } });
 payment.belongsTo(clazz, { foreignKey: { allowNull: true } });
 payment.belongsTo(course, { foreignKey: { allowNull: true } });
 payment.belongsTo(item, { foreignKey: { allowNull: true } });
+servicePayment.belongsTo(item, { foreignKey: { allowNull: true } });
 payment.belongsTo(headquarter, { foreignKey: { allowNull: true } });
 courseTask.belongsTo(course);
 course.hasMany(courseTask, { foreignKey: { allowNull: false }, targetKey: "id" });
@@ -126,5 +128,6 @@ export {
   clazzDayDetail,
   logPayment,
   courseStudent,
+  servicePayment,
   secretaryPayment,
 };
