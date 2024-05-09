@@ -1,8 +1,8 @@
 import * as dotenv from "dotenv";
 import fs from "fs";
 import https from "https";
-//import cron from "node-cron";
-//import { createMonthlyProfessorPayments } from "./app/client/scheduledCronTasks.js";
+import cron from "node-cron";
+import { addTodayPaymentServices } from "./app/client/scheduledCronTasks.js";
 dotenv.config();
 import express, { json } from "express";
 const app = express();
@@ -10,7 +10,7 @@ import errorHandler from "./app/middleware/errorHandler.js";
 import routes from "./app/routes/index.js";
 import cors from "cors";
 
-//cron.schedule("* * 1 * *", createMonthlyProfessorPayments);
+cron.schedule("0 1 * * *", addTodayPaymentServices);
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS || "*";
 const port = process.env.BACKEND_PORT || 3000;

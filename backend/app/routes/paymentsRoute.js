@@ -5,6 +5,10 @@ const router = express.Router();
 
 router.post("/", verifyToken, controller.create);
 router.post("/secretary", verifyToken, controller.createSecretaryPayment);
+router.post("/services", verifyToken, controller.createServicePayment);
+router.get("/services", verifyToken, controller.getServicesPayments);
+router.put("/services/:id", verifyToken, controller.updateServicePayment);
+router.delete("/services/:id", verifyToken, controller.deleteServicePayment);
 router.get("/secretary", verifyToken, controller.getSecretaryPayments);
 router.delete("/:id", verifyToken, controller.deleteById);
 router.get("/students/:studentId", verifyToken, controller.getAllByStudentId);
