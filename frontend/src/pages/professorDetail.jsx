@@ -125,7 +125,7 @@ const ProfessorDetail = () => {
 		let criteriaValue = professorPaymentData.result.period.criteriaValue;
 		let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
 					: isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
-					: `Se debe pagar ${formatPaymentValue(criteriaValue)}$ por cada estudiante.`
+					: `Se debe pagar ${formatPaymentValue(criteriaValue)} por cada estudiante.`
 		return criteria
 	}
 

@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
-import { payment, course, student, user, file, professor, secretaryPayment } from "../db/index.js";
+import { payment, course, student, user, file, professor, secretaryPayment, servicePayment, item } from "../db/index.js";
 import * as logService from "./logService.js";
+import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 
 /**
@@ -49,6 +50,54 @@ export const create = async (paymentParam, informerId) => {
 
 export const createSecretaryPayment = (secretaryPaymentParam) => {
   return secretaryPayment.create(secretaryPaymentParam);
+}
+
+export const createServicePayment = (servicePaymentParam) => {
+  return servicePayment.create(servicePaymentParam);
+}
+
+export const getServicePayments = async () => {
+  return servicePayment.findAll({ include: [item] });
+};
+
+export const updatedServicePayment = async (id, data) => {
+  await servicePayment.update(data, { where: { id } });
+  return servicePayment.findOne({ where: { id }, include: [item]})
+};
+
+export const deleteServicePayment = async (id) => {
+  await servicePayment.destroy({ where: { id } });
+}
+
+export const addTodayPaymentServices = async () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); 
+  const day = String(today.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+  console.log("CRON addTodayPaymentServices adding services with date " + formattedDate, { dayOfMonth: today.getDate(), lastTimeAdded: { [Op.not]: formattedDate } });
+  const todayServicePayments = await servicePayment.findAll({
+    where: {
+      [Op.and]: [
+        { dayOfMonth: today.getDate() },
+        { [Op.or]: [
+          { lastTimeAdded: { [Op.not]: formattedDate } },
+          { lastTimeAdded: null }
+        ]}
+      ]
+    }
+  });
+  let newPayments = []
+  todayServicePayments.forEach(sp => {
+    const { type, value, discount, note, itemId } = sp
+    newPayments.push({ type, value, discount, note, itemId, at: today, operativeResult: today, })
+  })
+  console.log("Adding " + newPayments.length + " payments");
+  await payment.bulkCreate(newPayments);
+  todayServicePayments.forEach(sp => {
+    sp.lastTimeAdded = formattedDate
+    sp.save()
+  })
 }
 
 export const getSecretaryPayments = async () => {
