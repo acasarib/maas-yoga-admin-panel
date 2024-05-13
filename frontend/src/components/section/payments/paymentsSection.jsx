@@ -23,15 +23,18 @@ import StorageIconButton from "../../button/storageIconButton";
 import { useRef } from "react";
 import useDrivePicker from 'react-google-drive-picker'
 import useToggle from "../../../hooks/useToggle";
-import { betweenZeroAnd100 } from "../../../utils";
+import { betweenZeroAnd100, formatPaymentValue } from "../../../utils";
 import CustomCheckbox from "../../../components/checkbox/customCheckbox";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, clazzes, students, courses, payments, colleges, templates, isLoadingPayments, informPayment, getTemplate, newTemplate, editTemplate, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail } = useContext(Context);
+    const { user, clazzes, students, courses, payments, colleges, services, isLoadingPayments, informPayment, getTemplate, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -46,20 +49,24 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [isDischarge, setIsDischarge] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [dayOfMonth, setDayOfMonth] = useState(1); 
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
     const [operativeResult, setOperativeResult] = useState(dayjs(new Date()));
-    const [templateModal, setTemplateModal] = useState(false);
-    const [templateTitle, setTemplateTitle] = useState('');
+    const [serviceModal, setServiceModal] = useState(false);
+    const [serviceNote, setServiceNote] = useState('');
+    const [showSt, setShowSt] = useState(false);
     const discountCheckbox = useToggle()
     const [discount, setDiscount] = useState("")
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
-    const [templateId, setTemplateId] = useState(null);
+    const [serviceId, setServiceId] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedClazz, setSelectedClazz] = useState(null);
     const [edit, setEdit] = useState(false);
     const [registration, setRegistration] = useState(false);
+    const [serviceToDelete, setServiceToDelete] = useState('');
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [openPicker, data, authResponse] = useDrivePicker();
+    const [deleteServiceModal, setDeleteServiceModal] = useState(false);
     const [driveFile, setDriveFile] = useState(null);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
@@ -125,20 +132,27 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const setDisplay = (value) => {
         setOpenModal(value);
         setIsLoadingPayment(false);
+        setDeleteServiceModal(false);
         setIsDischarge(value);
-        setTemplateModal(value);
+        setServiceModal(value);
         setEdit(value);
+        setServiceNote('');
         setPaymentAt(dayjs(new Date()));
         setOperativeResult(dayjs(new Date()));
         setDiscount("");
         discountCheckbox.disable();
         setAmmount(null);
         setSelectedStudent(null);
+        setIsEditingTemplate(false);
         setPaymentMethod(null);
         setSelectedCourse(null);
         setSelectedClazz(null);
         setSelectedClazz(null);
+        setServiceId(null);
+        setDayOfMonth(1);
         setSelectedCollege(null);
+        setSelectedItem(null);
+        setServiceToDelete('');
         setHaveFile(false);
         setPaymentToEdit({});
     }
@@ -175,8 +189,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setPaymentMethod(e.value);
     }
 
-    const handleChangeTitle = (e) => {
-        setTemplateTitle(e.target.value);
+    const handleChangeServiceNote = (e) => {
+        setServiceNote(e.target.value);
     }
 
     const handleChangeTemplates = async (e) => {
@@ -187,32 +201,54 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setIsDischarge(true);
     }
 
-    const handleEditTemplates = async (e) => {
-        const response = await getTemplate(e.value);
-        setTemplateId(response.id);
-        setTemplateTitle(response.title ? response.title : '');
-        setAmmount(response.content.value ? response.content.value : null);
+    useEffect(() => {
+      console.log(selectedItem);
+    }, [selectedItem])
+    
+
+    const handleEditService = async (srv) => {
+        const method = PAYMENT_OPTIONS.filter(type => type.value == srv.type);
+        console.log(method);
+        setPaymentMethod(method[0]);
+        const item = getItemById(srv.itemId);
+        setSelectedItem(item !== undefined ? item : null);
+        setDayOfMonth(srv.dayOfMonth)
         setIsDischarge(true);
+        setServiceModal(true);      
+        setIsEditingTemplate(true);
+        setServiceId(srv.id);
+        setServiceNote(srv.note ? srv.note : '');
+        setAmmount(srv.value ? srv.value : null);
     }
 
     const addTemplate = async () => {
         try{
             const body = {
-                title: templateTitle,
-                content: {
-                    value: ammount,
-                    type: paymentMethod
-                }
+                note: serviceNote,
+                value: ammount,
+                type: paymentMethod.value ? paymentMethod.value : paymentMethod,
+                itemId: selectedItem.id,
+                dayOfMonth: dayOfMonth
             }
             if(isEditingTemplate) {
-                await editTemplate(body, templateId);
+                await editService(body, serviceId);
                 setDisplay(false);
             }else {
-                await newTemplate(body);
+                await newService(body);
                 setDisplay(false);
             }
-        }catch(error) {
-            console.log(error)
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', `El servicio no pudo ser ${isEditingTemplate ? 'editado' : 'creado'}... Por favor inténtelo nuevamente.`);
+        }
+    }
+
+    const handleDeleteService = async () => {
+        try{
+            await deleteService(serviceId);
+            setDisplay(false);
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'El servicio no pudo ser eliminado... Por favor inténtelo nuevamente.');
+            setDisplay(false);
         }
     }
 
@@ -570,19 +606,22 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         :
         (<><span className="block text-gray-700 text-sm font-bold mb-2">Nombre del archivo: {fileName}</span><div className="flex flex-rox gap-4"><button onClick={() => uploadFile(file)} className={`${driveFile !== null && "none"} mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550`}>{isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}</button><button onClick={() => deleteSelection()} className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center shadow-lg flex justify-center items-center text-white hover:bg-orange-550">Eliminar selección</button></div></>)}
         </>} />
-        <Modal icon={<ListAltIcon />} open={templateModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={isEditingTemplate ? 'Editar template' : 'Crear nuevo template'} children={<>
-        <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
-            <div className="col-span-1 pb-3"><span className="block text-gray-700 text-sm font-bold mb-2">Seleccionar template</span><Select onChange={handleEditTemplates} options={templates} /></div>
-            <div className="col-span-2 grid grid-cols-2 pb-3">
-                <div className="mr-4">
+        <Modal icon={<ListAltIcon />} open={serviceModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>} onClick={addTemplate} title={isEditingTemplate ? 'Editar servicio' : 'Crear nuevo servicio'} children={<>
+        <div className="grid gap-10 pt-6 mb-4">
+            <div className="grid gap-4 pb-3">
+                <div>
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el Articulo</span>
+                    <div><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
+                </div>
+                <div>
                     <CommonInput 
-                        label="Titulo del Template"
+                        label="Referencia del servicio"
                         name="title"
                         className="block font-bold text-sm text-gray-700 mb-2"
                         type="text" 
-                        placeholder="Titulo" 
-                        value={templateTitle}
-                        onChange={handleChangeTitle}
+                        placeholder="Referencia" 
+                        value={serviceNote}
+                        onChange={handleChangeServiceNote}
                     />
                 </div>
                 <div>
@@ -592,36 +631,59 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                         className="block font-bold text-sm text-gray-700 mb-2"
                         type="number" 
                         placeholder="Importe" 
-                        value={ammount === null ? "" : ammount}
+                        value={ammount === null ? 0 : ammount}
                         onChange={handleChangeAmmount}
                     />    
                 </div>
-            </div>
-            <div className="col-span-2 md:col-span-2 pb-3">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
-                <div className="mt-4">
-                    <Select
-                        value={selectedCollege}
-                        onChange={setSelectedCollege}
-                        options={colleges}
-                        styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                <div>
+                    <CommonInput 
+                        label="Día del mes"
+                        name="Día del mes"
+                        className="block font-bold text-sm text-gray-700 mb-2"
+                        type="number" 
+                        placeholder="Día del mes" 
+                        value={dayOfMonth}
+                        min="0"
+                        onChange={(e) => setDayOfMonth(e.target.value)}
                     />
+                </div>
+                <div>
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
+                    <div><Select onChange={handleChangePayments} defaultValue={paymentMethod} options={PAYMENT_OPTIONS} /></div>
                 </div>
             </div>
         </div>
         </>} />
-        <div>
-            <span className="block text-gray-700 text-sm font-bold mb-2">Lista de templates</span>
-            <div className="flex flex-row"><span className="w-72 self-center"><Select onChange={handleChangeTemplates} options={templates} /></span><button onClick={() => setTemplateModal(true)}
-                        className="ml-3 bg-yellow-900 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-            </button><button onClick={() => {
-                    setTemplateModal(true);
-                    setIsEditingTemplate(true);
-                }
-            }
-                        className="ml-3 bg-orange-200 w-12 h-12 rounded-full shadow-lg flex justify-center items-center text-white text-4xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-115"><span className="font-bold text-sm text-yellow-900"><EditIcon fontSize="large" sx={{ color: orange[50] }} /></span>
-            </button></div>
-        </div>
+        <Modal icon={<DeleteIcon />} open={deleteServiceModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteService} title="Eliminar servicio" children={<>
+            <div className="grid gap-10 pt-6 mb-4">
+                <div>{`Usted esta a punto de eliminar el servicio ${serviceToDelete}. ¿Desea continuar?`}</div>
+            </div>
+        </>} />
+        <div className={`text-gray-700 rounded-2xl px-4 py-3 bg-orange-200 my-6 md:my-10 w-full md:w-3/6 md:mx-4`}>
+        <div className="text-xl md:text-2xl flex justify-between items-center"><div className="flex items-center gap-x-2"><span>Servicios</span><button onClick={() => setServiceModal(true)}
+                        className="bg-yellow-900 w-8 h-8 rounded-full shadow-lg flex justify-center items-center text-white text-3xl transition duration-200 ease-in-out bg-none hover:bg-none transform hover:scale-105"><span className="font-bold text-sm text-yellow-900"><AddIcon fontSize="medium" sx={{ color: orange[50] }} /></span>
+            </button></div>{services.length > 0 && (<button onClick={() => setShowSt(!showSt)}>{!showSt && <ExpandMoreIcon />}{showSt && <ExpandLessIcon/>}</button>)}</div>
+        {showSt && (<div><hr className="bg-white my-2 h-0.5"/>
+          {services.map((tmp, index) => 
+            <div className="flex justify-between items-center my-2" key={index}>
+                <div className="flex gap-x-2">
+                    <span>{tmp.note}</span>
+                    <span>{formatPaymentValue(tmp.value)}</span>
+                </div>
+                <div className="flex gap-x-2">
+                    <button onClick={() => handleEditService(tmp)}
+                        className="bg-orange-400 w-8 h-8 rounded-full shadow-lg flex justify-center items-center transition duration-200 ease-in-out bg-none hover:bg-none transform hover:scale-105"><span className="font-bold text-sm text-yellow-900"><EditIcon fontSize="medium" /></span>
+                    </button>
+                    <button className="bg-red-400 w-8 h-8 rounded-full shadow-lg flex justify-center items-center transition duration-200 ease-in-out bg-none hover:bg-none transform hover:scale-105" onClick={() => {
+                        setDeleteServiceModal(true);
+                        setServiceToDelete(tmp.note);
+                        setServiceId(tmp.id);
+                        }}><DeleteIcon fontSize="medium" />
+                    </button>
+                </div>
+            </div>
+            )}
+        </div>)}</div>
         <div className="flex flex-row justify-between">
             <Link to="/home/professor-payments">
                 <div

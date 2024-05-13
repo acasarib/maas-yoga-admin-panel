@@ -27,7 +27,7 @@ export const Provider = ({ children }) => {
     const [isLoadingStudents, setIsLoadingStudents] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [isLoadingTasks, setIsLoadingTasks] = useState(true);
-    const [templates, setTemplates] = useState([]);
+    const [services, setServices] = useState([]);
     const [users, setUsers] = useState([]);
     const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
     const [payments, setPayments] = useState([]);
@@ -88,13 +88,13 @@ export const Provider = ({ children }) => {
             setPayments(paymentsList);
             setIsLoadingPayments(false);
         }
-        const getTemplates = async () => {
-            const templates = await templatesService.getTemplates();
-            templates.forEach(template => {
-                template.label = template.title;
-                template.value = template.id;
+        const getServices = async () => {
+            const services = await templatesService.getServices();
+            services.forEach(template => {
+                template.label = template.note;
+                template.value = template.value;
             });
-            setTemplates(templates);
+            setServices(services);
         }
         const getClazzes = async () => {
             const clazzes = await clazzesService.getClazzes();
@@ -148,7 +148,7 @@ export const Provider = ({ children }) => {
         getTasks();
         getColleges();
         getPayments();
-        getTemplates();
+        getServices();
         getClazzes();
         getCategories();
         getProffesors();
@@ -692,35 +692,37 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'Fecha actualizada')
     }
 
-    const getTemplate = async templateId => {
-        console.log("getTemplate ", templateId);
-        const localTemplate = templates.find(t => t.id === templateId);
-        console.log(localTemplate);
-        if (localTemplate && "content" in localTemplate)
-            return localTemplate;
-        const template = await templatesService.getTemplate(templateId);
-        template.label = template.title;
-        template.value = template.id;
-        setTemplates(current => current.map(t => t.id === templateId ? template : t));
-        return template;
+    const getService = async serviceId => {
+        const localService = services.find(t => t.id === serviceId);;
+        if (localService && "content" in localService)
+            return localService;
+        const service = await templatesService.getTemplate(serviceId);
+        service.label = service.title;
+        service.value = service.id;
+        setServices(current => current.map(t => t.id === serviceId ? service : t));
+        return service;
     }
 
-    const newTemplate = async template => {
-        const createdTemplate = await templatesService.newTemplate(template);
-        changeAlertStatusAndMessage(true, 'success', 'El template fue creado exitosamente!')
-        createdTemplate.label = createdTemplate.title;
-        createdTemplate.value = createdTemplate.id;
-        setTemplates(current => [...current, createdTemplate]);
-        return createdTemplate;
+    const newService = async service => {
+        const createdService = await templatesService.newService(service);
+        changeAlertStatusAndMessage(true, 'success', 'El servicio fue creado exitosamente!')
+        createdService.label = createdService.note;
+        setServices(current => [...current, createdService]);
+        return createdService;
     }
 
-    const editTemplate = async (template, id) => {
-        const editedTemplate = await templatesService.updateTemplate(id, template);
-        changeAlertStatusAndMessage(true, 'success', 'El template fue editado exitosamente!')
-        editedTemplate.label = editedTemplate.title;
-        editedTemplate.value = editedTemplate.id;
-        setTemplates(current => current.map(t => t.id === id ? editedTemplate : t));
-        return editedTemplate;
+    const editService = async (service, id) => {
+        const editedService = await templatesService.updateService(id, service);
+        changeAlertStatusAndMessage(true, 'success', 'El servicio fue editado exitosamente!')
+        editedService.label = editedService.note;
+        setServices(current => current.map(t => t.id === id ? editedService : t));
+        return editedService;
+    }
+
+    const deleteService = async (serviceId) => {
+        await templatesService.deleteService(serviceId);
+        changeAlertStatusAndMessage(true, 'success', 'El servicio fue borrado exitosamente!')
+        setServices(current => current.filter(s => s.id !== serviceId));
     }
 
     const deleteCategory = async (categoryId) => {
@@ -823,7 +825,7 @@ export const Provider = ({ children }) => {
             students,
             tasks,
             payments,
-            templates,
+            services,
             clazzes,
             categories,
             suspendStudentFromCourse,
@@ -868,10 +870,11 @@ export const Provider = ({ children }) => {
             createTask,
             associateTask,
             changeTaskStatus,
-            newTemplate,
+            newService,
             editUser,
-            getTemplate,
-            editTemplate,
+            getService,
+            editService,
+            deleteService,
             getCourseDetailsById,
             editClazz,
             deleteClazz,

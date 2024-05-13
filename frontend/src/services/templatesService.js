@@ -61,5 +61,57 @@ export default {
                 })
         });
     },
+    newService(service) {
+        return new Promise((resolve, reject) => {     
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + 'api/v1/payments/services', service, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    getServices() {
+        return new Promise((resolve, reject) => {      
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + 'api/v1/payments/services', {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    updateService(serviceId, service) {
+        return new Promise((resolve, reject) => {       
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .put(baseUrl + `api/v1/payments/services/${serviceId}`, service, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    deleteService(serviceId) {
+        return new Promise((resolve, reject) => {       
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .delete(baseUrl + `api/v1/payments/services/${serviceId}`, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
 };
 
