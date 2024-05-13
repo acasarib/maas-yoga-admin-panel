@@ -31,8 +31,8 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     let criteriaValue = professor.result.period.criteriaValue;
     let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
                 : isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
-                : `Se debe pagar ${formatPaymentValue(criteriaValue)}$ por cada estudiante.`
-    criteria = isByAssistance(periodCriteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
+                : `Se debe pagar ${formatPaymentValue(criteriaValue)} por cada estudiante.`
+    let criteriaText = isByAssistance(periodCriteria) ? criteria + " Se debe informar la asistencia de los estudiantes al hacer click en 'informar'": criteria;
     const period = toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)
 
     const addPayment = async (value) => {
@@ -122,7 +122,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemIcon className="text-yellow-900">
                     <PercentIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Criterio" secondary={criteria} />
+                <ListItemText primary="Criterio" secondary={criteriaText} />
             </ListItem>
             <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
                 {isAlreadyInformedPayment ?

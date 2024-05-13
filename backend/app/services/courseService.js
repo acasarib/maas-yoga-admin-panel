@@ -79,11 +79,16 @@ const createProfessorCourse = async (courseId, professorsCourseParam) => {
 
 const getCollectedByStudent = (profData) => {
   let total = 0;
+  const criteriaValue = parseFloat(profData.period.criteriaValue);
   const payments = profData.payments;
   for (const p of payments) {
-    total += p.value
+    if (p.discount !== null) {
+      total += criteriaValue * ( (100 - p.discount) / 100)
+    } else {
+      total += criteriaValue
+    }
   }
-  return Math.min(profData.period.criteriaValue * profData.totalStudents, total);
+  return total;
 };
 
 const getCollectedByPercentage = (profData, criteriaValue) => {

@@ -9,7 +9,7 @@ import professorsService from "../services/professorsService";
 import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
 import userService from "../services/userService";
-import { CASH_PAYMENT_TYPE, STUDENT_MONTHS_CONDITIONS } from "../constants";
+import { APP_VERSION, CASH_PAYMENT_TYPE, STUDENT_MONTHS_CONDITIONS } from "../constants";
 import logsService from "../services/logsService";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
@@ -50,6 +50,7 @@ export const Provider = ({ children }) => {
     const [agendaLocations, setAgendaLocations] = useState([]);
 
     useEffect(() => {
+        console.log("App running version=" + APP_VERSION);
         if (user === null) return;
         const getStudents = async () => {
             const studentsList = await studentsService.getStudents();
@@ -62,10 +63,6 @@ export const Provider = ({ children }) => {
         }
         const getCourses = async () => {
             const coursesList = await coursesService.getCourses();
-            coursesList.forEach(course => {
-                course.label = course.title;
-                course.value = course.id;
-            });
             setCourses(coursesList);
             setIsLoadingCourses(false);
         }
