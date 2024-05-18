@@ -254,6 +254,10 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         if(payment.course) {
             setSelectedCourse(payment.course);
         }
+        if (payment.discount != null) {
+            discountCheckbox.enable()
+            handleChangeDiscount(payment.discount)
+        }
         if(payment.clazzId) {
             const classes = clazzes.filter(cls => cls.id === payment.clazzId);
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
