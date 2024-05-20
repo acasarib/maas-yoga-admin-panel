@@ -171,6 +171,12 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
         }
     }
 
+    const dateSortFunction = (rowA, rowB) => {
+        const dateA = new Date(rowA[dateField]);
+        const dateB = new Date(rowB[dateField]);
+        return dateB - dateA;
+    };
+
     const columns = useMemo(() => {
         const defaultColumns = [
             {
@@ -184,11 +190,13 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
             },
             {
                 name: 'Fecha',
-                selector: row => dateToString(row[dateField]),
+                selector: row => row[dateField],
+                cell: row => <span>{dateToString(row[dateField])}</span>,
                 sortable: true,
                 searchable: true,
                 maxWidth: '120px',
                 minWidth: '120px',
+                sortFunction: dateSortFunction
             },
             {
                 name: 'Importe',

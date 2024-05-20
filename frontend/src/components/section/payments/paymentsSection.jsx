@@ -68,6 +68,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [openPicker, data, authResponse] = useDrivePicker();
     const [deleteServiceModal, setDeleteServiceModal] = useState(false);
     const [driveFile, setDriveFile] = useState(null);
+    const [studentCourses, setStudentCourses] = useState([]);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
     const handleFileChange = (e) => {
@@ -149,6 +150,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setSelectedClazz(null);
         setSelectedClazz(null);
         setServiceId(null);
+        setStudentCourses([]);
         setDayOfMonth(1);
         setSelectedCollege(null);
         setSelectedItem(null);
@@ -361,8 +363,21 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setDiscount(newValue)
     }
 
+    const handleChangeStudent = (st) => {
+        setStudentCourses([]);
+        if(st.courses.length > 0) {
+            setStudentCourses(st.courses);
+        }
+        setSelectedStudent(st);
+    }
+
+    useEffect(() => {
+      console.log(studentCourses);
+    }, [studentCourses])
+    
+
     const getOnlyStudentsOfSameCourse = () => {
-        if (selectedCourse == null) {
+        if ((selectedCourse == null) || (studentCourses.length > 0)) {
             return students;
         }
         return students.filter(st => st.courses.some(course => course.id == selectedCourse.id))
@@ -391,7 +406,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         }
     }, [secretaryPaymentValues, isSecretaryPayment])
 
-
     return (
         <>
         <div className="mb-6 md:my-6 md:mx-4">
@@ -410,7 +424,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                 <div className="mt-4">
                     <Select
-                        onChange={setSelectedStudent}
+                        onChange={handleChangeStudent}
                         options={getOnlyStudentsOfSameCourse()}
                         value={selectedStudent}
                         getOptionLabel ={(student)=> `${student?.name} ${student?.lastName}`}
@@ -422,7 +436,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <div className="mt-4">
                     <Select
                         onChange={setSelectedCourse}
-                        options={courses}
+                        options={(studentCourses.length > 0) ? studentCourses : courses}
                         defaultValue={selectedCourse}
                         getOptionLabel ={(course)=> course.title}
                         getOptionValue ={(course)=> course.id}
