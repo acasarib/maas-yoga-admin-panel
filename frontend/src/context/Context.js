@@ -82,7 +82,12 @@ export const Provider = ({ children }) => {
         }
         const getPayments = async () => {
             const paymentsList = await paymentsService.getAllPayments();
-            setPayments(paymentsList);
+            const sortedList = paymentsList.sort((a, b) => {
+                const dateA = new Date(a.at);
+                const dateB = new Date(b.at);
+                return dateB - dateA;
+            });
+            setPayments(sortedList);
             setIsLoadingPayments(false);
         }
         const getServices = async () => {
