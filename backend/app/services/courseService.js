@@ -34,6 +34,7 @@ const getProfessorPeriodsInCourse = async (courseId) => {
           endAt: period.endAt,
           criteria: period.criteria,
           criteriaValue: period.criteriaValue,
+          courseValue: period.courseValue,
         });
       }
     });
