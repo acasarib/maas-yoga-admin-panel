@@ -94,10 +94,12 @@ const getCollectedByStudent = (profData) => {
 
 const getCollectedByPercentage = (profData, criteriaValue) => {
   const percentage = parseFloat(criteriaValue);
+  const courseValue = profData.period.courseValue;
   let total = 0;
   const payments = profData.payments;
   for (const p of payments) {
-    total += p.value;
+    const discount = p.discount ?? 0
+    total += courseValue * (1 - (discount / 100))
   }
   return (percentage / 100) * total;
 };
