@@ -9,6 +9,7 @@ const professorCourse = (sequelize) => {
     },
     startAt: { type: Sequelize.DataTypes.DATEONLY, allowNull: false },
     endAt: { type: Sequelize.DataTypes.DATEONLY, allowNull: false },
+    courseValue: Sequelize.FLOAT,
     criteria: Sequelize.STRING,
     criteriaValue: Sequelize.INTEGER,
   }, { 
