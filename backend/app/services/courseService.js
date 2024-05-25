@@ -92,6 +92,21 @@ const getCollectedByStudent = (profData) => {
   return total;
 };
 
+const getLastProfessorPaymentPeriodInCourse = async (from, to, professorId, courseId) => {
+  return payment.findOne({ where: {
+      periodFrom: from,
+      periodTo: to,
+      professorId,
+      courseId,
+    },
+    order: [['createdAt', 'DESC']],
+  })
+}
+
+const paymentWasAddedAfterPreviousProfessorPayment = (lastProfessorPaymentAt, paymentRange) => {
+  return paymentRange.createdAt > lastProfessorPaymentAt
+}
+
 const getCollectedByPercentage = (profData, criteriaValue) => {
   const percentage = parseFloat(criteriaValue);
   const courseValue = profData.period.courseValue;
@@ -265,12 +280,20 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
       const paidPeriod = paymentBelongToProfessor(paymentRange, prof);
       if (paidPeriod) {
         if (!("result" in prof)) {
+          const lastProfessorPayment = await getLastProfessorPaymentPeriodInCourse(from, to, prof.id, paymentRange.courseId);
           prof.result = {
             payments: [],
             period: paidPeriod,
+            lastProfessorPaymentAt: lastProfessorPayment?.createdAt,
           };
         }
-        prof.result.payments.push(paymentRange);
+        const lastProfessorPaymentAt = prof.result.lastProfessorPaymentAt
+        if (lastProfessorPaymentAt) {
+          if (paymentWasAddedAfterPreviousProfessorPayment(lastProfessorPaymentAt, paymentRange))
+            prof.result.payments.push(paymentRange);
+        } else {
+          prof.result.payments.push(paymentRange);
+        }
       }
     }
   }
