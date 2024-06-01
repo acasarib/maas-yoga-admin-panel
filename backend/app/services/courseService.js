@@ -114,7 +114,11 @@ const getCollectedByPercentage = (profData, criteriaValue) => {
   const payments = profData.payments;
   for (const p of payments) {
     const discount = p.discount ?? 0
-    total += courseValue * (1 - (discount / 100))
+    if (courseValue == null) {
+      total += p.value;
+    } else {
+      total += courseValue * (1 - (discount / 100))
+    }
   }
   return (percentage / 100) * total;
 };
