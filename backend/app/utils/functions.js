@@ -40,5 +40,12 @@ export default {
 
   isNumber(value) {
     return (typeof value === 'number' || typeof value === 'string') && !isNaN(Number(value));
+  },
+
+  isDateBetween(dateToCheck, startDate, endDate) {
+    const check = new Date(dateToCheck).getTime();
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    return check >= start && check <= end;
   }
 };
