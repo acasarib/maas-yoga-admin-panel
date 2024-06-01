@@ -243,6 +243,9 @@ export const getStudentsByCourse = async (courseId) => {
           st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.NOT_TAKEN }
         }
       }
+      if (st.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_PAID && !utils.isDateBetween(new Date(), courseStartAt, courseEndAt)) {
+        st.currentMonth = STUDENT_MONTHS_CONDITIONS.NOT_TAKEN;
+      }
     })
     calcSuspendedPaymentsBySuspendedPeriods(st.suspendedPeriodsParsed, st.pendingPayments)
   }
