@@ -3,6 +3,7 @@ import Modal from "../components/modal";
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
+import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +32,7 @@ import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo
 import useQueryParam from "../hooks/useQueryParam";
 import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
 import { Link } from "react-router-dom";
+import StudentCalendar from "../components/calendar/studentCalendar";
 
 export default function Courses(props) {
     const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
@@ -49,6 +51,8 @@ export default function Courses(props) {
     const [displayTasksModal, setDisplayTasksModal] = useState(false);
     const [studentsLists, setStudentsLists] = useState([]);
     const [tasksLists, setTasksList] = useState([]);
+    const [activeStudent, setActiveStudent] = useState(null)
+    const onSeeStudentPayments = student => setActiveStudent(student)
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
     const [needsRegistration, setNeedsRegistration] = useState(false);
@@ -289,7 +293,7 @@ export default function Courses(props) {
         },
         {
             name: 'Pagos',
-            cell: row => (<StudentCoursesInfo student={row}/>),
+            cell: row => (<StudentCoursesInfo onSeePayments={onSeeStudentPayments} student={row}/>),
             sortable: false,
         },
         {
@@ -619,6 +623,19 @@ export default function Courses(props) {
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
                 <CourseDetailModal isOpen={courseDetails !== null} onClose={() => setCourseDetails(null)} course={courseDetails} />
+                {activeStudent != null &&
+                    <Modal
+                        hiddingButton
+                        open={activeStudent != null}
+                        icon={<PaidIcon/>}
+                        size="large"
+                        setDisplay={() => setActiveStudent(null)}
+                        buttonText={"Aplicar"}
+                        title={`Pagos de ${activeStudent.name} ${activeStudent.lastName} sobre el curso`}
+                    >
+                        <StudentCalendar periods={activeStudent.pendingPayments} registration={activeStudent.registrationPayment}/>
+                    </Modal>
+                }
             </Container>
         </>
     );
