@@ -10,11 +10,13 @@ export default function ProfessorInfo(props) {
     const [startAt, setStartAt] = useState(dayjs(new Date()));
     const [endAt, setEndAt] = useState(dayjs(new Date()));  
     const [criteria, setCriteria] = useState('percentage'); 
-    const [criteriaValue, setCriteriaValue] = useState(null);   
+    const [criteriaValue, setCriteriaValue] = useState(null);
+    const [courseValue, setCourseValue] = useState("");
     const [id, setId] = useState(null); 
     const [isProfessorSelected, setIsProfessorSelected] = useState(false);
     
     const handleChangeCriteria = ({ student, percentage, assistance, assistant }) => {
+        setCourseValue("")
         if (assistant) {
             setCriteria("assistant")
         } else if (student) {
@@ -27,11 +29,6 @@ export default function ProfessorInfo(props) {
             setCriteria(criteria.split("-")[0])
         }
     }
-
-    useEffect(() => {
-        console.log("criteria", criteria);
-    }, [criteria])
-    
 
     const isCriteriaByStudent = () => criteria.split("-")[0] === 'student'
     const isCriteriaByPercentage = () => criteria.split("-")[0] === 'percentage'
@@ -46,6 +43,9 @@ export default function ProfessorInfo(props) {
             criteriaValue: criteriaValue,
             professorId: id
         }
+        if (courseValue != "") {
+            professor.courseValue = courseValue
+        } 
         if(props.periodToEdit.professorId) {
             professor.id = props.periodToEdit.id;
             props.editProfessor(professor, props.periodToEdit.id);
@@ -77,6 +77,7 @@ export default function ProfessorInfo(props) {
             setStartAt(dayjs(splitDate(props.periodToEdit.startAt)));
             setCriteria(props.periodToEdit.criteria);
             setCriteriaValue(props.periodToEdit.criteriaValue);
+            setCourseValue(props.periodToEdit.courseValue == null ? "" : props.periodToEdit.courseValue)
             setId(props.periodToEdit.professorId);
             setIsProfessorSelected(true);
         }
@@ -150,6 +151,17 @@ export default function ProfessorInfo(props) {
                     placeholder={isCriteriaByAssistant() ? "Monto" : isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}
                     onChange={(e) => setCriteriaValue(e.target.value)}
                 />
+                <div className={`mt-4 ${!isCriteriaByPercentage() && "hidden"}`}>
+                    <CommonInput
+                        label="Valor del curso"    
+                        value={courseValue}
+                        name="courseValue"
+                        id="courseValue" 
+                        type="number" 
+                        placeholder="Valor del curso"
+                        onChange={(e) => setCourseValue(e.target.value)}
+                    />
+                </div>
             </div>
             <div className="flex flex-row gap-4">
                 <button
