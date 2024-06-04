@@ -54,8 +54,10 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
+const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
 
+notificationPayment.belongsTo(payment, { through: "payment_id" })
+notificationPayment.belongsTo(user, { through: "user_id" })
 payment.hasMany(logPayment);
 user.hasMany(logPayment);
 professor.belongsToMany(course, { through: { model: professorCourse, unique: false} });
@@ -130,4 +132,5 @@ export {
   courseStudent,
   servicePayment,
   secretaryPayment,
+  notificationPayment,
 };
