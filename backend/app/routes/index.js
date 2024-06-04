@@ -12,6 +12,7 @@ import categoriesRoute from "./categoriesRoute.js";
 import clazzesRoute from "./clazzesRoute.js";
 import professorsRoute from "./professorsRoute.js";
 import logsRoute from "./logRoute.js";
+import notificationsRoute from "./notificationsRoute.js";
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use("/categories", categoriesRoute);
 router.use("/clazzes", clazzesRoute);
 router.use("/professors", professorsRoute);
 router.use("/logs", logsRoute);
+router.use("/notifications", notificationsRoute);
 
 export default router;
