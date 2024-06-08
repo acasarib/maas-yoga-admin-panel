@@ -3,7 +3,9 @@ import Checkbox from '@mui/material/Checkbox';
 import { orange } from '@mui/material/colors';
 import { FormControlLabel } from "@mui/material";
 
-export default function CustomCheckbox({ checked, labelOn, labelOff, className = "", onChange = () => {}, disabled = false }) {
+export default function CustomCheckbox({ checked, label, labelOn, labelOff, className = "", onChange = () => {}, disabled = false }) {
+    labelOn = labelOn ?? label
+    labelOff = labelOff ?? label
 
     return(
         <>

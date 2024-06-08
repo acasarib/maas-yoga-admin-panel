@@ -38,6 +38,7 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
+    "react-usage-bar": "^1.2.1",
     "react-view-slider": "^4.5.0",
     "rxjs": "^7.8.1",
     "styled-components": "^5.3.6",
