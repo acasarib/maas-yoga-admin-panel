@@ -5,6 +5,7 @@ import tasksService from "../services/tasksService";
 import clazzesService from "../services/clazzesService";
 import collegesService from "../services/collegesService";
 import paymentsService from "../services/paymentsService";
+import notificationsService from "../services/notificationsService";
 import professorsService from "../services/professorsService";
 import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
@@ -35,6 +36,7 @@ export const Provider = ({ children }) => {
     const [alreadyAddedSecretaryPayments, setAlreadyAddedSecretaryPayments] = useState(false);
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
+    const [notifications, setNotifications] = useState([]);
     const [isLoadingClazzes, setIsLoadingClazzes] = useState(true);
     const [categories, setCategories] = useState([]);
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -48,6 +50,8 @@ export const Provider = ({ children }) => {
     const [logs, setLogs] = useState([]);
     const [logsInit, setLogsInit] = useState(false);
     const [agendaLocations, setAgendaLocations] = useState([]);
+
+    useEffect(() => {console.log("updated",notifications);}, [notifications])
 
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
@@ -133,7 +137,12 @@ export const Provider = ({ children }) => {
             });
             setAgendaLocations(locations);
         }
+        const getNotifications = async () => {
+            const notifications = await notificationsService.getNotifications();
+            setNotifications(notifications)
+        }
         
+        //getNotifications(); TODO: hacer notificaciones
         getUsers();
         getStudents();
         getCourses();
@@ -146,6 +155,11 @@ export const Provider = ({ children }) => {
         getProffesors();
         getAgendaLocations();
     }, [user]);
+
+    const removeNotification = async (notificationId) => {
+        await notificationsService.removeById(notificationId)
+        setNotifications(notifications.filter(n => n.id !== notificationId))
+    }
 
     const getPayments = async () => {
         const paymentsList = await paymentsService.getAllPayments();
@@ -923,6 +937,8 @@ export const Provider = ({ children }) => {
             user,
             getPendingPayments,
             splitPayment,
+            notifications,
+            removeNotification,
         }}>
             <GoogleApiProvider clientId={user?.googleDriveCredentials?.clientId}>
                 <GoogleOAuthProvider clientId={user?.googleDriveCredentials?.clientId}>
