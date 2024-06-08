@@ -303,15 +303,14 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
   }
   const isCriteriaByStudent = (criteria) => criteria === CRITERIA_COURSES.STUDENT || criteria === CRITERIA_COURSES.STUDENT_ASSISTANCE;
   for (const course of coursesInRange) {
-    course.dataValues.collectedByPayments = paymentsInRange
-      .filter(p => p.courseId == course.id)
-      .reduce((total, p) => total + p.value, 0);
+    let totalByProfessors = 0
     for (const prof of course.professors) {
       if ("result" in prof) {
         prof.result.courseId = course.id;
         prof.result.criteria = prof.criteria;
         prof.result.criteriaValue = prof.criteriaValue;
         prof.result.collectedByPayments = prof.result.payments.reduce((total, p) => total + p.value, 0);
+        totalByProfessors += prof.result.collectedByPayments
         prof.result.totalStudents = prof.result.payments.map(p => p.studentId);
         prof.result.totalStudents = utils.removeDuplicated(prof.result.totalStudents).length;
         const criteria = prof.result.period.criteria;
@@ -325,6 +324,7 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
         prof.dataValues.result = prof.result;
       }
     }
+    course.dataValues.collectedByPayments = totalByProfessors
     course.dataValues.professors = course.professors; 
   }
   return coursesInRange;

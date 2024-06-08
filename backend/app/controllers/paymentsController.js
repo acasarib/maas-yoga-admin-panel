@@ -31,6 +31,19 @@ export default {
   },
 
   /**
+   * /payments/{id}/split [POST]
+   * @returns HttpStatus created and @Payment
+   */
+  splitPayment: async (req, res, next) => {
+    try {
+      const newPayment = await paymentService.splitPayment(req.params.id, req.body);
+      res.status(StatusCodes.CREATED).json(newPayment);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /payments/services [POST]
    * @returns HttpStatus created and @ServicePayment
    */

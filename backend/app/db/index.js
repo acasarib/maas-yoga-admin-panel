@@ -59,6 +59,7 @@ const { notificationPayment, secretaryPayment, servicePayment, courseStudentSusp
 notificationPayment.belongsTo(payment, { through: "payment_id" })
 notificationPayment.belongsTo(user, { through: "user_id" })
 payment.hasMany(logPayment);
+payment.belongsTo(payment,{ foreignKey: { allowNull: true }, targetKey: "id" });
 user.hasMany(logPayment);
 professor.belongsToMany(course, { through: { model: professorCourse, unique: false} });
 professor.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });

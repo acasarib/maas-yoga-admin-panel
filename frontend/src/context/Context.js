@@ -80,16 +80,6 @@ export const Provider = ({ children }) => {
             setColleges(collegesList);
             setIsLoadingColleges(false);
         }
-        const getPayments = async () => {
-            const paymentsList = await paymentsService.getAllPayments();
-            const sortedList = paymentsList.sort((a, b) => {
-                const dateA = new Date(a.at);
-                const dateB = new Date(b.at);
-                return dateB - dateA;
-            });
-            setPayments(sortedList);
-            setIsLoadingPayments(false);
-        }
         const getServices = async () => {
             const services = await templatesService.getServices();
             services.forEach(template => {
@@ -156,6 +146,17 @@ export const Provider = ({ children }) => {
         getProffesors();
         getAgendaLocations();
     }, [user]);
+
+    const getPayments = async () => {
+        const paymentsList = await paymentsService.getAllPayments();
+        const sortedList = paymentsList.sort((a, b) => {
+            const dateA = new Date(a.at);
+            const dateB = new Date(b.at);
+            return dateB - dateA;
+        });
+        setPayments(sortedList);
+        setIsLoadingPayments(false);
+    }
 
     const addSecretaryPaymentsToPayments = async () => {
         const secretaryPayments = await paymentsService.getSecretaryPayments();
@@ -351,11 +352,25 @@ export const Provider = ({ children }) => {
         }
     }
 
-    const verifyPayment = async (paymentId) => {
+    const verifyPayment = async (paymentId, paymentData) => {
         const veryfiedPayment = await paymentsService.verifyPayment(paymentId);
         changeAlertStatusAndMessage(true, 'success', 'El pago fue verificado exitosamente!');
-        setPayments(current => current.map(p => ({ ...p, verified: true, user: users.find(u => u.id === p.userId) })));
+        setPayments(current => current.map(p => {
+            if (p.id === paymentId) {
+                p.verified = true
+                for (const key of Object.keys(paymentData)) {
+                    p[key] = paymentData[key]
+                }
+                p.user = users.find(u => u.id === p.userId)
+            }
+            return p
+        }));
         return veryfiedPayment;
+    }
+
+    const splitPayment = async (paymentData, paymentId) => {
+        await paymentsService.splitPayment(paymentData, paymentId)
+        await getPayments()
     }
 
     const deletePayment = async (id) => {
@@ -907,6 +922,7 @@ export const Provider = ({ children }) => {
             getCourseById,
             user,
             getPendingPayments,
+            splitPayment,
         }}>
             <GoogleApiProvider clientId={user?.googleDriveCredentials?.clientId}>
                 <GoogleOAuthProvider clientId={user?.googleDriveCredentials?.clientId}>

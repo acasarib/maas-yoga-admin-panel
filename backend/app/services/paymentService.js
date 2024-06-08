@@ -49,6 +49,21 @@ export const create = async (paymentParam, informerId) => {
   return (createdPayments.length === 1) ? createdPayments[0] : createdPayments;
 };
 
+export const splitPayment = async (originalPaymentId, newPaymentParam) => {
+  let originalPayment = await payment.findByPk(originalPaymentId);
+  const paymentCloned = originalPayment.get({ plain: true });
+  for (const key of Object.keys(newPaymentParam)) {
+    paymentCloned[key] = newPaymentParam[key]
+  }
+  delete paymentCloned.id
+  paymentCloned.paymentId = originalPaymentId
+  const paymentCreated = await payment.create(paymentCloned)
+  originalPayment = await payment.findByPk(originalPaymentId);
+  originalPayment.value -= newPaymentParam.value;
+  originalPayment.save()
+  return paymentCreated;
+}
+
 export const createSecretaryPayment = (secretaryPaymentParam) => {
   return secretaryPayment.create(secretaryPaymentParam);
 }
