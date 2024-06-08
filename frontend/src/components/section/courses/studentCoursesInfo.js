@@ -1,21 +1,38 @@
-import React, { useState } from 'react'
-import Modal from '../../modal'
-import StudentCalendar from '../../calendar/studentCalendar'
+import React from 'react'
 import DangerousIcon from '@mui/icons-material/Dangerous';
 import Tooltip from '@mui/material/Tooltip';
 import CheckIcon from '@mui/icons-material/Check';
 import { STUDENT_MONTHS_CONDITIONS } from '../../../constants';
 import ErrorIcon from '@mui/icons-material/Error';
-import PaidIcon from '@mui/icons-material/Paid';
 
 const StudentCoursesInfo = ({ student, onSeePayments }) => {
+	function checkNotPaidCondition(data) {
+		for (const year in data) {
+			if (data.hasOwnProperty(year)) {
+				const months = data[year];
+				for (const month in months) {
+					if (months.hasOwnProperty(month)) {
+						const details = months[month];
+						if (details.condition === "NOT_PAID") {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+
+	const hasAnyPendingPayment = checkNotPaidCondition(student.pendingPayments);
+
 
 	return (<>
 		<div className='flex'>
 			<div className='underline text-yellow-900 mx-1 cursor-pointer' onClick={() => onSeePayments(student)}>Ver pagos</div>
-			{student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_PAID && <Tooltip title="Mes actual impago"><DangerousIcon style={{ color: '#FF676D' }}/></Tooltip>}
-			{student.currentMonth == STUDENT_MONTHS_CONDITIONS.PAID && <Tooltip title="Al dia"><CheckIcon style={{ color: '#72EA8D' }}/></Tooltip>}
-			{student.currentMonth == STUDENT_MONTHS_CONDITIONS.SUSPEND && <Tooltip title="Suspendido"><ErrorIcon style={{ color: '#FFCD30' }}/></Tooltip>}
+			{(hasAnyPendingPayment || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_PAID) && <Tooltip title="Pago pendiente"><DangerousIcon style={{ color: '#FF676D' }}/></Tooltip>}
+			{(!hasAnyPendingPayment && (student.currentMonth == STUDENT_MONTHS_CONDITIONS.PAID || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN)) && <Tooltip title="Al dia"><CheckIcon style={{ color: '#72EA8D' }}/></Tooltip>}
+			{(!hasAnyPendingPayment && student.currentMonth == STUDENT_MONTHS_CONDITIONS.SUSPEND) && <Tooltip title="Suspendido"><ErrorIcon style={{ color: '#FFCD30' }}/></Tooltip>}
 		</div>
 		</>)
 }
