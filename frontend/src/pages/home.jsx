@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -32,13 +32,18 @@ import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import ProfessorDetail from "./professorDetail";
 import CourseDetail from "./courseDetail";
+import NotificationIcon from "../components/badget/notification";
+import NotificationDropdown from "../components/notificationDropdown/notificationDropdown";
+import useToggle from "../hooks/useToggle";
 
 export default function Home(props) {
-    const { setUser } = useContext(Context);
+    const { setUser, notifications } = useContext(Context);
     const [isOpenSidebar, setIsOpenSidebar] = useState(false);
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
+    const isNotificationsOpen = useToggle()
     const [isMasterAdmin, setIsMasterAdmin] = useState(false);
+    const notificationIconRef = useRef(null)
 
     let navigate = useNavigate();
 
@@ -107,9 +112,18 @@ export default function Home(props) {
                             </div>
                             <h1 className="md:text-xl md:ml-0 ml-12 font-bold leading-none text-center">{maasYogaTextColor}<br/>Admin panel</h1>
                             <div>
-                                <span className="flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
-                                    <span className="text-sm md:text-md text-orange-550">{date}</span>
-                                </span>
+                                <div className="flex">
+                                    <span className="flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
+                                        <span className="text-sm md:text-md text-orange-550">{date}</span>
+                                    </span>
+                                    <span className="text-sm md:text-md text-orange-550 pl-2"><NotificationIcon innerRef={notificationIconRef} amount={notifications.length} onClick={isNotificationsOpen.toggle}/></span>
+                                    <NotificationDropdown
+                                        isOpen={isNotificationsOpen.value}
+                                        onClose={isNotificationsOpen.toggle}
+                                        className="mt-8"
+                                        buttonRef={notificationIconRef}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

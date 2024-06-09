@@ -1,7 +1,7 @@
-import { notificationPayment, user } from "../db/index.js";
+import { notificationPayment, user, payment } from "../db/index.js";
 
 export const getAllNotificationPayments = async (userId) => {
-  return notificationPayment.findAll({ where: { userId }});
+  return notificationPayment.findAll({ where: { userId }, include: [{model: payment, include: user}]});
 };
 
 export const newNotificationPayment = async (paymentId, userId) => {
