@@ -51,8 +51,6 @@ export const Provider = ({ children }) => {
     const [logsInit, setLogsInit] = useState(false);
     const [agendaLocations, setAgendaLocations] = useState([]);
 
-    useEffect(() => {console.log("updated",notifications);}, [notifications])
-
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
         if (user === null) return;
@@ -142,7 +140,8 @@ export const Provider = ({ children }) => {
             setNotifications(notifications)
         }
         
-        //getNotifications(); TODO: hacer notificaciones
+        getNotifications();
+        
         getUsers();
         getStudents();
         getCourses();
@@ -159,6 +158,11 @@ export const Provider = ({ children }) => {
     const removeNotification = async (notificationId) => {
         await notificationsService.removeById(notificationId)
         setNotifications(notifications.filter(n => n.id !== notificationId))
+    }
+
+    const clearNotifications = async () => {
+        await Promise.all(notifications.map(notification => notificationsService.removeById(notification.id)))
+        setNotifications([])
     }
 
     const getPayments = async () => {
@@ -939,6 +943,7 @@ export const Provider = ({ children }) => {
             splitPayment,
             notifications,
             removeNotification,
+            clearNotifications,
         }}>
             <GoogleApiProvider clientId={user?.googleDriveCredentials?.clientId}>
                 <GoogleOAuthProvider clientId={user?.googleDriveCredentials?.clientId}>

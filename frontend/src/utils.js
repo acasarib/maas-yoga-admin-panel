@@ -49,6 +49,26 @@ export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function formatDateMonthDayHourMinutes(date) {
+    if (typeof date == 'string') {
+        date = new Date(date)
+    }
+    if (date == null || date == undefined) return "Fecha invalida"
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const months = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+        'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+    ];
+
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    return `${dayName} ${day} ${month} ${hours}:${minutes}`;
+}
+
 export function formatDateDDMMYY(date) {
     try {
         if (typeof date == "string")
