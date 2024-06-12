@@ -49,6 +49,29 @@ export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function elapsedTime(fromDate) {
+    if (typeof fromDate == 'string') {
+        fromDate = new Date(fromDate)
+    }
+    if (fromDate == null || fromDate == undefined) return "Fecha invalida"
+    let now = new Date();
+    let elapsed = now - fromDate;
+    let seconds = Math.floor(elapsed / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    let days = Math.floor(hours / 24);
+
+    if (days > 0) {
+        return "Hace " + days + (days === 1 ? " dia" : " dias");
+    } else if (hours > 0) {
+        return "Hace " + hours + (hours === 1 ? " hora" : " horas");
+    } else if (minutes > 0) {
+        return "Hace " + minutes + (minutes === 1 ? " minuto" : " minutos");
+    } else {
+        return "Hace " + seconds + (seconds === 1 ? " segundo" : " segundos");
+    }
+}
+
 export function formatDateMonthDayHourMinutes(date) {
     if (typeof date == 'string') {
         date = new Date(date)

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { Context } from "../../context/Context";
 import CloseIcon from '@mui/icons-material/Close';
 import {Routes, Route, useNavigate} from 'react-router-dom';
-import { formatDateMonthDayHourMinutes } from "../../utils";
+import { elapsedTime, formatDateMonthDayHourMinutes } from "../../utils";
 
 export default function NotificationDropdown({ className, isOpen, onClose, buttonRef }) {
     const { notifications, removeNotification, clearNotifications } = useContext(Context);
@@ -53,7 +53,7 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
                 {notifications.map(notification => 
                     <div key={notification.id} onClick={() => onClickNotification(notification)} className="cursor-pointer hover:bg-slate-100 py-2 px-6">
                         <p><span className="font-semibold">{getUserFullName(notification.payment.user)}</span> agrego un pago</p>
-                        <p className="text-gray-500 flex justify-between w-full"><span>{formatDateMonthDayHourMinutes(notification.createdAt)}</span><span>Hace 2 horas</span></p>
+                        <p className="text-gray-500 flex justify-between w-full"><span>{formatDateMonthDayHourMinutes(notification.createdAt)}</span><span>{elapsedTime(notification.createdAt)}</span></p>
                     </div>
                 )}
             </div>
