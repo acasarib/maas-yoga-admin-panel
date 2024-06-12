@@ -7,25 +7,35 @@ import ErrorIcon from '@mui/icons-material/Error';
 
 const StudentCoursesInfo = ({ student, onSeePayments }) => {
 	function checkNotPaidCondition(data) {
+		const currentYear = new Date().getFullYear();
+		const currentMonth = new Date().getMonth() + 1;
+	
 		for (const year in data) {
 			if (data.hasOwnProperty(year)) {
 				const months = data[year];
+				const yearInt = parseInt(year, 10);
+	
 				for (const month in months) {
 					if (months.hasOwnProperty(month)) {
 						const details = months[month];
+						const monthInt = parseInt(month, 10);
+	
 						if (details.condition === "NOT_PAID") {
-							return true;
+							if (
+								(yearInt < currentYear) ||
+								(yearInt === currentYear && monthInt <= currentMonth)
+							) {
+								return true;
+							}
 						}
 					}
 				}
 			}
 		}
 		return false;
-	}
+	}	
 	
-
 	const hasAnyPendingPayment = checkNotPaidCondition(student.pendingPayments);
-
 
 	return (<>
 		<div className='flex'>
