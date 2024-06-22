@@ -603,6 +603,17 @@ export const Provider = ({ children }) => {
         }));
     }
 
+    const deleteCourseTask = async (courseId, taskId) => {
+        await coursesService.deleteCourseTask(taskId);
+        changeAlertStatusAndMessage(true, 'success', 'La tarea fue eliminada exitosamente!');
+        setCourses(current => current.map(course => {
+            if (course.id === courseId) {
+                course.courseTasks = course.courseTasks.filter(task => task.id !== taskId);
+            }
+            return course;
+        }));
+    }
+
     const changeAlertStatusAndMessage = (activeAlert, status, message) => {
         setAlertMessage(message);
         setIsAlertActive(activeAlert);
@@ -920,6 +931,7 @@ export const Provider = ({ children }) => {
             getStudentsByCourse,
             getProfessorDetailsById,
             getStudentDetailsById,
+            deleteCourseTask,
             getUserById,
             getPendingPaymentsByCourseFromStudent,
             newProfessorPayment,

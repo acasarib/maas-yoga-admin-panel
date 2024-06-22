@@ -24,14 +24,12 @@ export default function TaskModal(props) {
     const formik = useFormik({
         initialValues: {
             title: '',
-            description: '',
             comment: '',
             limitDate: limitDate
         },
         onSubmit: async (values) => {
           const body = {
             title: values.title,
-            description: values.description,
             comment: values.comment,
             limitDate: limitDate
           };
@@ -75,20 +73,6 @@ export default function TaskModal(props) {
                                 htmlFor="title"
                                 id="title" 
                             />
-                        </div>
-                        <div className="mb-4">
-                        <CommonInput 
-                            label="Descripción"
-                            name="description"
-                            onBlur={formik.handleBlur}
-                            value={formik.values.description}
-                            className="block font-bold text-sm text-gray-700 mb-4"
-                            type="text" 
-                            placeholder="Descripción" 
-                            htmlFor="description"
-                            id="description" 
-                            onChange={formik.handleChange}
-                        />
                         </div>
                         <div className="mb-4">
                             <CommonInput 
