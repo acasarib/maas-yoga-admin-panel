@@ -97,7 +97,6 @@ export default {
         return new Promise((resolve, reject) => {
             const data = {
                 "title": task.title,
-                "description": task.description,
                 "comment": task.comment,
                 "limitDate": task.limitDate
             }
@@ -150,6 +149,19 @@ export default {
             const status = { "completed": taskStatus };
             axios
                 .put(baseUrl + `api/v1/courses/tasks/${taskId}/students/${studentId}`, status, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    deleteCourseTask(taskId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .delete(baseUrl + `api/v1/courses/tasks/${taskId}`, {})
                 .then((response) => {
                     resolve(response.data);
                 })
