@@ -603,7 +603,7 @@ export const Provider = ({ children }) => {
         }));
     }
 
-    const deleteCourseTask = async (courseId, taskId) => {
+    const deleteCourseTask = async (taskId, courseId) => {
         await coursesService.deleteCourseTask(taskId);
         changeAlertStatusAndMessage(true, 'success', 'La tarea fue eliminada exitosamente!');
         setCourses(current => current.map(course => {
