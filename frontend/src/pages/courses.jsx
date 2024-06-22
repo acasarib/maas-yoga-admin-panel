@@ -96,6 +96,7 @@ export default function Courses(props) {
     }
 
     const openDeleteTaskModal = (id, title) => {
+        console.log(id);
         setDeleteTaskModal(true);
         setTaskToDelete({id, title});
     }
