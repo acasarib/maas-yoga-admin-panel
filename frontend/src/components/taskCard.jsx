@@ -12,7 +12,7 @@ export default function TaskCard(props) {
                 {props.title}
             </div>
             <div className="text-lg font-medium leading-6 text-gray-700">
-                    {props.description}
+                {props.description}
             </div>
         </div>
         <div className="col-span-2 flex items-center justify-end flex-row">

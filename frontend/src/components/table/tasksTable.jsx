@@ -6,6 +6,9 @@ import SchoolIcon from '@mui/icons-material/School';
 import StudentCoursesInfo from '../section/courses/studentCoursesInfo';
 import { STUDENT_STATUS } from '../../constants';
 import Modal from '../modal';
+import { formatDateDDMMYY } from "../../utils";
+import DeleteIcon from '@mui/icons-material/Delete';
+import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
@@ -13,7 +16,10 @@ import { Context } from '../../context/Context';
 
 
 const TasksTable = ({ course }) => {
-    const { changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context)
+    const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
+    const [taskToDelete, setTaskToDelete] = useState({});
+    const [deleteTaskModal, setDeleteTaskModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const studentsTasksModal = useModal()
     const [taskId, setTaskId] = useState(null)
     const { width } = useResize()
@@ -42,17 +48,35 @@ const TasksTable = ({ course }) => {
         }
     }
 
+    const openDeleteTaskModal = (id, title) => {
+        console.log(id);
+        setDeleteTaskModal(true);
+        setTaskToDelete({id, title});
+    }
+
+    const handleCloseDeleteTask = () => {
+        setDeleteTaskModal(false);
+        setTaskToDelete({});
+    }
+
+    const handleDeleteTask = async () => {
+        try {
+            setIsLoading(true);
+            await deleteCourseTask(taskToDelete.id, course.id);
+            handleCloseDeleteTask();
+        } catch(error) {
+            changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser eliminada... Por favor inténtelo nuevamente.')
+            console.log(error);
+            handleCloseDeleteTask();
+        }
+    }
+
     const taskColumn = [
         {
             name: 'Título',
             selector: row => row.title,
             sortable: true,
             searchable: true,
-        },
-        {
-            name: 'Descripción',
-            selector: row => row.description,
-            sortable: true,
         },
         {
             name: 'Comentarios',
@@ -81,11 +105,13 @@ const TasksTable = ({ course }) => {
         },
         {
             name: 'Fecha limite',
-            selector: row => {var dt = new Date(row.limitDate);
-                let year  = dt.getFullYear();
-                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                let day   = dt.getDate().toString().padStart(2, "0");
-                var date = day + '/' + month + '/' + year; return date},
+            selector: row => formatDateDDMMYY(course.endAt),
+            sortable: true,
+        },
+        {
+            name: 'Acciones',
+            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteTaskModal(row.id, row.title)}><Tooltip title="Borrar"><DeleteIcon /></Tooltip></button></div>)
+        },
             sortable: true,
         },
     ];
@@ -173,6 +199,7 @@ const TasksTable = ({ course }) => {
             }
         </div>
     </Modal>
+    <Modal icon={<DeleteIcon />} open={deleteTaskModal} setDisplay={handleCloseDeleteTask} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>{`Esta a punto de elimnar la tarea ${taskToDelete.title}. ¿Desea continuar?`}</div></>} />
 </>)
 }
 
