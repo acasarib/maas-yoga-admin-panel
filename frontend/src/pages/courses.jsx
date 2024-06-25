@@ -41,7 +41,6 @@ export default function Courses(props) {
     const [startAt, setStartAt] = useState(dayjs(new Date()));
     const [endAt, setEndAt] = useState(dayjs(new Date()));
     const [deleteModal, setDeleteModal] = useState(false);
-    const [deleteTaskModal, setDeleteTaskModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
@@ -56,7 +55,6 @@ export default function Courses(props) {
     const onSeeStudentPayments = student => setActiveStudent(student)
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
-    const [taskToDelete, setTaskToDelete] = useState({});
     const [needsRegistration, setNeedsRegistration] = useState(false);
     const [taskId, setTaskId] = useState(null);
     const [isDateSelected, setIsDateSelected] = useState(false);
@@ -78,9 +76,7 @@ export default function Courses(props) {
         setIsDateSelected(false);
         setNewProfessor(false);
         setNeedsRegistration(false);
-        setDeleteTaskModal(false);
         setIsLoading(false);
-        setTaskToDelete({});
         setStartAt(dayjs(new Date()));
         setEndAt(dayjs(new Date()));
         setCourseProfessors([]);
@@ -93,12 +89,6 @@ export default function Courses(props) {
     const openDeleteModal = (id) => {
         setDeleteModal(true);
         setCourseId(id);
-    }
-
-    const openDeleteTaskModal = (id, title) => {
-        console.log(id);
-        setDeleteTaskModal(true);
-        setTaskToDelete({id, title});
     }
     
     const openAddTaskmodal = (id, name) => {
@@ -202,18 +192,6 @@ export default function Courses(props) {
         } catch(error) {
             changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')
             console.log(error);
-        }
-    }
-
-    const handleDeleteTask = async () => {
-        try {
-            setIsLoading(true);
-            await deleteCourseTask(taskToDelete.id, courseId);
-            setDisplay(false);
-        } catch(error) {
-            changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser eliminada... Por favor inténtelo nuevamente.')
-            console.log(error);
-            setDisplay(false);
         }
     }
 
@@ -361,21 +339,6 @@ export default function Courses(props) {
         {
             name: 'Alumnos',
             selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsTaskModal(row.students, row.title, row.id)}>Ver alumnos</button></div>)},
-            sortable: true,
-        },
-        {
-            name: 'Fecha limite',
-            selector: row => {var dt = new Date(row.limitDate);
-                let year  = dt.getFullYear();
-                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                let day   = dt.getDate().toString().padStart(2, "0");
-                var date = day + '/' + month + '/' + year; return date},
-            sortable: true,
-        },
-        {
-            name: 'Acciones',
-            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteTaskModal(row.id, row.title)}><Tooltip title="Borrar"><DeleteIcon /></Tooltip></button></div>)
-        },
             sortable: true,
         },
     ];
@@ -660,7 +623,6 @@ export default function Courses(props) {
                         <StudentCalendar periods={activeStudent.pendingPayments} registration={activeStudent.registrationPayment}/>
                     </Modal>
                 }
-                <Modal icon={<DeleteIcon />} open={deleteTaskModal} setDisplay={setDisplay} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>{`Esta a punto de elimnar la tarea ${taskToDelete.title}. ¿Desea continuar?`}</div></>} />
             </Container>
         </>
     );

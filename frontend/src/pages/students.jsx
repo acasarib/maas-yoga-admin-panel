@@ -256,23 +256,9 @@ export default function Students(props) {
             searchable: true,
         },
         {
-            name: 'Descripción',
-            selector: row => row.description,
-            sortable: true,
-        },
-        {
             name: 'Estado de la tarea',
             cell: row => { return (<>{(row.studentCourseTask.completed === false) ? <><span className="my-auto mr-2">No completada</span><CloseIcon color="error"/></> : <><span className="my-auto mr-2">Completada</span><DoneIcon color="success" /></>}</>)
         },
-            sortable: true,
-        },
-        {
-            name: 'Fecha limite',
-            selector: row => {var dt = new Date(row.limitDate);
-                let year  = dt.getFullYear();
-                let month = (dt.getMonth() + 1).toString().padStart(2, "0");
-                let day   = dt.getDate().toString().padStart(2, "0");
-                var date = day + '/' + month + '/' + year; return date},
             sortable: true,
         },
     ];
