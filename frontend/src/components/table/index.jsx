@@ -3,7 +3,7 @@ import DataTable from "react-data-table-component";
 import SearchBar from "./searchBar";
 import { TABLE_SEARCH_CRITERIA } from "../../constants";
 
-export default function Table({ onFilterData = () => {} , className = "", columns, onChangePage, defaultSearchValue, defaultTypeValue, data, ...rest }) {
+export default function Table({ onFilterData = () => {} , defaultSortFieldId, className = "", columns, onChangePage, defaultSearchValue, defaultTypeValue, data, ...rest }) {
     const [searchableColumns, setSearchableColumns] = useState([]);
     const [searchValue, setSearchValue] = useState(defaultSearchValue !== undefined ? defaultSearchValue : "");
     const [typeValue, setTypeValue] = useState(defaultTypeValue !== undefined ? defaultTypeValue : searchableColumns[0]?.name);
@@ -74,6 +74,7 @@ export default function Table({ onFilterData = () => {} , className = "", column
                 className={`rounded-3xl shadow-lg mt-1 ${className}`}
                 columns={columns.filter(col => col.hidden !== true)}
                 data={dataFiltered}
+                defaultSortFieldId={defaultSortFieldId}
                 onChangePage={onChangePage}
                 paginationComponentOptions={{ rowsPerPageText: 'Filas por pagina:', rangeSeparatorText: 'de', noRowsPerPage: false, selectAllRowsItem: false, selectAllRowsItemText: 'Todo' }}
                 {...rest}
