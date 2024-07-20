@@ -13,7 +13,7 @@ import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
 
-export default function PaymentsTable({ columnsProps = [],dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
+export default function PaymentsTable({ columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
     const { user, categories, changeAlertStatusAndMessage, getCourseById, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
@@ -190,7 +190,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
             },
             {
                 name: 'Fecha',
-                selector: row => row[dateField],
+                selector: row => dateToString(row[dateField]),
                 cell: row => <span>{dateToString(row[dateField])}</span>,
                 sortable: true,
                 searchable: true,
@@ -293,7 +293,7 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
             }
         })
         return columns;
-    }, [categories, dateField, columnsProps]); 
+    }, [categories, dateField]); 
 
     useEffect(() => {
         setFilteredPayments(payments);
