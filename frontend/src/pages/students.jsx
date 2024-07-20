@@ -1,6 +1,4 @@
 import React, {useContext, useEffect, useState} from "react";
-import AddIcon from '@mui/icons-material/Add';
-import { orange } from '@mui/material/colors';
 import Modal from "../components/modal";
 import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
@@ -13,7 +11,6 @@ import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import studentsService from "../services/studentsService";
-import Spinner from "../components/spinner/spinner";
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
@@ -323,6 +320,7 @@ export default function Students(props) {
             <Container title="Alumnos">
                 <Table
                     columns={columns}
+                    defaultSortFieldId={2}
                     data={students}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     responsive
