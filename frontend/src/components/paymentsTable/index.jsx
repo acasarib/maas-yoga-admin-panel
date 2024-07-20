@@ -200,10 +200,11 @@ export default function PaymentsTable({ columnsProps = [],dateField = "at", clas
             },
             {
                 name: 'Importe',
-                cell: row => <span className={`${row.value >= 0 ? "text-blue-400" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}</span>,
+                cell: row => <span className={`${row.value >= 0 ? "text-blue-400" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}{row.discount && <span className="ml-1">{`(-${row.discount}%)`}</span>}</span>,
                 sortable: true,
                 searchable: true,
                 selector: row => row.value.toString(),
+                minWidth: '120px',
             },
             {
                 name: 'Modo de pago',
