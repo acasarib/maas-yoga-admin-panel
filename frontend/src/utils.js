@@ -132,10 +132,10 @@ export function dateToString(str) {
     return date;
 }
 
-export function formatPaymentValue(value) {
+export function formatPaymentValue(value, fromBlance) {
     try {
         let paymentValue = value.toString();
-        paymentValue = paymentValue.replace("-", "");
+        if(!fromBlance) paymentValue = paymentValue.replace("-", "");
         let formatter = new Intl.NumberFormat('es-CL', {
             style: 'currency',
             currency: 'CLP',

@@ -13,7 +13,7 @@ import ButtonPrimary from "../button/primary";
 import PaymentInfo from "../paymentInfo";
 import CustomCheckbox from "../checkbox/customCheckbox";
 
-export default function Chart({ currentChartSelected, customChainFilters, onChangeData, chartByCreatedAt, setChartByCreatedAt }) {
+export default function Chart({ currentChartSelected, customChainFilters, onChangeData, chartByCreatedAt, setChartByCreatedAt, chartByOpResult, setChartByOpResult }) {
 
     const [data, setData] = useState(null);
     const [currentChartBy, setCurrentChartBy] = useState("year")
@@ -61,17 +61,17 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         const now = new Date();
         const fetchDataByYear = async () => {
             now.setFullYear(now.getFullYear() + chartPeriodIterator);
-            const response = await paymentsService.getAllByYear(chartByCreatedAt, now);
+            const response = await paymentsService.getAllByYear(chartByCreatedAt, chartByOpResult, now);
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
             now.setMonth(now.getMonth() + chartPeriodIterator);
-            const response = await paymentsService.getAllByMonth(chartByCreatedAt, now);
+            const response = await paymentsService.getAllByMonth(chartByCreatedAt, chartByOpResult, now);
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
             now.setDate(now.getDate() + chartPeriodIterator * 7);
-            const response = await paymentsService.getAllByWeek(chartByCreatedAt, now);
+            const response = await paymentsService.getAllByWeek(chartByCreatedAt, chartByOpResult, now);
             onChangeWeekData(response);
         };
         if (currentChartSelected === "year")
@@ -84,15 +84,15 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
     
     useEffect(() => {
         const fetchDataByYear = async () => {
-            const response = await paymentsService.getAllByYear(chartByCreatedAt);
+            const response = await paymentsService.getAllByYear(chartByCreatedAt, chartByOpResult);
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
-            const response = await paymentsService.getAllByMonth(chartByCreatedAt);
+            const response = await paymentsService.getAllByMonth(chartByCreatedAt, chartByOpResult);
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
-            const response = await paymentsService.getAllByWeek(chartByCreatedAt);
+            const response = await paymentsService.getAllByWeek(chartByCreatedAt, chartByOpResult);
             onChangeWeekData(response);
         };
         const fetchDataByChainFilters = async () => {
@@ -108,11 +108,11 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         if (currentChartSelected === "custom")
             fetchDataByChainFilters();
         setChartPeriodIterator(false);
-    }, [currentChartSelected, customChainFilters, chartByCreatedAt]);
+    }, [currentChartSelected, customChainFilters, chartByCreatedAt, chartByOpResult]);
 
     useEffect(() => {
         if (data && currentChartSelected === "custom") {
-            const field = chartByCreatedAt ? "createdAt" : "at";
+            const field = chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at");
             const dates = data.map(payment => new Date(payment[field]).getTime());
             const minDate = new Date(Math.min(...dates));
             const maxDate = new Date(Math.max(...dates));
@@ -133,7 +133,7 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
             }
         }
         onChangeData(data !== null ? data : []);
-    }, [data, currentChartSelected, chartByCreatedAt]);
+    }, [data, currentChartSelected, chartByCreatedAt, chartByOpResult]);
 
     return (
         <>
@@ -142,9 +142,9 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500 mb-4">{currentChartSelected !== "custom" && <ArrowLeftIcon onClick={onClickPreviousArrow} className="cursor-pointer"/>}{chartPeriod}{currentChartSelected !== "custom" && <ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>}</span>
                 
-                {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : "at"} height={"300px"} />}
-                {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : "at"} height={"300px"} />}
-                {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : "at"} height={"300px"}/>}
+                {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"300px"} />}
+                {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"300px"} />}
+                {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"300px"}/>}
 
                 <div className="w-full mt-4 flex">
                     <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
@@ -154,6 +154,13 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                         labelOff="Fecha indicada"
                         className="ml-2"
                         onChange={() => setChartByCreatedAt(!chartByCreatedAt)}
+                    />
+                    <CustomCheckbox
+                        checked={chartByOpResult}
+                        labelOn="Resultado operativo"
+                        labelOff="Resultado operativo"
+                        className="ml-2"
+                        onChange={() => setChartByOpResult(!chartByOpResult)}
                     />
                 </div>
                 <Modal

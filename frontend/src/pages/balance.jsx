@@ -28,6 +28,7 @@ export default function Balance(props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [customChainFilters, setCustomChainFilters] = useState([]);
     const [chartByCreatedAt, setChartByCreatedAt] = useState(false);
+    const [chartByOpResult, setChartByOpResult] = useState(false);
     const [payments, setPayments] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -320,13 +321,15 @@ export default function Balance(props) {
                         <Chart
                             chartByCreatedAt={chartByCreatedAt}
                             setChartByCreatedAt={setChartByCreatedAt}
+                            chartByOpResult={chartByOpResult}
+                            setChartByOpResult={setChartByOpResult}
                             customChainFilters={customChainFilters}
                             currentChartSelected={currentChartSelected}
                             onChangeData={data => setPayments(data)}    
                             />
                     </div>
                 </div>
-                <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : "at"} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={false}/>
+                <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={false}/>
                 <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{edit ? 'Editando...' : 'Informando...'}</span></>) : <span>{edit ? 'Editar' : 'Informar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
