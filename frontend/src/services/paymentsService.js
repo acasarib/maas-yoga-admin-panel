@@ -195,7 +195,7 @@ export default {
                 })
         });
     },
-    getAllByYear(byCreatedAt, from = new Date()) {
+    getAllByYear(byCreatedAt, byOpResult, from = new Date()) {
         from.setSeconds(0)
         from.setMilliseconds(0)
         const startOfYearDate = new Date(from.getFullYear(), 0, 1);
@@ -206,11 +206,11 @@ export default {
         endOfYearDate.setSeconds(59)
         endOfYearDate.setMilliseconds(999)
         const endOfYear = endOfYearDate.getTime()
-        const field = byCreatedAt ? "createdAt" : "at";
+        const field = byCreatedAt ? "createdAt" : (byOpResult ? "operativeResult" : "at");
         return this.getByQuery(`${field} between ${startOfYear}:${endOfYear}`)
             .then(data => ({ data, period: { from: startOfYear, to: endOfYear } }));
     },
-    getAllByMonth(byCreatedAt, from = new Date()) {
+    getAllByMonth(byCreatedAt, byOpResult, from = new Date()) {
         from.setSeconds(0)
         from.setMilliseconds(0)
         const startOfMonthDate = new Date(from.getFullYear(), from.getMonth(), 1);
@@ -221,11 +221,11 @@ export default {
         endOfMonthDate.setMilliseconds(999)
         const startOfMonth = startOfMonthDate.getTime();
         const endOfMonth =  endOfMonthDate.getTime();
-        const field = byCreatedAt ? "createdAt" : "at";
+        const field = byCreatedAt ? "createdAt" : (byOpResult ? "operativeResult" : "at");
         return this.getByQuery(`${field} between ${startOfMonth}:${endOfMonth}`)
             .then(data => ({ data, period: { from: startOfMonth, to: endOfMonth } }));
     },
-    getAllByWeek(byCreatedAt, from = new Date()) {
+    getAllByWeek(byCreatedAt, byOpResult, from = new Date()) {
         from.setSeconds(0)
         from.setMilliseconds(0)
         let prevMonday = from;
@@ -241,7 +241,7 @@ export default {
         from.setMilliseconds(999)
         until = until.getTime();
         prevMonday = prevMonday.getTime();
-        const field = byCreatedAt ? "createdAt" : "at";
+        const field = byCreatedAt ? "createdAt" : (byOpResult ? "operativeResult" : "at");
         return this.getByQuery(`${field} between ${prevMonday}:${until}`)
             .then(data => ({ data, period: { from: prevMonday, to: until } }));
     },
