@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import ViewSlider from 'react-view-slider'
 import { Context } from '../context/Context';
 import CardItem from '../components/card/cardItem';
-import SchoolIcon from '@mui/icons-material/School';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import PaidIcon from '@mui/icons-material/Paid';
 import ProfessorCourses from '../components/section/professor/professorCourses';
@@ -15,7 +14,7 @@ import VerifyPaymentModal from '../components/modal/verifyPaymentModal';
 import useModal from '../hooks/useModal';
 import DeletePaymentModal from '../components/modal/deletePaymentModal';
 import AddProfessorPaymentModal from '../components/modal/addProfessorPaymentModal';
-import { formatPaymentValue, isByAssistance, isByAssistant, isByPercentage, series, toMonthsNames } from '../utils';
+import { prettyCriteria, series, toMonthsNames } from '../utils';
 import { CASH_PAYMENT_TYPE } from '../constants';
 
 const ProfessorDetail = () => {
@@ -123,10 +122,7 @@ const ProfessorDetail = () => {
 	const getProfessorCriteria = () => {
 		let periodCriteria = professorPaymentData.result.period.criteria;
 		let criteriaValue = professorPaymentData.result.period.criteriaValue;
-		let criteria = isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
-					: isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
-					: `Se debe pagar ${formatPaymentValue(criteriaValue)} por cada estudiante.`
-		return criteria
+		return prettyCriteria(periodCriteria, criteriaValue)
 	}
 
 	const getPeriod = () => {
