@@ -552,7 +552,6 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!');
         editedCourse.periods = course.professors;
         setCourses(current => current.map(s => s.id === courseId ? merge(s, editedCourse) : s));
-        console.log(courses)
         return editedCourse;
     }
 
