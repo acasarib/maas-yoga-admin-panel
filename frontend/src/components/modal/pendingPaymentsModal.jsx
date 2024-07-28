@@ -15,6 +15,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import StudentCalendar from "../calendar/studentCalendar";
 import { formatDateDDMMYY, toMonthsNames } from "../../utils";
+import useToggle from "../../hooks/useToggle";
 
 export default function PendingPaymentsModal({ isOpen, onClose }) {
     const { getPendingPayments } = useContext(Context);
@@ -93,14 +94,20 @@ const StudentCollapse = ({ courses }) => {
 }
 
 const ProfessorDetailCollapse = ({ course }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const isOpen = useToggle();
+    const onClickExpand = () => {
+        if (!course.isCircular)
+            isOpen.toggle()
+    }
     
     return (<>
-        <ListItemButton sx={{ pl: 4 }} onClick={() => setIsOpen(!isOpen)}>
-            <ListItemText primary={`${course.title}`} secondary={<><div>Duracion del curso: {toMonthsNames(course.startAt, course.endAt)}</div>Alumno inscripto en: {formatDateDDMMYY(course.memberSince)}</>} />
-            {isOpen ? <ExpandLess /> : <ExpandMore />}
+        <ListItemButton sx={{ pl: 4 }} onClick={onClickExpand}>
+            <ListItemText primary={`${course.title}`} secondary={<span className="flex flex-col"><span className={course.isCircular && 'text-red-400'}>{course.isCircular ? "Curso circular no pagado" : "Duración del curso: " + toMonthsNames(course.startAt, course.endAt)}</span>Alumno inscripto en: {formatDateDDMMYY(course.memberSince)}</span>} />
+            {!course.isCircular && <>
+            {isOpen.value ? <ExpandLess /> : <ExpandMore />}
+            </>}
         </ListItemButton>
-        <Collapse className="ml-10" in={isOpen} timeout="auto" unmountOnExit>
+        <Collapse className="ml-10" in={isOpen.value} timeout="auto" unmountOnExit>
             <StudentCalendar periods={course.periods}/>
         </Collapse>
     </>);

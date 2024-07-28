@@ -529,13 +529,13 @@ export default function Courses(props) {
                                 className="ml-2"
                                 onChange={needsRegistration.toggle}
                             />
-                            {/* <CustomCheckbox
+                            <CustomCheckbox
                                 checked={isCircular.value}
                                 labelOn="Es circular"
                                 labelOff="Es circular"
                                 className="ml-2"
                                 onChange={isCircular.toggle}
-                            /> */}
+                            />
                         </div>
                         <><div className="grid grid-cols-2 gap-4">
                             <div className="mb-4">
