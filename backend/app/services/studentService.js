@@ -106,7 +106,7 @@ export const pendingPayments = async () => {
   coursesPeriod = await coursesPeriod;
   courseMemberSince = await courseMemberSince;
   let studentIds = Object.keys(courseMemberSince.students);
-  let studentPayments = await payment.findAll({ where: { studentId: { [Op.in]: studentIds } } });
+  let studentPayments = await payment.findAll({ where: { studentId: { [Op.in]: studentIds }, isRegistrationPayment: false } });
   coursesPeriod.forEach(coursePeriod => {
     studentIds.forEach(studentId => {
       const courseId = coursePeriod["course_id"]
@@ -158,6 +158,35 @@ export const pendingPayments = async () => {
       response.students[studentId].courses[courseId].periods[year][month] = status;
     });
   });
+
+  const circularCourses = await course.findAll({ 
+    attributes: ["id"],
+    where: { isCircular: true },
+    include: {
+      model: courseStudent,
+      attributes: ["createdAt", "courseId", "studentId"],
+  }})
+  studentIds = []
+  circularCourses.forEach(circularCourse => {
+    circularCourse.courseStudents.forEach(cs => {
+      studentIds.push(cs.studentId)
+    })
+  })
+  studentPayments = await payment.findAll({ where: { studentId: { [Op.in]: studentIds }, isRegistrationPayment: false } });
+
+  circularCourses.forEach(circularCourse => {
+    circularCourse.courseStudents.forEach(cs => {
+      if (!(cs.studentId in response.students)) {
+        response.students[cs.studentId] = { courses: {} }
+      }
+      const circularPayment = studentPayments.find(p => p.studentId == cs.studentId && p.courseId == circularCourse.id);
+      response.students[cs.studentId].courses[circularCourse.id] = {
+        memberSince: cs.createdAt,
+        circularPayment: circularPayment == undefined ? null : circularPayment
+      }
+    })
+  })
+
   return onlyNotPaidStudents(response);
 };
 
@@ -170,6 +199,24 @@ export const getStudentsByCourse = async (courseId) => {
     model: student,
     include: [courseTask]
   }], where: { id: courseId } })
+  let studentsIds = c.students.map(c => c.id)
+  const payments = await payment.findAll({ where: { courseId, studentId: {
+    [Op.in]: studentsIds
+  } } })
+  if (c.isCircular) {
+    const getCircularPayment = (studentId) => payments.find(p => !p.isRegistrationPayment && p.studentId == studentId);
+    for (const s of c.dataValues.students) {
+      const st = s.dataValues
+      if (c.needsRegistration) {
+        st.registrationPayment = getRegistrationPayment(st.id)
+        st.registrationPaid = st.registrationPayment != undefined;
+      }
+      st.suspendedPeriods = await courseStudentSuspend.findAll({ where: { studentId: st.id, courseId } });
+      st.circularPayment = getCircularPayment(st.id)
+      st.pendingPayments = { circular: !st.circularPayment }
+    }
+    return c.dataValues.students;
+  }
   let courseStartAt = c.startAt
   courseStartAt.setHours(0);
   courseStartAt.setMinutes(0);
@@ -180,10 +227,6 @@ export const getStudentsByCourse = async (courseId) => {
   courseEndAt.setMinutes(59);
   courseEndAt.setSeconds(59);
   courseEndAt.setMilliseconds(999);
-  const studentsIds = c.students.map(c => c.id)
-  const payments = await payment.findAll({ where: { courseId, studentId: {
-    [Op.in]: studentsIds
-  } } })
   const dateSeries = utils.getMonthlyDateSeries(courseStartAt, courseEndAt)
   const getRegistrationPayment = (studentId) => payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
   const getPaymentByYearAndMonthAndStudentId = (year, month, studentId) => {
@@ -284,6 +327,12 @@ const onlyNotPaidStudents = (data) => {
   for (const studentId of studentIds) {
     const studentCoursesIds = Object.keys(data.students[studentId].courses);
     for (const courseId of studentCoursesIds) {
+      if ("circularPayment" in data.students[studentId].courses[courseId]) {
+        if (data.students[studentId].courses[courseId].circularPayment != null) {
+          delete data.students[studentId].courses[courseId]
+        }
+        continue
+      }
       const courseYears = Object.keys(data.students[studentId].courses[courseId].periods);
       let hasAnyNotPaidPaymentCourse = false;
       for (const year of courseYears) {

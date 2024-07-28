@@ -75,7 +75,7 @@ export default {
    */
   pendingPayments: async (req, res, next) => {
     try {
-      res.status(StatusCodes.OK).json(await studentService.pendingPayments(req.params.id));
+      res.status(StatusCodes.OK).json(await studentService.pendingPayments());
     } catch (e) {
       next(e);
     }

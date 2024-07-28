@@ -169,7 +169,7 @@ const ProfessorsModule = ({ course, coursePeriods }) => <>
 	</div>
 	<div className='my-6'></div>
 </div>
-<div className='divide-y'>
+<div className={`divide-y ${course?.isCircular && 'hidden'}`}>
 	<div>
 		<h2 className='text-2xl font-bold mb-2'>Periodos</h2>
 		<ProfessorCalendar coursePeriods={coursePeriods}/>
@@ -229,7 +229,7 @@ const CourseDetail = () => {
 	const handleChangeTabValue = (_, newValue) => setTabValue(newValue);
 
 	useEffect(() => {
-		if (course == null) return
+		if (course == null || course.isCircular) return
 		const result = series(course.startAt, course.endAt)
 		const periods = {}
 		result.forEach(period => {
