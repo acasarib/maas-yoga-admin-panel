@@ -10,6 +10,7 @@ const useToggle = (initialValue = false) => {
 		toggle,
 		disable,
 		enable,
+		setValue,
 	}
 }
 
