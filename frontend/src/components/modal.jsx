@@ -3,8 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ButtonPrimary from './button/primary';
 import ButtonSecondary from './button/secondary';
 
-export default function Modal(props) {
-  
+export default function Modal(props) {  
   const cancelButtonRef = useRef(null);
 
   const onClose = () => {

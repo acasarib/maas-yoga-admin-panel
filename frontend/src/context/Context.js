@@ -176,6 +176,10 @@ export const Provider = ({ children }) => {
         setIsLoadingPayments(false);
     }
 
+    const getStudentPayments = async (studentId) => {
+        return paymentsService.getStudentPayments(studentId);
+    }
+
     const addSecretaryPaymentsToPayments = async () => {
         const secretaryPayments = await paymentsService.getSecretaryPayments();
         setSecretaryPayments(secretaryPayments);
@@ -946,6 +950,7 @@ export const Provider = ({ children }) => {
             updatePayment,
             getHeadquarterById,
             getItemById,
+            getStudentPayments,
             getLogs,
             getProfessorById,
             getCourseById,
