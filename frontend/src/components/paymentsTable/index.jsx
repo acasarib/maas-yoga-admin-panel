@@ -114,7 +114,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             const user = getUserById(row.verifiedBy)
             return user.firstName + ' ' + user.lastName;
         } else {
-            return "No verificado"
+            return row.verified ? "Verificado" : "No verificado"
         }
     }
 

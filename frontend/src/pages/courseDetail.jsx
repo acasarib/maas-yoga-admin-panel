@@ -19,6 +19,7 @@ import { Box, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TasksTable from '../components/table/tasksTable';
 import TaskModal from '../components/courses/taskModal';
+import Spinner from '../components/spinner/spinner';
 
 const ProfessorCalendar = ({ coursePeriods }) => Object.keys(coursePeriods).map(year => <div className='mb-2' key={year}>
 	<div className='font-medium text-xl mb-1'>{year}</div>
@@ -254,8 +255,8 @@ const CourseDetail = () => {
 
 	
   return (
-    <Container disableTitle className="max-w-full" items={[{ name: "Cursos", href: "/home/courses" }, { name: `${course?.title}` }]}>
-		{course !== null &&
+    <Container disableTitle className="max-w-full" items={[{ name: "Cursos", href: "/home/courses" }, { name: `${course?.title || ''}` }]}>
+		{course !== null ?
 		<>
 			<h1 className='text-2xl md:text-3xl text-center mb-12'>{course?.title}</h1>
 			<p className='text-center'>{course.description}</p>
@@ -285,6 +286,9 @@ const CourseDetail = () => {
 			</Box>
 		</>
 		
+		: <div className="flex justify-center items-center h-screen">
+			<Spinner/>
+		</div>
 		}
     </Container>
   )

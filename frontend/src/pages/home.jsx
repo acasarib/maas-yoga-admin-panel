@@ -32,6 +32,7 @@ import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import ProfessorDetail from "./professorDetail";
 import CourseDetail from "./courseDetail";
+import StudentDetail from "./studentDetail";
 import NotificationIcon from "../components/badget/notification";
 import NotificationDropdown from "../components/notificationDropdown/notificationDropdown";
 import useToggle from "../hooks/useToggle";
@@ -159,7 +160,7 @@ export default function Home(props) {
                                 <NavItem onClick={closeSidebar} target={"payments"} isActive={props.payments || props.professorPayments} icon={<PaidIcon/>}>Movimientos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"tasks"} isActive={props.tasks} icon={<AssignmentIcon/>}>Tareas pendientes</NavItem>
                                 <NavItem onClick={closeSidebar} target={"balance"} isActive={props.balance} icon={<BalanceIcon/>}>Balance</NavItem>
-                                <NavItem onClick={closeSidebar} target={"students"} isActive={props.students} icon={<SchoolIcon/>}>Alumnos</NavItem>
+                                <NavItem onClick={closeSidebar} target={"students"} isActive={props.students|| props.studentDetail} icon={<SchoolIcon/>}>Alumnos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
                                 <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors || props.professorDetail} icon={<HailIcon/>}>Profesores</NavItem>
                                 <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses || props.courseDetail} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
@@ -197,6 +198,7 @@ export default function Home(props) {
                     {props.professorPayments && (<><ProfessorPayments/></>)}
                     {props.professorDetail && (<><ProfessorDetail/></>)}
                     {props.courseDetail && (<><CourseDetail/></>)}
+                    {props.studentDetail && (<><StudentDetail/></>)}
                     {props.professors && (<><Professors/></>)}
                 </main>
                 </div>
