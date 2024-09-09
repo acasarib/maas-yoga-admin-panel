@@ -148,8 +148,18 @@ export const editById = async (courseParam, id) => {
 
 export const getById = async (id) => {
   const c = await course.findByPk(id, { include: [
-    { model: courseTask, include:[student] },
-    payment] });
+    {
+      model: courseTask, include:[{
+        model: student,
+        attributes: ['name', 'lastName', 'email'],
+        through: { attributes: ['completed'] }
+      }]
+    },
+    {
+      model: payment,
+      attributes: ['id', 'operativeResult', 'value', 'periodFrom']
+    }] 
+  });
   const professorsWithPeriods = await getProfessorPeriodsInCourse(c.id);
   c.dataValues.students = await getStudentsByCourse(c.id)
   c.dataValues.periods = []
@@ -158,7 +168,7 @@ export const getById = async (id) => {
     c.dataValues.periods = [...c.dataValues.periods, ...professorPeriods]
 
   }
-  return c;
+  return c
 };
 
 export const getAll = async () => {

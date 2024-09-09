@@ -3,8 +3,6 @@ import useModal from '../../hooks/useModal';
 import Table from '.';
 import useResize from '../../hooks/useResize';
 import SchoolIcon from '@mui/icons-material/School';
-import StudentCoursesInfo from '../section/courses/studentCoursesInfo';
-import { STUDENT_STATUS } from '../../constants';
 import Modal from '../modal';
 import { formatDateDDMMYY } from "../../utils";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,8 +10,6 @@ import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
-
-
 
 const TasksTable = ({ course }) => {
     const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
@@ -164,9 +160,7 @@ const TasksTable = ({ course }) => {
     ];
 
     useEffect(() => {
-        console.log("cambio");
         if (taskId != null) {
-            console.log(course.courseTasks.find(ct => ct.id == taskId));
             setTaskId(course.courseTasks.find(ct => ct.id == taskId).id)
         }
     }, [course])
