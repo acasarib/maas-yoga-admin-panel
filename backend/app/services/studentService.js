@@ -194,10 +194,12 @@ export const getAll = async () => {
   return student.findAll({ include: [course] });
 };
 
+//TODO: optimizar estas consultas
 export const getStudentsByCourse = async (courseId) => {
   const c = await course.findOne({ include: [{
     model: student,
-    include: [courseTask]
+    include: [courseTask],
+    attributes: ["name", "lastName", "document", "email", "phoneNumber", "id"]
   }], where: { id: courseId } })
   let studentsIds = c.students.map(c => c.id)
   const payments = await payment.findAll({ where: { courseId, studentId: {
@@ -266,7 +268,7 @@ export const getStudentsByCourse = async (courseId) => {
       }
       const paymentByYearAndMonth = getPaymentByYearAndMonthAndStudentId(year, month, st.id)
       if (paymentByYearAndMonth) {
-        st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.PAID, payment: paymentByYearAndMonth }
+        st.pendingPayments[year][month] = { condition: STUDENT_MONTHS_CONDITIONS.PAID, payment: {at: paymentByYearAndMonth.at, value: paymentByYearAndMonth.value } }
         if (year == currentYear && month == currentMonth) {
           st.currentMonth = STUDENT_MONTHS_CONDITIONS.PAID
         }
