@@ -78,12 +78,12 @@ const CourseDetail = () => {
 	const [courses, setCourses] = useState([])
 	const deletePaymentModal = useModal()
 
+	const getData = async () => {
+		const student = await getStudentDetailsById(studentId)
+		setStudent(student)
+	}
 
 	useEffect(() => {
-		const getData = async () => {
-			const student = await getStudentDetailsById(studentId)
-			setStudent(student)
-		}
 		getData()
 	}, []);
 
@@ -160,7 +160,7 @@ const CourseDetail = () => {
 								</List>)}
 							</TabPanel>
 							<TabPanel className="pt-4" value="4">
-								{student?.courseTasks && <TaskList tasks={student.courseTasks} courses={courses} />}
+								{student?.courseTasks && <TaskList tasks={student.courseTasks} studentId={student.id} courses={courses} getStudent={() => getData()} />}
 							</TabPanel>
 						</TabContext>
 					</Box>

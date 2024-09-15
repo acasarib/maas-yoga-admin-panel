@@ -51,18 +51,19 @@ export const Provider = ({ children }) => {
     const [logsInit, setLogsInit] = useState(false);
     const [agendaLocations, setAgendaLocations] = useState([]);
 
+    const getStudents = async () => {
+        const studentsList = await studentsService.getStudents();
+        studentsList.forEach(student => {
+            student.label = student.name + ' ' + student.lastName;
+            student.value = student.id;
+        });
+        setStudents(studentsList);
+        setIsLoadingStudents(false);
+    }
+
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
         if (user === null) return;
-        const getStudents = async () => {
-            const studentsList = await studentsService.getStudents();
-            studentsList.forEach(student => {
-                student.label = student.name + ' ' + student.lastName;
-                student.value = student.id;
-            });
-            setStudents(studentsList);
-            setIsLoadingStudents(false);
-        }
         const getCourses = async () => {
             const coursesList = await coursesService.getCourses();
             setCourses(coursesList);
@@ -928,6 +929,7 @@ export const Provider = ({ children }) => {
             editClazz,
             deleteClazz,
             deleteCategory,
+            getStudents,
             editCategory,
             newCategory,
             verifyClazz,

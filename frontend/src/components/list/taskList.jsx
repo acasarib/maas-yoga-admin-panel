@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import Table from '../table';
 import { Link } from "react-router-dom";
 import useModal from '../../hooks/useModal';
@@ -7,14 +7,19 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import AddTaskIcon from '@mui/icons-material/AddTask';
+import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
+import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import { Context } from '../../context/Context';
 
-const TaskList = ({ tasks, courses }) => {
+const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
   const filteredTasksModal = useModal()
   const coursesWithTasks = courses.filter(course => tasks.some(task => task.courseId === course.id))
   const [matches, setMatches] = useState(
     window.matchMedia("(min-width: 700px)").matches
-  )
+  );
+  const { changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context)
+
   useEffect(() => {
     window
       .matchMedia("(min-width: 700px)")
@@ -47,6 +52,17 @@ const TaskList = ({ tasks, courses }) => {
       return '0/0';
     }
   }
+
+  const handleChangeTaskStatus = async (task, taskStatus) => {
+    try {
+        await changeTaskStatus(task.courseId, task.id, studentId, taskStatus);
+        await getStudent();
+        filteredTasksModal.close();
+    } catch (error) {
+        changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')
+        console.log(error);
+    }
+}
 
   const coursesColumns = [
     {
@@ -125,6 +141,19 @@ const TaskList = ({ tasks, courses }) => {
       },
       sortable: true,
     },
+    {
+      name: 'Acciones',
+      cell: row => (
+      <div className="flex flex-nowrap">
+          <button className="rounded-full p-1 bg-red-300 hover:bg-red-400 mx-1" onClick={() => handleChangeTaskStatus(row, false)}>
+              <RemoveDoneIcon />
+          </button>
+          <button className="rounded-full p-1 bg-green-300 hover:bg-green-400 mx-1" onClick={() => handleChangeTaskStatus(row, true)}>
+              <DoneOutlineIcon />
+          </button>
+      </div>),
+      sortable: true,
+  },
   ];
 
   const modalStyles = matches ? { minWidth: '650px' } : {}
