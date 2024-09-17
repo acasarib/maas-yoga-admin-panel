@@ -18,6 +18,7 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   const [matches, setMatches] = useState(
     window.matchMedia("(min-width: 700px)").matches
   );
+  const [courseId, setCourseId] = useState(null)
   const { changeTaskStatus, changeAlertStatusAndMessage } = useContext(Context)
 
   useEffect(() => {
@@ -25,8 +26,8 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
       .matchMedia("(min-width: 700px)")
       .addEventListener('change', e => setMatches(e.matches));
   }, []);
-  const getTasksProgress = (courseId) => {
-    const progress = getTasksStatus(courseId);
+  const getTasksProgress = (crsId) => {
+    const progress = getTasksStatus(crsId);
     const stringValue = progress.toString();
     const valuesArray = stringValue.split('/');
     if ((Number(valuesArray[0]) !== 0)) {
@@ -37,15 +38,16 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   }
 
 
-  const openTaskModal = async (courseId) => {
-    const courseTasks = tasks.filter(tk => tk.courseId === courseId);
+  const openTaskModal = async (crsId) => {
+    setCourseId(crsId);
+    const courseTasks = tasks.filter(tk => tk.courseId === crsId);
     setFilteredTasks(courseTasks);
     filteredTasksModal.open()
   }
 
-  const getTasksStatus = (courseId) => {
+  const getTasksStatus = (crsId) => {
     if (tasks.length > 0) {
-      const courseTasks = tasks.filter(tk => tk.courseId === courseId);
+      const courseTasks = tasks.filter(tk => tk.courseId === crsId);
       const completedTasks = courseTasks.filter(tk => tk.studentCourseTask.completed === true);
       return completedTasks.length + '/' + courseTasks.length;
     } else {
@@ -57,7 +59,6 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
     try {
         await changeTaskStatus(task.courseId, task.id, studentId, taskStatus);
         await getStudent();
-        filteredTasksModal.close();
     } catch (error) {
         changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')
         console.log(error);
@@ -157,6 +158,13 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   ];
 
   const modalStyles = matches ? { minWidth: '650px' } : {}
+
+  useEffect(() => {
+    console.log('tasks changed');
+    const courseTasks = tasks.filter(tk => tk.courseId === courseId);
+    setFilteredTasks(courseTasks);
+  }, [tasks, courses])
+  
 
   return (<>
     <Modal style={modalStyles} open={filteredTasksModal.isOpen} onClose={filteredTasksModal.toggle} hiddingButton icon={<AddTaskIcon />} closeText="Salir" title="Tareas del curso">
