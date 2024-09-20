@@ -153,7 +153,7 @@ export function isByStudent(criteria) {
 }
 
 export function prettyCriteria(periodCriteria, criteriaValue) {
-    return isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por asistir.` 
+    return isByAssistant(periodCriteria) ? `Se debe pagar ${formatPaymentValue(criteriaValue)} por ayudantía.` 
         : isByPercentage(periodCriteria) ? `Se debe pagar el ${criteriaValue}% del total de ingresos.` 
         : `Se debe pagar ${formatPaymentValue(criteriaValue)} por cada estudiante.`
 }

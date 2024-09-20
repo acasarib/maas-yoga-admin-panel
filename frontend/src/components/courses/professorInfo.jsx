@@ -132,7 +132,7 @@ export default function ProfessorInfo(props) {
                         </div>
                         <div className="flex items-center ml-2 mt-2 sm:mt-0 sm:ml-4">
                             <input onChange={(e) => handleChangeCriteria({assistant: e.target.value})} name="criteria" id="assistant" checked={isCriteriaByAssistant()} value="assistant" type="radio" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                            <label htmlFor="assistant" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Asistir</label>
+                            <label htmlFor="assistant" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Ayudantía</label>
                         </div>
                     </div>
                     <div className={`flex items-center pt-2 ml-2 md:ml-4 ${isCriteriaByAssistant() && "hidden"}`}>
@@ -143,7 +143,7 @@ export default function ProfessorInfo(props) {
             </div>
             <div className="mb-4 w-3/6">
                 <CommonInput 
-                    label={isCriteriaByAssistant() ? "Monto por asistir" : isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}    
+                    label={isCriteriaByAssistant() ? "Monto por ayudantía" : isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}    
                     value={criteriaValue}
                     name="criteriaValue"
                     id="criteriaValue" 
