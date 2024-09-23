@@ -422,7 +422,7 @@ export default function Courses(props) {
                 description: values.description,
                 needsRegistration: needsRegistration.value,
                 isCircular: isCircular.value,
-                startAt: isCircular.value ? null : startAt,
+                startAt: startAt,
                 endAt: isCircular.value ? null : endAt,
                 professors: courseProfessors,
             };
@@ -471,7 +471,6 @@ export default function Courses(props) {
             setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
     }, [students, isLoadingStudents]);
 
-
     return (
         <>
             <Container title="Cursos">
@@ -497,7 +496,7 @@ export default function Courses(props) {
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                        <div className={`mb-4 relative col-span-2 ${isCircular.value && "hidden"}`}>
+                        <div className={`mb-4 relative col-span-2`}>
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                                 Fecha de inicio
                             </label>
