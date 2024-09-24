@@ -1,4 +1,5 @@
 import * as courseService from "../services/courseService.js";
+import * as studentService from "../services/studentService.js";
 import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { courseTask } from "../db/index.js";
@@ -210,7 +211,14 @@ export default {
    */
   calcProfessorsPayments: async (req, res, next) => {
     try {
-      const details = await courseService.calcProfessorsPayments(req.body.from, req.body.to, req.body.professorId, req.body.courseId);
+      const { from, to, courseId, professorId } = req.body;
+      const details = await courseService.calcProfessorsPayments(from, to, professorId, courseId);
+      if (courseId) {
+        const students = await studentService.getStudentsByCourse(courseId);
+        for (const course of details) {
+          course.dataValues.students = students;
+        }
+      }
       res.status(StatusCodes.OK).json(details);
     } catch (e) {
       console.log(e);
