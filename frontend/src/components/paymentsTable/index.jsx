@@ -14,7 +14,7 @@ import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
 
 export default function PaymentsTable({ columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
-    const { user, categories, changeAlertStatusAndMessage, getCourseById, getUserById } = useContext(Context);
+    const { user, categories, changeAlertStatusAndMessage, getCourseById, getUserById, courses } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
     const deletePaymentModal = useModal()
@@ -147,8 +147,8 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
     const getProfessorFullName = (row) => row.professor !== null ? row?.professor?.name + ' ' + row?.professor?.lastName : "";
 
     const getItemById = (row) => {
+        let item = "";
         try {
-            let item = "";
             if(row.itemId !== null) {
                 try {
                     const newItem = categories.find(category => category.items.find(item => item.id === row.itemId)).items.find(item => item.id === row.itemId);
@@ -167,7 +167,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             }
             return item;
         } catch (e) {
-            return ""
+            return item;
         }
     }
 
@@ -218,7 +218,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row)}</span>,
                 sortable: true,
                 searchable: true,
-                selector: row => getItemById(row),
+                selector: async row => await getItemById(row),
             },
             {
                 name: 'Abonado por',
@@ -294,7 +294,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             }
         })
         return columns;
-    }, [categories, dateField]); 
+    }, [categories, dateField, courses]); 
 
     useEffect(() => {
         setFilteredPayments(payments);
