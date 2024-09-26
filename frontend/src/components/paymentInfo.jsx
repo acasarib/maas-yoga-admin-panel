@@ -4,7 +4,7 @@ import Link from "./link/link";
 import BlueBudget from "./badget/blue";
 import { Context } from "../context/Context";
 
-export default function PaymentInfo({ payment }) {
+export default function PaymentInfo({ payment, highLightFields = [], hideFields = [] }) {
 
     const { getSecretaryPaymentById } = useContext(Context)
     const secretaryPayment = getSecretaryPaymentById(payment.secretaryPaymentId)
@@ -47,9 +47,9 @@ export default function PaymentInfo({ payment }) {
                     <li>Tareas extras: <span>{formatPaymentValue(secretaryPayment.extraTasks)}</span></li>
                 </ul>
             </>}
-            <div>Estudiante: {payment?.student?.name} {payment?.student?.lastName}</div>
+            <div>Estudiante: <span className={highLightFields.includes('student') && 'font-bold'}>{payment?.student?.name} {payment?.student?.lastName}</span></div>
             <div>Tipo de pago: {payment.type}</div>
-            <div>Curso: {payment?.course?.title}</div>
+            {!hideFields.includes('course') && <div>Curso: {payment?.course?.title}</div>}
             <div>Pago informado por: {getUserFullName(payment)}</div>
         </div>
     </div>
