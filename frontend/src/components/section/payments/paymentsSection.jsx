@@ -301,7 +301,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             clazzId: (edit && selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
             headquarterId: (edit && selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
             courseId: (edit && selectedCourse !== null) ? selectedCourse?.id : (isDischarge ? null : selectedCourse?.id),
-            type: paymentMethod,
+            type: (edit && paymentMethod !== null) ? (paymentMethod.value || paymentMethod) : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
             studentId: (edit && selectedStudent !== null) ? selectedStudent.id : (isDischarge ? null : selectedStudent.id),
