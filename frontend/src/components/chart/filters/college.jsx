@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import Select from "react-select";
 import { Context } from "../../../context/Context";
+import Select from "../../select/select";
 
 export default function FilterPaymentCollege({ onChange }) {
     const [selectedCollege, setSelectedCollege] = useState(null);

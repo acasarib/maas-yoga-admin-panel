@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import BalanceIcon from '@mui/icons-material/Balance';
 import Modal from "../modal";
-import Select from "react-select";
 import FilterPaymentType from "./filters/type";
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import FilterPaymentValue from "./filters/value";
@@ -14,6 +13,7 @@ import FilterPaymentCategory from "./filters/category";
 import FilterPaymentClazz from "./filters/clazz";
 import FilterPaymentCreatedAt from "./filters/createdAt";
 import FilterPaymentOperativeResult from "./filters/operativeResult";
+import Select from "../select/select";
 
 export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) {
 

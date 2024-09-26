@@ -5,7 +5,6 @@ import DoneIcon from '@mui/icons-material/Done';
 import { useState } from 'react';
 import { Context } from '../../context/Context';
 import { PAYMENT_OPTIONS } from '../../constants';
-import Select from 'react-select';
 import CommonInput from '../commonInput';
 import CustomRadio from '../radio/customRadio';
 import UsageBar from 'react-usage-bar'
@@ -13,6 +12,7 @@ import "react-usage-bar/dist/index.css"
 
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import Select from '../select/select';
 
 const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 	const { verifyPayment, updatePayment, splitPayment } = useContext(Context);

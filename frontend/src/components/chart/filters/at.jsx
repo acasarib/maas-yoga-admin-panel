@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import Select from "../../select/select";
 
 export default function FilterPaymentAt({ onChange }) {
 
