@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import paymentsService from "../../../services/paymentsService";
-import Select from 'react-select';
 import CommonInput from "../../../components/commonInput";
 import CommonTextArea from "../../../components/commonTextArea";
 import Modal from "../../../components/modal";
@@ -10,7 +9,6 @@ import { orange } from '@mui/material/colors';
 import "react-datepicker/dist/react-datepicker.css";
 import { PAYMENT_OPTIONS } from "../../../constants";
 import dayjs from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../../../components/paymentsTable";
 import { Context } from "../../../context/Context";
@@ -28,6 +26,7 @@ import CustomCheckbox from "../../../components/checkbox/customCheckbox";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Select from "../../select/select";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 

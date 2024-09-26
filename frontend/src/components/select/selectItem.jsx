@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Context } from "../../context/Context";
-import Select, { components } from 'react-select';
+import Select from "./select";
+import { components } from 'react-select';
 
 export default function SelectItem({ className, onChange, value }) {
 

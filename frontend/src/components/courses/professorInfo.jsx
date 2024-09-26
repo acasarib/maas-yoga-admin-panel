@@ -3,8 +3,8 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CommonInput from "../commonInput";
 import dayjs from 'dayjs';
-import Select from 'react-select';
 import { dateToYYYYMMDD, splitDate } from "../../utils";
+import Select from "../select/select";
 
 export default function ProfessorInfo(props) {
     const [startAt, setStartAt] = useState(dayjs(new Date()));

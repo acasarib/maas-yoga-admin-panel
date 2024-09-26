@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Select from "react-select";
 import { PAYMENT_OPTIONS } from "../../../constants";
+import Select from "../../select/select";
 
 export default function FilterPaymentType({ onChange }) {
 

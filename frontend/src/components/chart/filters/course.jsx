@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import { useContext } from "react";
 import { Context } from "../../../context/Context";
+import Select from "../../select/select";
 
 export default function FilterPaymentCourse({ onChange }) {
 

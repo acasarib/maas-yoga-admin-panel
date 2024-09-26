@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Modal from "../modal";
 import HailIcon from '@mui/icons-material/Hail';
-import Select from "react-select";
 import CommonInput from "../commonInput";
 import ButtonPrimary from "../button/primary";
 import { Context } from "../../context/Context";
@@ -10,6 +9,7 @@ import ButtonSecondary from "../button/secondary";
 import useToggle from "../../hooks/useToggle";
 import PaymentInfo from "../paymentInfo";
 import CustomCheckbox from "../checkbox/customCheckbox";
+import Select from "../select/select";
 
 export default function AddProfessorPaymentModal({ allowManualValue = false, students, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
     const { getCourseById } = useContext(Context)
