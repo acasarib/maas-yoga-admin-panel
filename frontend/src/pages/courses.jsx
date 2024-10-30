@@ -7,7 +7,6 @@ import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import Select from 'react-select';
 import SchoolIcon from '@mui/icons-material/School';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
@@ -31,6 +30,7 @@ import useQueryParam from "../hooks/useQueryParam";
 import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
 import { Link } from "react-router-dom";
 import StudentCalendar from "../components/calendar/studentCalendar";
+import Select from "../components/select/select";
 
 export default function Courses(props) {
     const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);

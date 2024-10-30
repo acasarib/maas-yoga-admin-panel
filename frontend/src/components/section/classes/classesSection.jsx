@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect } from "react";
-import Select from "react-select";
 import Modal from "../../../components/modal";
 import { useFormik } from 'formik';
 import CommonInput from "../../../components/commonInput";
@@ -8,13 +7,13 @@ import { Context } from "../../../context/Context";
 import dayjs from 'dayjs';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import ClassesTable from "../../classesTable";
 import WeekdayPicker from "../../weekdayPicker";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewSlider from 'react-view-slider';
 import PlusButton from "../../button/plus";
+import Select from "../../select/select";
 
 export default function ClassesSection(props) {
 

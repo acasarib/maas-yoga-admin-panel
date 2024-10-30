@@ -17,10 +17,10 @@ import { Context } from "../context/Context";
 import CloseIcon from '@mui/icons-material/Close';
 import PaidIcon from '@mui/icons-material/Paid';
 import Modal from "../components/modal";
-import Select from "react-select";
 import SelectItem from "../components/select/selectItem";
 import CommonInput from "../components/commonInput";
 import CommonTextArea from "../components/commonTextArea";
+import Select from "../components/select/select";
 
 export default function Balance(props) {
 

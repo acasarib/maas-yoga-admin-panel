@@ -73,12 +73,11 @@ const ProfessorDetail = () => {
 			addProfessorPaymentModal.open()
 		}
 	}, [professorPaymentData])
-	
 
 	const onClickAddProfessorPayment = async ({ from, to, professorId, courseId }) => {
 		const data = await calcProfessorsPayments(from, to, professorId, courseId);
 		try {
-			setProfessorPaymentData({...data[0].professors[0], from, to, courseId })
+			setProfessorPaymentData({...data[0].professors[0], students: data[0].students, from, to, courseId })
 		} catch (e) {
 			const targetPeriod = from.slice(0, -3);
 			const course = professor.courses.find(c => c.id == courseId)
@@ -186,6 +185,7 @@ const ProfessorDetail = () => {
 				<AddProfessorPaymentModal
 					criteriaType={professorPaymentData.result.period.criteria}
 					totalStudents={professorPaymentData.result.totalStudents}
+					students={professorPaymentData.students}
 					criteria={getProfessorCriteria()}
 					criteriaValue={professorPaymentData.result.period.criteriaValue}
 					period={getPeriod()}
