@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import CommonInput from "../../commonInput";
+import Select from "../../select/select";
 
 export default function FilterPaymentValue({ onChange }) {
 

@@ -4,15 +4,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Context } from '../../context/Context';
 import ErrorIcon from '@mui/icons-material/Error';
 import Table from '../table';
-import Select from "react-select";
 import { STUDENT_STATUS } from '../../constants';
-import { formatDateDDMMYY, getMonthNameByMonthNumber } from '../../utils';
+import { getMonthNameByMonthNumber } from '../../utils';
 import useToggle from '../../hooks/useToggle';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import CustomCheckbox from '../checkbox/customCheckbox';
 import ButtonPrimary from '../button/primary';
+import Select from '../select/select';
 
 const FormattedDate = ({period}) => {
 	const [year, month] = period.split("-")

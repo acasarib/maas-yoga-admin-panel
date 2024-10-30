@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 import Modal from "../components/modal";
-import AddIcon from '@mui/icons-material/Add';
-import { orange } from '@mui/material/colors';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
-import collegesService from "../services/collegesService";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import Select from 'react-select';
 import SchoolIcon from '@mui/icons-material/School';
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
+import Select from "../components/select/select";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);

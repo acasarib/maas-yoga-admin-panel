@@ -81,7 +81,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 <ListItemIcon className="text-yellow-900">
                     <CalendarMonthIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Periodo" secondary={toMonthsNames(professor.result.period.startAt, professor.result.period.endAt)} />
+                <ListItemText primary="Periodo" secondary={toMonthsNames(professor.result.period.startAt, professor.result.period.endAt, professor)} />
             </ListItemButton>
             <Collapse className="ml-10" in={isCalendarOpen} timeout="auto" unmountOnExit>
                 <div className="font-bold">Periodos en que se dicta en el curso</div>
