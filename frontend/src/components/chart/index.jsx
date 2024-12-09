@@ -142,9 +142,9 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500 mb-4">{currentChartSelected !== "custom" && <ArrowLeftIcon onClick={onClickPreviousArrow} className="cursor-pointer"/>}{chartPeriod}{currentChartSelected !== "custom" && <ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>}</span>
                 
-                {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"300px"} />}
-                {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"300px"} />}
-                {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"300px"}/>}
+                {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
+                {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
+                {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"}/>}
 
                 <div className="w-full mt-4 flex">
                     <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
