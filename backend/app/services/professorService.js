@@ -76,6 +76,9 @@ export const getById = async (id) => {
   }
   p.dataValues.owedPeriods = owedPeriodsFiltered;
   p.dataValues.notVerifiedPeriods = notVerifiedPeriods;
+  // Son pagos que se cargaron de ingresos y egresos
+  p.dataValues.professorPayments = p.payments.filter(pr => pr.periodFrom == null && pr.periodTo == null && pr.professorId == p.id);
+  p.dataValues.balance = p.dataValues.professorPayments.reduce((acc, pay) => acc + pay.value, 0);
   return p;
 };
 
