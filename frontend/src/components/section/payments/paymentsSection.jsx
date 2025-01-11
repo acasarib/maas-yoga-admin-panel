@@ -33,14 +33,16 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, clazzes, students, courses, payments, colleges, services, isLoadingPayments, informPayment, getTemplate, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService } = useContext(Context);
+    const { user, clazzes, students, courses, payments, colleges, services, isLoadingPayments, informPayment, getTemplate, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isSecretaryPayment, setIsSecretaryPayment] = useState(false)
+    const [isClassPayment, setIsClassPayment] = useState(false)
     const [selectedCollege, setSelectedCollege] = useState(null);
     const inputFileRef = useRef(null);
     const [fileId, setFileId] = useState(null);
+    const [selectedProfessor, setSelectedProfessor] = useState(null);
     const [ammount, setAmmount] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState(null);
     const [note, setNote] = useState('');
@@ -304,6 +306,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
             studentId: (edit && selectedStudent !== null) ? selectedStudent.id : (isDischarge ? null : selectedStudent.id),
+            professorId: selectedProfessor !== null ? selectedProfessor.id : null,
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
@@ -486,6 +489,15 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     />
                 </div>
             }
+            <div className="col-span-2 pb-1 -mt-4">
+                <CustomCheckbox
+                    checked={isClassPayment}
+                    labelOn="Corresponde al pago de una clase"
+                    labelOff="Corresponde al pago de una clase"
+                    className=""
+                    onChange={() => setIsClassPayment(!isClassPayment)}
+                />
+            </div>
             {isSecretaryPayment && <>
             <div className="col-span-2 md:col-span-1 pb-1">
                 <CommonInput 
@@ -543,6 +555,19 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 />
             </div>
             </>}
+            {isClassPayment && 
+                <div className="col-span-2 md:col-span-2">
+                    <span className="block text-gray-700 text-sm font-bold mb-2">Profesor</span>
+                    <div className="mt-4">
+                        <Select
+                            value={selectedProfessor}
+                            onChange={setSelectedProfessor}
+                            options={professors}
+                            styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                        />
+                    </div>
+                </div>
+            }
             <div className="col-span-2 md:col-span-1 pb-1">
                 <CommonInput 
                     label="Importe"
