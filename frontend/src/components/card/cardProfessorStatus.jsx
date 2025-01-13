@@ -12,17 +12,25 @@ import SliderMonthCard from './sliderMonthCard'
 const CardProfessorStatus = ({ professor, onClickVerifyPayment, onClickDeletePayment }) => {
 	const verifiedPayments = professor.payments.filter(p => p.verified)
 	const notVerifiedPayments = professor.payments.filter(p => !p.verified)
+	const verifiedClassesPayments = professor.professorPayments.filter(p => p.verified)
+	const notVerifiedClassesPayments = professor.professorPayments.filter(p => !p.verified)
 
   return (
     <SimpleCard>
-		<div className='xl:flex mb-4'>
-			<div className='mb-2 xl:mb-0 xl:mr-2 xl:w-4/12'>
+		<div className='grid grid-cols-2 gap-2 mb-4'>
+			<div className='col-span-2 md:col-span-1'>
 				<SliderMonthCard payments={verifiedPayments} title="Pagos verificados"/>
 			</div>
-			<div className='mb-2 xl:mb-0 xl:mr-2 xl:w-4/12'>
+			<div className='col-span-2 md:col-span-1'>
 				<SliderMonthCard payments={notVerifiedPayments} title="Pagos no verificados"/>
 			</div>
-			<div className='xl:w-4/12'>
+			<div className='col-span-2 md:col-span-1'>
+				<SliderMonthCard payments={verifiedClassesPayments} all title="Pagos de clases verificados"/>
+			</div>
+			<div className='col-span-2 md:col-span-1'>
+				<SliderMonthCard payments={notVerifiedClassesPayments} all title="Pagos de clases no verificados"/>
+			</div>
+			<div className='col-span-2 md:col-span-1'>
 				<SliderMonthCard payments={verifiedPayments} all title="Total recaudado"/>
 			</div>
 		</div>
