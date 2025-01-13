@@ -20,7 +20,7 @@ const SliderMonthCard = ({ payments, operativeResult = false, title, all = false
 				const month = operativeResult.getMonth()+1
 				date = `${year}-${month}`
 			} else {
-				date = removeDays(p.periodFrom)
+				if(p.periodFrom) date = removeDays(p.periodFrom)
 			}
 			const indexPayment = indexPayments.find(indexPayment => indexPayment.date === date)
 			if (!indexPayment) {
