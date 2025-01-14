@@ -219,7 +219,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row)}</span>,
                 sortable: true,
                 searchable: true,
-                selector: async row => await getItemById(row),
+                selector: row => getItemById(row),
             },
             {
                 name: 'Abonado por',
