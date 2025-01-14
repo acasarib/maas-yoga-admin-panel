@@ -35,15 +35,21 @@ export default function Table({ onFilterData = () => {} , defaultSortFieldId, cl
                     if (typeof dataValue === 'number') {
                         dataValue = ""+dataValue;
                     }
-                    if (dataValue === null)
+                    if (dataValue === null || dataValue === undefined) {
                         return false;
+                    }
+                
+                    if (typeof dataValue !== 'string') {
+                        dataValue = String(dataValue);
+                    }
+                    
                     switch (searchCriteria) {
                         case TABLE_SEARCH_CRITERIA.CONTAINS:
-                            return dataValue.toLowerCase().includes(searchValue.toLowerCase())
+                            return dataValue?.toLowerCase().includes(searchValue.toLowerCase())
                         case TABLE_SEARCH_CRITERIA.EQUAL: 
                             return dataValue === searchValue
                         default:
-                            return dataValue.toLowerCase().includes(searchValue.toLowerCase())
+                            return dataValue?.toLowerCase().includes(searchValue.toLowerCase())
                     }
                 }));
             }
