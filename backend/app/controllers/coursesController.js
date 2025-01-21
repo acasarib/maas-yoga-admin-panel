@@ -128,12 +128,12 @@ export default {
   },
 
   /**
-   * /courses/{courseId}/tasks/{id} [GET]
+   * /courses/tasks/{id} [PUT]
    * @returns HttpStatus ok and @CourseTask
    */
-  getCourseTaskById: async (req, res, next) => {
+  editCourseTask: async (req, res, next) => {
     try {
-      const courseTask = await courseService.getCourseTaskById(req.params.courseId);
+      const courseTask = await courseService.editCourseTask(req.body, req.params.id);
       res.status(StatusCodes.OK).json(courseTask);
     } catch (e) {
       next(e);
@@ -144,9 +144,22 @@ export default {
    * /courses/tasks/{id} [PUT]
    * @returns HttpStatus ok and @CourseTask
    */
-  editCourseTask: async (req, res, next) => {
-    try {
-      const courseTask = await courseService.editCourseTask(req.body, req.params.id);
+  getCoursesTasksByTitle: async (req, res, next) => {
+    try {      
+      const courseTask = await courseService.getCoursesTasksByTitle(req.query.title);
+      res.status(StatusCodes.OK).json(courseTask);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /courses/tasks/copy [PUT]
+   * @returns HttpStatus ok and @CourseTask
+   */
+  copyTasksFromCourse: async (req, res, next) => {
+    try {      
+      const courseTask = await courseService.copyTasksFromCourse(req.query.source, req.query.target);
       res.status(StatusCodes.OK).json(courseTask);
     } catch (e) {
       next(e);
