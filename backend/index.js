@@ -1,9 +1,8 @@
-import * as dotenv from "dotenv";
+import _ from "./env.js";
 import fs from "fs";
 import https from "https";
 import cron from "node-cron";
 import { addTodayPaymentServices } from "./app/client/scheduledCronTasks.js";
-dotenv.config();
 import express, { json } from "express";
 const app = express();
 import errorHandler from "./app/middleware/errorHandler.js";

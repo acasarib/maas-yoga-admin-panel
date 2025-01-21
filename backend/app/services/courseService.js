@@ -1,9 +1,9 @@
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 import { StatusCodes } from "http-status-codes";
-import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor } from "../db/index.js";
+import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor, sequelize } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
-import { getStudentsByCourse } from './studentService.js'
+import { getStudentsByCourse } from "./studentService.js";
 
 const paymentBelongToProfessor = (payment, professor) => {
   try {
@@ -84,9 +84,9 @@ const getCollectedByStudent = (profData) => {
   const payments = profData.payments;
   for (const p of payments) {
     if (p.discount !== null) {
-      total += criteriaValue * ( (100 - p.discount) / 100)
+      total += criteriaValue * ( (100 - p.discount) / 100);
     } else {
-      total += criteriaValue
+      total += criteriaValue;
     }
   }
   return total;
@@ -94,18 +94,18 @@ const getCollectedByStudent = (profData) => {
 
 const getLastProfessorPaymentPeriodInCourse = async (from, to, professorId, courseId) => {
   return payment.findOne({ where: {
-      periodFrom: from,
-      periodTo: to,
-      professorId,
-      courseId,
-    },
-    order: [['createdAt', 'DESC']],
-  })
-}
+    periodFrom: from,
+    periodTo: to,
+    professorId,
+    courseId,
+  },
+  order: [["createdAt", "DESC"]],
+  });
+};
 
 const paymentWasAddedAfterPreviousProfessorPayment = (lastProfessorPaymentAt, paymentRange) => {
-  return paymentRange.createdAt > lastProfessorPaymentAt
-}
+  return paymentRange.createdAt > lastProfessorPaymentAt;
+};
 
 const getCollectedByPercentage = (profData, criteriaValue) => {
   const percentage = parseFloat(criteriaValue);
@@ -113,11 +113,11 @@ const getCollectedByPercentage = (profData, criteriaValue) => {
   let total = 0;
   const payments = profData.payments;
   for (const p of payments) {
-    const discount = p.discount ?? 0
+    const discount = p.discount ?? 0;
     if (courseValue == null) {
       total += p.value;
     } else {
-      total += courseValue * (1 - (discount / 100))
+      total += courseValue * (1 - (discount / 100));
     }
   }
   return (percentage / 100) * total;
@@ -151,24 +151,24 @@ export const getById = async (id) => {
     {
       model: courseTask, include:[{
         model: student,
-        attributes: ['name', 'lastName', 'email'],
-        through: { attributes: ['completed'] }
+        attributes: ["name", "lastName", "email"],
+        through: { attributes: ["completed"] }
       }]
     },
     {
       model: payment,
-      attributes: ['id', 'operativeResult', 'value', 'periodFrom']
+      attributes: ["id", "operativeResult", "value", "periodFrom"]
     }] 
   });
   const professorsWithPeriods = await getProfessorPeriodsInCourse(c.id);
-  c.dataValues.students = await getStudentsByCourse(c.id)
-  c.dataValues.periods = []
+  c.dataValues.students = await getStudentsByCourse(c.id);
+  c.dataValues.periods = [];
   for (const professor of professorsWithPeriods) {
-    const professorPeriods = professor.dataValues.periods.map(pp => ({ ...pp, professorId: professor.id }))
-    c.dataValues.periods = [...c.dataValues.periods, ...professorPeriods]
+    const professorPeriods = professor.dataValues.periods.map(pp => ({ ...pp, professorId: professor.id }));
+    c.dataValues.periods = [...c.dataValues.periods, ...professorPeriods];
 
   }
-  return c
+  return c;
 };
 
 export const getAll = async () => {
@@ -216,6 +216,33 @@ export const getTasksByCourseId = async (courseId, specification) => {
   });
 };
 
+export const getCoursesTasksByTitle = async (title) => {
+  return courseTask.findAll({
+    where: { title: sequelize.where(sequelize.fn("LOWER", sequelize.col("title")), "LIKE", "%" + title + "%") },
+    limit: 10,
+  });
+};
+
+export const copyTasksFromCourse = async (sourceCourseId, targetCourseId) => {
+  let tasksSourceCourse = await courseTask.findAll({
+    where: { courseId: sourceCourseId },
+  });
+  tasksSourceCourse = tasksSourceCourse.map(task => task.get({plain: true}));
+  tasksSourceCourse.forEach(task => {
+    task.id = null;
+    task.courseId = targetCourseId;
+  });
+  const targetCourse = await getById(targetCourseId);
+  const studentsCourse = targetCourse.dataValues.students;
+  await courseTask.bulkCreate(tasksSourceCourse);
+  let createdIds = await courseTask.findAll({ where: { courseId: targetCourseId } });
+  createdIds = createdIds.map(t => t.id);
+  createdIds.forEach(taskId => {
+    setStudentsToTask(studentsCourse, taskId);
+  });
+  return getById(targetCourseId);
+};
+
 export const editCourseTask = async (courseTaskParam, id) => {
   return courseTask.update(courseTaskParam, { where: { id } });
 };
@@ -256,7 +283,7 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
       },
       courseId: 
         courseId === undefined ? { [Op.not]: null }
-         : { [Op.eq]: courseId },
+          : { [Op.eq]: courseId },
       value: {
         [Op.gt]: 0
       },
@@ -279,11 +306,11 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
     if (professorId == undefined) {
       c.professors = professorPeriodsInCourse;
     } else {
-      const prof = professorPeriodsInCourse.find(p => p.id == professorId)
+      const prof = professorPeriodsInCourse.find(p => p.id == professorId);
       if (prof) {
         c.professors = [prof];
       } else {
-        c.professors = []
+        c.professors = [];
       }
     }
   }
@@ -301,7 +328,7 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
             lastProfessorPaymentAt: lastProfessorPayment?.createdAt,
           };
         }
-        const lastProfessorPaymentAt = prof.result.lastProfessorPaymentAt
+        const lastProfessorPaymentAt = prof.result.lastProfessorPaymentAt;
         if (lastProfessorPaymentAt) {
           if (paymentWasAddedAfterPreviousProfessorPayment(lastProfessorPaymentAt, paymentRange))
             prof.result.payments.push(paymentRange);

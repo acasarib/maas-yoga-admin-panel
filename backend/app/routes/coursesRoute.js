@@ -3,6 +3,8 @@ import controller from "../controllers/coursesController.js";
 import verifyToken from "../middleware/validateToken.js";
 const router = express.Router();
 
+router.get("/tasks", verifyToken, controller.getCoursesTasksByTitle);
+router.post("/tasks/copy", verifyToken, controller.copyTasksFromCourse);
 router.post("/", verifyToken, controller.create);
 router.delete("/:id", verifyToken, controller.deleteById);
 router.put("/:id", verifyToken, controller.editById);
