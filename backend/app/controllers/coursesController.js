@@ -66,7 +66,7 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const courses = await courseService.getAll();
+      const courses = await courseService.getAll(req.query.title);
       res.status(StatusCodes.OK).json(courses);
     } catch (e) {
       next(e);
