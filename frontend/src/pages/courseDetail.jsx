@@ -19,6 +19,7 @@ import { Box, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TasksTable from '../components/table/tasksTable';
 import TaskModal from '../components/courses/taskModal';
+import CopyTaskModal from '../components/courses/copyTaskModal';
 import Spinner from '../components/spinner/spinner';
 
 const ProfessorCalendar = ({ coursePeriods }) => Object.keys(coursePeriods).map(year => <div className='mb-2' key={year}>
@@ -113,11 +114,14 @@ const ProfessorsPeriods = ({ professorPeriods }) => {
 
 const TasksModule = ({ course }) => {
 	const addTaskModal = useModal()
+	const copyTasksModal = useModal()
 	return <>
 	<h2 className='text-2xl font-bold mb-4'>Tareas</h2>
     <ButtonPrimary className={"mb-4"} onClick={addTaskModal.open}>Agregar tarea<AddTaskIcon className='ml-2'/></ButtonPrimary>
+    <ButtonPrimary className={"mb-4 ml-2"} onClick={copyTasksModal.open}>Copiar tareas de un curso</ButtonPrimary>
 	<TasksTable course={course}/>
-	<TaskModal isModalOpen={addTaskModal.isOpen} setDisplay={addTaskModal.close} courseName={course.name} courseId={course.id} />
+	<TaskModal isModalOpen={addTaskModal.isOpen} setDisplay={addTaskModal.close} courseName={course.title} courseId={course.id} />
+	<CopyTaskModal isModalOpen={copyTasksModal.isOpen} setDisplay={copyTasksModal.close} courseName={course.title} courseId={course.id} />
 </>
 }
 

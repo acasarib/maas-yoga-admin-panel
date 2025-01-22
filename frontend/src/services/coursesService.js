@@ -14,11 +14,28 @@ export default {
                 })
         });
     },
-    getCourses() {
+    copyTasks(sourceCourseId, targetCourseId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/courses', {})
+                .post(baseUrl + `api/v1/courses/tasks/copy?source=${sourceCourseId}&target=${targetCourseId}`, {}, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    getCourses(title) {
+        return new Promise((resolve, reject) => {
+            let url = 'api/v1/courses';
+            if (title != undefined) {
+                url += "?title=" + title
+            }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + url, {})
                 .then((response) => {
                     resolve(response.data);
                 })
