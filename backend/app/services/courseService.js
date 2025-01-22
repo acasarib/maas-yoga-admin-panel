@@ -171,11 +171,16 @@ export const getById = async (id) => {
   return c;
 };
 
-export const getAll = async () => {
-  let courses = course.findAll({ include: [
+export const getAll = async (title) => {
+  const findAllParams = { include: [
     student,
     { model: courseTask, include:[student] },
-  ]});
+  ]};
+  if (title != undefined) {
+    findAllParams.where = { title: sequelize.where(sequelize.fn("LOWER", sequelize.col("title")), "LIKE", "%" + title + "%") };
+    findAllParams.limit = 10;
+  }
+  let courses = course.findAll(findAllParams);
   let professorCourses = professorCourse.findAll();
   courses = await courses;
   professorCourses = await professorCourses;

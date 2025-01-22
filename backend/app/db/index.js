@@ -18,6 +18,7 @@ const sslConfig = config.sslConnection ? {
 } : {};
 
 const sequelize = new Sequelize(config.database, config.username, config.password, {
+  logging: false,
   host: config.host,
   port: config.port,
   dialect: config.dialect,
@@ -56,8 +57,8 @@ modelDefiners.forEach((model) => model(sequelize));
 
 const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
 
-notificationPayment.belongsTo(payment, { through: "payment_id" })
-notificationPayment.belongsTo(user, { through: "user_id" })
+notificationPayment.belongsTo(payment, { through: "payment_id" });
+notificationPayment.belongsTo(user, { through: "user_id" });
 payment.hasMany(logPayment);
 payment.belongsTo(payment,{ foreignKey: { allowNull: true }, targetKey: "id" });
 user.hasMany(logPayment);
@@ -72,11 +73,11 @@ course.hasMany(courseStudent);
 courseStudent.belongsTo(course);
 student.hasMany(courseStudent);
 courseStudent.belongsTo(student);
-courseStudentSuspend.belongsTo(course)
+courseStudentSuspend.belongsTo(course);
 student.hasMany(courseStudentSuspend);
-courseStudentSuspend.belongsTo(student)
-secretaryPayment.hasMany(payment, { foreignKey: 'secretaryPaymentId' });
-payment.belongsTo(secretaryPayment, { foreignKey: 'secretaryPaymentId' });
+courseStudentSuspend.belongsTo(student);
+secretaryPayment.hasMany(payment, { foreignKey: "secretaryPaymentId" });
+payment.belongsTo(secretaryPayment, { foreignKey: "secretaryPaymentId" });
 course.hasMany(courseStudentSuspend);
 file.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 item.hasOne(payment,  { foreignKey: { allowNull: true }, targetKey: "id" });
