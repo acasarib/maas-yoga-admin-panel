@@ -141,7 +141,7 @@ export default {
   },
 
   /**
-   * /courses/tasks/{id} [PUT]
+   * /courses/tasks [GET]
    * @returns HttpStatus ok and @CourseTask
    */
   getCoursesTasksByTitle: async (req, res, next) => {
@@ -154,7 +154,7 @@ export default {
   },
 
   /**
-   * /courses/tasks/copy [PUT]
+   * /courses/tasks/copy [POST]
    * @returns HttpStatus ok and @CourseTask
    */
   copyTasksFromCourse: async (req, res, next) => {

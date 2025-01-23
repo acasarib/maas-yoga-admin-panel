@@ -8,11 +8,16 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import { useFormik } from 'formik';
 import { Context } from "../../context/Context";
+import Select from "../select/select";
+import tasksService from "../../services/tasksService";
 
 export default function TaskModal(props) {
     const { associateTask, changeAlertStatusAndMessage } = useContext(Context);
     const [isLoading, setIsLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [tasks, setTasks] = useState([]);
+    const [taskTitle, setTaskTitle] = useState("");
     const [limitDate, setLimitDate] = useState(dayjs(new Date()));
 
     const setDisplay = (value) => {
@@ -51,6 +56,23 @@ export default function TaskModal(props) {
         setOpenModal(props.isModalOpen);
     }, [props.isModalOpen])
 
+    const fetchTasks = async () => {
+        const tasks = await tasksService.getCoursesTasksByTitle(taskTitle)
+        setTasks(tasks)
+    }
+
+    useEffect(() => {
+      fetchTasks()
+    }, [taskTitle])
+
+    useEffect(() => {
+        if (selectedTask != null){
+            setLimitDate(dayjs(new Date(selectedTask.limitDate)))
+        }
+    }, [selectedTask])
+    
+    
+
 
     return(
         <>          
@@ -60,16 +82,18 @@ export default function TaskModal(props) {
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                           <div className="mb-4">
-                           <CommonInput 
+                           <div className="mb-4 z-100">
+                            <Select
                                 label="Título"
                                 name="title"
-                                onBlur={formik.handleBlur}
-                                value={formik.values.title}
-                                className="block font-bold text-sm text-gray-700 mb-4"
+                                onChange={setSelectedTask}
+                                onInputChange={(newText) => setTaskTitle(newText)}
+                                options={tasks}
+                                value={selectedTask}
+                                getOptionLabel ={(course)=> course.title}
+                                getOptionValue ={(course)=> course.id}
                                 type="text" 
                                 placeholder="Título"
-                                onChange={formik.handleChange}
                                 htmlFor="title"
                                 id="title" 
                             />
@@ -79,7 +103,7 @@ export default function TaskModal(props) {
                                 label="Comentarios"
                                 name="comment"
                                 onBlur={formik.handleBlur}
-                                value={formik.values.comment}
+                                value={selectedTask != null ? selectedTask.comment : formik.values.comment}
                                 className="block font-bold text-sm text-gray-700 mb-4"
                                 type="text" 
                                 htmlFor="comment"
