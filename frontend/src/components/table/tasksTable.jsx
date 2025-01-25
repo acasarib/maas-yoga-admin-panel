@@ -11,7 +11,7 @@ import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
 
-const TasksTable = ({ course }) => {
+const TasksTable = ({ course, onUpdateTask }) => {
     const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
     const [taskToDelete, setTaskToDelete] = useState({});
     const [deleteTaskModal, setDeleteTaskModal] = useState(false);
@@ -60,6 +60,7 @@ const TasksTable = ({ course }) => {
             setIsLoading(true);
             await deleteCourseTask(taskToDelete.id, course.id);
             handleCloseDeleteTask();
+            onUpdateTask()
         } catch(error) {
             changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser eliminada... Por favor inténtelo nuevamente.')
             console.log(error);
