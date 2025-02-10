@@ -187,7 +187,10 @@ export const pendingPayments = async () => {
     })
   })
 
-  return onlyNotPaidStudents(response);
+  onlyNotPaidStudents(response);
+  await addStudentsToResponse(response);
+  await addCoursesToResponse(response);
+  return response;
 };
 
 export const getAll = async () => {
@@ -357,6 +360,42 @@ const onlyNotPaidStudents = (data) => {
   }
   return data;
 }
+
+const addStudentsToResponse = async (data) => {
+  const studentIds = Object.keys(data.students);
+  const students = await student.findAll({ 
+    attributes: ["id", "name", "lastName"],
+    where: { id:  { [Op.in]: studentIds } }
+  });
+  for (const studentId of studentIds) {
+    const studentAttributes = students.find(s => s.id == studentId);
+
+    data.students[studentId].name = studentAttributes.name;
+    data.students[studentId].lastName = studentAttributes.lastName;
+  }
+};
+
+const addCoursesToResponse = async (data) => {
+  let coursesIds = new Set();
+  const studentIds = Object.keys(data.students);
+  for (const studentId of studentIds) {
+    const studentCoursesIds = Object.keys(data.students[studentId].courses);
+    studentCoursesIds.forEach(id => coursesIds.add(id));
+  }
+  coursesIds = Array.from(coursesIds);
+  const courses = await course.findAll({ 
+    attributes: ["id", "title", "isCircular", "startAt", "endAt"],
+    where: { id:  { [Op.in]: coursesIds } }
+  });
+  for (const studentId of studentIds) {
+    const studentCoursesIds = Object.keys(data.students[studentId].courses);
+    for (const courseId of studentCoursesIds) {
+      const courseAttributes = courses.find(c => c.id == courseId);
+      data.students[studentId].courses[courseId] = {...courseAttributes.dataValues, ...data.students[studentId].courses[courseId]};
+      delete data.students[studentId].courses[courseId].id;
+    }
+  }
+};
 
 const getStudentStatus = (suspendedPeriods) => {
   const now = new Date()

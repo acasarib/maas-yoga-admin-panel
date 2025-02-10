@@ -21,7 +21,7 @@ export default function ProfessorPayments(props) {
         const parsedFrom = dateToYYYYMMDD(from.$d);
         const parsedTo = dateToYYYYMMDD(to.$d);
         console.log("Selected period: "+ parsedFrom + " - " + parsedTo);
-        const data = await calcProfessorsPayments(parsedFrom, parsedTo);     
+        const data = await calcProfessorsPayments(parsedFrom, parsedTo);            
         const sortedData = data.sort((a, b) => a?.title?.localeCompare(b?.title))   
         console.log("Data: ", sortedData);
         setData(sortedData);

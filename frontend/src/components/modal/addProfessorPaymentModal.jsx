@@ -12,8 +12,8 @@ import CustomCheckbox from "../checkbox/customCheckbox";
 import Select from "../select/select";
 
 export default function AddProfessorPaymentModal({ allowManualValue = false, students, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
-    const { getCourseById } = useContext(Context)
-    const course = getCourseById(courseId)
+    const { getCourseDetailsById } = useContext(Context)
+    const [course, setCourse] = useState(null)
     const isViewingPayments = useToggle()
     const [manualValue, setManualValue] = useState("")
     const [selectedStudents, setSelectedStudents] = useState([])
@@ -36,6 +36,15 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, stu
     })
     const [amountStudents, setAmountStudents] = useState("")
     const [totalByStudents, setTotalByStudents] = useState("")
+
+    const fetchCourse = async () => {
+        const course = await getCourseDetailsById(courseId);
+        setCourse(course);
+    }
+
+    useEffect(() => {
+        fetchCourse();
+    }, [courseId])
 
     const handleInform = () => {
         if (manualValueEnabled) {

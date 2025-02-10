@@ -3,13 +3,11 @@ import CommonInput from "../commonInput";
 import Modal from "../modal";
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import { useFormik } from 'formik';
 import { Context } from "../../context/Context";
 import Autosuggest from 'react-autosuggest';
-import Select from "../select/select";
 import tasksService from "../../services/tasksService";
 
 export default function TaskModal(props) {
@@ -46,6 +44,8 @@ export default function TaskModal(props) {
             setDisplay(false);
             props.onUpdateTask()
           } catch (error) {
+            console.log(error);
+            
             changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser asociada... Por favor inténtelo nuevamente.')
             setIsLoading(false);
             setDisplay(false);

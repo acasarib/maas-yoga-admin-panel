@@ -57,7 +57,7 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
 
   const handleChangeTaskStatus = async (task, taskStatus) => {
     try {
-        await changeTaskStatus(task.courseId, task.id, studentId, taskStatus);
+        await changeTaskStatus(task.id, studentId, taskStatus);
         await getStudent();
     } catch (error) {
         changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')

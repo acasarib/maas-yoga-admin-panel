@@ -11,6 +11,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ProfessorsCollapse from "./professorsCollapse";
 
 export default function CourseProfessorCard({ onInformPayment, course, onShowPayments, from, to }) {
+    console.log(course, 'skfanskfnaskf');
+    
 
     return (
     <div className="mt-2 w-full flex flex-col border rounded p-4 shadow-md bg-white mb-4">
@@ -23,7 +25,7 @@ export default function CourseProfessorCard({ onInformPayment, course, onShowPay
                 <ListItemIcon className="text-yellow-900">
                     <LocalLibraryIcon/>
                 </ListItemIcon>
-                <Link to={`/home/courses`}>
+                <Link to={`/home/courses/${course.id}`}>
                     <ListItemText primary="Curso" secondary={course.title} />
                 </Link>
             </ListItemButton>
