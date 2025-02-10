@@ -22,7 +22,6 @@ export const Context = createContext();
 export const Provider = ({ children }) => {
     const [colleges, setColleges] = useState([]);
     const [isLoadingColleges, setIsLoadingColleges] = useState(true);
-    const [courses, setCourses] = useState([]);
     const [isLoadingCourses, setIsLoadingCourses] = useState(true);
     const [students, setStudents] = useState([]);
     const [isLoadingStudents, setIsLoadingStudents] = useState(true);
@@ -37,7 +36,6 @@ export const Provider = ({ children }) => {
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
     const [notifications, setNotifications] = useState([]);
-    const [isLoadingClazzes, setIsLoadingClazzes] = useState(true);
     const [categories, setCategories] = useState([]);
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [items, setItems] = useState([]);
@@ -64,11 +62,6 @@ export const Provider = ({ children }) => {
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
         if (user === null) return;
-        const getCourses = async () => {
-            const coursesList = await coursesService.getCourses();
-            setCourses(coursesList);
-            setIsLoadingCourses(false);
-        }
         const getTasks = async () => {
             const tasksList = await tasksService.getTasks();
             setTasks(tasksList);
@@ -145,7 +138,6 @@ export const Provider = ({ children }) => {
         
         getUsers();
         getStudents();
-        getCourses();
         getTasks();
         getColleges();
         getPayments();
@@ -222,7 +214,6 @@ export const Provider = ({ children }) => {
         return JSON.parse(JSON.stringify(item1));
     }
 
-    const getCourseById = courseId => courses.find(course => course.id == courseId);
     const getStudentById = studentId => students.find(student => student.id == studentId);
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id == headquarterId);
     const getItemById = itemId => categories.find(category => category.items.find(item => item.id == itemId)).items.find(item => item.id == itemId);
@@ -252,26 +243,8 @@ export const Provider = ({ children }) => {
         }
     }
 
-    const getCourseDetailsById = async (courseId, force = false) => {
-        const localCourse = getCourseById(courseId);
-        if (localCourse) {
-            if (force === false) {
-                return localCourse;
-            }
-            const course = await coursesService.getCourse(courseId);
-            setCourses(prev => prev.map(c => {
-                if (c.id === courseId) {
-                    return course;
-                } else {
-                    return c;
-                }
-            }))
-            return course;
-        } else {
-            const course = await coursesService.getCourse(courseId);
-            setProfessors([...courses, course]);
-            return course;
-        }
+    const getCourseDetailsById = async (courseId) => {
+        return coursesService.getCourse(courseId);
     }
 
     const getStudentsByCourse = (courseId) => {
@@ -328,7 +301,7 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue informado exitosamente!')
             createdPayment.user = user;
             if (createdPayment.courseId !== null)
-                createdPayment.course = getCourseById(createdPayment.courseId);
+                createdPayment.course = await getCourseDetailsById(createdPayment.courseId);
             if (createdPayment.studentId)
                 createdPayment.student = getStudentById(createdPayment.studentId);
             if (createdPayment.headquarterId)
@@ -348,7 +321,7 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue editado exitosamente!')
             editedPayment.user = user;
             if (editedPayment.courseId !== null)
-                editedPayment.course = getCourseById(editedPayment.courseId);
+                editedPayment.course = await getCourseDetailsById(editedPayment.courseId);
             if (editedPayment.studentId)
                 editedPayment.student = getStudentById(editedPayment.studentId);
             if (editedPayment.headquarterId)
@@ -534,7 +507,6 @@ export const Provider = ({ children }) => {
     const deleteCourse = async courseId => {
         await coursesService.deleteCourse(courseId);
         changeAlertStatusAndMessage(true, 'success', 'El curso fue borrado exitosamente!')
-        setCourses(current => current.filter(course => course.id !== courseId));
     }
 
     const deleteClazz = async clazzId => {
@@ -548,7 +520,6 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'El curso fue creado exitosamente!');
         createdCourse.label = createdCourse.title;
         createdCourse.value = createdCourse.id;
-        setCourses(current => [...current, createdCourse]);
         return createdCourse;
     }
 
@@ -556,7 +527,6 @@ export const Provider = ({ children }) => {
         const editedCourse = await coursesService.editCourse(courseId, course);
         changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!');
         editedCourse.periods = course.professors;
-        setCourses(current => current.map(s => s.id === courseId ? merge(s, editedCourse) : s));
         return editedCourse;
     }
 
@@ -572,7 +542,6 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'El curso fue editado exitosamente!')
         editedCourse.label = editedCourse.name;
         editedCourse.value = editedCourse.id;
-        setCourses(current => current.map(course => course.id === courseId ? editedCourse : course));
         return editedCourse;
     }
 
@@ -598,24 +567,12 @@ export const Provider = ({ children }) => {
     const associateTask = async (courseId, task) => {
         const createdTask = await coursesService.associateTask(courseId, task);
         changeAlertStatusAndMessage(true, 'success', 'La tarea fue asociada exitosamente!')
-        setCourses(current => current.map(course => {
-            if (course.id === courseId) {
-                createdTask.students = course.students;
-                course.courseTasks.push(createdTask);
-            }
-            return course;
-        }));
+        return createdTask;
     }
 
-    const deleteCourseTask = async (taskId, courseId) => {
+    const deleteCourseTask = async (taskId) => {
         await coursesService.deleteCourseTask(taskId);
         changeAlertStatusAndMessage(true, 'success', 'La tarea fue eliminada exitosamente!');
-        setCourses(current => current.map(course => {
-            if (course.id === courseId) {
-                course.courseTasks = course.courseTasks.filter(task => task.id !== taskId);
-            }
-            return course;
-        }));
     }
 
     const changeAlertStatusAndMessage = (activeAlert, status, message) => {
@@ -624,44 +581,20 @@ export const Provider = ({ children }) => {
         setAlertStatus(status);
     }
 
-    const changeTaskStatus = async (courseId, taskId, studentId, taskStatus) => {
+    const changeTaskStatus = async (taskId, studentId, taskStatus) => {
         setIsLoadingCourses(false)
         await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
         setIsLoadingCourses(true)
         changeAlertStatusAndMessage(true, 'success', 'El estado de la tarea fue editado exitosamente!')
-        setCourses(current => current.map(course => {
-            if (course.id === courseId) {
-                course.courseTasks.map(courseTask => {
-                    if (courseTask.id === taskId) {
-                        courseTask.students.map(courseTaskStudent => {
-                            if (courseTaskStudent.id === studentId) {
-                                courseTaskStudent.studentCourseTask.completed = taskStatus;
-                            }
-                            return courseTaskStudent;
-                        });
-                    }
-                    return courseTask;
-                });
-            }
-            return course;
-        }));
     }
 
     const getPendingPayments = async () => {
-        const response = { students: {} };
-        const data = await studentsService.getPendingPayments();
-        Object.keys(data.students).forEach(studentId => {
-            response.students[studentId] = getStudentById(studentId);
-            response.students[studentId].courses = [];
-            const studentCoursesIds = Object.keys(data.students[studentId].courses);
-            studentCoursesIds.forEach(courseId => {
-                const course = getCourseById(courseId);
-                const { memberSince, periods } = data.students[studentId].courses[courseId];
-                course.periods = periods;
-                course.memberSince = memberSince;
-                response.students[studentId].courses.push(course);
-            });
-        });
+        const response = await studentsService.getPendingPayments();
+        //Transforma el json de cursos en array
+        Object.keys(response.students).forEach(studentId => {
+            response.students[studentId].courses = Object.keys(response.students[studentId].courses)
+                .map(courseId => response.students[studentId].courses[courseId]);
+        })
         return response;
     };
 
@@ -812,8 +745,6 @@ export const Provider = ({ children }) => {
             d.professorsNames = d.professors.map(p => p.name);
             d.professors.forEach(professor => {
                 professor.result.payments.forEach(payment => {
-                    if (payment.courseId !== null)
-                        payment.course = getCourseById(payment.courseId);
                     if (payment.studentId)
                         payment.student = getStudentById(payment.studentId);
                     if (payment.headquarterId)
@@ -871,7 +802,6 @@ export const Provider = ({ children }) => {
             agendaLocations,
             getAgendaCashValues,
             colleges,
-            courses,
             students,
             tasks,
             payments,
@@ -955,7 +885,6 @@ export const Provider = ({ children }) => {
             getStudentPayments,
             getLogs,
             getProfessorById,
-            getCourseById,
             user,
             getPendingPayments,
             splitPayment,

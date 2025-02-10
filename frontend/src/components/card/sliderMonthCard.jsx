@@ -49,6 +49,7 @@ const SliderMonthCard = ({ payments, operativeResult = false, title, all = false
 	const onClickNextArrow = () => setCurrentIndex(currentIndex+1)
 
 	const formatDate = (date) => {
+		if (date == undefined) return 'Fecha invalida'
 		const split = date.split("-")
 		const month = capitalizeFirstCharacter( getMonthNameByMonthNumber(split[1]) )
 		const year = split[0]

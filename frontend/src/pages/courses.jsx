@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import Modal from "../components/modal";
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { useFormik } from 'formik';
@@ -31,9 +31,11 @@ import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
 import { Link } from "react-router-dom";
 import StudentCalendar from "../components/calendar/studentCalendar";
 import Select from "../components/select/select";
+import coursesService from "../services/coursesService";
+import Spinner from "../components/spinner/spinner";
 
 export default function Courses(props) {
-    const { courses, students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
+    const { students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -58,11 +60,16 @@ export default function Courses(props) {
     const [taskId, setTaskId] = useState(null);
     const [newProfessor, setNewProfessor] = useState(false);
     const [courseProfessors, setCourseProfessors] = useState([]);
+    const [pageableCourses, setPageableCourses] = useState([]);
     const [courseDetails, setCourseDetails] = useState(null);
+    const [resetTable, setResetTable] = useState(false);
     const [periodToEdit, setPeriodToEdit] = useState({});
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [defaultIdPayment] = useQueryParam("id", undefined);
-
+    const [totalRows, setTotalRows] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [searchByTitle, setSearchByTitle] = useState();
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -99,6 +106,7 @@ export default function Courses(props) {
         setIsLoading(true);
         try {
             await deleteCourse(courseId);
+            fetchCourses()
         } catch {
             changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser eliminado... Por favor inténtelo nuevamente.')
         }
@@ -186,7 +194,8 @@ export default function Courses(props) {
 
     const handleChangeTaskStatus = async (studentId, taskStatus) => {
         try {
-            await changeTaskStatus(tasksLists[0].courseId, taskId, studentId, taskStatus);
+            await changeTaskStatus(taskId, studentId, taskStatus);
+            fetchCourses();
         } catch (error) {
             changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')
             console.log(error);
@@ -199,7 +208,7 @@ export default function Courses(props) {
         return prfName;
     }
 
-    const columns = [
+    const columns = useMemo(() => [
         {
             name: 'Identificador',
             searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
@@ -259,7 +268,7 @@ export default function Courses(props) {
             },
             sortable: true,
         },
-    ];
+    ], []);
 
     const studentsColumns = [
         {
@@ -437,6 +446,7 @@ export default function Courses(props) {
                     if (selectedOption.length > 0) {
                         await addStudent(courseId, selectedOption);
                     }
+                    fetchCourses();
                 } else {
                     const response = await newCourse(body);
                     setNewProfessor(false);
@@ -445,6 +455,7 @@ export default function Courses(props) {
                     if (selectedOption.length > 0) {
                         await addStudent(response.id, selectedOption);
                     }
+                    fetchCourses();
                 }
                 needsRegistration.disable()
                 isCircular.disable()
@@ -471,15 +482,69 @@ export default function Courses(props) {
             setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
     }, [students, isLoadingStudents]);
 
+    const fetchCourses = async (page = currentPage, size = perPage, title = searchByTitle) => {
+        setIsLoading(true)
+        const data = await coursesService.getCourses(page, size, title);        
+        setIsLoading(false)
+        setPageableCourses(data.courses);
+        setTotalRows(data.totalItems);        
+    }
+    
+
+    const handlePerRowsChange = async (newPerPage, page) => {
+        fetchCourses(page, newPerPage);
+        setPerPage(newPerPage);
+    };
+
+    const handlePageChange = page => {
+        console.log('change page ', page);
+        
+        fetchCourses(page);
+        setCurrentPage(page);
+    };
+
+    useEffect(() => {
+        fetchCourses();
+        setResetTable(true)
+    }, [searchByTitle]);
+
+    useEffect(() => {
+        if (resetTable)
+            setResetTable(false)
+    }, [resetTable])
+    
+
+    const handleOnSearch = async (searchParams) => {
+        console.log(searchParams);
+        
+        if (searchParams.field == 'Identificador') {
+            const course = await coursesService.getCourse(searchParams.searchValue)
+            console.log(course);
+            
+            setPageableCourses([course])
+        } else {
+            setSearchByTitle(searchParams.searchValue)
+        }
+    }
+
     return (
         <>
             <Container title="Cursos">
                 <Table
+                    resetTable={resetTable}
+                    handleCustomSearchValue={handleOnSearch}
                     columns={columns}
-                    data={courses}
+                    serverPaginationData={pageableCourses}
+                    paginationServer={searchByTitle == undefined || searchByTitle == ""}
                     defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
                     defaultSearchValue={defaultIdPayment}
                     noDataComponent={opResult}
+                    progressPending={isLoading}
+                    progressComponent={<Spinner/>}
+                    paginationTotalRows={totalRows}
+                    onChangePage={handlePageChange}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    paginationDefaultPage={currentPage}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
                 <div className="flex justify-end mt-6">
@@ -595,7 +660,7 @@ export default function Courses(props) {
                     </form>
                 </>
                 </Modal>
-                <TaskModal isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
+                <TaskModal onUpdateTask={fetchCourses} isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
                 <Modal size="large" style={style} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={studentsColumns}

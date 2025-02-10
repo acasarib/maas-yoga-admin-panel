@@ -10,8 +10,8 @@ export default function CopyTaskModal(props) {
     const [courses, setCourses] = useState([])
 
     const fetchCourses = async () => {
-        const courses = await coursesService.getCourses(inputText)
-        setCourses(courses)
+        const data = await coursesService.getCoursesByTitle(inputText);
+        setCourses(data.courses)
     }
 
     useEffect(() => {

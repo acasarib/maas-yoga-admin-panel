@@ -23,7 +23,8 @@ export default function PendingPaymentsModal({ isOpen, onClose }) {
 
 
     const fetchData = async () => {
-        setData(await getPendingPayments());
+        const data = await getPendingPayments()
+        setData(data);
     }
 
     const getDebtorStudents = () => {
@@ -36,7 +37,7 @@ export default function PendingPaymentsModal({ isOpen, onClose }) {
               return 1;
             }
             return 0;
-        });
+        });        
         return students.map((student, i) => <StudentCard key={i} student={student}/>)
     }
 
@@ -44,6 +45,7 @@ export default function PendingPaymentsModal({ isOpen, onClose }) {
       if (isOpen && data == null)
         fetchData();
     }, [isOpen]);
+
 
     return(
         <Modal size="large" hiddenFooter open={isOpen} setDisplay={onClose} icon={<HailIcon/>} title={"Alumnos deudores"}>
@@ -76,7 +78,7 @@ const StudentCard = ({ student }) => {
 
 const StudentCollapse = ({ courses }) => {
     const [isOpen, setIsOpen] = useState(false);
-
+    
     return (<>
         <ListItemButton onClick={() => setIsOpen(!isOpen)}>
             <ListItemIcon className="text-yellow-900">

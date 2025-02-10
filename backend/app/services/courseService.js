@@ -171,23 +171,32 @@ export const getById = async (id) => {
   return c;
 };
 
-export const getAll = async (title) => {
+export const getAll = async (title, page = 1, size = 10) => {
   const findAllParams = { include: [
     student,
     { model: courseTask, include:[student] },
   ]};
   if (title != undefined) {
-    findAllParams.where = { title: sequelize.where(sequelize.fn("LOWER", sequelize.col("title")), "LIKE", "%" + title + "%") };
-    findAllParams.limit = 10;
+    title = title.toLowerCase();
+    findAllParams.where = { title: sequelize.where(sequelize.fn("LOWER", sequelize.col("course.title")), "LIKE", "%" + title + "%") };
   }
-  let courses = course.findAll(findAllParams);
+  findAllParams.limit = size;
+  findAllParams.offset = (page - 1) * size;
+
+  let { count, rows } = await course.findAndCountAll(findAllParams);
+  let courses = rows;
   let professorCourses = professorCourse.findAll();
   courses = await courses;
   professorCourses = await professorCourses;
   courses.forEach(course => {
     course.dataValues.periods = professorCourses.filter(pc => pc.courseId == course.id);
   });
-  return courses;
+  return {
+    totalItems: count,
+    totalPages: Math.ceil(count / size),
+    currentPage: page,
+    courses,
+  };
 };
 
 export const setStudentsToCourse = async (students, courseId) => {

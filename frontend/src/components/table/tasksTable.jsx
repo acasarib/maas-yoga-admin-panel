@@ -37,7 +37,7 @@ const TasksTable = ({ course, onUpdateTask }) => {
 
     const handleChangeTaskStatus = async (studentId, taskStatus) => {
         try {
-            await changeTaskStatus(course.id, taskId, studentId, taskStatus);
+            await changeTaskStatus(taskId, studentId, taskStatus);
         } catch(error) {
             changeAlertStatusAndMessage(true, 'error', 'El estado de la tarea no pudo ser editado... Por favor inténtelo nuevamente.')
             console.log(error);
@@ -58,7 +58,7 @@ const TasksTable = ({ course, onUpdateTask }) => {
     const handleDeleteTask = async () => {
         try {
             setIsLoading(true);
-            await deleteCourseTask(taskToDelete.id, course.id);
+            await deleteCourseTask(taskToDelete.id);
             handleCloseDeleteTask();
             onUpdateTask()
         } catch(error) {

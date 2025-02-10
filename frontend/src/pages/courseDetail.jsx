@@ -210,7 +210,7 @@ const CourseDetail = () => {
 				return randomColor()
 			}
 			const getData = async () => {
-				const course = await getCourseDetailsById(courseId, true)
+				const course = await getCourseDetailsById(courseId)
 				const professorsColors = {}
 				for (const period of course.periods) {
 					const professorId = period.professorId
@@ -230,7 +230,7 @@ const CourseDetail = () => {
 	}, [isLoadingCourses, isLoadingProfessors]);
 
 	const onUpdateTask = async () => {
-		const course = await getCourseDetailsById(courseId, true)
+		const course = await getCourseDetailsById(courseId)
 		setCourse(course)
 	}
 
