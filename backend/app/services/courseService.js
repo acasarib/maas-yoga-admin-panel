@@ -124,11 +124,12 @@ const getCollectedByPercentage = (profData, criteriaValue) => {
 };
 
 export const create = async (courseParam) => {
-  try {
-    return await course.create(courseParam);
-  } catch (e) {
-    return e;
+  const createdCourse = await course.create(courseParam);
+  if ("professors" in courseParam) {
+    checkOverlappingProfessorsPeriods(courseParam.professors);
+    await createProfessorCourse(createdCourse.id, courseParam.professors);
   }
+  return getById(createdCourse.id);
 };
 
 export const deleteById = async (id) => {
