@@ -248,14 +248,13 @@ export const copyTasksFromCourse = async (sourceCourseId, targetCourseId) => {
   });
   const targetCourse = await getById(targetCourseId);
   const studentsCourse = targetCourse.dataValues.students;
-  return tasksSourceCourse;
-  // await courseTask.bulkCreate(tasksSourceCourse);
-  // let createdIds = await courseTask.findAll({ where: { courseId: targetCourseId } });
-  // createdIds = createdIds.map(t => t.id);
-  // createdIds.forEach(taskId => {
-  //   setStudentsToTask(studentsCourse, taskId);
-  // });
-  // return getById(targetCourseId);
+  await courseTask.bulkCreate(tasksSourceCourse);
+  let createdIds = await courseTask.findAll({ where: { courseId: targetCourseId } });
+  createdIds = createdIds.map(t => t.id);
+  createdIds.forEach(taskId => {
+    setStudentsToTask(studentsCourse, taskId);
+  });
+  return getById(targetCourseId);
 };
 
 export const editCourseTask = async (courseTaskParam, id) => {
