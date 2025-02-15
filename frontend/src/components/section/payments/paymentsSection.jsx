@@ -195,12 +195,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setOpenModal(true);
         setIsDischarge(true);
     }
-
-    useEffect(() => {
-      console.log(selectedItem);
-    }, [selectedItem])
     
-
     const handleEditService = async (srv) => {
         const method = PAYMENT_OPTIONS.filter(type => type.value == srv.type);
         console.log(method);

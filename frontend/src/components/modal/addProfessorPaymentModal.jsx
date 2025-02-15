@@ -11,12 +11,13 @@ import PaymentInfo from "../paymentInfo";
 import CustomCheckbox from "../checkbox/customCheckbox";
 import Select from "../select/select";
 
-export default function AddProfessorPaymentModal({ allowManualValue = false, students, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
+export default function AddProfessorPaymentModal({ allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
     const { getCourseDetailsById } = useContext(Context)
     const [course, setCourse] = useState(null)
     const isViewingPayments = useToggle()
     const [manualValue, setManualValue] = useState("")
     const [selectedStudents, setSelectedStudents] = useState([])
+    const [students, setStudents] = useState([])
     const [studentsPayments, setStudentsPayments] = useState([])
     const isAllSelected = useToggle()
     const [manualValueEnabled, setManualValueEnabled] = useState(false)
@@ -39,6 +40,7 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, stu
 
     const fetchCourse = async () => {
         const course = await getCourseDetailsById(courseId);
+        setStudents(course.students)
         setCourse(course);
     }
 
@@ -66,7 +68,6 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, stu
 
     useEffect(() => {
         const totalCollectedPayments = studentsPayments.reduce((current, payment) => current + payment.value, 0);
-        console.log(totalCollectedPayments, criteriaValue, criteriaValue/100);
         if (criteriaType.split("-")[0] == "percentage") {
             setTotalByStudents((criteriaValue/100) * totalCollectedPayments)
         } else {
@@ -126,7 +127,7 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, stu
             <>
             {isByAssistance(criteriaType) && <Select className="mt-4" placeholder="Seleccionar" value={value} onChange={handleChangeSelectValue} options={values} />}
 
-            {value.value == 'amount_students' && 
+            {value.value == 'amount_students' &&  
             <>
                 <div className="mt-4">
                     <Select
