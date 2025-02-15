@@ -42,9 +42,13 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
     return (
         <div ref={modalRef} style={{width: `${notificationWidth}px`, marginLeft: `-${notificationWidth/2}px`}} className={`${className} absolute bg-white rounded-lg shadow-lg w-96 z-10`}>
             <div className="flex justify-between items-center mb-4 p-6">
-                <button className="text-blue-500 underline" onClick={onClear}>
-                Marcar todo como leido
-                </button>
+                {notifications.length == 0 ? 
+                    <span>Sin notificaciones</span>
+                :
+                    <button className="text-blue-500 underline" onClick={onClear}>
+                        Marcar todo como leido
+                    </button>
+                }
                 <button className="text-gray-600" onClick={onClose}>
                     <CloseIcon/>
                 </button>
