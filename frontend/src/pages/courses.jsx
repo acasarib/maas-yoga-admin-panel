@@ -42,7 +42,7 @@ export default function Courses(props) {
     const [endAt, setEndAt] = useState(dayjs(new Date()));
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
-    const [opResult, setOpResult] = useState('Verificando cursos...');
+    const [opResult, setOpResult] = useState('No hay cursos.');
     const [edit, setEdit] = useState(false);
     const [courseToEdit, setCourseToEdit] = useState({});
     const [selectedOption, setSelectedOption] = useState([]);

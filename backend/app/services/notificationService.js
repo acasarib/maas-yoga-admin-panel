@@ -1,7 +1,8 @@
+import { Op } from "sequelize";
 import { notificationPayment, user, payment } from "../db/index.js";
 
 export const getAllNotificationPayments = async (userId) => {
-  return notificationPayment.findAll({ where: { userId }, include: [{model: payment, include: user}]});
+  return notificationPayment.findAll({ where: { userId, paymentId: {[Op.ne]: null} }, include: [{model: payment, include: user}]});
 };
 
 export const newNotificationPayment = async (paymentId, userId) => {
