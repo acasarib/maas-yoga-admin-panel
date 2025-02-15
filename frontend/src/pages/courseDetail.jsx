@@ -197,10 +197,10 @@ const CourseDetail = () => {
 	let { courseId } = useParams();
 	const [course, setCourse] = useState(null)
 	const [coursePeriods, setCoursePeriods] = useState([]);
-	const { isLoadingCourses, getCourseDetailsById, isLoadingProfessors } = useContext(Context);
+	const { getCourseDetailsById, isLoadingProfessors } = useContext(Context);
 
 	useEffect(() => {
-		if (!isLoadingCourses && !isLoadingProfessors) {
+		if (!isLoadingProfessors) {
 			const getRandomColor = colorsTaken => {
 				const predefinedColors = ["#B1DDF1", "#9F87AF", "#EE6C4D", "#5EF38C", "#08415C"]
 				for (const color of predefinedColors) {
@@ -227,7 +227,7 @@ const CourseDetail = () => {
 			}
 			getData()
 		}
-	}, [isLoadingCourses, isLoadingProfessors]);
+	}, [isLoadingProfessors]);
 
 	const onUpdateTask = async () => {
 		const course = await getCourseDetailsById(courseId)

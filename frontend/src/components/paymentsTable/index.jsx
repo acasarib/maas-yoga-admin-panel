@@ -333,12 +333,6 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
         }
     }, [showIncomes])
 
-    useEffect(() => {
-      console.log(showOpResultDate);
-      
-    }, [showOpResultDate])
-    
-
     return(
         <>
             <Table
