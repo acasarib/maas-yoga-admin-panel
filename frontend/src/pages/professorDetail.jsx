@@ -188,6 +188,7 @@ const ProfessorDetail = () => {
 					students={professorPaymentData.students}
 					criteria={getProfessorCriteria()}
 					criteriaValue={professorPaymentData.result.period.criteriaValue}
+					courseValue={professorPaymentData.result.period.courseValue}
 					period={getPeriod()}
 					selectedPeriod={professorPaymentData.from}
 					courseId={professorPaymentData.courseId}

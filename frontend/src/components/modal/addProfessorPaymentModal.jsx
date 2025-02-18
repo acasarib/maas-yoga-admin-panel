@@ -11,7 +11,7 @@ import PaymentInfo from "../paymentInfo";
 import CustomCheckbox from "../checkbox/customCheckbox";
 import Select from "../select/select";
 
-export default function AddProfessorPaymentModal({ allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
+export default function AddProfessorPaymentModal({ courseValue, allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
     const { getCourseDetailsById } = useContext(Context)
     const [course, setCourse] = useState(null)
     const isViewingPayments = useToggle()
@@ -67,11 +67,17 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, cou
     }, [selectedStudents])
 
     useEffect(() => {
-        const totalCollectedPayments = studentsPayments.reduce((current, payment) => current + payment.value, 0);
-        if (criteriaType.split("-")[0] == "percentage") {
+        let totalCollectedPayments = 0;
+        const isByPercentage = criteriaType.split("-")[0] == "percentage"
+        studentsPayments.forEach(payment => {
+            const amount = isByPercentage ? courseValue : criteriaValue;// Si es por porcentaje, valor del curso. Sino es por estudiante, valor por cada estudiante
+            const discount = payment.discount == null ? 1 : (payment.discount/100) // Si tiene descuento, aplico descuento
+            totalCollectedPayments += amount * discount
+        });
+        if (isByPercentage) {
             setTotalByStudents((criteriaValue/100) * totalCollectedPayments)
         } else {
-            setTotalByStudents(criteriaValue * totalCollectedPayments)
+            setTotalByStudents(totalCollectedPayments)
         }
     }, [studentsPayments])
 
@@ -163,6 +169,7 @@ export default function AddProfessorPaymentModal({ allowManualValue = false, cou
                     {selectedPeriod && <p>Periodo seleccionado: <span className="font-bold">{formatSelectedPeriod()}</span></p>}
                     <p>Alumnos que abonaron: <span className="font-bold">{totalStudents}</span></p>
                     <p>Pagos registrados en el periodo: <span className="font-bold">{payments.length}</span></p>
+                    {courseValue && <p>Valor del curso: <span className="font-bold">{formatPaymentValue(courseValue)}</span></p>}
                     {value.value == 'amount_students' && amountStudents != '' && 
                         <p>Alumnos seleccionados: <span className="font-bold">{amountStudents}</span></p>
                     }
