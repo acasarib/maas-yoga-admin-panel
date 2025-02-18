@@ -59,14 +59,9 @@ export default {
     },
     editTask(editedTask) {
         return new Promise((resolve, reject) => {
-            const task = {
-                "title": editedTask.title,
-                "description": editedTask.description,
-                "completed": editedTask.completed
-            }                
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/tasks/${editedTask.id}`, task, {})
+                .put(baseUrl + `api/v1/tasks/${editedTask.id}`, editedTask, {})
                 .then((response) => {
                     resolve(response.data);
                 })

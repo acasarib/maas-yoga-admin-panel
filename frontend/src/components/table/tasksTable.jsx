@@ -5,11 +5,13 @@ import useResize from '../../hooks/useResize';
 import SchoolIcon from '@mui/icons-material/School';
 import Modal from '../modal';
 import { formatDateDDMMYY } from "../../utils";
+import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
+import EditTaskModal from '../courses/editTaskModal';
 
 const TasksTable = ({ course, onUpdateTask }) => {
     const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
@@ -17,6 +19,8 @@ const TasksTable = ({ course, onUpdateTask }) => {
     const [deleteTaskModal, setDeleteTaskModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const studentsTasksModal = useModal()
+    const editTaskModal = useModal()
+    const [editingTask, setEditingTask] = useState(null)
     const [taskId, setTaskId] = useState(null)
     const { width } = useResize()
     let style = {};
@@ -45,9 +49,13 @@ const TasksTable = ({ course, onUpdateTask }) => {
     }
 
     const openDeleteTaskModal = (id, title) => {
-        console.log(id);
         setDeleteTaskModal(true);
         setTaskToDelete({id, title});
+    }
+
+    const openEditTaskModal = (task) => {
+        editTaskModal.open()
+        setEditingTask(task)
     }
 
     const handleCloseDeleteTask = () => {
@@ -102,14 +110,21 @@ const TasksTable = ({ course, onUpdateTask }) => {
         },
         {
             name: 'Fecha limite',
-            selector: row => formatDateDDMMYY(course.endAt),
+            selector: row => formatDateDDMMYY(row.limitDate),
             sortable: true,
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteTaskModal(row.id, row.title)}><Tooltip title="Borrar"><DeleteIcon /></Tooltip></button></div>)
-        },
-            sortable: true,
+            cell: row => (
+            <div className="flex flex-nowrap">
+                <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteTaskModal(row.id, row.title)}>
+                    <Tooltip title="Borrar"><DeleteIcon /></Tooltip>
+                </button>
+                <button className="rounded-full p-1 bg-orange-200 mx-1 hover:bg-orange-300 mx-1" onClick={() => openEditTaskModal(row)}>
+                    <Tooltip title="Editar"><EditIcon /></Tooltip>
+                </button>
+            </div>),
+            sortable: false,
         },
     ];
 
@@ -195,6 +210,12 @@ const TasksTable = ({ course, onUpdateTask }) => {
         </div>
     </Modal>
     <Modal icon={<DeleteIcon />} open={deleteTaskModal} setDisplay={handleCloseDeleteTask} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>{`Esta a punto de elimnar la tarea ${taskToDelete.title}. ¿Desea continuar?`}</div></>} />
+    <EditTaskModal
+        isOpen={editTaskModal.isOpen}
+        task={editingTask}
+        onClose={editTaskModal.close}
+        onEditTask={onUpdateTask}
+    />
 </>)
 }
 
