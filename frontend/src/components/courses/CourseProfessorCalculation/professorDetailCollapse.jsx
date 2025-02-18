@@ -136,6 +136,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
             totalStudents={professor.result.totalStudents}
             criteria={criteria}
             criteriaValue={professor.result.period.criteriaValue}
+            courseValue={professor.result.period.courseValue}
             period={period}
             courseId={professor.result.courseId}
             total={professor.result.collectedByProfessor}
