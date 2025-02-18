@@ -12,7 +12,7 @@ import CustomCheckbox from "../checkbox/customCheckbox";
 import Select from "../select/select";
 
 export default function AddProfessorPaymentModal({ courseValue, allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
-    const { getCourseDetailsById } = useContext(Context)
+    const { getCourseDetailsById, changeAlertStatusAndMessage } = useContext(Context)
     const [course, setCourse] = useState(null)
     const isViewingPayments = useToggle()
     const [manualValue, setManualValue] = useState("")
@@ -71,6 +71,9 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
         const isByPercentage = criteriaType.split("-")[0] == "percentage"
         studentsPayments.forEach(payment => {
             const amount = isByPercentage ? courseValue : criteriaValue;// Si es por porcentaje, valor del curso. Sino es por estudiante, valor por cada estudiante
+            if (amount == null || amount == undefined) {
+                changeAlertStatusAndMessage(true, 'warning', 'No se ha indicado ' + (isByPercentage ? "valor del curso" : "cantidad por estudiante") + " para este profesor en este periodo.")
+            }
             const discount = payment.discount == null ? 1 : (payment.discount/100) // Si tiene descuento, aplico descuento
             totalCollectedPayments += amount * discount
         });
