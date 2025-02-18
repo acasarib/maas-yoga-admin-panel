@@ -94,13 +94,14 @@ export function formatDateMonthDayHourMinutes(date) {
 
 export function formatDateDDMMYY(date) {
     try {
-        if (typeof date == "string")
-            if (date.length == 10) {
+        if (typeof date == "string") {
+            if (date.length === 10) {
                 const [year, month, day] = date.split("-")
                 date = new Date(year, parseInt(month) -1, day);
             } else {
                 date = new Date(date);
             }
+        }
         let day = date.getDate();
         let month = date.getMonth() +1;
         if (day < 10)
