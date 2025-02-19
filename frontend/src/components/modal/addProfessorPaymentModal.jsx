@@ -74,7 +74,7 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
             if (amount == null || amount == undefined) {
                 changeAlertStatusAndMessage(true, 'warning', 'No se ha indicado ' + (isByPercentage ? "valor del curso" : "cantidad por estudiante") + " para este profesor en este periodo.")
             }
-            const discount = payment.discount == null ? 1 : (payment.discount/100) // Si tiene descuento, aplico descuento
+            const discount = payment.discount == null ? 1 : 1 - (payment.discount/100) // Si tiene descuento, aplico descuento
             totalCollectedPayments += amount * discount
         });
         if (isByPercentage) {
