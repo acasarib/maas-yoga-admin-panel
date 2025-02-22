@@ -9,15 +9,19 @@ import ButtonPrimary from "../components/button/primary";
 import { dateToYYYYMMDD } from "../utils";
 import PaymentInfo from "../components/paymentInfo";
 import CourseProfessorCard from "../components/courses/CourseProfessorCalculation/courseProfessorCard";
+import useToggle from "../hooks/useToggle";
+import Loader from "../components/spinner/loader";
 
 export default function ProfessorPayments(props) {
     const { calcProfessorsPayments } = useContext(Context);
+    const isLoading = useToggle()
     const [from, setFrom] = useState(null);
     const [to, setTo] = useState(null);
     const [data, setData] = useState(null);
     const [activePaymentsShowing, setActivePaymentsShowing] = useState(null);
 
     const handleCalcProfessorsPayments = async () => {
+        isLoading.enable()
         const parsedFrom = dateToYYYYMMDD(from.$d);
         const parsedTo = dateToYYYYMMDD(to.$d);
         console.log("Selected period: "+ parsedFrom + " - " + parsedTo);
@@ -25,6 +29,7 @@ export default function ProfessorPayments(props) {
         const sortedData = data.sort((a, b) => a?.title?.localeCompare(b?.title))   
         console.log("Data: ", sortedData);
         setData(sortedData);
+        isLoading.disable()
     }
 
     const onInformPayment = payment => {
@@ -67,8 +72,10 @@ export default function ProfessorPayments(props) {
                             onChange={(newValue) => setTo(newValue)}
                         />
                     </div>
-                    <div className="ml-2 mt-8">
+                    <div className="ml-2 mt-8 flex items-center">
+                        {isLoading.value ? <Loader/> :
                         <ButtonPrimary disabled={from == null || to == null} onClick={handleCalcProfessorsPayments}>Calcular</ButtonPrimary>
+                        }
                     </div>
                 </div>
                 {data !== null &&
