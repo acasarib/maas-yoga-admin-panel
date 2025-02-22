@@ -76,14 +76,6 @@ export const Provider = ({ children }) => {
             setColleges(collegesList);
             setIsLoadingColleges(false);
         }
-        const getServices = async () => {
-            const services = await templatesService.getServices();
-            services.forEach(template => {
-                template.label = template.note;
-                template.value = template.value;
-            });
-            setServices(services);
-        }
         const getClazzes = async () => {
             const clazzes = await clazzesService.getClazzes();
             clazzes.forEach(clazz => {
@@ -141,7 +133,6 @@ export const Provider = ({ children }) => {
         getTasks();
         getColleges();
         getPayments();
-        getServices();
         getClazzes();
         getCategories();
         getProffesors();
@@ -675,16 +666,7 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'Fecha actualizada')
     }
 
-    const getService = async serviceId => {
-        const localService = services.find(t => t.id === serviceId);;
-        if (localService && "content" in localService)
-            return localService;
-        const service = await templatesService.getTemplate(serviceId);
-        service.label = service.title;
-        service.value = service.id;
-        setServices(current => current.map(t => t.id === serviceId ? service : t));
-        return service;
-    }
+    
 
     const newService = async service => {
         const createdService = await templatesService.newService(service);
@@ -852,7 +834,6 @@ export const Provider = ({ children }) => {
             changeTaskStatus,
             newService,
             editUser,
-            getService,
             editService,
             deleteService,
             getCourseDetailsById,
