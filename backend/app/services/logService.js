@@ -1,8 +1,73 @@
-import { logPayment } from "../db/index.js";
+import { logPayment, user } from "../db/index.js";
+import { Op } from "sequelize";
 import { LOG_PAYMENT_ACTIONS } from "../utils/constants.js";
 
-export const getAll = async (from = null, to = null) => {
-  return logPayment.findAll();
+/**
+ * 
+ * @param {int} page
+ * @param {int} size 
+ * @param {Object} where with userFullName (firstName + lastName), date (dd/mm/yyyy)
+ * @returns Pageable payments
+ */
+export const getAll = async (page = 1, size = 10, where) => {
+  let { userFullName, date, search } = where;
+  if (search) {
+    userFullName = search;
+    date = search;
+  }
+  const findAllParams = {
+    include: [{model: user}],
+    limit: size,
+    offset: (page - 1) * size,
+    where: {},
+  };
+
+  // Filtro por date
+  if (date) {
+    // Verificar formato de fecha dd/mm/yyyy
+    const dateParts = date.split("/");
+    if (dateParts.length === 3 && dateParts[2].length === 4) {
+      const day = parseInt(dateParts[0], 10);
+      const month = parseInt(dateParts[1], 10);
+      const year = parseInt(dateParts[2], 10);
+      
+      // Verificar si es una fecha válida
+      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+        const startDate = new Date(year, month - 1, day).setHours(0, 0, 0, 0);
+        const endDate = new Date(year, month - 1, day).setHours(23, 59, 59, 999);
+        
+        findAllParams.where.createdAt = {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        };
+      }
+    }
+  }
+
+  if (userFullName && findAllParams.where.createdAt === undefined) {
+    findAllParams.include[0].where = {
+      [Op.or]: [
+        {
+          firstName: {
+            [Op.iLike]: `%${userFullName}%`
+          }
+        },
+        {
+          lastName: {
+            [Op.iLike]: `%${userFullName}%`
+          }
+        }
+      ]
+    };
+  }
+
+  let { count, rows } = await logPayment.findAndCountAll(findAllParams);
+  return {
+    totalItems: count,
+    totalPages: Math.ceil(count / size),
+    currentPage: page,
+    data: rows,
+  };
 };
 
 export const logCreatedPayments = async (payments) => {

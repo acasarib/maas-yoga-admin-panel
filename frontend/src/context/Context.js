@@ -29,7 +29,6 @@ export const Provider = ({ children }) => {
     const [isLoadingTasks, setIsLoadingTasks] = useState(true);
     const [services, setServices] = useState([]);
     const [users, setUsers] = useState([]);
-    const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
     const [payments, setPayments] = useState([]);
     const [secretaryPayments, setSecretaryPayments] = useState([]);
     const [alreadyAddedSecretaryPayments, setAlreadyAddedSecretaryPayments] = useState(false);
@@ -37,7 +36,6 @@ export const Provider = ({ children }) => {
     const [clazzes, setClazzes] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [items, setItems] = useState([]);
     const [user, setUser] = useState(null);
     const [isAlertActive, setIsAlertActive] = useState(false);
@@ -46,7 +44,6 @@ export const Provider = ({ children }) => {
     const [professors, setProfessors] = useState([]);
     const [isLoadingProfessors, setIsLoadingProfessors] = useState(true);
     const [logs, setLogs] = useState([]);
-    const [logsInit, setLogsInit] = useState(false);
     const [agendaLocations, setAgendaLocations] = useState([]);
 
     const getStudents = async () => {
@@ -327,16 +324,9 @@ export const Provider = ({ children }) => {
     };
 
     const getLogs = async () => {
-        if (!logsInit) {
-            const l = await logsService.getAll();
-            l.forEach(log => {
-                log.user = getUserById(log.userId);
-            })
-            setLogs(l);
-            return l;
-        } else {
-            return logs;
-        }
+        const logs = await logsService.getAll();
+        setLogs(logs);
+        return logs;
     }
 
     const verifyPayment = async (paymentId, paymentData) => {
@@ -801,8 +791,6 @@ export const Provider = ({ children }) => {
             isLoadingProfessors,
             isLoadingStudents,
             isLoadingTasks,
-            isLoadingTemplates,
-            isLoadingCategories,
             isAlertActive,
             alertMessage,
             alertStatus,
