@@ -27,13 +27,15 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Select from "../../select/select";
+import SelectClass from "../../select/selectClass";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, clazzes, students, courses, payments, colleges, services, isLoadingPayments, informPayment, getTemplate, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
+    const { user, getClazzes, students, courses, payments, colleges, services, isLoadingPayments, informPayment, getTemplate, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
+    const [clazzes, setClazzes] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -66,11 +68,21 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [registration, setRegistration] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState('');
     const [paymentToEdit, setPaymentToEdit] = useState({});
-    const [openPicker, data, authResponse] = useDrivePicker();
+    const [openPicker] = useDrivePicker();
     const [deleteServiceModal, setDeleteServiceModal] = useState(false);
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
+
+    const fetchClazzes = async () => {
+        const clazzes = await getClazzes();
+        setClazzes(clazzes);
+    }
+
+    useEffect(() => {
+        fetchClazzes();
+    }, [])
+    
 
     const handleFileChange = (e) => {
         if (e.target.files) {
@@ -602,7 +614,12 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 </div>)}
                 {(!selectedCourse && !selectedItem) && (<div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
-                    <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
+                    <div className="mt-4">
+                        <SelectClass
+                            onChange={setSelectedClazz}
+                            value={selectedClazz}
+                        />
+                    </div>
                 </div>)}
             </>
             }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
@@ -21,6 +21,7 @@ import SelectItem from "../components/select/selectItem";
 import CommonInput from "../components/commonInput";
 import CommonTextArea from "../components/commonTextArea";
 import Select from "../components/select/select";
+import SelectClass from "../components/select/selectClass";
 
 export default function Balance(props) {
 
@@ -59,9 +60,20 @@ export default function Balance(props) {
     const [driveFile, setDriveFile] = useState(null);
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [fileId, setFileId] = useState(null);
-    const { clazzes, getHeadquarterById, getItemById, user, changeAlertStatusAndMessage, colleges, editPayment, students, informPayment, courses } = useContext(Context);
+    const [clazzes, setClazzes] = useState([]);
+    const { getClazzes, getHeadquarterById, getItemById, user, changeAlertStatusAndMessage, colleges, editPayment, students, informPayment, courses } = useContext(Context);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
+
+    const fetchClazzes = async () => {
+        const clazzes = await getClazzes();
+        setClazzes(clazzes);
+    }
+
+    useEffect(() => {
+      fetchClazzes();
+    }, [])
+    
     const switchModal = () => setIsModalOpen(!isModalOpen);
 
     const handleChangeSecretaryPaymentValue = (type, value) => {
@@ -491,7 +503,12 @@ export default function Balance(props) {
                 </div>)}
                 {(!selectedCourse && !selectedItem) && (<div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
-                    <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
+                    <div className="mt-4">
+                        <SelectClass
+                            onChange={setSelectedClazz}
+                            value={selectedClazz}
+                        />
+                    </div>
                 </div>)}
             </>
             }

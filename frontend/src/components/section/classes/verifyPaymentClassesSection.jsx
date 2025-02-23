@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context } from "../../../context/Context";
 import { useState } from "react";
 import Modal from "../../modal";
@@ -7,9 +7,20 @@ import ClassesTable from "../../classesTable";
 import { twoDigits } from "../../../utils";
 
 export default function VerifyPaymentClassesSection() {
-    const { clazzes, verifyClazz, changeAlertStatusAndMessage } = useContext(Context);
+    const { getClazzes, verifyClazz, changeAlertStatusAndMessage } = useContext(Context);
+    const [clazzes, setClazzes] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [verifyingClazz, setVerifyingClazz] = useState(null);
+
+    const fetchClazzes = async () => {
+        const clazzes = await getClazzes();
+        setClazzes(clazzes);
+    }
+
+    useEffect(() => {
+        fetchClazzes();
+    }, [])
+    
 
     const onClazzClicked = (clazz) => {
         setIsModalOpen(true);

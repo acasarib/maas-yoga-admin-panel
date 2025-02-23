@@ -11,7 +11,6 @@ import templatesService from "../services/templatesService";
 import categoriesService from "../services/categoriesService";
 import userService from "../services/userService";
 import { APP_VERSION, CASH_PAYMENT_TYPE, STUDENT_MONTHS_CONDITIONS } from "../constants";
-import logsService from "../services/logsService";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
 import agendaService from "../services/agendaService";
@@ -43,8 +42,14 @@ export const Provider = ({ children }) => {
     const [alertStatus, setAlertStatus] = useState('');
     const [professors, setProfessors] = useState([]);
     const [isLoadingProfessors, setIsLoadingProfessors] = useState(true);
-    const [logs, setLogs] = useState([]);
     const [agendaLocations, setAgendaLocations] = useState([]);
+
+    const getClazzes = async () => {
+        if (clazzes.length > 0) return clazzes;
+        const data = await clazzesService.getClazzes();
+        setClazzes(data);
+        return data;
+    };
 
     const getStudents = async () => {
         const studentsList = await studentsService.getStudents();
@@ -72,14 +77,6 @@ export const Provider = ({ children }) => {
             });
             setColleges(collegesList);
             setIsLoadingColleges(false);
-        }
-        const getClazzes = async () => {
-            const clazzes = await clazzesService.getClazzes();
-            clazzes.forEach(clazz => {
-                clazz.label = clazz.title;
-                clazz.value = clazz.id;
-            });
-            setClazzes(clazzes);
         }
         const getCategories = async () => {
             const categories = await categoriesService.getCategories();
@@ -130,11 +127,12 @@ export const Provider = ({ children }) => {
         getTasks();
         getColleges();
         getPayments();
-        getClazzes();
         getCategories();
         getProffesors();
         getAgendaLocations();
     }, [user]);
+
+    
 
     const removeNotification = async (notificationId) => {
         await notificationsService.removeById(notificationId)
@@ -316,18 +314,11 @@ export const Provider = ({ children }) => {
                 editedPayment.headquarter = getHeadquarterById(editedPayment.headquarterId);
             if (editedPayment.itemId)
                 editedPayment.item = getItemById(editedPayment.itemId);
-            console.log(editedPayment);
             setPayments(current => current.map(p => p.id === payment.id ? merge(p, editedPayment) : p));
         } catch(e) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser editado... Por favor inténtelo nuevamente.');
         }
     };
-
-    const getLogs = async () => {
-        const logs = await logsService.getAll();
-        setLogs(logs);
-        return logs;
-    }
 
     const verifyPayment = async (paymentId, paymentData) => {
         const veryfiedPayment = await paymentsService.verifyPayment(paymentId);
@@ -778,7 +769,7 @@ export const Provider = ({ children }) => {
             tasks,
             payments,
             services,
-            clazzes,
+            getClazzes,
             categories,
             suspendStudentFromCourse,
             deleteSuspension,
@@ -852,7 +843,6 @@ export const Provider = ({ children }) => {
             getHeadquarterById,
             getItemById,
             getStudentPayments,
-            getLogs,
             getProfessorById,
             user,
             getPendingPayments,
