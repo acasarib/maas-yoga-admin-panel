@@ -147,6 +147,7 @@ export const getAllByCourseId = async (courseId) => {
 };
 
 export const getAll = async (specification) => {
+  //ORDER BY 'at'
   return payment.findAll({
     where: specification.getSequelizeSpecification(),
     include: specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file])

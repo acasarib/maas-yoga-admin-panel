@@ -154,7 +154,24 @@ export default {
   getAll: async (req, res, next) => {
     try {
       const querySpecification = req.query.q;
-      const isOrOperation = req.query.isOrOperation === 'true'
+      const isOrOperation = req.query.isOrOperation === "true";
+      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const payments = await paymentService.getAll(specification);
+      res.status(StatusCodes.OK).json(payments);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * @deprecated Tenemos que borrar este endpoint cuando el frontend lo deje de usar. Consume muchos recursos.
+   * /payments [GET]
+   * @returns HttpStatus ok and array of @Payment
+   */
+  legacyGetAll: async (req, res, next) => {
+    try {
+      const querySpecification = req.query.q;
+      const isOrOperation = req.query.isOrOperation === "true";
       const specification = new Specification(querySpecification, payment, isOrOperation);
       const payments = await paymentService.getAll(specification);
       res.status(StatusCodes.OK).json(payments);

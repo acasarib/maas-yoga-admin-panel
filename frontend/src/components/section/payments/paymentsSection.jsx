@@ -397,7 +397,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     }
 
     useEffect(() => {
-        const currentSecretaryPaymentValues = getSecretaryPaymentDetail();
+        const currentSecretaryPaymentValues = getSecretaryPaymentDetail();//TODO: optimizar esto. Aca pide todos los pagos a secretaria para buscar el mas reciente.
+        // hay que hacer un endpoint que devuelva el mas reciente y ver si el pedir todos se sigue usando en algun lado
         if (currentSecretaryPaymentValues)
             setSecretaryPaymentValues(currentSecretaryPaymentValues)
         else
@@ -618,6 +619,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                         <SelectClass
                             onChange={setSelectedClazz}
                             value={selectedClazz}
+                            getOptionValue ={(clazz)=> clazz.id}
                         />
                     </div>
                 </div>)}

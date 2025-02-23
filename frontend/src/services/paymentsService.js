@@ -154,6 +154,19 @@ export default {
                 })
         });
     },
+    legacyGetAll() {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + 'api/v1/payments/legacy', {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getAllPayments() {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
@@ -181,7 +194,7 @@ export default {
                 })
         });
     },
-    getByQuery(query) {
+    getByQuery(query) {//TODO: ver este
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             query = typeof query !== "string" ? query.join(SPECIFICATION_QUERY_SEPARATOR) : query;
