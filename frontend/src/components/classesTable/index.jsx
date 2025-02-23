@@ -1,22 +1,18 @@
 import React from "react";
 import Table from "../table";
 import { useEffect } from "react";
-import { useContext } from "react";
-import { Context } from "../../context/Context";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState } from "react";
 import { dateToString } from "../../utils";
 
 export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked }) {
-
     const [opResult, setOpResult] = useState('Verificando clases...');
-    const { isLoadingClazzes } = useContext(Context);
 
     useEffect(() => {
-        if(clazzes.length === 0 && !isLoadingClazzes)
+        if(clazzes.length === 0)
             setOpResult('No fue posible obtener las clases, por favor recargue la página...');
-    }, [clazzes, isLoadingClazzes]);
+    }, [clazzes]);
 
     const columns = [
         {

@@ -17,7 +17,7 @@ import Select from "../../select/select";
 
 export default function ClassesSection(props) {
 
-    const { clazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, colleges } = useContext(Context);
+    const { getClazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, colleges } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -86,11 +86,22 @@ export default function ClassesSection(props) {
       "isSelected": false,
     }];
     const [days, setDays] = useState(daysInitialState);
+    const [clazzes, setClazzes] = useState([]);
     const setDisplay = (value) => {
         setDisplayModal(value);
         setDeleteModal(value);
         setEdit(false);
     }
+
+    const fetchClazzes = async () => {
+        const clazzes = await getClazzes();
+        setClazzes(clazzes);
+    }
+
+    useEffect(() => {
+        fetchClazzes();
+    }, [])
+    
 
     const openDeleteModal = (id) => {
         setDeleteModal(true);

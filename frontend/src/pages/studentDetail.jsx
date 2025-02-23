@@ -32,6 +32,7 @@ import RedBudget from '../components/badget/red';
 import TaskList from '../components/list/taskList';
 import StudentCard from '../components/card/studentCard';
 import useToggle from '../hooks/useToggle';
+import SelectClass from '../components/select/selectClass';
 
 function Course({ course, student }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +84,7 @@ function Course({ course, student }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, colleges, getPendingPaymentsByCourseFromStudent, clazzes, editPayment, getHeadquarterById, getItemById } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, colleges, getPendingPaymentsByCourseFromStudent, getClazzes, editPayment, getHeadquarterById, getItemById } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -116,19 +117,20 @@ const CourseDetail = () => {
     const [isSecretaryPayment, setIsSecretaryPayment] = useState(false)
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
-    const [dayOfMonth, setDayOfMonth] = useState(1); 
-    const [serviceModal, setServiceModal] = useState(false);
-    const [serviceNote, setServiceNote] = useState('');
-    const [showSt, setShowSt] = useState(false);
-    const [isEditingTemplate, setIsEditingTemplate] = useState(false);
-    const [serviceId, setServiceId] = useState(null);
-    const [serviceToDelete, setServiceToDelete] = useState('');
-    const [openPicker, data, authResponse] = useDrivePicker();
-	const [fileId, setFileId] = useState(null);
-    const [deleteServiceModal, setDeleteServiceModal] = useState(false);
+    const [openPicker] = useDrivePicker();
+    const [clazzes, setClazzes] = useState([]);
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
+
+    const fetchClazzes = async () => {
+        const clazzes = await getClazzes();
+        setClazzes(clazzes);
+    }
+
+    useEffect(() => {
+        fetchClazzes();
+    }, [])
 
 	const getData = async () => {
 		const student = await getStudentDetailsById(studentId)
@@ -190,7 +192,6 @@ const CourseDetail = () => {
         setIsLoading(true);
         try {
             const response = await paymentsService.uploadFile(file);
-            setFileId(response.id);
             if(edit) {
                 setPaymentToEdit({...paymentToEdit, fileId: response.id})
             } 
@@ -263,7 +264,6 @@ const CourseDetail = () => {
         setAmmount(null);
         setSelectedCollege(null);
         setPaymentMethod(null);
-        setFileId(null);
         setSelectedCourse(null);
         setSelectedStudent(null);
         setSelectedClazz(null);
@@ -346,28 +346,21 @@ const CourseDetail = () => {
 	const setDisplay = (value) => {
         setOpenModal(value);
         setIsLoadingPayment(false);
-        setDeleteServiceModal(false);
         setIsDischarge(value);
-        setServiceModal(value);
         setEdit(value);
-        setServiceNote('');
         setPaymentAt(dayjs(new Date()));
         setOperativeResult(dayjs(new Date()));
         setDiscount("");
         discountCheckbox.disable();
         setAmmount(null);
         setSelectedStudent(null);
-        setIsEditingTemplate(false);
         setPaymentMethod(null);
         setSelectedCourse(null);
         setSelectedClazz(null);
         setSelectedClazz(null);
-        setServiceId(null);
         setStudentCourses([]);
-        setDayOfMonth(1);
         setSelectedCollege(null);
         setSelectedItem(null);
-        setServiceToDelete('');
         setHaveFile(false);
         setPaymentToEdit({});
     }
@@ -617,7 +610,12 @@ const CourseDetail = () => {
                 </div>)}
                 {(!selectedCourse && !selectedItem) && (<div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
-                    <div className="mt-4"><Select onChange={setSelectedClazz} value={selectedClazz} options={clazzes.filter(clazz => !clazz.paymentsVerified)} /></div>
+                    <div className="mt-4">
+                        <SelectClass
+                            onChange={setSelectedClazz}
+                            value={selectedClazz}
+                        />
+                    </div>
                 </div>)}
             </>
             }
