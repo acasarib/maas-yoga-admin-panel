@@ -195,7 +195,7 @@ export const getAll = async (title, page = 1, size = 10) => {
     totalItems: count,
     totalPages: Math.ceil(count / size),
     currentPage: page,
-    courses,
+    data: courses,
   };
 };
 

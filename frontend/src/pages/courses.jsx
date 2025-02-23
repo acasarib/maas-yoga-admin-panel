@@ -486,7 +486,7 @@ export default function Courses(props) {
         setIsLoading(true)
         const data = await coursesService.getCourses(page, size, title);        
         setIsLoading(false)
-        setPageableCourses(data.courses);
+        setPageableCourses(data.data);
         setTotalRows(data.totalItems);        
     }
     
@@ -496,9 +496,7 @@ export default function Courses(props) {
         setPerPage(newPerPage);
     };
 
-    const handlePageChange = page => {
-        console.log('change page ', page);
-        
+    const handlePageChange = page => {        
         fetchCourses(page);
         setCurrentPage(page);
     };
@@ -514,9 +512,7 @@ export default function Courses(props) {
     }, [resetTable])
     
 
-    const handleOnSearch = async (searchParams) => {
-        console.log(searchParams);
-        
+    const handleOnSearch = async (searchParams) => {        
         if (searchParams.field == 'Identificador') {
             const course = await coursesService.getCourse(searchParams.searchValue)
             console.log(course);

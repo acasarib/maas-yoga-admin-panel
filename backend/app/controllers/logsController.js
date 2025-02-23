@@ -9,8 +9,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const { from, to } = req.query;
-      const logs = await logService.getAll(from, to);
+      const { from, to, ...rest } = req.query;
+      const logs = await logService.getAll(from, to, rest);
       res.status(StatusCodes.OK).json(logs);
     } catch (e) {
       next(e);
