@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import PaymentsTable from "../../paymentsTable";
 import { Context } from "../../../context/Context";
-import { Link } from "react-router-dom";
 
 export default function UnverifiedPaymentsSections({ defaultSearchValue, defaultTypeValue, }) {
     const { payments, isLoadingPayments } = useContext(Context);

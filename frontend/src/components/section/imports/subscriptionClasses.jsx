@@ -1,11 +1,26 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ImportModule from "./importModule";
 import { Context } from "../../../context/Context";
 import { dateToString } from "../../../utils";
+import Spinner from "../../spinner/spinner";
+import paymentsService from "../../../services/paymentsService";
 
 
 export default function ImportSubscriptionClasses({ onCancel }) {
-    const { payments, newSubscriptionClasses } = useContext(Context);
+    const { newSubscriptionClasses } = useContext(Context);
+
+    const [payments, setPayments] = useState([]);
+    
+    const fetchAllPayments = async () => {
+        //TODO: Codigo viejo, en algun momento tenemos que actualizar esto. No es urgente, nunca lo usaron y parece no usarse
+        const p = await paymentsService.legacyGetAll();
+        setPayments(p);
+    }
+
+    useEffect(() => {
+        fetchAllPayments();
+    }, [])
+
     const csvToObject = csv => {
         const mapNull = str => str === "NULL" ? null : str;
         const mapDate = date => {
@@ -84,7 +99,7 @@ export default function ImportSubscriptionClasses({ onCancel }) {
 
     const isAlreadyImported = payment1 => payments.some(payment2 => parseInt(payment1.id) === payment2.oldId && payment2.value >= 0);
 
-    return (<>
+    return (<>{payments.length === 0 ? <Spinner/> : 
         <ImportModule
             onCancel={onCancel}
             moduleName="abono de clases"
@@ -93,5 +108,6 @@ export default function ImportSubscriptionClasses({ onCancel }) {
             columns={columns}
             onImport={newSubscriptionClasses}
         />
+    }
     </>);
 } 
