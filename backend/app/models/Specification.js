@@ -2,6 +2,7 @@ import { ALLOWED_SEQUELIZE_OPERATIONS, SPECIFICATION_VALUE_SEPARATOR, SPECIFICAT
 import { Sequelize, Op } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 import { sequelize } from "../db/index.js";
+import utils from "../utils/functions.js";
 
 class Specification {
 
@@ -28,7 +29,10 @@ class Specification {
         const existsAssociation = associationName in model.associations;
         if (existsAssociation) {
           const associationSpecification = { model: sequelize.models[associationName], where: {} };
-          associationSpecification.where[associationAttribute] = value;
+          if (operation == "iLike")
+            associationSpecification.where[associationAttribute] = { [Op.iLike]: value };
+          else
+            associationSpecification.where[associationAttribute] = value;
           this.specificationAssociations.push(associationSpecification);
         } else {
           error = true;
@@ -46,11 +50,17 @@ class Specification {
         const valueType = modelAttributes[attribute]?.type;
         if (!(valueType instanceof Sequelize.STRING)) {
           let valueSplitedBySeparator = value.split(SPECIFICATION_VALUE_SEPARATOR);
-          if (valueType instanceof Sequelize.DataTypes.DATE)
-            valueSplitedBySeparator = valueSplitedBySeparator.map(Number);
-          value = valueSplitedBySeparator.length > 1 ? valueSplitedBySeparator : valueSplitedBySeparator[0];
+          if (valueType instanceof Sequelize.DataTypes.INTEGER || valueType instanceof Sequelize.DataTypes.FLOAT) {
+            const isValidValue = utils.isNumber(value);
+            value = isValidValue ? Number(value) : null;
+          } else {
+            if (valueType instanceof Sequelize.DataTypes.DATE)
+              valueSplitedBySeparator = valueSplitedBySeparator.map(Number);
+            value = valueSplitedBySeparator.length > 1 ? valueSplitedBySeparator : valueSplitedBySeparator[0];
+          }
         }
-        this.queryParts.push({ attribute, operation, value });
+        if (value != null)
+          this.queryParts.push({ attribute, operation, value });
       }
     });
     if (invalidAttributes.length > 0 || invalidOperations.length > 0) {

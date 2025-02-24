@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
-import { Context } from "../../../context/Context";
+import React, { useEffect, useState, useMemo } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { dateToString } from "../../../utils";
 import Table from "../../table";
@@ -94,7 +93,6 @@ export default function LogsPaymentSection(props) {
         fetchLogs(page, newPerPage);
         setPerPage(newPerPage);
     };
-
 
     return (
         <>

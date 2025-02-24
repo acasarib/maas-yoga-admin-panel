@@ -53,6 +53,7 @@ const ALLOWED_SEQUELIZE_OPERATIONS = [
   "notBetween",
   "in",
   "notIn",
+  "iLike",
   "like",
   "notLike",
   "startsWith",

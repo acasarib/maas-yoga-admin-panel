@@ -12,8 +12,9 @@ import { Tooltip } from "@mui/material";
 import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
+import Spinner from "../spinner/spinner";
 
-export default function PaymentsTable({ columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
+export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
     const { user, categories, changeAlertStatusAndMessage, getUserById, courses } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
@@ -181,6 +182,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
     const columns = useMemo(() => {
         const defaultColumns = [
             {
+                serverProp: "id",
                 name: 'Identificador',
                 searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
                 hidden: true,
@@ -191,6 +193,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             },
             {
                 name: 'Fecha',
+                serverProp: showOpResultDate ? 'operativeResult' : 'at',
                 selector: row => showOpResultDate ? dateToString(row['operativeResult']) : dateToString(row['at']),
                 cell: row => <span>{showOpResultDate ? dateToString(row['operativeResult']) : dateToString(row['at'])}</span>,
                 sortable: true,
@@ -200,6 +203,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
                 sortFunction: dateSortFunction
             },
             {
+                serverProp: 'value',
                 name: 'Importe',
                 cell: row => <span className={`${row.value >= 0 ? "text-blue-400" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}{row.discount && <span className="ml-1">{`(-${row.discount}%)`}</span>}</span>,
                 sortable: true,
@@ -208,6 +212,8 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
                 minWidth: '120px',
             },
             {
+                serverProp: 'type',
+                serverOperation: 'iLike',
                 name: 'Modo de pago',
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{row.type}</span>,
                 sortable: true,
@@ -216,6 +222,8 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             },
             {
                 name: 'Detalle',
+                serverProp: 'note',
+                serverOperation: 'iLike',
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getItemById(row)}</span>,
                 sortable: true,
                 searchable: true,
@@ -223,6 +231,8 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             },
             {
                 name: 'Abonado por',
+                serverProp: 'student.name',
+                serverOperation: 'iLike',
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getStudentFullName(row)}</span>,
                 sortable: true,
                 searchable: true,
@@ -230,6 +240,8 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             },
             {
                 name: 'Profesor',
+                serverProp: 'professor.name',
+                serverOperation: 'iLike',
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getProfessorFullName(row)}</span>,
                 sortable: true,
                 searchable: true,
@@ -237,6 +249,8 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
             },
             {
                 name: 'Informado por',
+                serverProp: 'user.firstName',
+                serverOperation: 'iLike',
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getUserFullName(row)}</span>,
                 sortable: true,
                 searchable: true,
@@ -246,7 +260,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
                 name: 'Verificado por',
                 cell: row => <span className={(row.value >= 0) ? "text-gray-800 font-bold" : "text-gray-800"}>{getVerifierUserFullName(row)}</span>,
                 sortable: true,
-                searchable: true,
+                searchable: false,
                 selector: row => getVerifierUserFullName(row),
             },
             {
@@ -333,18 +347,36 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
         }
     }, [showIncomes])
 
+    let tableProps = {
+        className: `rounded-3xl shadow-lg ${className}`,
+        columns: columns,
+        paginationRowsPerPageOptions: [5, 10, 25, 50, 100],
+        noDataComponent: isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles',
+        pagination: true,
+    }
+
+    if (pageableProps != null) {
+        tableProps = {
+            ...tableProps,
+            ...pageableProps,
+            serverPaginationData: payments,
+            paginationServer: true,
+            progressPending: isLoading,
+            progressComponent: <Spinner/>,
+        }
+    } else {
+        tableProps = {
+            ...tableProps,
+            onFilterData: (newFilteredPayments) => updateTableSummary(newFilteredPayments),
+            data: filteredPayments,
+            defaultSearchValue: defaultSearchValue,
+            defaultTypeValue: defaultTypeValue,
+        }
+    }
+    
     return(
         <>
-            <Table
-                defaultSearchValue={defaultSearchValue}
-                defaultTypeValue={defaultTypeValue}
-                className={`rounded-3xl shadow-lg ${className}`}
-                columns={columns}
-                onFilterData={(newFilteredPayments) => updateTableSummary(newFilteredPayments)}
-                data={filteredPayments}
-                noDataComponent={isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles'}
-                pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-            />
+            <Table {...tableProps} />
             <div className="flex flex-row my-4">
                 <CustomCheckbox
                     checked={showDischarges}
@@ -370,7 +402,7 @@ export default function PaymentsTable({ columnsProps = [], dateField = "at", cla
                     onChange={() => setShowOpResultDate(!showOpResultDate)}
                 /> 
             </div>
-            <TableSummary total={tableSummary.total} incomes={tableSummary.incomes} expenses={tableSummary.expenses}/>
+            <TableSummary total={summary != null ? summary.total : tableSummary.total} incomes={summary != null ? summary.incomes : tableSummary.incomes} expenses={summary != null ? summary.expenses : tableSummary.expenses}/>
             <DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
             <VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
         </>

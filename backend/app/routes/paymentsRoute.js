@@ -10,6 +10,7 @@ router.get("/services", verifyToken, controller.getServicesPayments);
 router.put("/services/:id", verifyToken, controller.updateServicePayment);
 router.delete("/services/:id", verifyToken, controller.deleteServicePayment);
 router.get("/secretary", verifyToken, controller.getSecretaryPayments);
+router.get("/secretary/lastest", verifyToken, controller.getLatestSecretaryPayment);
 router.delete("/:id", verifyToken, controller.deleteById);
 router.get("/students/:studentId", verifyToken, controller.getAllByStudentId);
 router.get("/courses/:courseId", verifyToken, controller.getAllByCourseId);
@@ -18,5 +19,7 @@ router.put("/:id/verified", verifyToken, controller.changeVerified);
 router.post("/:id/split", verifyToken, controller.splitPayment);
 router.get("/legacy", verifyToken, controller.legacyGetAll);
 router.get("/", verifyToken, controller.getAll);
+router.get("/verified", verifyToken, controller.getAllVerified);
+router.get("/unverified", verifyToken, controller.getAllUnverified);
 
 export default router;

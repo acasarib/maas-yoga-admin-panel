@@ -21,7 +21,7 @@ import StorageIconButton from "../../button/storageIconButton";
 import { useRef } from "react";
 import useDrivePicker from 'react-google-drive-picker'
 import useToggle from "../../../hooks/useToggle";
-import { betweenZeroAnd100, formatPaymentValue } from "../../../utils";
+import { betweenZeroAnd100, formatPaymentValue, fromDDMMYYYYStringToDate } from "../../../utils";
 import CustomCheckbox from "../../../components/checkbox/customCheckbox";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -34,7 +34,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, getClazzes, students, courses, payments, colleges, services, isLoadingPayments, informPayment, getTemplate, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
+    const { user, getClazzes, students, courses, colleges, services, informPayment, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
     const [clazzes, setClazzes] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
@@ -60,6 +60,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [showSt, setShowSt] = useState(false);
     const discountCheckbox = useToggle()
     const [discount, setDiscount] = useState("")
+    const [tableSummary, setTableSummary] = useState(null)
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [serviceId, setServiceId] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -73,6 +74,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
+    const [pageablePayments, setPageablePayments] = useState([]);
+    const [resetTable, setResetTable] = useState(false);
+    const [totalRows, setTotalRows] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
 
     const fetchClazzes = async () => {
         const clazzes = await getClazzes();
@@ -82,6 +88,81 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     useEffect(() => {
         fetchClazzes();
     }, [])
+
+    useEffect(() => {
+        if (resetTable)
+            setResetTable(false)
+    }, [resetTable])
+
+    useEffect(() => {
+        fetchPayments();
+        setResetTable(true)
+    }, []);
+
+    const fetchPayments = async (page = currentPage, size = perPage, searchParams, isOrOperation = false) => {
+        setIsLoading(true)
+        if (searchParams) {
+            if ("at" in searchParams)
+                searchParams.at.value = fromDDMMYYYYStringToDate(searchParams.at.value);
+            if ('operativeResult' in searchParams)
+                searchParams.operativeResult.value = fromDDMMYYYYStringToDate(searchParams.operativeResult.value);
+        }
+        if (defaultTypeValue) {
+            searchParams[defaultTypeValue] = {
+                value: defaultSearchValue,
+                operation: 'eq'
+            }
+        }
+        const data = await paymentsService.getAllPaymentsVerified(page, size, searchParams, isOrOperation);        
+        setIsLoading(false)
+        setPageablePayments(data.data);
+        setTotalRows(data.totalItems);
+        setTableSummary(data);
+    }
+
+    const handleOnSearch = async (searchParams) => {
+        let searchBy = searchParams.byAllFields ? 'all' : searchParams.serverProp;
+        let searchValue = searchParams.searchValue;
+        let searchOperation = searchParams.serverOperation;
+        if (searchValue === "") {//Sin filtro
+            searchValue = undefined;
+            searchBy = undefined;
+            fetchPayments(currentPage, perPage, null);
+        } else if (!searchParams.byAllFields) {// Un filtro solo
+            const params = {
+                [searchBy]: {
+                    value: searchValue,
+                    operation: searchOperation,
+                }
+            }
+            fetchPayments(currentPage, perPage, params, false);
+        } else { // Filtro Todos
+            const params = {}
+            const searchBy = ["id", "value", "type", "note"];
+            
+            searchParams.columns.forEach(column => {
+                if (!("serverProp" in column)) return
+                if (searchBy.includes(column.serverProp)) {
+                    params[column.serverProp] = {
+                        value: searchValue,
+                        operation: searchOperation,
+                    }
+                }
+            })
+            fetchPayments(currentPage, perPage, params, true);
+        }
+         
+    }
+
+    const handlePageChange = page => {        
+        fetchPayments(page);
+        setCurrentPage(page);
+    };
+
+    const handlePerRowsChange = async (newPerPage, page) => {
+        fetchPayments(page, newPerPage);
+        setPerPage(newPerPage);
+    };
     
 
     const handleFileChange = (e) => {
@@ -199,18 +280,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const handleChangeServiceNote = (e) => {
         setServiceNote(e.target.value);
     }
-
-    const handleChangeTemplates = async (e) => {
-        const response = await getTemplate(e.value);
-        setPaymentMethod(response.content.type);
-        setAmmount(response.content.value);
-        setOpenModal(true);
-        setIsDischarge(true);
-    }
     
     const handleEditService = async (srv) => {
         const method = PAYMENT_OPTIONS.filter(type => type.value == srv.type);
-        console.log(method);
         setPaymentMethod(method[0]);
         const item = getItemById(srv.itemId);
         setSelectedItem(item !== undefined ? item : null);
@@ -384,11 +456,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setSelectedStudent(st);
     }
 
-    useEffect(() => {
-      console.log(studentCourses);
-    }, [studentCourses])
-    
-
     const getOnlyStudentsOfSameCourse = () => {
         if ((selectedCourse == null) || (studentCourses.length > 0)) {
             return students;
@@ -396,38 +463,51 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         return students.filter(st => st.courses.some(course => course.id == selectedCourse.id))
     }
 
-    useEffect(() => {
-        const currentSecretaryPaymentValues = getSecretaryPaymentDetail();//TODO: optimizar esto. Aca pide todos los pagos a secretaria para buscar el mas reciente.
-        // hay que hacer un endpoint que devuelva el mas reciente y ver si el pedir todos se sigue usando en algun lado
-        if (currentSecretaryPaymentValues)
-            setSecretaryPaymentValues(currentSecretaryPaymentValues)
-        else
-            setSecretaryPaymentValues({ salary: 0, monotributo: 0, extraTasks: 0, extraHours: 0, sac: 0 })
-    }, [payments])
-
     const handleChangeSecretaryPaymentValue = (type, value) => {
         setSecretaryPaymentValues(prev => ({ ...prev, [type]: value }))
     }
 
     useEffect(() => {
-        if (isSecretaryPayment) {
-            const salary = parseFloat(secretaryPaymentValues.salary)
-            const monotributo = parseFloat(secretaryPaymentValues.monotributo)
-            const sac = parseFloat(secretaryPaymentValues.sac)
-            const extraHours = parseFloat(secretaryPaymentValues.extraHours)
-            const extraTasks = parseFloat(secretaryPaymentValues.extraTasks)
-            setAmmount(salary + monotributo + sac + extraHours + extraTasks)
+        const getSecretaryPaymentValues = async () => {
+            const currentSecretaryPaymentValues = await getSecretaryPaymentDetail();
+            if (currentSecretaryPaymentValues)
+                setSecretaryPaymentValues(currentSecretaryPaymentValues)
+            else
+                setSecretaryPaymentValues({ salary: 0, monotributo: 0, extraTasks: 0, extraHours: 0, sac: 0 })
+            
         }
-    }, [secretaryPaymentValues, isSecretaryPayment])
+        if (isSecretaryPayment) {
+            getSecretaryPaymentValues()
+        }
+    }, [isSecretaryPayment])
+
+    useEffect(() => {
+        if (secretaryPaymentValues == null || secretaryPaymentValues == undefined) return
+        const salary = parseFloat(secretaryPaymentValues.salary)
+        const monotributo = parseFloat(secretaryPaymentValues.monotributo)
+        const sac = parseFloat(secretaryPaymentValues.sac)
+        const extraHours = parseFloat(secretaryPaymentValues.extraHours)
+        const extraTasks = parseFloat(secretaryPaymentValues.extraTasks)
+        setAmmount(salary + monotributo + sac + extraHours + extraTasks)
+    }, [secretaryPaymentValues])
 
     return (
         <>
         <div className="mb-6 md:my-6 md:mx-4">
             <PaymentsTable
+                pageableProps={{
+                    resetTable,
+                    handleCustomSearchValue: handleOnSearch,
+                    paginationTotalRows: totalRows,
+                    onChangePage: handlePageChange,
+                    onChangeRowsPerPage: handlePerRowsChange,
+                    paginationDefaultPage: currentPage,
+                }}
+                summary={tableSummary}
                 editMode={true}
                 editPayment={(payment) => openEditPayment(payment)}
-                payments={payments.filter(p => p.verified)}
-                isLoading={isLoadingPayments}
+                payments={pageablePayments}
+                isLoading={isLoading}
                 defaultSearchValue={defaultSearchValue}
                 defaultTypeValue={defaultTypeValue}
             />
@@ -514,7 +594,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     className="block font-bold text-sm text-gray-700 mb-2"
                     type="number" 
                     placeholder="Sueldo" 
-                    value={secretaryPaymentValues.salary}
+                    value={secretaryPaymentValues?.salary}
                     onChange={(e) => handleChangeSecretaryPaymentValue("salary", e.target.value)}
                 />
             </div>
@@ -525,7 +605,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     className="block font-bold text-sm text-gray-700 mb-2"
                     type="number" 
                     placeholder="Monotributo" 
-                    value={secretaryPaymentValues.monotributo}
+                    value={secretaryPaymentValues?.monotributo}
                     onChange={(e) => handleChangeSecretaryPaymentValue("monotributo", e.target.value)}
                 />
             </div>
@@ -536,7 +616,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     className="block font-bold text-sm text-gray-700 mb-2"
                     type="number" 
                     placeholder="Tareas extra" 
-                    value={secretaryPaymentValues.extraTasks}
+                    value={secretaryPaymentValues?.extraTasks}
                     onChange={(e) => handleChangeSecretaryPaymentValue("extraTasks", e.target.value)}
                 />
             </div>
@@ -547,7 +627,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     className="block font-bold text-sm text-gray-700 mb-2"
                     type="number" 
                     placeholder="Horas extra" 
-                    value={secretaryPaymentValues.extraHours}
+                    value={secretaryPaymentValues?.extraHours}
                     onChange={(e) => handleChangeSecretaryPaymentValue("extraHours", e.target.value)}
                 />
             </div>
@@ -558,7 +638,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     className="block font-bold text-sm text-gray-700 mb-2"
                     type="number" 
                     placeholder="S.A.C." 
-                    value={secretaryPaymentValues.sac}
+                    value={secretaryPaymentValues?.sac}
                     onChange={(e) => handleChangeSecretaryPaymentValue("sac", e.target.value)}
                 />
             </div>

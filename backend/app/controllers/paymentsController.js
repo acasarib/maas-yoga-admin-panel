@@ -96,12 +96,25 @@ export default {
   },
 
   /**
-   * /payments/secretary/latest [GET]
-   * @returns HttpStatus ok and @SecretaryPayment
+   * /payments/secretary [GET]
+   * @returns HttpStatus ok aray of @SecretaryPayment
    */
   getSecretaryPayments: async (req, res, next) => {
     try {
-      const secretaryPayment = await paymentService.getSecretaryPayments();
+      const secretaryPayments = await paymentService.getSecretaryPayments();
+      res.status(StatusCodes.OK).json(secretaryPayments);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/secretary/latest [GET]
+   * @returns HttpStatus ok and @SecretaryPayment
+   */
+  getLatestSecretaryPayment: async (req, res, next) => {
+    try {
+      const secretaryPayment = await paymentService.getLatestSecretaryPayment();
       res.status(StatusCodes.OK).json(secretaryPayment);
     } catch (e) {
       next(e);
@@ -153,10 +166,45 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const querySpecification = req.query.q;
+      const { q, page, size } = req.query;
+      const querySpecification = q;
       const isOrOperation = req.query.isOrOperation === "true";
       const specification = new Specification(querySpecification, payment, isOrOperation);
-      const payments = await paymentService.getAll(specification);
+      const payments = await paymentService.getAll(page, size, specification);
+      res.status(StatusCodes.OK).json(payments);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/verified [GET]
+   * @returns HttpStatus ok and array of @Payment
+   */
+  getAllVerified: async (req, res, next) => {
+    try {
+      const { q, page, size } = req.query;
+      const querySpecification = q;
+      const isOrOperation = req.query.isOrOperation === "true";
+      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const payments = await paymentService.getAllVerified(page, size, specification);
+      res.status(StatusCodes.OK).json(payments);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/unverified [GET]
+   * @returns HttpStatus ok and array of @Payment
+   */
+  getAllUnverified: async (req, res, next) => {
+    try {
+      const { q, page, size } = req.query;
+      const querySpecification = q;
+      const isOrOperation = req.query.isOrOperation === "true";
+      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const payments = await paymentService.getAllUnverified(page, size, specification);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
       next(e);
@@ -173,7 +221,7 @@ export default {
       const querySpecification = req.query.q;
       const isOrOperation = req.query.isOrOperation === "true";
       const specification = new Specification(querySpecification, payment, isOrOperation);
-      const payments = await paymentService.getAll(specification);
+      const payments = await paymentService.legacyGetAll(specification);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
       next(e);
