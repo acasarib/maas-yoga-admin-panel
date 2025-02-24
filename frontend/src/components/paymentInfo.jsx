@@ -6,8 +6,7 @@ import { Context } from "../context/Context";
 
 export default function PaymentInfo({ payment, highLightFields = [], hideFields = [] }) {
 
-    const { getSecretaryPaymentById } = useContext(Context)
-    const secretaryPayment = getSecretaryPaymentById(payment.secretaryPaymentId)
+    const secretaryPayment = payment.secretaryPayment
 
     const getUserFullName = (payment) => {
         if (payment.user && payment.user !== undefined && payment.user !== null) {
