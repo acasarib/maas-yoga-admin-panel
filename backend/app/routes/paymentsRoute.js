@@ -21,5 +21,5 @@ router.get("/legacy", verifyToken, controller.legacyGetAll);
 router.get("/", verifyToken, controller.getAll);
 router.get("/verified", verifyToken, controller.getAllVerified);
 router.get("/unverified", verifyToken, controller.getAllUnverified);
-
+router.get("/:id", verifyToken, controller.getById);
 export default router;
