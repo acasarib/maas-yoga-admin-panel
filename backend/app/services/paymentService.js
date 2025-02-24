@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { payment, course, student, user, file, professor, secretaryPayment, servicePayment, item } from "../db/index.js";
+import { payment, course, student, user, file, professor, secretaryPayment, servicePayment, item, headquarter } from "../db/index.js";
 import * as logService from "./logService.js";
 import * as notificationService from "./notificationService.js";
 import { Op } from "sequelize";
@@ -46,7 +46,7 @@ export const create = async (paymentParam, informerId) => {
   };
   const createdPayments = await payment.bulkCreate(paymentParam);
   logService.logCreatedPayments(createdPayments);
-  return (createdPayments.length === 1) ? createdPayments[0] : createdPayments;
+  return (createdPayments.length === 1) ? getById(createdPayments[0].id) : createdPayments;
 };
 
 export const splitPayment = async (originalPaymentId, newPaymentParam) => {
@@ -279,7 +279,14 @@ export const updatePayment = async (id, data, userId) => {
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "Can not change verified with this endpoint" });
   await payment.update(data, { where: { id } });
   logService.logUpdate(id, userId);
-  return payment.findByPk(id, { include: [user,student,course] });
+  return getById(id);
+};
+
+export const getById = async (id) => {
+  const p = await payment.findByPk(id, { include: [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter] });
+  if (p == null)
+    throw ({ statusCode: StatusCodes.NOT_FOUND, message: "payment not found" });
+  return p;
 };
 
 export const changeVerified = async (id, verified, verifiedBy) => {

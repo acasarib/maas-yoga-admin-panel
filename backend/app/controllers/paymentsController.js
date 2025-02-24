@@ -2,6 +2,7 @@ import * as paymentService from "../services/paymentService.js";
 import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { payment } from "../db/index.js";
+import { getById } from "../services/studentService.js";
 
 export default {
   /**
@@ -11,6 +12,19 @@ export default {
   create: async (req, res, next) => {
     try {
       const createdPayment = await paymentService.create(req.body, req.user.id);
+      res.status(StatusCodes.CREATED).json(createdPayment);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/{id} [GET]
+   * @returns HttpStatus and @Payment
+   */
+  getById: async (req, res, next) => {
+    try {
+      const createdPayment = await paymentService.getById(req.params.id);
       res.status(StatusCodes.CREATED).json(createdPayment);
     } catch (e) {
       next(e);
