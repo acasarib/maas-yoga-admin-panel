@@ -17,7 +17,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
             const currentFilteringColumn = getCurrentFilteringColumn();
             const byAllFields = currentFilteringColumn === undefined;
             if (handleCustomSearchValue != undefined) {
-                handleCustomSearchValue({ searchValue, byAllFields, field: currentFilteringColumn?.name, serverProp: currentFilteringColumn?.serverProp })
+                handleCustomSearchValue({ searchValue, byAllFields, field: currentFilteringColumn?.name, serverProp: currentFilteringColumn?.serverProp, serverOperation: currentFilteringColumn?.serverOperation || 'eq', columns })
                 return
             }
             if (byAllFields) {

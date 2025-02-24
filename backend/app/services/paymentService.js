@@ -123,7 +123,15 @@ export const addTodayPaymentServices = async () => {
 
 export const getSecretaryPayments = async () => {
   return secretaryPayment.findAll();
-}
+};
+
+export const getLatestSecretaryPayment = async () => {
+  const latestPayment = await secretaryPayment.findOne({
+    order: [["createdAt", "DESC"]]
+  });
+  return latestPayment;
+};
+
 
 export const deleteById = async (id, userId) => {
   const p = await payment.findByPk(id);
@@ -146,12 +154,124 @@ export const getAllByCourseId = async (courseId) => {
   return payment.findAll({ where: { courseId }, include: [user, student, course] });
 };
 
-export const getAll = async (specification) => {
-  //ORDER BY 'at'
+/**
+ * @deprecated
+ * @param {Object} specification 
+ * @returns 
+ */
+export const legacyGetAll = async (specification) => {
   return payment.findAll({
     where: specification.getSequelizeSpecification(),
     include: specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file])
   });
+};
+
+export const getAll = async (page = 1, size = 10, specification) => {
+  const where = specification.getSequelizeSpecification();
+  const include = specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment]);
+  const findAllParams = {
+    include,
+    limit: size,
+    offset: (page - 1) * size,
+    where,
+    order: [
+      ["at", "DESC"]
+    ]
+  };
+  let { count, rows } = await payment.findAndCountAll(findAllParams);
+  const total = await payment.sum("value", { where });
+  const incomes = await payment.sum("value", { 
+    where: { ...where, value: { [Op.gte]: 0 } }
+  });
+  const expenses = await payment.sum("value", { 
+    where: { ...where, value: { [Op.lt]: 0 } }
+  });
+  return {
+    totalItems: count,
+    totalPages: Math.ceil(count / size),
+    currentPage: page,
+    data: rows,
+    total,
+    incomes,
+    expenses: expenses *-1,
+  };
+};
+
+/**
+ * TODO
+ * @param {int} page 
+ * @param {int} size 
+ * @param {Object} specification 
+ * @returns 
+ */
+export const getAllUnverified = async (page = 1, size = 10, specification) => {
+  const spec = specification.getSequelizeSpecification();
+  const where = {
+    [Op.and]: [{verified: false}, spec]
+  };
+  
+  const include = specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment]);
+  const findAllParams = {
+    include,
+    limit: size,
+    offset: (page - 1) * size,
+    where,
+    order: [
+      ["at", "DESC"]
+    ]
+  };
+  let { count, rows } = await payment.findAndCountAll(findAllParams);
+  const total = await payment.sum("value", { where });
+  const incomes = await payment.sum("value", { 
+    where: { ...where, value: { [Op.gte]: 0 } }
+  });
+  const expenses = await payment.sum("value", { 
+    where: { ...where, value: { [Op.lt]: 0 } }
+  });
+  return {
+    totalItems: count,
+    totalPages: Math.ceil(count / size),
+    currentPage: page,
+    data: rows,
+    total,
+    incomes,
+    expenses: expenses *-1,
+  };
+};
+
+export const getAllVerified = async (page = 1, size = 10, specification) => {
+  const spec = specification.getSequelizeSpecification();
+  const where = {
+    [Op.and]: [{verified: true}, spec]
+  };
+  
+  const include = specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment]);
+  const findAllParams = {
+    include,
+    limit: size,
+    offset: (page - 1) * size,
+    where,
+    order: [
+      ["at", "DESC"]
+    ]
+  };
+  let { count, rows } = await payment.findAndCountAll(findAllParams);
+  const total = await payment.sum("value", { where });
+  const incomes = await payment.sum("value", { 
+    where: { ...where, value: { [Op.gte]: 0 } }
+  });
+  const expenses = await payment.sum("value", { 
+    where: { ...where, value: { [Op.lt]: 0 } }
+  });
+  return {
+    totalItems: count,
+    totalPages: Math.ceil(count / size),
+    currentPage: page,
+    data: rows,
+    total,
+    incomes,
+    expenses: expenses *-1,
+  };
 };
 
 export const updatePayment = async (id, data, userId) => {

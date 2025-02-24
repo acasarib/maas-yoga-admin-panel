@@ -30,7 +30,7 @@ export const Provider = ({ children }) => {
     const [users, setUsers] = useState([]);
     const [payments, setPayments] = useState([]);
     const [secretaryPayments, setSecretaryPayments] = useState([]);
-    const [alreadyAddedSecretaryPayments, setAlreadyAddedSecretaryPayments] = useState(false);
+    const [lastSecretaryPayment, setLastSecretaryPayment] = useState(null)
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
     const [notifications, setNotifications] = useState([]);
@@ -126,7 +126,6 @@ export const Provider = ({ children }) => {
         getStudents();
         getTasks();
         getColleges();
-        getPayments();
         getCategories();
         getProffesors();
         getAgendaLocations();
@@ -158,24 +157,6 @@ export const Provider = ({ children }) => {
     const getStudentPayments = async (studentId) => {
         return paymentsService.getStudentPayments(studentId);
     }
-
-    const addSecretaryPaymentsToPayments = async () => {
-        const secretaryPayments = await paymentsService.getSecretaryPayments();
-        setSecretaryPayments(secretaryPayments);
-        setPayments(prev => prev.map(payment => {
-            if ("secretaryPaymentId" in payment && payment.secretaryPaymentId != null) {
-                payment.secretaryPayment = secretaryPayments.find(sp => sp.id == payment.secretaryPaymentId)
-            }
-            return payment;
-        }))
-    }
-
-    useEffect(() => {
-        if (isLoadingPayments || alreadyAddedSecretaryPayments) return
-        addSecretaryPaymentsToPayments()
-        setAlreadyAddedSecretaryPayments(true)
-    }, [payments, isLoadingPayments, alreadyAddedSecretaryPayments])
-    
 
     const getAgendaCashValues = async (year, month, location) => {
         return agendaService.getCash(year, month, location);
@@ -338,7 +319,7 @@ export const Provider = ({ children }) => {
 
     const splitPayment = async (paymentData, paymentId) => {
         await paymentsService.splitPayment(paymentData, paymentId)
-        await getPayments()
+        //await getPayments()//TODO: ver esto
     }
 
     const deletePayment = async (id) => {
@@ -749,14 +730,11 @@ export const Provider = ({ children }) => {
         setIsLoadingCourses(false)
     }
 
-    const getSecretaryPaymentDetail = () => {
-        return secretaryPayments.reduce((max, current) => {
-            if (current.createdAt > max.createdAt) {
-              return current;
-            } else {
-              return max;
-            }
-        }, secretaryPayments[0]);
+    const getSecretaryPaymentDetail = async () => {
+        if (lastSecretaryPayment) return lastSecretaryPayment;
+        const last = await paymentsService.getLastSecretaryPayment();
+        setLastSecretaryPayment(last);
+        return last;
     }
 
 

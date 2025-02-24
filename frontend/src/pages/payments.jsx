@@ -52,13 +52,13 @@ export default function Payments(props) {
                         </Box>
                         <TabPanel key={resetPayments} className="pt-4" value="1">
                             <PaymentsSection
-                                defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
+                                defaultTypeValue={defaultIdPayment !== undefined ? "id" : undefined}
                                 defaultSearchValue={defaultIdPayment}
                             />
                         </TabPanel>
                         <TabPanel className="pt-4" value="2">
                             <UnverifiedPaymentsSections
-                                defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
+                                defaultTypeValue={defaultIdPayment !== undefined ? "id" : undefined}
                                 defaultSearchValue={defaultIdPayment}
                             />
                         </TabPanel>

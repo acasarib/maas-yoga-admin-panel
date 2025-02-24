@@ -1,6 +1,7 @@
 import { logPayment, user } from "../db/index.js";
 import { Op } from "sequelize";
 import { LOG_PAYMENT_ACTIONS } from "../utils/constants.js";
+import utils from "../utils/functions.js";
 
 /**
  * 
@@ -23,25 +24,15 @@ export const getAll = async (page = 1, size = 10, where) => {
   };
 
   // Filtro por date
-  if (date) {
-    // Verificar formato de fecha dd/mm/yyyy
-    const dateParts = date.split("/");
-    if (dateParts.length === 3 && dateParts[2].length === 4) {
-      const day = parseInt(dateParts[0], 10);
-      const month = parseInt(dateParts[1], 10);
-      const year = parseInt(dateParts[2], 10);
-      
-      // Verificar si es una fecha válida
-      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-        const startDate = new Date(year, month - 1, day).setHours(0, 0, 0, 0);
-        const endDate = new Date(year, month - 1, day).setHours(23, 59, 59, 999);
-        
-        findAllParams.where.createdAt = {
-          [Op.gte]: startDate,
-          [Op.lte]: endDate
-        };
-      }
-    }
+  date = utils.fromDDMMYYYYStringToDate(date);
+  if (date !== null) {
+    const startDate = new Date(date.getTime()).setHours(0, 0, 0, 0);
+    const endDate = new Date(date.getTime()).setHours(23, 59, 59, 999);
+    
+    findAllParams.where.createdAt = {
+      [Op.gte]: startDate,
+      [Op.lte]: endDate
+    };
   }
 
   if (userFullName && findAllParams.where.createdAt === undefined) {

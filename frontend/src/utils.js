@@ -133,6 +133,20 @@ export function dateToString(str) {
     return date;
 }
 
+export function fromDDMMYYYYStringToDate(date) {
+    if (!date) return null;
+    const dateParts = date.split("/");
+    if (dateParts.length !== 3 || dateParts[2].length !== 4) return null;
+    const day = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10);
+    const year = parseInt(dateParts[2], 10);
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+      return new Date(year, month - 1, day);
+    } else {
+      return null;
+    }
+}
+
 export function formatPaymentValue(value, fromBlance) {
     try {
         let paymentValue = value.toString();
