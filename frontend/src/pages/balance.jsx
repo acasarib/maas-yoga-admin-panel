@@ -61,7 +61,7 @@ export default function Balance(props) {
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [fileId, setFileId] = useState(null);
     const [clazzes, setClazzes] = useState([]);
-    const { getClazzes, getHeadquarterById, getItemById, user, changeAlertStatusAndMessage, colleges, editPayment, students, informPayment, courses } = useContext(Context);
+    const { getClazzes, getItemById, user, changeAlertStatusAndMessage, colleges, editPayment, students, informPayment, courses } = useContext(Context);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
 
@@ -297,10 +297,6 @@ export default function Balance(props) {
         if(payment.clazzId) {
             const classes = clazzes.filter(cls => cls.id === payment.clazzId);
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
-        }
-        if(payment.headquarterId) {
-            const college = getHeadquarterById(payment.headquarterId);
-            setSelectedCollege(college !== undefined ? {label: college.name, value: college.id} : null);
         }
         if (payment.itemId) {
             const item = getItemById(payment.itemId);

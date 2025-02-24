@@ -70,10 +70,6 @@ export const Provider = ({ children }) => {
         }
         const getColleges = async () => {
             const collegesList = await collegesService.getColleges();
-            collegesList.forEach(college => {
-                college.label = college.name;
-                college.value = college.id;
-            });
             setColleges(collegesList);
             setIsLoadingColleges(false);
         }
@@ -181,7 +177,6 @@ export const Provider = ({ children }) => {
     }
 
     const getStudentById = studentId => students.find(student => student.id == studentId);
-    const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id == headquarterId);
     const getItemById = itemId => categories.find(category => category.items.find(item => item.id == itemId)).items.find(item => item.id == itemId);
     const getUserById = userId => users.find(user => user.id == userId);
     const getProfessorById = professorId => professors.find(professor => professor.id == professorId);
@@ -269,8 +264,6 @@ export const Provider = ({ children }) => {
                 createdPayment.course = await getCourseDetailsById(createdPayment.courseId);
             if (createdPayment.studentId)
                 createdPayment.student = getStudentById(createdPayment.studentId);
-            if (createdPayment.headquarterId)
-                createdPayment.headquarter = getHeadquarterById(createdPayment.headquarterId);
             if (createdPayment.itemId)
                 createdPayment.item = getItemById(createdPayment.itemId);
             setPayments(current => [...current, createdPayment]);
@@ -289,8 +282,6 @@ export const Provider = ({ children }) => {
                 editedPayment.course = await getCourseDetailsById(editedPayment.courseId);
             if (editedPayment.studentId)
                 editedPayment.student = getStudentById(editedPayment.studentId);
-            if (editedPayment.headquarterId)
-                editedPayment.headquarter = getHeadquarterById(editedPayment.headquarterId);
             if (editedPayment.itemId)
                 editedPayment.item = getItemById(editedPayment.itemId);
             setPayments(current => current.map(p => p.id === payment.id ? merge(p, editedPayment) : p));
@@ -688,8 +679,6 @@ export const Provider = ({ children }) => {
                 professor.result.payments.forEach(payment => {
                     if (payment.studentId)
                         payment.student = getStudentById(payment.studentId);
-                    if (payment.headquarterId)
-                        payment.headquarter = getHeadquarterById(payment.headquarterId);
                     if (payment.itemId)
                         payment.item = getItemById(payment.itemId);
                     if (payment.userId)
@@ -814,7 +803,6 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
             updatePayment,
-            getHeadquarterById,
             getItemById,
             getStudentPayments,
             getProfessorById,

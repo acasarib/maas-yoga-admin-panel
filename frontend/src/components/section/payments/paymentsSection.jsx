@@ -34,7 +34,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, getClazzes, students, courses, colleges, services, informPayment, newService, editService, changeAlertStatusAndMessage, editPayment, getHeadquarterById, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
+    const { user, getClazzes, students, courses, colleges, services, informPayment, newService, editService, changeAlertStatusAndMessage, editPayment, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
     const [clazzes, setClazzes] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
@@ -343,10 +343,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         if(payment.clazzId) {
             const classes = clazzes.filter(cls => cls.id === payment.clazzId);
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
-        }
-        if(payment.headquarterId) {
-            const college = getHeadquarterById(payment.headquarterId);
-            setSelectedCollege(college !== undefined ? {label: college.name, value: college.id} : null);
         }
         if (payment.itemId) {
             const item = getItemById(payment.itemId);
@@ -679,6 +675,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                             onChange={setSelectedCollege}
                             options={colleges}
                             styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                            getOptionLabel ={(college)=> college.name}
+                            getOptionValue ={(college)=> college.id}
                         />
                     </div>
                 </div>

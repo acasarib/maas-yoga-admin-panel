@@ -84,7 +84,7 @@ function Course({ course, student }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, colleges, getPendingPaymentsByCourseFromStudent, getClazzes, editPayment, getHeadquarterById, getItemById } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, colleges, getPendingPaymentsByCourseFromStudent, getClazzes, editPayment, getItemById } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -303,10 +303,6 @@ const CourseDetail = () => {
         if(payment.clazzId) {
             const classes = clazzes.filter(cls => cls.id === payment.clazzId);
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
-        }
-        if(payment.headquarterId) {
-            const college = getHeadquarterById(payment.headquarterId);
-            setSelectedCollege(college !== undefined ? {label: college.name, value: college.id} : null);
         }
         if (payment.itemId) {
             const item = getItemById(payment.itemId);
