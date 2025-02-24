@@ -29,7 +29,6 @@ export const Provider = ({ children }) => {
     const [services, setServices] = useState([]);
     const [users, setUsers] = useState([]);
     const [payments, setPayments] = useState([]);
-    const [secretaryPayments, setSecretaryPayments] = useState([]);
     const [lastSecretaryPayment, setLastSecretaryPayment] = useState(null)
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
@@ -185,7 +184,6 @@ export const Provider = ({ children }) => {
     const getHeadquarterById = headquarterId => colleges.find(headquarter => headquarter.id == headquarterId);
     const getItemById = itemId => categories.find(category => category.items.find(item => item.id == itemId)).items.find(item => item.id == itemId);
     const getUserById = userId => users.find(user => user.id == userId);
-    const getSecretaryPaymentById = spId => secretaryPayments.find(sp => sp.id == spId);
     const getProfessorById = professorId => professors.find(professor => professor.id == professorId);
 
     const getProfessorDetailsById = async (professorId, force = false) => {
@@ -319,7 +317,6 @@ export const Provider = ({ children }) => {
 
     const splitPayment = async (paymentData, paymentId) => {
         await paymentsService.splitPayment(paymentData, paymentId)
-        //await getPayments()//TODO: ver esto
     }
 
     const deletePayment = async (id) => {
@@ -774,7 +771,6 @@ export const Provider = ({ children }) => {
             newClazz,
             newUser,
             deleteUser,
-            getSecretaryPaymentById,
             deleteStudent,
             editStudent,
             newStudent,
