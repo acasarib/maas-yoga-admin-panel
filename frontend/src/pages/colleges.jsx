@@ -11,17 +11,19 @@ import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import Select from "../components/select/select";
+import Spinner from "../components/spinner/spinner";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { courses, colleges, isLoadingColleges, deleteCollege, editCollege, addCoursesToCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
+    const { courses, getColleges, isLoadingColleges, deleteCollege, editCollege, addCoursesToCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
     const [collegeToEdit, setCollegeToEdit] = useState({});
     const [selectedOption, setSelectedOption] = useState([]);
+    const [colleges, setColleges] = useState([]);
     const [displayCoursesModal, setDisplayCoursesModal] = useState(false);
     const [coursesList, setCoursesList] = useState([]);
     const [collegeName, setCollegeName] = useState("");
@@ -176,23 +178,23 @@ export default function Colleges(props) {
                 }
                 formik.values = {};
               },
-      });
+    });
+
+    const fetchColleges = async () => {
+        const colleges = await getColleges()        
+        setColleges(colleges)
+    }
 
     useEffect(() => {
-        console.log('Cantidad seleccionada ' + selectedOption.length + '...');
-    }, [selectedOption])
-
-    useEffect(() => {
-        if (colleges.length === 0 && !isLoadingColleges)
-            setOpResult('No fue posible obtener las sedes, por favor recargue la página...')
-    }, [colleges, isLoadingColleges]);
-
-    /*const white = orange[50];*/
+        fetchColleges()
+    }, []);
 
     return(
         <>
             <Container title="Sedes">
                 <Table
+                    progressPending={isLoadingColleges}
+                    progressComponent={<Spinner/>}
                     columns={columns}
                     data={colleges}
                     noDataComponent={opResult}

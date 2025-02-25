@@ -15,6 +15,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
 import agendaService from "../services/agendaService";
 import { series } from "../utils";
+import useToggle from "../hooks/useToggle";
 
 export const Context = createContext();
 
@@ -50,6 +51,15 @@ export const Provider = ({ children }) => {
         return data;
     };
 
+    const getColleges = async () => {
+        if (colleges.length > 0) return colleges;
+        setIsLoadingColleges(true)
+        const data = await collegesService.getColleges();
+        setIsLoadingColleges(false)
+        setColleges(data);
+        return data;
+    };
+
     const getStudents = async () => {
         const studentsList = await studentsService.getStudents();
         studentsList.forEach(student => {
@@ -67,11 +77,6 @@ export const Provider = ({ children }) => {
             const tasksList = await tasksService.getTasks();
             setTasks(tasksList);
             setIsLoadingTasks(false);
-        }
-        const getColleges = async () => {
-            const collegesList = await collegesService.getColleges();
-            setColleges(collegesList);
-            setIsLoadingColleges(false);
         }
         const getCategories = async () => {
             const categories = await categoriesService.getCategories();
@@ -120,7 +125,6 @@ export const Provider = ({ children }) => {
         getUsers();
         getStudents();
         getTasks();
-        getColleges();
         getCategories();
         getProffesors();
         getAgendaLocations();
@@ -728,7 +732,6 @@ export const Provider = ({ children }) => {
         <Context.Provider value={{
             agendaLocations,
             getAgendaCashValues,
-            colleges,
             students,
             tasks,
             payments,
@@ -803,6 +806,7 @@ export const Provider = ({ children }) => {
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
             updatePayment,
+            getColleges,
             getItemById,
             getStudentPayments,
             getProfessorById,
