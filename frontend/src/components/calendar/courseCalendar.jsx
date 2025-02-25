@@ -1,9 +1,8 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "moment/locale/es";
 import moment from 'moment';
-import { Context } from "../../context/Context";
 import { useState } from "react";
 import { randomColor } from "../../utils";
 import { formatDateDDMMYY } from "../../utils";
@@ -11,13 +10,12 @@ import { formatDateDDMMYY } from "../../utils";
 const localizer = momentLocalizer(moment);
 
 export default function CourseCalendar({ course }) {
-    const { getProfessorById, professors } = useContext(Context);
     const [parsedPeriods, setParsedPeriods] = useState([]);
     const professorColors =      ["#B1DDF1", "#9F87AF", "#EE6C4D", "#5EF38C", "#08415C"];
     const professorTextColors =  ["#000000", "#000000", "#000000", "#000000", "#FFFFFF"];
 
     const mapPeriod = (period, index) => {
-        const professorPeriod = getProfessorById(period.professorId);
+        const professorPeriod = period.professor
         let bgColor = professorColors[index];
         let textColor = professorTextColors[index];
         if (bgColor === undefined) {
@@ -49,10 +47,8 @@ export default function CourseCalendar({ course }) {
     }
 
     useEffect(() => {
-        if (professors.length === 0)
-            return
         setParsedPeriods(course.periods.map(mapPeriod));
-    }, [course, professors]);
+    }, [course]);
 
     const translatedMessages = {
         date: "Fecha",

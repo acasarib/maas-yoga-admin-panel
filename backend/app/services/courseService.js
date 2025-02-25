@@ -164,7 +164,7 @@ export const getById = async (id) => {
   c.dataValues.students = await getStudentsByCourse(c.id);
   c.dataValues.periods = [];
   for (const professor of professorsWithPeriods) {
-    const professorPeriods = professor.dataValues.periods.map(pp => ({ ...pp, professorId: professor.id }));
+    const professorPeriods = professor.dataValues.periods.map(pp => ({ ...pp, professorId: professor.id, professor }));
     c.dataValues.periods = [...c.dataValues.periods, ...professorPeriods];
 
   }
