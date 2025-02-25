@@ -186,28 +186,10 @@ export const Provider = ({ children }) => {
 
     const getStudentById = studentId => students.find(student => student.id == studentId);
     const getUserById = userId => users.find(user => user.id == userId);
-    const getProfessorById = professorId => professors.find(professor => professor.id == professorId);
 
-    const getProfessorDetailsById = async (professorId, force = false) => {
-        const localProfessor = getProfessorById(professorId);
-        if (localProfessor) {
-            if (force === false && ("courses" in localProfessor)) {
-                return localProfessor;
-            }
-            const professor = await professorsService.getProfessor(professorId);
-            setProfessors(prev => prev.map(p => {
-                if (p.id === professorId) {
-                    return professor;
-                } else {
-                    return p;
-                }
-            }))
-            return professor;
-        } else {
-            const professor = await professorsService.getProfessor(professorId);
-            setProfessors(prev => [...professors, professor]);
-            return professor;
-        }
+    const getProfessorDetailsById = async (professorId) => {
+        const professor = await professorsService.getProfessor(professorId);
+        return professor;
     }
 
     const getCourseDetailsById = async (courseId) => {
@@ -805,7 +787,6 @@ export const Provider = ({ children }) => {
             getStudentPayments,
             getServices,
             getItems,
-            getProfessorById,
             user,
             getPendingPayments,
             splitPayment,

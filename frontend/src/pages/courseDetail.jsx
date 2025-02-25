@@ -21,6 +21,8 @@ import TasksTable from '../components/table/tasksTable';
 import TaskModal from '../components/courses/taskModal';
 import CopyTaskModal from '../components/courses/copyTaskModal';
 import Spinner from '../components/spinner/spinner';
+import CourseDetailModal from '../components/modal/courseDetailModal';
+import Link from '../components/link/link';
 
 const ProfessorCalendar = ({ coursePeriods }) => Object.keys(coursePeriods).map(year => <div className='mb-2' key={year}>
 	<div className='font-medium text-xl mb-1'>{year}</div>
@@ -103,7 +105,7 @@ const ProfessorsPeriods = ({ professorPeriods }) => {
 		return <li key={i} className='flex items-center mb-2'>
 			<span className='mr-2 text-4xl' style={{color: period.color }}>•</span>
 			<div>
-				<div>{professor.name + " " + professor.lastName} <span className='font-medium ml-2'>{formatDateDDMMYY(period.startAt)} - {formatDateDDMMYY(period.endAt)}</span></div>
+				<div><Link to={`/home/professors/${professor.id}`} className='hover:underline text-black'>{`${professor.name} ${professor.lastName}`}</Link> <span className='font-medium ml-2'>{formatDateDDMMYY(period.startAt)} - {formatDateDDMMYY(period.endAt)}</span></div>
 				<div className='text-gray-500'>{prettyCriteria(period.criteria, period.criteriaValue)}</div>
 			</div>
 		</li>
@@ -161,27 +163,34 @@ const StudentsModule = ({ course }) => {
 </>
 }
 
-const ProfessorsModule = ({ course, coursePeriods }) => <>
-<div className='divide-y'>
-	<div className='flex'>
-		<div className='w-6/12'>
-			<h2 className='mb-2 text-2xl font-bold'>Profesores</h2>
-			<ProfessorsPeriods professorPeriods={course.periods}/>
+const ProfessorsModule = ({ course, coursePeriods }) => {
+	const courseDetailModal = useModal()
+	return <>
+	<div className='divide-y'>
+		<div className='flex'>
+			<div className='w-6/12'>
+				<h2 className='mb-2 text-2xl font-bold'>Profesores</h2>
+				<ProfessorsPeriods professorPeriods={course.periods}/>
+			</div>
+			<div className='w-6/12'>
+				<CourseCollected course={course}/>
+			</div>
 		</div>
-		<div className='w-6/12'>
-			<CourseCollected course={course}/>
+		<div className='my-6'></div>
+	</div>
+	<div className={`divide-y ${course?.isCircular && 'hidden'}`}>
+		<div>
+			<CourseDetailModal isOpen={courseDetailModal.isOpen} onClose={courseDetailModal.close} course={course}/>
+			<div className='flex items-center'>
+				<h2 className='text-2xl font-bold mb-2'>Periodos</h2>
+				<div onClick={courseDetailModal.open} className='ml-4 font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer'>Abrir calendario</div>
+			</div>
+			<ProfessorCalendar coursePeriods={coursePeriods}/>
 		</div>
+		<div className='my-6'></div>
 	</div>
-	<div className='my-6'></div>
-</div>
-<div className={`divide-y ${course?.isCircular && 'hidden'}`}>
-	<div>
-		<h2 className='text-2xl font-bold mb-2'>Periodos</h2>
-		<ProfessorCalendar coursePeriods={coursePeriods}/>
-	</div>
-	<div className='my-6'></div>
-</div>
-</>
+	</>
+}
 
 const CourseCollected = ({ course }) => <>
 <div className='flex flex-end'>

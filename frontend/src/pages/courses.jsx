@@ -24,7 +24,6 @@ import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import ProfessorInfo from "../components/courses/professorInfo";
 import CustomCheckbox from "../components/checkbox/customCheckbox";
-import CourseDetailModal from "../components/modal/courseDetailModal";
 import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
 import useQueryParam from "../hooks/useQueryParam";
 import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
@@ -61,7 +60,6 @@ export default function Courses(props) {
     const [newProfessor, setNewProfessor] = useState(false);
     const [courseProfessors, setCourseProfessors] = useState([]);
     const [pageableCourses, setPageableCourses] = useState([]);
-    const [courseDetails, setCourseDetails] = useState(null);
     const [resetTable, setResetTable] = useState(false);
     const [periodToEdit, setPeriodToEdit] = useState({});
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -676,7 +674,7 @@ export default function Courses(props) {
                     noDataComponent="Este curso aun no posee tareas"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
-                <CourseDetailModal isOpen={courseDetails !== null} onClose={() => setCourseDetails(null)} course={courseDetails} />
+                
                 {activeStudent != null &&
                     <Modal
                         hiddingButton
