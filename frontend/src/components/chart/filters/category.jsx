@@ -5,13 +5,23 @@ import Select from "../../select/select";
 
 export default function FilterPaymentCategory({ onChange }) {
 
-    const { categories } = useContext(Context);
+    const { getCategories } = useContext(Context);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [categories, setCategories] = useState([])
     
     useEffect(() => {
         if (selectedCategory !== null)
             onChange(`item.categoryId eq ${selectedCategory.id}`);
     }, [selectedCategory]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const data = await getCategories()
+            setCategories(data)
+        }
+        fetchCategories()
+    }, [])
+    
     
 
 

@@ -15,6 +15,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
 import agendaService from "../services/agendaService";
 import { series } from "../utils";
+import useToggle from "../hooks/useToggle";
 
 export const Context = createContext();
 
@@ -33,6 +34,7 @@ export const Provider = ({ children }) => {
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
     const [clazzes, setClazzes] = useState([]);
     const [notifications, setNotifications] = useState([]);
+    const isLoadingCategories = useToggle()
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
     const [user, setUser] = useState(null);
@@ -49,6 +51,29 @@ export const Provider = ({ children }) => {
         setClazzes(data);
         return data;
     };
+
+    const getItems = async () => {
+        if (items.length > 0) return items;
+        const data = await categoriesService.getItems();
+        setItems(data);
+        return data;
+    }
+
+    const getServices = async () => {
+        if (services.length > 0) return services;
+        const data = await templatesService.getServices();
+        setServices(data);
+        return data
+    }
+
+    const getCategories = async () => {
+        if (categories.length > 0) return categories;
+        isLoadingCategories.enable()
+        const data = await categoriesService.getCategories();
+        isLoadingCategories.disable()
+        setCategories(data);
+        return data;
+    }
 
     const getAgendaLocations = async () => {
         if (agendaLocations.length > 0) return agendaLocations;
@@ -92,18 +117,6 @@ export const Provider = ({ children }) => {
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
         if (user === null) return;
-        const getCategories = async () => {
-            const categories = await categoriesService.getCategories();
-            categories.forEach(category => {
-                category.label = category.title;
-                category.value = category.id;
-                category.items.forEach(item => {
-                    item.label = item.title;
-                    item.value = item.id;
-                });
-            });
-            setCategories(categories);
-        }
         const getUsers = async () => {
             try {
               const usersList = await userService.getUsers();
@@ -129,7 +142,6 @@ export const Provider = ({ children }) => {
         getNotifications();
         getUsers();
         getStudents();
-        getCategories();
         getProffesors();
     }, [user]);
 
@@ -164,17 +176,6 @@ export const Provider = ({ children }) => {
         return agendaService.getCash(year, month, location);
     }
 
-    useEffect(() => {
-        const formatedItems = [];
-        categories.forEach(category => category.items.forEach(item => {
-            item.categoryTitle = category.title;
-            item.value = item.id;
-            item.label = item.title;
-            formatedItems.push(item);
-        }));
-        setItems(formatedItems);
-    }, [categories]);
-
     const merge = (item1, item2) => {
         for (let key in item1) {
             if (key in item2)
@@ -184,7 +185,6 @@ export const Provider = ({ children }) => {
     }
 
     const getStudentById = studentId => students.find(student => student.id == studentId);
-    const getItemById = itemId => categories.find(category => category.items.find(item => item.id == itemId)).items.find(item => item.id == itemId);
     const getUserById = userId => users.find(user => user.id == userId);
     const getProfessorById = professorId => professors.find(professor => professor.id == professorId);
 
@@ -271,8 +271,6 @@ export const Provider = ({ children }) => {
                 createdPayment.course = await getCourseDetailsById(createdPayment.courseId);
             if (createdPayment.studentId)
                 createdPayment.student = getStudentById(createdPayment.studentId);
-            if (createdPayment.itemId)
-                createdPayment.item = getItemById(createdPayment.itemId);
             setPayments(current => [...current, createdPayment]);
             return createdPayment;
         } catch(e) {
@@ -289,8 +287,6 @@ export const Provider = ({ children }) => {
                 editedPayment.course = await getCourseDetailsById(editedPayment.courseId);
             if (editedPayment.studentId)
                 editedPayment.student = getStudentById(editedPayment.studentId);
-            if (editedPayment.itemId)
-                editedPayment.item = getItemById(editedPayment.itemId);
             setPayments(current => current.map(p => p.id === payment.id ? merge(p, editedPayment) : p));
         } catch(e) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser editado... Por favor inténtelo nuevamente.');
@@ -623,8 +619,6 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'Fecha actualizada')
     }
 
-    
-
     const newService = async service => {
         const createdService = await templatesService.newService(service);
         changeAlertStatusAndMessage(true, 'success', 'El servicio fue creado exitosamente!')
@@ -686,8 +680,6 @@ export const Provider = ({ children }) => {
                 professor.result.payments.forEach(payment => {
                     if (payment.studentId)
                         payment.student = getStudentById(payment.studentId);
-                    if (payment.itemId)
-                        payment.item = getItemById(payment.itemId);
                     if (payment.userId)
                         payment.user = getUserById(payment.userId);
                 });
@@ -739,12 +731,10 @@ export const Provider = ({ children }) => {
             payments,
             services,
             getClazzes,
-            categories,
             suspendStudentFromCourse,
             deleteSuspension,
             getSecretaryPaymentDetail,
             finishSuspend,
-            items,
             isLoadingColleges,
             isLoadingCourses,
             isLoadingPayments,
@@ -792,6 +782,8 @@ export const Provider = ({ children }) => {
             newCategory,
             verifyClazz,
             getStudentsByCourse,
+            getCategories,
+            isLoadingCategories: isLoadingCategories.value,
             getProfessorDetailsById,
             getStudentDetailsById,
             deleteCourseTask,
@@ -810,8 +802,9 @@ export const Provider = ({ children }) => {
             calcProfessorsPayments,
             updatePayment,
             getColleges,
-            getItemById,
             getStudentPayments,
+            getServices,
+            getItems,
             getProfessorById,
             user,
             getPendingPayments,

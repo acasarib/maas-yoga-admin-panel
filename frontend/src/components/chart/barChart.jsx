@@ -2,7 +2,6 @@ import React from "react";
 import { formatPaymentValue } from "../../utils";
 
 export default function BarChart({ percentage, value, title }) {
-    console.log(value);
     
     return (
         <div className="relative flex flex-col items-center group flex-grow h-full">
