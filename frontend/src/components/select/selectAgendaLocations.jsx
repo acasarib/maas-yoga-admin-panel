@@ -1,14 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../context/Context";
-import Select, { components } from 'react-select';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
 export default function SelectAgendaLocations({ value, onChange }) {
-    const { agendaLocations } = useContext(Context);
+    const { getAgendaLocations } = useContext(Context);
+    const [agendaLocations, setAgendaLocations] = useState([])
     const [localAgendaLocations, setLocalAgendaLocations] = useState([]); 
     const allLocation = { id: 'all', label:"Todas", value: 'all' };
 
+    const fetchAgendaLocations = async () => {
+        const locations = await getAgendaLocations()
+        setAgendaLocations(locations)
+    }
+
+    useEffect(() => {
+        fetchAgendaLocations()
+    }, [])
+    
 
     useEffect(() => {
         setLocalAgendaLocations([allLocation,...agendaLocations]);
