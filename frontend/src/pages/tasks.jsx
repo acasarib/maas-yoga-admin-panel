@@ -20,7 +20,7 @@ import PlusButton from "../components/button/plus";
 export default function Tasks(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
-    const { tasks, editTask, deleteTask, createTask, changeAlertStatusAndMessage } = useContext(Context);
+    const { getTasks, editTask, deleteTask, createTask, changeAlertStatusAndMessage } = useContext(Context);
     const [taskId, setTaskId] = useState(null);
     const [taskToEdit, setTaskToEdit] = useState({});
     const [deleteModal, setDeleteModal] = useState(false);
@@ -28,6 +28,7 @@ export default function Tasks(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [value, setValue] = useState('1');
     const [pendingTasks, setPendingTasks] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [completedTasks, setCompletedTasks] = useState([]);
 
     const setDisplay = (value) => {
@@ -118,7 +119,12 @@ export default function Tasks(props) {
           }
           formik.values = {};
         },
-      });
+    });
+
+    const fetchTasks = async () => {
+        const tasks = await getTasks()
+        setTasks(tasks)
+    }
 
     useEffect(() => {
         const pendingList = tasks.filter(task => task.completed === false);
@@ -126,6 +132,10 @@ export default function Tasks(props) {
         const completedList = tasks.filter(task => task.completed === true);
         setCompletedTasks(completedList);
     }, [tasks]);
+
+    useEffect(() => {
+        fetchTasks()
+    }, []);
 
     return(
         <>
