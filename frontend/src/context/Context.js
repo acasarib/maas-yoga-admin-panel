@@ -50,6 +50,17 @@ export const Provider = ({ children }) => {
         return data;
     };
 
+    const getAgendaLocations = async () => {
+        if (agendaLocations.length > 0) return agendaLocations;
+        const data = await agendaService.getLocations();
+        data.forEach(location => {
+            location.label = location.nombre;
+            location.value = location.id;
+        });
+        setAgendaLocations(data);
+        return data
+    }
+
     const getTasks = async () => {
         if (tasks.length > 0) return tasks;
         setIsLoadingTasks(true)
@@ -110,14 +121,6 @@ export const Provider = ({ children }) => {
             setProfessors(pfrs);
             setIsLoadingProfessors(false);
         }
-        const getAgendaLocations = async () => {
-            const locations = await agendaService.getLocations();
-            locations.forEach(location => {
-                location.label = location.nombre;
-                location.value = location.id;
-            });
-            setAgendaLocations(locations);
-        }
         const getNotifications = async () => {
             const notifications = await notificationsService.getNotifications();
             setNotifications(notifications)
@@ -128,7 +131,6 @@ export const Provider = ({ children }) => {
         getStudents();
         getCategories();
         getProffesors();
-        getAgendaLocations();
     }, [user]);
 
     
@@ -731,7 +733,7 @@ export const Provider = ({ children }) => {
 
     return (
         <Context.Provider value={{
-            agendaLocations,
+            getAgendaLocations,
             getAgendaCashValues,
             students,
             payments,
