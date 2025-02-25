@@ -15,7 +15,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleApiProvider } from 'react-gapi'
 import agendaService from "../services/agendaService";
 import { series } from "../utils";
-import useToggle from "../hooks/useToggle";
 
 export const Context = createContext();
 
@@ -51,6 +50,15 @@ export const Provider = ({ children }) => {
         return data;
     };
 
+    const getTasks = async () => {
+        if (tasks.length > 0) return tasks;
+        setIsLoadingTasks(true)
+        const tasksList = await tasksService.getTasks();
+        setIsLoadingTasks(false)
+        setTasks(tasksList);
+        return tasksList
+    }
+
     const getColleges = async () => {
         if (colleges.length > 0) return colleges;
         setIsLoadingColleges(true)
@@ -73,11 +81,6 @@ export const Provider = ({ children }) => {
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
         if (user === null) return;
-        const getTasks = async () => {
-            const tasksList = await tasksService.getTasks();
-            setTasks(tasksList);
-            setIsLoadingTasks(false);
-        }
         const getCategories = async () => {
             const categories = await categoriesService.getCategories();
             categories.forEach(category => {
@@ -121,10 +124,8 @@ export const Provider = ({ children }) => {
         }
         
         getNotifications();
-        
         getUsers();
         getStudents();
-        getTasks();
         getCategories();
         getProffesors();
         getAgendaLocations();
@@ -733,7 +734,6 @@ export const Provider = ({ children }) => {
             agendaLocations,
             getAgendaCashValues,
             students,
-            tasks,
             payments,
             services,
             getClazzes,
@@ -794,6 +794,7 @@ export const Provider = ({ children }) => {
             getStudentDetailsById,
             deleteCourseTask,
             getUserById,
+            getTasks,
             getPendingPaymentsByCourseFromStudent,
             newProfessorPayment,
             editPayment,
