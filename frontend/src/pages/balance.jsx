@@ -62,7 +62,7 @@ export default function Balance(props) {
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [fileId, setFileId] = useState(null);
     const [clazzes, setClazzes] = useState([]);
-    const { getClazzes, getItemById, user, changeAlertStatusAndMessage, editPayment, students, informPayment, courses } = useContext(Context);
+    const { getClazzes, user, changeAlertStatusAndMessage, editPayment, students, informPayment, courses } = useContext(Context);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
 
@@ -300,7 +300,7 @@ export default function Balance(props) {
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
         }
         if (payment.itemId) {
-            const item = getItemById(payment.itemId);
+            const item = payment.item
             setSelectedItem(item !== undefined ? item : null);
         }
         if(payment.value < 0) {

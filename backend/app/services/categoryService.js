@@ -37,3 +37,13 @@ export const getById = async (id) => {
 export const getAll = async () => {
   return category.findAll({ include: [item] });
 };
+
+export const getAllItems = async () => {
+  return item.findAll({
+    attributes: ["title", "id"],
+    include: {
+      model: category,
+      attributes: ["title"]
+    }
+  });
+};

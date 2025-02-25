@@ -15,7 +15,7 @@ import DeletePaymentModal from "../modal/deletePaymentModal";
 import Spinner from "../spinner/spinner";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
-    const { user, categories, changeAlertStatusAndMessage, getUserById, courses } = useContext(Context);
+    const { user, users, changeAlertStatusAndMessage, getUserById, courses } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
     const deletePaymentModal = useModal()
@@ -113,7 +113,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
 
     const getVerifierUserFullName = (row) => {
         if (row.verifiedBy && row.verifiedBy !== undefined && row.verifiedBy !== null) {
-            const user = getUserById(row.verifiedBy)
+            const user = row.verifiedByUser
             return user.firstName + ' ' + user.lastName;
         } else {
             return row.verified ? "Verificado" : "No verificado"
@@ -152,12 +152,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
         let item = "";
         try {
             if(row.itemId !== null) {
-                try {
-                    const newItem = categories.find(category => category.items.find(item => item.id === row.itemId)).items.find(item => item.id === row.itemId);
-                    item = newItem.title;
-                }catch {
-                    item = "";
-                }
+                item = row.item.title
             }else {
                 if((row.student !== null) && (row.courseId !== null)) {
                     const course = row?.course
@@ -309,7 +304,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
             }
         })
         return columns;
-    }, [categories, dateField, courses, showOpResultDate]); 
+    }, [dateField, courses, showOpResultDate]); 
 
     useEffect(() => {
         setFilteredPayments(payments);

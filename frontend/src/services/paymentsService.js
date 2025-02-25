@@ -298,7 +298,7 @@ export default {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             query = typeof query !== "string" ? query.join(SPECIFICATION_QUERY_SEPARATOR) : query;
             axios
-                .get(baseUrl + 'api/v1/payments?q=' + query, {})
+                .get(baseUrl + 'api/v1/payments/legacy?q=' + query, {})
                 .then((response) => {
                     resolve(response.data);
                 })

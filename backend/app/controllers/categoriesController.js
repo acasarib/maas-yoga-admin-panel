@@ -70,4 +70,17 @@ export default {
     }
   },
 
+  /**
+   * /categories/items [GET]
+   * @returns HttpStatus ok and array of @Item
+   */
+  getAllItems: async (req, res, next) => {
+    try {
+      const items = await categoryService.getAllItems();
+      res.status(StatusCodes.OK).json(items);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };

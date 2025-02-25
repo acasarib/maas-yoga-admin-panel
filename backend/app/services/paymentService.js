@@ -5,6 +5,7 @@ import * as notificationService from "./notificationService.js";
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 
+const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item];
 /**
  * 
  * @param {Array||Payment} paymentParam 
@@ -162,13 +163,17 @@ export const getAllByCourseId = async (courseId) => {
 export const legacyGetAll = async (specification) => {
   return payment.findAll({
     where: specification.getSequelizeSpecification(),
-    include: specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file])
+    include: specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, {
+      model: user,
+      as: "verifiedByUser",
+      attributes: ["firstName", "lastName"]
+    }])
   });
 };
 
 export const getAll = async (page = 1, size = 10, specification) => {
   const where = specification.getSequelizeSpecification();
-  const include = specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment]);
+  const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
   const findAllParams = {
     include,
     limit: size,
@@ -210,7 +215,7 @@ export const getAllUnverified = async (page = 1, size = 10, specification) => {
     [Op.and]: [{verified: false}, spec]
   };
   
-  const include = specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment]);
+  const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
   const findAllParams = {
     include,
     limit: size,
@@ -245,7 +250,7 @@ export const getAllVerified = async (page = 1, size = 10, specification) => {
     [Op.and]: [{verified: true}, spec]
   };
   
-  const include = specification.getSequelizeSpecificationAssociations([{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment]);
+  const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
   const findAllParams = {
     include,
     limit: size,
@@ -283,7 +288,7 @@ export const updatePayment = async (id, data, userId) => {
 };
 
 export const getById = async (id) => {
-  const p = await payment.findByPk(id, { include: [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter] });
+  const p = await payment.findByPk(id, { include: defaultPaymentInclude });
   if (p == null)
     throw ({ statusCode: StatusCodes.NOT_FOUND, message: "payment not found" });
   return p;

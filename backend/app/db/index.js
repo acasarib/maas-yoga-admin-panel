@@ -90,6 +90,7 @@ headquarter.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" 
 user.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 payment.belongsTo(user, {
   foreignKey: { name: "verifiedBy", allowNull: true },
+  as: "verifiedByUser"
 });
 payment.belongsTo(file, { foreignKey: { allowNull: true } });
 user.hasOne(payment, { foreignKey: { allowNull: true }, targetKey: "verifiedBy" });

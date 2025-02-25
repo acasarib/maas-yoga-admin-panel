@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
-import { orange } from '@mui/material/colors';
 import Modal from "../components/modal";
 import CommonInput from "../components/commonInput";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -13,19 +12,31 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
+import Spinner from "../components/spinner/spinner";
 
+//TODO: categorias reactivas, al agregar una nueva, editar una nueva o eliminar, la lista de categorias no se actualiza
+//TODO2: categorias paginadas
 export default function Categories(props) {
-    const { categories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage } = useContext(Context);
+    const { getCategories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
-    const [opResult, setOpResult] = useState('Verificando rubros...');
     const [edit, setEdit] = useState(false);
     const [category, setCategory] = useState({ title: "" });
     const [activeView, setActiveView] = useState(0)
     const [newItem, setNewItem] = useState("");
     const [btnText, setBtnText] = useState("Siguiente");
     const [items, setItems] = useState([]);
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const data = await getCategories()
+            setCategories(data)
+        }
+        fetchCategories()
+    }, [])
+    
 
     const closeModal = () => {
         setDisplay(false);
@@ -160,11 +171,6 @@ export default function Categories(props) {
         },
     ];
 
-    useEffect(() => {
-        if(categories.length === 0 && !isLoadingCategories)
-            setOpResult('No fue posible obtener los rubros, por favor recargue la página...');
-    }, [categories, isLoadingCategories]);
-
     const handleOnClickNext = async () => {
         if (activeView === 0) {
             setActiveView(1);
@@ -190,9 +196,11 @@ export default function Categories(props) {
                 <Table
                     columns={columns}
                     data={categories}
+                    progressPending={isLoadingCategories}
+                    progressComponent={<Spinner/>}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     responsive
-                    noDataComponent={opResult}
+                    noDataComponent={'Verificando rubros...'}
                 />
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
