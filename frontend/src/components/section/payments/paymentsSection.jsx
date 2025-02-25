@@ -28,13 +28,14 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Select from "../../select/select";
 import SelectClass from "../../select/selectClass";
+import SelectColleges from "../../select/selectColleges";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, getClazzes, students, courses, colleges, services, informPayment, newService, editService, changeAlertStatusAndMessage, editPayment, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
+    const { user, getClazzes, students, courses, services, informPayment, newService, editService, changeAlertStatusAndMessage, editPayment, getItemById, getSecretaryPaymentDetail, deleteService, professors } = useContext(Context);
     const [clazzes, setClazzes] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
@@ -670,13 +671,10 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
-                        <Select
+                        <SelectColleges
                             value={selectedCollege}
                             onChange={setSelectedCollege}
-                            options={colleges}
                             styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
-                            getOptionLabel ={(college)=> college.name}
-                            getOptionValue ={(college)=> college.id}
                         />
                     </div>
                 </div>

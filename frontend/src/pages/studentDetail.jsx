@@ -33,6 +33,7 @@ import TaskList from '../components/list/taskList';
 import StudentCard from '../components/card/studentCard';
 import useToggle from '../hooks/useToggle';
 import SelectClass from '../components/select/selectClass';
+import SelectColleges from '../components/select/selectColleges';
 
 function Course({ course, student }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -84,7 +85,7 @@ function Course({ course, student }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, colleges, getPendingPaymentsByCourseFromStudent, getClazzes, editPayment, getItemById } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, getClazzes, editPayment, getItemById } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -585,10 +586,9 @@ const CourseDetail = () => {
                 <div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
-                        <Select
+                        <SelectColleges
                             value={selectedCollege}
                             onChange={setSelectedCollege}
-                            options={colleges}
                             styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
                         />
                     </div>

@@ -22,6 +22,7 @@ import CommonInput from "../components/commonInput";
 import CommonTextArea from "../components/commonTextArea";
 import Select from "../components/select/select";
 import SelectClass from "../components/select/selectClass";
+import SelectColleges from "../components/select/selectColleges";
 
 export default function Balance(props) {
 
@@ -61,7 +62,7 @@ export default function Balance(props) {
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [fileId, setFileId] = useState(null);
     const [clazzes, setClazzes] = useState([]);
-    const { getClazzes, getItemById, user, changeAlertStatusAndMessage, colleges, editPayment, students, informPayment, courses } = useContext(Context);
+    const { getClazzes, getItemById, user, changeAlertStatusAndMessage, editPayment, students, informPayment, courses } = useContext(Context);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
 
@@ -478,10 +479,9 @@ export default function Balance(props) {
                 <div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
-                        <Select
+                        <SelectColleges
                             value={selectedCollege}
                             onChange={setSelectedCollege}
-                            options={colleges}
                             styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
                         />
                     </div>

@@ -14,10 +14,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewSlider from 'react-view-slider';
 import PlusButton from "../../button/plus";
 import Select from "../../select/select";
+import SelectColleges from "../../select/selectColleges";
 
 export default function ClassesSection(props) {
 
-    const { getClazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, colleges } = useContext(Context);
+    const { getClazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, getColleges } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -109,6 +110,7 @@ export default function ClassesSection(props) {
     }
 
     const openEditModal = async (clazz) => {
+        const colleges = await getColleges()
         setClazzToEdit(clazz);
         setDays(current => current.map(d => d.key in clazz.days ? ({ ...d, isSelected: true, startAt: clazz.days[d.key].startAt, endAt: clazz.days[d.key].endAt }) : d))
         setSelectedCollege(colleges.find(c => c.id === clazz.headquarterId));
@@ -192,10 +194,9 @@ export default function ClassesSection(props) {
                 <div className="col-span-2 md:col-span-2 pb-3">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
-                        <Select
+                        <SelectColleges
                             value={selectedCollege}
                             onChange={setSelectedCollege}
-                            options={colleges}
                             styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
                         />
                     </div>
