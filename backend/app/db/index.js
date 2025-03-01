@@ -64,6 +64,7 @@ payment.belongsTo(payment,{ foreignKey: { allowNull: true }, targetKey: "id" });
 user.hasMany(logPayment);
 logPayment.belongsTo(user, { foreignKey: "userId" });
 professor.belongsToMany(course, { through: { model: professorCourse, unique: false} });
+professorCourse.belongsTo(professor);
 professor.hasMany(payment, { foreignKey: { allowNull: true }, targetKey: "id" });
 course.belongsToMany(professor, { through: { model: professorCourse, unique: false} });
 course.belongsToMany(headquarter, { through: "headquarter_course" });
