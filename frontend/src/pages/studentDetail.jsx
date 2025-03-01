@@ -85,7 +85,7 @@ function Course({ course, student }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, getClazzes, editPayment } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -119,19 +119,9 @@ const CourseDetail = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [openPicker] = useDrivePicker();
-    const [clazzes, setClazzes] = useState([]);
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
-
-    const fetchClazzes = async () => {
-        const clazzes = await getClazzes();
-        setClazzes(clazzes);
-    }
-
-    useEffect(() => {
-        fetchClazzes();
-    }, [])
 
 	const getData = async () => {
 		const student = await getStudentDetailsById(studentId)
@@ -302,7 +292,7 @@ const CourseDetail = () => {
             handleChangeDiscount(payment.discount)
         }
         if(payment.clazzId) {
-            const classes = clazzes.filter(cls => cls.id === payment.clazzId);
+            const classes = payment.clazz
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
         }
         if (payment.itemId) {

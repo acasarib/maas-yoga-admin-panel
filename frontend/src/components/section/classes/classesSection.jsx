@@ -13,7 +13,6 @@ import WeekdayPicker from "../../weekdayPicker";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewSlider from 'react-view-slider';
 import PlusButton from "../../button/plus";
-import Select from "../../select/select";
 import SelectColleges from "../../select/selectColleges";
 
 export default function ClassesSection(props) {

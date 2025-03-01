@@ -61,20 +61,9 @@ export default function Balance(props) {
     const [driveFile, setDriveFile] = useState(null);
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [fileId, setFileId] = useState(null);
-    const [clazzes, setClazzes] = useState([]);
-    const { getClazzes, user, changeAlertStatusAndMessage, editPayment, students, informPayment, courses } = useContext(Context);
+    const { user, changeAlertStatusAndMessage, editPayment, students, informPayment, courses } = useContext(Context);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
-
-    const fetchClazzes = async () => {
-        const clazzes = await getClazzes();
-        setClazzes(clazzes);
-    }
-
-    useEffect(() => {
-      fetchClazzes();
-    }, [])
-    
     const switchModal = () => setIsModalOpen(!isModalOpen);
 
     const handleChangeSecretaryPaymentValue = (type, value) => {
@@ -296,7 +285,7 @@ export default function Balance(props) {
             handleChangeDiscount(payment.discount)
         }
         if(payment.clazzId) {
-            const classes = clazzes.filter(cls => cls.id === payment.clazzId);
+            const classes = payment.clazz
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
         }
         if (payment.itemId) {
