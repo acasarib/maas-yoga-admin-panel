@@ -208,6 +208,7 @@ export const getStudentsByCourse = async (courseId) => {
   const payments = await payment.findAll({ where: { courseId, studentId: {
     [Op.in]: studentsIds
   } } })
+  const getRegistrationPayment = (studentId) => payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
   if (c.isCircular) {
     const getCircularPayment = (studentId) => payments.find(p => !p.isRegistrationPayment && p.studentId == studentId);
     for (const s of c.dataValues.students) {
@@ -233,7 +234,6 @@ export const getStudentsByCourse = async (courseId) => {
   courseEndAt.setSeconds(59);
   courseEndAt.setMilliseconds(999);
   const dateSeries = utils.getMonthlyDateSeries(courseStartAt, courseEndAt)
-  const getRegistrationPayment = (studentId) => payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
   const getPaymentByYearAndMonthAndStudentId = (year, month, studentId) => {
     return payments.find(p => {
       if (p.isRegistrationPayment) {

@@ -185,9 +185,8 @@ export const getAll = async (title, page = 1, size = 10) => {
 
   let { count, rows } = await course.findAndCountAll(findAllParams);
   let courses = rows;
-  let professorCourses = professorCourse.findAll();
-  courses = await courses;
-  professorCourses = await professorCourses;
+  let coursesIds = courses.map(c => c.id);
+  let professorCourses = await professorCourse.findAll({ include: [professor], where: { courseId: {[Op.in]:coursesIds}}});
   courses.forEach(course => {
     course.dataValues.periods = professorCourses.filter(pc => pc.courseId == course.id);
   });
