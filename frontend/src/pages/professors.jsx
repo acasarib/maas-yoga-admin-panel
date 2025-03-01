@@ -13,8 +13,9 @@ import CustomRadio from "../components/radio/customRadio";
 import { useNavigate } from "react-router-dom";
 
 export default function Professors(props) {
-    const { professors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
+    const { getProfessors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
+    const [professors, setProfessors] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [professorId, setProfessorId] = useState(null);
@@ -27,6 +28,15 @@ export default function Professors(props) {
         window.matchMedia("(min-width: 700px)").matches
     )
     const navigate = useNavigate(); 
+
+    const fetchProfessors = async () => {
+        const data = await getProfessors();
+        setProfessors(data);
+    };
+
+    useEffect(() => {
+        fetchProfessors();
+    }, []);
 
     const [selectedProfessorInvoiceType, setSelectedProfessorInvoiceType] = useState('A');
     const handleOptionChange = (event) => {

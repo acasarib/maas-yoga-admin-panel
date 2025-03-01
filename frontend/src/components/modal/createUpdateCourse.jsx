@@ -17,7 +17,7 @@ import EditIcon from '@mui/icons-material/Edit';
 
 
 const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) => {
-	const { students, professors, editCourse, addStudent, newCourse, changeAlertStatusAndMessage } = useContext(Context);
+	const { students, editCourse, addStudent, newCourse, changeAlertStatusAndMessage } = useContext(Context);
 	const needsRegistration = useToggle(false);
 	const isCircular = useToggle();
 	const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -251,7 +251,6 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 					<ProfessorInfo
 						edit={edit}
 						periodToEdit={periodToEdit}
-						professors={professors}
 						editProfessor={(v, idx) => editPeriod(v, idx)}
 						closeNewProfessor={(value) => { setNewProfessor(value); setPeriodToEdit({}) }}
 						pushProfessor={(v) => {

@@ -4,7 +4,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CommonInput from "../commonInput";
 import dayjs from 'dayjs';
 import { dateToYYYYMMDD, splitDate } from "../../utils";
-import Select from "../select/select";
+import SelectProfessors from "../select/selectProfessors";
 
 export default function ProfessorInfo(props) {
     const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -12,9 +12,9 @@ export default function ProfessorInfo(props) {
     const [criteria, setCriteria] = useState('percentage'); 
     const [criteriaValue, setCriteriaValue] = useState(null);
     const [courseValue, setCourseValue] = useState("");
-    const [id, setId] = useState(null); 
+    const [professorSelected, setProfessorSelected] = useState(null); 
     const [isProfessorSelected, setIsProfessorSelected] = useState(false);
-    
+
     const handleChangeCriteria = ({ student, percentage, assistance, assistant }) => {
         setCourseValue("")
         if (assistant) {
@@ -41,7 +41,7 @@ export default function ProfessorInfo(props) {
             endAt: dateToYYYYMMDD(endAt.$d),
             criteria: criteria,
             criteriaValue: criteriaValue,
-            professorId: id
+            professorId: professorSelected.id
         }
         if (courseValue != "") {
             professor.courseValue = courseValue
@@ -49,7 +49,7 @@ export default function ProfessorInfo(props) {
         if (props.periodToEdit.professorId) {
             professor.id = props.periodToEdit.id;
         }
-        professor.professor = props.professors.find(p => p.id == id)
+        professor.professor = professorSelected
         if (props.periodToEdit.professorId) {
             props.editProfessor(professor, props.periodToEdit.id);
         }else {
@@ -61,8 +61,6 @@ export default function ProfessorInfo(props) {
         setStartAt(dayjs(new Date()));
         setEndAt(dayjs(new Date()));
     }
-
-    const getProfessorById = professorId => props.professors.find(professor => professor.id === professorId);
 
     const cancel = () => {
         setCriteria(null);
@@ -81,7 +79,7 @@ export default function ProfessorInfo(props) {
             setCriteria(props.periodToEdit.criteria);
             setCriteriaValue(props.periodToEdit.criteriaValue);
             setCourseValue(props.periodToEdit.courseValue == null ? "" : props.periodToEdit.courseValue)
-            setId(props.periodToEdit.professorId);
+            setProfessorSelected(props.periodToEdit.professor);
             setIsProfessorSelected(true);
         }
     }, [props.periodToEdit])
@@ -92,11 +90,13 @@ export default function ProfessorInfo(props) {
             <label className="block text-gray-700 text-sm font-bold mb-2">
                 Seleccionar profesor
             </label>
-            <Select onChange={(e) => {
-                    setId(e.id);
+            <SelectProfessors onChange={(e) => {
+                    setProfessorSelected(e);
                     setIsProfessorSelected(true);
-                }
-            } defaultValue={props.periodToEdit.professorId ? getProfessorById(props.periodToEdit.professorId) : null} options={props.professors} className="z-50"/>
+                }}
+                defaultValue={props.periodToEdit.professorId ? props.periodToEdit.professor : null}
+                className="z-50"
+            />
             {isProfessorSelected && (<><div className="my-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                     Profesor desde
