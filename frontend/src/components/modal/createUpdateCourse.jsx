@@ -5,7 +5,6 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import CommonInput from '../commonInput';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import { DateTimePicker } from '@mui/x-date-pickers';
-import Select from '../select/select';
 import useToggle from '../../hooks/useToggle';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,10 +13,11 @@ import CustomCheckbox from '../checkbox/customCheckbox';
 import PlusButton from '../button/plus';
 import ProfessorInfo from '../courses/professorInfo'
 import EditIcon from '@mui/icons-material/Edit';
+import SelectStudent from '../select/selectStudent';
 
 
 const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) => {
-	const { students, editCourse, addStudent, newCourse, changeAlertStatusAndMessage } = useContext(Context);
+	const { editCourse, addStudent, newCourse, changeAlertStatusAndMessage } = useContext(Context);
 	const needsRegistration = useToggle(false);
 	const isCircular = useToggle();
 	const [startAt, setStartAt] = useState(dayjs(new Date()));
@@ -97,12 +97,12 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 	const removeCourseProfessor = professor => setCourseProfessors(courseProfessors.filter(p => p.id !== professor.id));
 
 	const handleChangeStudents = (selectedOpt) => {
-        let arr = [];
-        selectedOpt.forEach(opt => {
-            arr.push(opt.id);
-        })
-        setSelectedStudents(arr)
-    };
+			let arr = [];
+			selectedOpt.forEach(opt => {
+					arr.push(opt.id);
+			})
+			setSelectedStudents(arr)
+	};
 
 	const editPeriod = (period, id) => {
         courseProfessors.forEach((p, index) => {
@@ -202,13 +202,10 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 					<label className="block text-gray-700 text-sm font-bold mb-2">
 						Asignar alumnos
 					</label>
-					<Select
+					<SelectStudent
 						className="z-100"
 						isMulti
 						onChange={handleChangeStudents}
-						options={students}//TODO: Optimizar consulta estudiantes, aca usar un componente predictivo
-						getOptionLabel={(st) => st.name + ' ' + st.lastName}
-						getValueLabel={(st) => st.id}
 						defaultValue={(edit && (courseToEdit.students)) ? courseToEdit.students : []}
 					/>
 				</div>

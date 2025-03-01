@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import studentsService from "../../services/studentsService";
 import CustomAutoSuggest from "./customAutoSuggest";
 import Select from "./select";
+import AsyncSelect from 'react-select/async';
 
-export default function SelectStudent({ onChange, options, value, className }) {
+export default function SelectStudent({ onChange, options, value, className, defaultValue, isMulti }) {
   
   const [students, setStudents] = useState([]);
   const [studentFullName, setStudentFullName] = useState('');
@@ -38,7 +39,31 @@ export default function SelectStudent({ onChange, options, value, className }) {
     setStudents([])
   }
 
-  return options == null ? 
+  const loadOptions = async (inputValue, callback) => {
+    const params = {
+      isOrOperation: true,
+      name: { operation: 'iLike', value: inputValue },
+      lastName: { operation: 'iLike', value: inputValue },
+      email: { operation: 'iLike', value: inputValue },
+    }
+    const response = await studentsService.getStudents(1, 10, params)    
+    callback(response.data)
+  };
+
+  return isMulti ? 
+  <AsyncSelect
+    cacheOptions
+    defaultOptions={students}
+    loadOptions={loadOptions}
+    onChange={onChange}
+    placeholder={"Seleccionar"}
+    value={value}
+    defaultValue={defaultValue}
+    isMulti
+    getOptionLabel ={(student)=> `${student?.name} ${student?.lastName}`}
+    getOptionValue ={(student)=> student.id}
+  />
+  : options == null ? 
     <CustomAutoSuggest
       className={className}
       suggestions={students}
