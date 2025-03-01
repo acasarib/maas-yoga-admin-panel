@@ -27,13 +27,10 @@ import CreateUpdateCourseModal from "../components/modal/createUpdateCourse";
 import useModal from '../hooks/useModal'
 
 export default function Courses(props) {
-    const { students, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
-    const [displayModal, setDisplayModal] = useState(false);
-    const [startAt, setStartAt] = useState(dayjs(new Date()));
+    const { isLoadingStudents, deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
     const [opResult, setOpResult] = useState('No hay cursos.');
-    const [edit, setEdit] = useState(false);
     const [courseToEdit, setCourseToEdit] = useState(null);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
     const [isTaskStudentModal, setIsTaskStudentModal] = useState(false);
@@ -44,10 +41,8 @@ export default function Courses(props) {
     const onSeeStudentPayments = student => setActiveStudent(student)
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
-    
     const isLoading = useToggle(false);
     const [taskId, setTaskId] = useState(null);
-    
     const [pageableCourses, setPageableCourses] = useState([]);
     const [resetTable, setResetTable] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -57,9 +52,10 @@ export default function Courses(props) {
     const [perPage, setPerPage] = useState(10);
     const [searchByTitle, setSearchByTitle] = useState();
     const createUpdateCourseModal = useModal()
+    const [searchTimeout, setSearchTimeout] = useState(null);
+    
 
     const setDisplay = (value) => {
-        setDisplayModal(value);
         setDeleteModal(value);
         setDisplayStudentsModal(value);
         setAddTaskModal(value);
@@ -353,11 +349,6 @@ export default function Courses(props) {
         style.minWidth = '750px';
     }
 
-    useEffect(() => {
-        if (students.length === 0 && !isLoadingStudents)
-            setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
-    }, [students, isLoadingStudents]);
-
     const fetchCourses = async (page = currentPage, size = perPage, title = searchByTitle) => {
         isLoading.enable()
         const data = await coursesService.getCourses(page, size, title);        
@@ -388,15 +379,16 @@ export default function Courses(props) {
     }, [resetTable])
     
 
-    const handleOnSearch = async (searchParams) => {        
-        if (searchParams.field == 'Identificador') {
-            const course = await coursesService.getCourse(searchParams.searchValue)
-            console.log(course);
-            
-            setPageableCourses([course])
-        } else {
-            setSearchByTitle(searchParams.searchValue)
-        }
+    const handleOnSearch = async (searchParams) => {
+        clearTimeout(searchTimeout);
+        setSearchTimeout(setTimeout(async () => {      
+            if (searchParams.field == 'Identificador') {
+                const course = await coursesService.getCourse(searchParams.searchValue)
+                setPageableCourses([course])
+            } else {
+                setSearchByTitle(searchParams.searchValue)
+            }
+        }, 500)); // Espera 500ms después de que el usuario deje de escribir
     }
 
     return (

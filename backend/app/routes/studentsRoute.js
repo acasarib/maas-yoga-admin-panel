@@ -5,8 +5,10 @@ import { body } from "express-validator";
 const router = express.Router();
 
 router.post("/", body("email").isEmail(), verifyToken, controller.create);
+router.post("/exists", verifyToken, controller.exists);
 router.delete("/:id", verifyToken, controller.deleteById);
 router.put("/:id", body("email").isEmail(), verifyToken, controller.editById);
+router.get("/legacy", verifyToken, controller.getAllLegacy);
 router.get("/:id", verifyToken, controller.getById);
 router.get("/:id/payments/pending", verifyToken, controller.pendingPaymentsByStudentId);
 router.get("/payments/pending", verifyToken, controller.pendingPayments);

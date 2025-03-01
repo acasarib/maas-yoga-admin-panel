@@ -59,6 +59,12 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
                 }));
             }
         } else {
+            if (handleCustomSearchValue != undefined) {
+                const currentFilteringColumn = getCurrentFilteringColumn();
+                const byAllFields = currentFilteringColumn === undefined;
+                handleCustomSearchValue({ searchValue: '', byAllFields, field: currentFilteringColumn?.name, serverProp: currentFilteringColumn?.serverProp, serverOperation: currentFilteringColumn?.serverOperation || 'eq', columns })
+                return
+            }
             setDataFiltered(data);
         }
     }, [data, searchValue, typeValue, searchableColumns]);

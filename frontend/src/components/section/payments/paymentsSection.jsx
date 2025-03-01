@@ -24,13 +24,15 @@ import SelectClass from "../../select/selectClass";
 import SelectColleges from "../../select/selectColleges";
 import ServicesCard from "../../servicesCard";
 import SelectProfessors from "../../select/selectProfessors";
+import SelectCourses from "../../select/selectCourses";
+import SelectStudent from "../../select/selectStudent";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, students, courses, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail } = useContext(Context);
+    const { user, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -368,7 +370,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
     const handleChangeStudent = (st) => {
         setStudentCourses([]);
-        if(st.courses.length > 0) {
+        if(st?.courses?.length > 0) {
             setStudentCourses(st.courses);
         }
         setSelectedStudent(st);
@@ -376,9 +378,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
     const getOnlyStudentsOfSameCourse = () => {
         if ((selectedCourse == null) || (studentCourses.length > 0)) {
-            return students;
+            return null;
         }
-        return students.filter(st => st.courses.some(course => course.id == selectedCourse.id))
+        return selectedCourse.students
     }
 
     const handleChangeSecretaryPaymentValue = (type, value) => {
@@ -435,24 +437,23 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                 <div className="mt-4">
-                    <Select
+                    <SelectStudent
                         onChange={handleChangeStudent}
                         options={getOnlyStudentsOfSameCourse()}
                         value={selectedStudent}
-                        getOptionLabel ={(student)=> `${student?.name} ${student?.lastName}`}
-                        getOptionValue ={(student)=> student.id}
-                    /></div>
+                    />
+                </div>
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4">
-                    <Select
+                    <SelectCourses
                         onChange={setSelectedCourse}
-                        options={(studentCourses.length > 0) ? studentCourses : courses}
+                        value={selectedCourse}
+                        options={(studentCourses.length > 0) ? studentCourses : null}
                         defaultValue={selectedCourse}
-                        getOptionLabel ={(course)=> course.title}
-                        getOptionValue ={(course)=> course.id}
-                    /></div>
+                    />
+                </div>
             </div>)}
             <div className="col-span-2 pb-1">
                 <CustomCheckbox

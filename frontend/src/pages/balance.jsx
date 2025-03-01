@@ -23,6 +23,8 @@ import CommonTextArea from "../components/commonTextArea";
 import Select from "../components/select/select";
 import SelectClass from "../components/select/selectClass";
 import SelectColleges from "../components/select/selectColleges";
+import SelectStudent from "../components/select/selectStudent";
+import SelectCourses from "../components/select/selectCourses";
 
 export default function Balance(props) {
 
@@ -61,7 +63,7 @@ export default function Balance(props) {
     const [driveFile, setDriveFile] = useState(null);
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [fileId, setFileId] = useState(null);
-    const { user, changeAlertStatusAndMessage, editPayment, students, informPayment, courses } = useContext(Context);
+    const { user, changeAlertStatusAndMessage, editPayment, informPayment } = useContext(Context);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
     const switchModal = () => setIsModalOpen(!isModalOpen);
@@ -79,9 +81,9 @@ export default function Balance(props) {
 
     const getOnlyStudentsOfSameCourse = () => {
         if ((selectedCourse == null) || (studentCourses.length > 0)) {
-            return students;
+            return null;
         }
-        return students.filter(st => st.courses.some(course => course.id == selectedCourse.id))
+        return selectedCourse.students
     }
 
     const handleChangeStudent = (st) => {
@@ -333,24 +335,23 @@ export default function Balance(props) {
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                 <div className="mt-4">
-                    <Select
+                    <SelectStudent
                         onChange={handleChangeStudent}
                         options={getOnlyStudentsOfSameCourse()}
                         value={selectedStudent}
-                        getOptionLabel ={(student)=> `${student?.name} ${student?.lastName}`}
-                        getOptionValue ={(student)=> student.id}
-                    /></div>
+                    />
+                </div>
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4">
-                    <Select
+                    <SelectCourses
                         onChange={setSelectedCourse}
-                        options={(studentCourses.length > 0) ? studentCourses : courses}
+                        value={selectedCourse}
+                        options={(studentCourses.length > 0) ? studentCourses : null}
                         defaultValue={selectedCourse}
-                        getOptionLabel ={(course)=> course.title}
-                        getOptionValue ={(course)=> course.id}
-                    /></div>
+                    />
+                </div>
             </div>)}
             <div className="col-span-2 pb-1">
                 <CustomCheckbox

@@ -206,7 +206,7 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 						className="z-100"
 						isMulti
 						onChange={handleChangeStudents}
-						options={students}
+						options={students}//TODO: Optimizar consulta estudiantes, aca usar un componente predictivo
 						getOptionLabel={(st) => st.name + ' ' + st.lastName}
 						getValueLabel={(st) => st.id}
 						defaultValue={(edit && (courseToEdit.students)) ? courseToEdit.students : []}
