@@ -30,8 +30,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, getClazzes, students, courses, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail } = useContext(Context);
-    const [clazzes, setClazzes] = useState([]);
+    const { user, students, courses, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -67,15 +66,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [totalRows, setTotalRows] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
-
-    const fetchClazzes = async () => {
-        const clazzes = await getClazzes();
-        setClazzes(clazzes);
-    }
-
-    useEffect(() => {
-        fetchClazzes();
-    }, [])
 
     useEffect(() => {
         if (resetTable)
@@ -273,7 +263,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             handleChangeDiscount(payment.discount)
         }
         if(payment.clazzId) {
-            const classes = clazzes.filter(cls => cls.id === payment.clazzId);
+            const classes = payment.clazz;
             setSelectedClazz((classes.length > 0) ? {label: classes[0].title, value: classes[0].id} : null);
         }
         if (payment.itemId) {
