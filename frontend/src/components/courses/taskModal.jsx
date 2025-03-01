@@ -18,6 +18,7 @@ export default function TaskModal(props) {
     const [taskTitle, setTaskTitle] = useState("");
     const [limitDate, setLimitDate] = useState(dayjs(new Date()));
     const [comment, setComment] = useState('');
+    const [searchTimeout, setSearchTimeout] = useState(null);
 
     const setDisplay = (value) => {
         setOpenModal(value);
@@ -59,6 +60,7 @@ export default function TaskModal(props) {
     }, [props.isModalOpen])
 
     const fetchTasks = async () => {
+        if (taskTitle === "") return
         const tasks = await tasksService.getCoursesTasksByTitle(taskTitle)
         setTasks(tasks)
     }
@@ -68,8 +70,11 @@ export default function TaskModal(props) {
     }, [])
     
     const onSuggestionsFetchRequested = async ({ value }) => {
-        const tasks = await tasksService.getCoursesTasksByTitle(value)        
-        setTasks(tasks)
+        clearTimeout(searchTimeout);
+        setSearchTimeout(setTimeout(async () => {      
+            const tasks = await tasksService.getCoursesTasksByTitle(value)        
+            setTasks(tasks)
+        }, 500)); // Espera 500ms después de que el usuario deje de escribir
     }
 
     const onSuggestionsClearRequested = () => {        

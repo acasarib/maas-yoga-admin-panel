@@ -233,7 +233,20 @@ export const getTasksByCourseId = async (courseId, specification) => {
 
 export const getCoursesTasksByTitle = async (title) => {
   return courseTask.findAll({
-    where: { title: sequelize.where(sequelize.fn("LOWER", sequelize.col("title")), "LIKE", "%" + title + "%") },
+    attributes: [
+      [sequelize.literal("DISTINCT ON (title) title"), "title"],
+      "id",
+      "comment",
+      "limit_date",
+    ],
+    where: {
+      title: sequelize.where(
+        sequelize.fn("LOWER", sequelize.col("title")),
+        "LIKE",
+        "%" + title.toLowerCase() + "%"
+      ),
+    },
+    order: [["title", "ASC"], ["limit_date", "DESC"]],
     limit: 10,
   });
 };
