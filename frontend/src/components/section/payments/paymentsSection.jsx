@@ -68,6 +68,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [totalRows, setTotalRows] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
+    const [searchTimeout, setSearchTimeout] = useState(null);
+    const [initialData, setInitialData] = useState(null);
 
     useEffect(() => {
         if (resetTable)
@@ -88,12 +90,19 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 searchParams.operativeResult.value = fromDDMMYYYYStringToDate(searchParams.operativeResult.value);
         }
         if (defaultTypeValue) {
+            if (searchParams === undefined) {
+                searchParams = {}
+            }
             searchParams[defaultTypeValue] = {
                 value: defaultSearchValue,
                 operation: 'eq'
             }
         }
-        const data = await paymentsService.getAllPaymentsVerified(page, size, searchParams, isOrOperation);        
+        
+        const data = await paymentsService.getAllPaymentsVerified(page, size, searchParams, isOrOperation);
+        if (initialData == null) {
+            setInitialData(data)
+        }
         setIsLoading(false)
         setPageablePayments(data.data);
         setTotalRows(data.totalItems);
@@ -101,40 +110,43 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     }
 
     const handleOnSearch = async (searchParams) => {
-        let searchBy = searchParams.byAllFields ? 'all' : searchParams.serverProp;
-        let searchValue = searchParams.searchValue;
-        let searchOperation = searchParams.serverOperation;
-        if (searchValue === "") {//Sin filtro
-            searchValue = undefined;
-            searchBy = undefined;
-            fetchPayments(currentPage, perPage, null);
-        } else if (!searchParams.byAllFields) {// Un filtro solo
-            const params = {
-                [searchBy]: {
-                    value: searchValue,
-                    operation: searchOperation,
-                }
-            }
-            fetchPayments(currentPage, perPage, params, false);
-        } else { // Filtro Todos
-            const params = {}
-            const searchBy = ["id", "value", "type", "note"];
-            
-            searchParams.columns.forEach(column => {
-                if (!("serverProp" in column)) return
-                if (searchBy.includes(column.serverProp)) {
-                    params[column.serverProp] = {
+        clearTimeout(searchTimeout);
+        setSearchTimeout(setTimeout(async () => {
+            let searchBy = searchParams.byAllFields ? 'all' : searchParams.serverProp;
+            let searchValue = searchParams.searchValue;
+            let searchOperation = searchParams.serverOperation;
+            if (searchValue === "") {//Sin filtro
+                searchValue = undefined;
+                searchBy = undefined;
+                fetchPayments(currentPage, perPage, null);
+            } else if (!searchParams.byAllFields) {// Un filtro solo
+                const params = {
+                    [searchBy]: {
                         value: searchValue,
                         operation: searchOperation,
                     }
                 }
-            })
-            fetchPayments(currentPage, perPage, params, true);
-        }
+                fetchPayments(currentPage, perPage, params, false);
+            } else { // Filtro Todos
+                const params = {}
+                const searchBy = ["id", "value", "type", "note"];
+                
+                searchParams.columns.forEach(column => {
+                    if (!("serverProp" in column)) return
+                    if (searchBy.includes(column.serverProp)) {
+                        params[column.serverProp] = {
+                            value: searchValue,
+                            operation: searchOperation,
+                        }
+                    }
+                })
+                fetchPayments(currentPage, perPage, params, true);
+            }
+        }, 500)); // Espera 500ms después de que el usuario deje de escribir
          
     }
 
-    const handlePageChange = page => {        
+    const handlePageChange = page => {
         fetchPayments(page);
         setCurrentPage(page);
     };

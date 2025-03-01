@@ -28,12 +28,8 @@ export default function Payments(props) {
     });
 
     const [tabValue, setTabValue] = useQueryParam("tab", "1");
-    const [resetPayments, setResetPayments] = useState(false)
     const [defaultIdPayment] = useQueryParam("id", undefined);
 
-    useEffect(() => {
-        setResetPayments(!resetPayments)
-    }, [defaultIdPayment])
     
 
     const handleChangeTabValue = (_, newValue) => setTabValue(newValue);
@@ -50,7 +46,7 @@ export default function Payments(props) {
                                 <Tab label="Registros" value="3" />
                             </TabList>
                         </Box>
-                        <TabPanel key={resetPayments} className="pt-4" value="1">
+                        <TabPanel className="pt-4" value="1">
                             <PaymentsSection
                                 defaultTypeValue={defaultIdPayment !== undefined ? "id" : undefined}
                                 defaultSearchValue={defaultIdPayment}
