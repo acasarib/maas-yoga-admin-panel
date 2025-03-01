@@ -46,8 +46,11 @@ export default function ProfessorInfo(props) {
         if (courseValue != "") {
             professor.courseValue = courseValue
         } 
-        if(props.periodToEdit.professorId) {
+        if (props.periodToEdit.professorId) {
             professor.id = props.periodToEdit.id;
+        }
+        professor.professor = props.professors.find(p => p.id == id)
+        if (props.periodToEdit.professorId) {
             props.editProfessor(professor, props.periodToEdit.id);
         }else {
             props.pushProfessor(professor);

@@ -14,7 +14,7 @@ export default {
                 })
         });
     },
-    getProffesors() {
+    getProfessors() {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios

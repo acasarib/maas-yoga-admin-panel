@@ -98,10 +98,9 @@ const StudentsTable = ({ students, onSeePayments }) => {
 }
 
 const ProfessorsPeriods = ({ professorPeriods }) => {
-	const { professors } = useContext(Context)
 
 	const getProfessorDetail = (period, i) => {
-		const professor = professors.find(p => p.id == period.professorId)
+		const professor = period.professor
 		return <li key={i} className='flex items-center mb-2'>
 			<span className='mr-2 text-4xl' style={{color: period.color }}>•</span>
 			<div>

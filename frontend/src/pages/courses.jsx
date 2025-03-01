@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import Modal from "../components/modal";
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
-import { useFormik } from 'formik';
-import CommonInput from "../components/commonInput";
 import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SchoolIcon from '@mui/icons-material/School';
 import dayjs from 'dayjs';
-import CloseIcon from '@mui/icons-material/Close';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import useToggle from "../hooks/useToggle"
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import TaskModal from "../components/courses/taskModal";
 import Table from "../components/table";
@@ -22,29 +16,25 @@ import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
-import ProfessorInfo from "../components/courses/professorInfo";
-import CustomCheckbox from "../components/checkbox/customCheckbox";
 import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
 import useQueryParam from "../hooks/useQueryParam";
 import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
 import { Link } from "react-router-dom";
 import StudentCalendar from "../components/calendar/studentCalendar";
-import Select from "../components/select/select";
 import coursesService from "../services/coursesService";
 import Spinner from "../components/spinner/spinner";
+import CreateUpdateCourseModal from "../components/modal/createUpdateCourse";
+import useModal from '../hooks/useModal'
 
 export default function Courses(props) {
-    const { students, professors, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
+    const { students, isLoadingStudents, deleteCourse, addStudent, newCourse, editCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
-    const [endAt, setEndAt] = useState(dayjs(new Date()));
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
     const [opResult, setOpResult] = useState('No hay cursos.');
     const [edit, setEdit] = useState(false);
-    const [courseToEdit, setCourseToEdit] = useState({});
-    const [selectedOption, setSelectedOption] = useState([]);
+    const [courseToEdit, setCourseToEdit] = useState(null);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
     const [isTaskStudentModal, setIsTaskStudentModal] = useState(false);
     const [displayTasksModal, setDisplayTasksModal] = useState(false);
@@ -54,20 +44,19 @@ export default function Courses(props) {
     const onSeeStudentPayments = student => setActiveStudent(student)
     const [courseName, setCourseName] = useState("");
     const [addTaskModal, setAddTaskModal] = useState(false);
-    const needsRegistration = useToggle(false);
-    const isCircular = useToggle(false);
+    
+    const isLoading = useToggle(false);
     const [taskId, setTaskId] = useState(null);
-    const [newProfessor, setNewProfessor] = useState(false);
-    const [courseProfessors, setCourseProfessors] = useState([]);
+    
     const [pageableCourses, setPageableCourses] = useState([]);
     const [resetTable, setResetTable] = useState(false);
-    const [periodToEdit, setPeriodToEdit] = useState({});
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [defaultIdPayment] = useQueryParam("id", undefined);
     const [totalRows, setTotalRows] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [searchByTitle, setSearchByTitle] = useState();
+    const createUpdateCourseModal = useModal()
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -76,13 +65,6 @@ export default function Courses(props) {
         setAddTaskModal(value);
         setDisplayTasksModal(value);
         setIsTaskStudentModal(value);
-        setNewProfessor(false);
-        needsRegistration.disable()
-        isCircular.disable()
-        setIsLoading(false);
-        setStartAt(dayjs(new Date()));
-        setEndAt(dayjs(new Date()));
-        setCourseProfessors([]);
     }
 
     const setDisplayTask = async (value) => {
@@ -101,34 +83,21 @@ export default function Courses(props) {
     }
 
     const handleDeleteCourse = async () => {
-        setIsLoading(true);
+        isLoading.enable();
         try {
             await deleteCourse(courseId);
             fetchCourses()
         } catch {
             changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser eliminado... Por favor inténtelo nuevamente.')
         }
-        setIsLoading(false);
+        isLoading.disable()
         setDeleteModal(false);
         setCourseId(null);
     }
 
     const openEditModal = (course) => {
-        setEdit(true);
-        setDisplayModal(true);
-        setCourseId(course.id);
-        setCourseToEdit(course);
-        needsRegistration.setValue(course.needsRegistration)
-        isCircular.setValue(course.isCircular)
-        setStartAt(dayjs(new Date(course.startAt)));
-        setEndAt(dayjs(new Date(course.endAt)));
-        if (course.periods?.length > 0) {
-            let periods = [];
-            course.periods.forEach(period => {
-                periods.push(period);
-            })
-            setCourseProfessors(periods);
-        }
+        createUpdateCourseModal.open()
+        setCourseToEdit(course); 
     }
 
     const openStudentsModal = async (students, courseName, courseId) => {
@@ -158,38 +127,6 @@ export default function Courses(props) {
         setCourseName(courseName);
     }
 
-    const editPeriod = (period, id) => {
-        courseProfessors.forEach((p, index) => {
-            if (p.id && (p.id === id)) {
-                let prfs = courseProfessors;
-                prfs[index] = period;
-                setCourseProfessors(prfs);
-            }
-        })
-        setPeriodToEdit({});
-        setNewProfessor(false);
-    }
-
-    var handleChange = (selectedOpt) => {
-        let arr = [];
-        selectedOpt.forEach(opt => {
-            arr.push(opt.id);
-        })
-        setSelectedOption(arr)
-    };
-
-    const getStudents = (course) => {
-        let students = [];
-        if (course.students) {
-            course.students.forEach(student => {
-                student.label = student.name + ' ' + student.lastName;
-                student.value = student.id;
-            })
-            students = course.students;
-        }
-        return students;
-    }
-
     const handleChangeTaskStatus = async (studentId, taskStatus) => {
         try {
             await changeTaskStatus(taskId, studentId, taskStatus);
@@ -200,10 +137,10 @@ export default function Courses(props) {
         }
     }
 
-    const getProfessorName = (id) => {
-        const [prf] = professors.filter(prf => prf.id === id);
-        const prfName = prf.name + ' ' + prf.lastName;
-        return prfName;
+    const onCloseCreateUpdateCourseModal = async () => {
+        fetchCourses();
+        setCourseToEdit(null)
+        createUpdateCourseModal.close()
     }
 
     const columns = useMemo(() => [
@@ -416,74 +353,15 @@ export default function Courses(props) {
         style.minWidth = '750px';
     }
 
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues: {
-            title: edit ? courseToEdit.title : '',
-            description: edit ? courseToEdit.description : '',
-            professors: edit ? courseToEdit.periods : [],
-        },
-        onSubmit: async (values, { resetForm }) => {
-            const body = {
-                title: values.title,
-                description: values.description,
-                needsRegistration: needsRegistration.value,
-                isCircular: isCircular.value,
-                startAt: startAt,
-                endAt: isCircular.value ? null : endAt,
-                professors: courseProfessors,
-            };
-            console.log("onSubmit body=", body);
-            setIsLoading(true);
-            try {
-                if (edit) {
-                    await editCourse(courseId, body);
-                    setEdit(false);
-                    setNewProfessor(false);
-                    setCourseProfessors([]);
-                    if (selectedOption.length > 0) {
-                        await addStudent(courseId, selectedOption);
-                    }
-                    fetchCourses();
-                } else {
-                    const response = await newCourse(body);
-                    setNewProfessor(false);
-                    setCourseId(response.id);
-                    setCourseProfessors([]);
-                    if (selectedOption.length > 0) {
-                        await addStudent(response.id, selectedOption);
-                    }
-                    fetchCourses();
-                }
-                needsRegistration.disable()
-                isCircular.disable()
-                setIsLoading(false);
-                resetForm();
-                setDisplayModal(false);
-            } catch (error) {
-                changeAlertStatusAndMessage(true, 'error', 'El curso no pudo ser informado... Por favor inténtelo nuevamente.')
-                setIsLoading(false);
-                setCourseProfessors([]);
-                isCircular.disable()
-                needsRegistration.disable()
-                setNewProfessor(false);
-                resetForm();
-                setDisplayModal(false);
-            }
-        },
-    });
-
-    const removeCourseProfessor = professor => setCourseProfessors(courseProfessors.filter(p => p.id !== professor.id));
-
     useEffect(() => {
         if (students.length === 0 && !isLoadingStudents)
             setOpResult('No fue posible obtener los cursos, por favor recargue la página...')
     }, [students, isLoadingStudents]);
 
     const fetchCourses = async (page = currentPage, size = perPage, title = searchByTitle) => {
-        setIsLoading(true)
+        isLoading.enable()
         const data = await coursesService.getCourses(page, size, title);        
-        setIsLoading(false)
+        isLoading.disable()
         setPageableCourses(data.data);
         setTotalRows(data.totalItems);        
     }
@@ -533,7 +411,7 @@ export default function Courses(props) {
                     defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
                     defaultSearchValue={defaultIdPayment}
                     noDataComponent={opResult}
-                    progressPending={isLoading}
+                    progressPending={isLoading.value}
                     progressComponent={<Spinner/>}
                     paginationTotalRows={totalRows}
                     onChangePage={handlePageChange}
@@ -542,120 +420,18 @@ export default function Courses(props) {
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
                 <div className="flex justify-end mt-6">
-                    <PlusButton onClick={() => {
-                        setDisplayModal(true);
-                        setStartAt(dayjs(new Date()));
-                        setEndAt(dayjs(new Date()));
-                    }
-                    } />
+                    <PlusButton onClick={() => {setCourseToEdit(null); createUpdateCourseModal.open()}} />
                 </div>
-                <Modal icon={<LocalLibraryIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar curso' : 'Agregar curso'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>}><>
-                    <form className="pt-6 mb-4"
-                        method="POST"
-                        id="form"
-                        onSubmit={formik.handleSubmit}
-                    >
-                        <div className={`mb-4 relative col-span-2`}>
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                Fecha de inicio
-                            </label>
-                            <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                                <DateTimePicker
-                                    label="Seleccionar fecha"
-                                    value={startAt}
-                                    onChange={setStartAt}
-                                />
-                            </DemoContainer>
-                        </div>
-                        <div className={`mb-4 relative col-span-2 ${isCircular.value && "hidden"}`}>
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                Fecha de finalizacion
-                            </label>
-                            <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                                <DateTimePicker
-                                    label="Seleccionar fecha"
-                                    value={endAt}
-                                    onChange={setEndAt}
-                                />
-                            </DemoContainer>
-                        </div>
-                        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <CustomCheckbox
-                                checked={needsRegistration.value}
-                                labelOn="Posee matrícula"
-                                labelOff="Posee matrícula"
-                                className="ml-2"
-                                onChange={needsRegistration.toggle}
-                            />
-                            <CustomCheckbox
-                                checked={isCircular.value}
-                                labelOn="Es circular"
-                                labelOff="Es circular"
-                                className="ml-2"
-                                onChange={isCircular.toggle}
-                            />
-                        </div>
-                        <><div className="grid grid-cols-2 gap-4">
-                            <div className="mb-4">
-                                <CommonInput
-                                    label="Título"
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.title}
-                                    name="title"
-                                    htmlFor="title"
-                                    id="title"
-                                    type="text"
-                                    placeholder="Título"
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <CommonInput
-                                    label="Descripción"
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.description}
-                                    name="description"
-                                    htmlFor="description"
-                                    id="description"
-                                    type="text"
-                                    placeholder="Descripción"
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                        </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    Asignar alumnos
-                                </label>
-                                <Select className="z-100" isMulti onChange={handleChange} options={students} defaultValue={(edit && (courseToEdit.students)) ? getStudents(courseToEdit) : []} />
-                            </div>
-                            {courseProfessors.length > 0 && (<>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    Profesores
-                                </label>
-                                {courseProfessors.map((prf, index) =>
-                                    <div className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto" key={index}><div>{getProfessorName(prf.professorId)}</div><div>{edit && <button type="button" className="p-1 rounded-full bg-orange-200 ml-2" onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}><EditIcon /></button>}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => removeCourseProfessor(prf)}><CloseIcon /></button></div></div>
-                                )}</>)}
-                            {!newProfessor && (<div className="mb-4 mt-2 flex items-center justify-start">
-                                <label className="block text-gray-700 text-sm font-bold">
-                                    Nuevo profesor
-                                </label>
-                                <PlusButton fontSize="large" className="w-8 h-8 mt-0 ml-3" onClick={() => {
-                                    setNewProfessor(true);
-                                }
-                                } />
-                            </div>)}
-                            {newProfessor && (<ProfessorInfo edit={edit} periodToEdit={periodToEdit} professors={professors} editProfessor={(v, idx) => editPeriod(v, idx)} closeNewProfessor={(value) => { setNewProfessor(value); setPeriodToEdit({}) }} pushProfessor={(v) => {
-                                setCourseProfessors([...courseProfessors, v]);
-                                setNewProfessor(false);
-                            }
-                            } />)}
-                        </>
-                    </form>
-                </>
-                </Modal>
+
+                <CreateUpdateCourseModal
+                    onClose={createUpdateCourseModal.close}
+                    isOpen={createUpdateCourseModal.isOpen}
+                    courseToEdit={courseToEdit}
+                    onFinish={onCloseCreateUpdateCourseModal}
+                />
+
                 <TaskModal onUpdateTask={fetchCourses} isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
                 <Modal size="large" style={style} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={studentsColumns}
                     data={studentsLists}

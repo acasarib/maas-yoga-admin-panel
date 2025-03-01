@@ -23,13 +23,14 @@ import Select from "../../select/select";
 import SelectClass from "../../select/selectClass";
 import SelectColleges from "../../select/selectColleges";
 import ServicesCard from "../../servicesCard";
+import SelectProfessors from "../../select/selectProfessors";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
 
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, getClazzes, students, courses, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail, professors } = useContext(Context);
+    const { user, getClazzes, students, courses, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail } = useContext(Context);
     const [clazzes, setClazzes] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
@@ -574,10 +575,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Profesor</span>
                     <div className="mt-4">
-                        <Select
+                        <SelectProfessors
                             value={selectedProfessor}
                             onChange={setSelectedProfessor}
-                            options={professors}
                             styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
                         />
                     </div>
