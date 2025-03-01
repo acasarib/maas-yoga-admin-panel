@@ -206,6 +206,7 @@ export const getAll = async (page = 1, size = 10, specification) => {
   const where = specification.getSequelizeSpecification();
   const include = specification.getSequelizeSpecificationAssociations([course]);
   const findAllParams = {
+    distinct: true,
     include,
     limit: size,
     offset: (page - 1) * size,

@@ -175,7 +175,9 @@ export const getAll = async (title, page = 1, size = 10) => {
   const findAllParams = { include: [
     student,
     { model: courseTask, include:[student] },
-  ]};
+  ],
+  distinct: true,
+  };
   if (title != undefined) {
     title = title.toLowerCase();
     findAllParams.where = { title: sequelize.where(sequelize.fn("LOWER", sequelize.col("course.title")), "LIKE", "%" + title + "%") };
