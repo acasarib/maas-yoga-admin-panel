@@ -75,6 +75,16 @@ export const Provider = ({ children }) => {
         return data;
     }
 
+    const getProfessors = async () => {
+        if (professors.length > 0) return professors;
+        setIsLoadingProfessors(true)
+        const pfrs = await professorsService.getProfessors();
+        setProfessors(pfrs);
+        setIsLoadingProfessors(false);
+        return pfrs
+    }
+
+
     const getAgendaLocations = async () => {
         if (agendaLocations.length > 0) return agendaLocations;
         const data = await agendaService.getLocations();
@@ -125,8 +135,8 @@ export const Provider = ({ children }) => {
               changeAlertStatusAndMessage(true, 'error', 'No fue posible obtener los usuarios... Por favor recarge la página.');
             }
         }
-        const getProffesors = async () => {
-            const pfrs = await professorsService.getProffesors();
+        const getProfessors = async () => {
+            const pfrs = await professorsService.getProfessors();
             pfrs.forEach(professor => {
                 professor.label = professor.name + " " + professor.lastName;
                 professor.value = professor.id;
@@ -142,7 +152,7 @@ export const Provider = ({ children }) => {
         getNotifications();
         getUsers();
         getStudents();
-        getProffesors();
+        getProfessors();
     }, [user]);
 
     
@@ -770,6 +780,7 @@ export const Provider = ({ children }) => {
             getStudentDetailsById,
             deleteCourseTask,
             getUserById,
+            getProfessors,
             getTasks,
             getPendingPaymentsByCourseFromStudent,
             newProfessorPayment,

@@ -293,7 +293,7 @@ export default {
                 })
         });
     },
-    getByQuery(query) {//TODO: ver este
+    getByQuery(query) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             query = typeof query !== "string" ? query.join(SPECIFICATION_QUERY_SEPARATOR) : query;
