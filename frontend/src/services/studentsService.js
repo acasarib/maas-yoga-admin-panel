@@ -4,6 +4,20 @@ import { share } from 'rxjs/operators';
 import { sleep } from '../utils';
 
 export default {
+    exists(field, value) {
+        return new Promise((resolve, reject) => {
+            const data = { field, value }
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + 'api/v1/students/exists', data, {})
+                .then((response) => {
+                    resolve(response.data.exists);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     newStudent(student) {
         return new Promise((resolve, reject) => {
             const data = {
@@ -72,11 +86,40 @@ export default {
             subscriber.complete();
         }).pipe(share());
     },
-    getStudents() {
+    getStudentsLegacy() {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .get(baseUrl + 'api/v1/students', {})
+                .get(baseUrl + `api/v1/students/legacy`, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
+    getStudents(page, size, filters) {
+        return new Promise((resolve, reject) => {
+            let uri = `api/v1/students?page=${page}&size=${size}`
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            if (filters && Object.keys(filters).length > 0) {
+                if ('isOrOperation' in filters) {
+                    const isOrOperation = filters.isOrOperation
+                    delete filters.isOrOperation
+                    uri += "&isOrOperation="+isOrOperation
+                }
+                const queryString = Object.keys(filters)
+                    .map(key => {
+                        if (filters[key].operation == 'iLike')
+                            filters[key].value = '%'+filters[key].value+'%'
+                        return `${key} ${filters[key].operation} ${encodeURIComponent(filters[key].value)}`
+                    })
+                    .join(';');
+                uri += `&q=${queryString}`;
+            }
+            axios
+                .get(baseUrl + uri, {})
                 .then((response) => {
                     resolve(response.data);
                 })

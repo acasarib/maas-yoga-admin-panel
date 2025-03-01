@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import Modal from "../components/modal";
 import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
@@ -12,11 +12,14 @@ import PlusButton from "../components/button/plus";
 import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 import ButtonPrimary from "../components/button/primary";
 import { useNavigate } from "react-router-dom";
+import studentsService from "../services/studentsService";
+import Spinner from "../components/spinner/spinner";
+import useToggle from "../hooks/useToggle";
 
 export default function Students(props) {
     const { students, isLoadingStudents, deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const isLoading = useToggle();
     const [deleteModal, setDeleteModal] = useState(false);
     const navigate = useNavigate(); 
     const [studentId, setStudentId] = useState(null);
@@ -27,9 +30,77 @@ export default function Students(props) {
     const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
     const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
     const [isOpenPendingPaymentsModal, setIsOpenPendingPaymentsModal] = useState(false);
-    
+    const [pageableStudents, setPageableStudents] = useState([]);
+    const [totalRows, setTotalRows] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [searchParams, setSearchParams] = useState(null)
+    const [resetTable, setResetTable] = useState(false);
+    const [searchTimeout, setSearchTimeout] = useState(null);
+
 
     const switchPendingPaymentsModal = () => setIsOpenPendingPaymentsModal(!isOpenPendingPaymentsModal);
+
+    useEffect(() => {
+        fetchStudents(currentPage, perPage, searchParams)
+    }, [currentPage, perPage, searchParams]);
+
+    const fetchStudents = async () => {
+        isLoading.enable()   
+        const data = await studentsService.getStudents(currentPage, perPage, searchParams);        
+        isLoading.disable()
+        setPageableStudents(data.data);
+        setTotalRows(data.totalItems);        
+    }
+    
+    const handlePerRowsChange = async (newPerPage, page) => {
+        setPerPage(newPerPage);
+    };
+
+    const handlePageChange = page => {  
+        setCurrentPage(page);
+    };
+
+    useEffect(() => {
+        if (resetTable)
+            setResetTable(false)
+    }, [resetTable])
+
+    const handleOnSearch = async (searchParams) => {
+        clearTimeout(searchTimeout);
+        setSearchTimeout(setTimeout(async () => {
+            let searchBy = searchParams.byAllFields ? 'all' : searchParams.serverProp;
+            let searchValue = searchParams.searchValue;
+            let searchOperation = searchParams.serverOperation;
+            
+            if (searchValue === "") {//Sin filtro
+                setSearchParams(null)
+            } else if (!searchParams.byAllFields) {// Un filtro solo
+                const params = {
+                    [searchBy]: {
+                        value: searchValue,
+                        operation: searchOperation,
+                    }
+                }
+                setSearchParams(params)
+            } else { // Filtro Todos
+                const params = {}
+                const searchBy = ["name", "lastName", "email"];
+                
+                searchParams.columns.forEach(column => {
+                    if (!("serverProp" in column)) return
+                    if (searchBy.includes(column.serverProp)) {
+                        params[column.serverProp] = {
+                            value: searchValue,
+                            operation: 'iLike',
+                        }
+                    }
+                })
+                params.isOrOperation = true
+                setSearchParams(params)
+            }
+        }, 500)); // Espera 500ms después de que el usuario deje de escribir
+    }
 
     const setDisplay = (value) => {
         setDisplayModal(value);
@@ -50,18 +121,20 @@ export default function Students(props) {
     }
 
     const handleDeleteStudent = async () => {
-        setIsLoading(true);
+        isLoading.enable()
         try{
             await deleteStudent(studentId);
         }catch {
             changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser eliminado... Por favor inténtelo nuevamente.')
         }
-        setIsLoading(false);
+        isLoading.disable()
         setDeleteModal(false);
     }
 
-    const columns = [
+    const columns = useMemo(() => [
         {
+            serverProp: 'name',
+            serverOperation: 'iLike',
             name: 'Nombre',
             selector: row => row.name,
             cell: row => <div className="underline text-yellow-900 mx-1 cursor-pointer" onClick={() => navigate(`/home/students/${row.id}`)}>{row.name}</div>,
@@ -69,6 +142,8 @@ export default function Students(props) {
             searchable: true,
         },
         {
+            serverProp: 'lastName',
+            serverOperation: 'iLike',
             name: 'Apellido',
             selector: row => row.lastName,
             sortable: true,
@@ -80,6 +155,8 @@ export default function Students(props) {
             sortable: true,
         },
         {
+            serverProp: 'email',
+            serverOperation: 'iLike',
             name: 'Email',
             cell: row => {return (<><div className="flex flex-col justify-center">
             <div className="relative py-3 sm:max-w-xl sm:mx-auto">
@@ -106,7 +183,7 @@ export default function Students(props) {
         },
             sortable: true,
         },
-    ];
+    ], []);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -125,7 +202,7 @@ export default function Students(props) {
             email: values.email,
             phoneNumber: values.phoneNumber
           };
-          setIsLoading(true);
+          isLoading.enable()
           try {
             if(edit) {
                 await editStudent(studentId, body);
@@ -134,26 +211,19 @@ export default function Students(props) {
                 await newStudent(body);
             }
             resetForm();
-            setIsLoading(false);
+            isLoading.disable()
             setDisplayModal(false);
           } catch (error) {
             changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser informado... Por favor inténtelo nuevamente.');
             resetForm();
-            setIsLoading(false);
+            isLoading.disable()
             setDisplayModal(false);
           }
         },
-      });
+    });
 
-    useEffect(() => {
-        if(students.length === 0 && !isLoadingStudents)
-            setOpResult('No fue posible obtener los alumnos, por favor recargue la página...');
-    }, [students, isLoadingStudents]);
-
-    
-
-    const checkDuplicated = (field, callback) => {
-        const isDuplicated = students.some(st => st[field] == formik.values[field]);
+    const checkDuplicated = async (field, callback) => {
+        const isDuplicated = await studentsService.exists(field, formik.values[field])
         if (isDuplicated) {
             callback();
         }
@@ -163,12 +233,19 @@ export default function Students(props) {
         <>
             <Container title="Alumnos">
                 <Table
+                    resetTable={resetTable}
+                    handleCustomSearchValue={handleOnSearch}
                     columns={columns}
-                    defaultSortFieldId={2}
-                    data={students}
-                    pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-                    responsive
+                    serverPaginationData={pageableStudents}
+                    paginationServer
                     noDataComponent={opResult}
+                    progressPending={isLoading.value}
+                    progressComponent={<Spinner/>}
+                    paginationTotalRows={totalRows}
+                    onChangePage={handlePageChange}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    paginationDefaultPage={currentPage}
+                    pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
                 <div className="flex justify-between mt-6">
                     <div>
@@ -177,7 +254,7 @@ export default function Students(props) {
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <PendingPaymentsModal isOpen={isOpenPendingPaymentsModal} onClose={switchPendingPaymentsModal}/>
-                <Modal buttonDisabled={isDocumentDuplicated || isEmailDuplicated || isPhoneNumberDuplicated} icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
+                <Modal buttonDisabled={isDocumentDuplicated || isEmailDuplicated || isPhoneNumberDuplicated} icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                     <form className="pt-6 mb-4"    
                         method="POST"
                         id="form"
@@ -262,7 +339,7 @@ export default function Students(props) {
                     </form>
                 </>
                 } />
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteStudent} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteStudent} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
             </Container>
         </>
     );

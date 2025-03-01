@@ -205,37 +205,35 @@ const CourseDetail = () => {
 	let { courseId } = useParams();
 	const [course, setCourse] = useState(null)
 	const [coursePeriods, setCoursePeriods] = useState([]);
-	const { getCourseDetailsById, isLoadingProfessors } = useContext(Context);
+	const { getCourseDetailsById } = useContext(Context);
 
 	useEffect(() => {
-		if (!isLoadingProfessors) {
-			const getRandomColor = colorsTaken => {
-				const predefinedColors = ["#B1DDF1", "#9F87AF", "#EE6C4D", "#5EF38C", "#08415C"]
-				for (const color of predefinedColors) {
-					if (!colorsTaken.includes(color))
-						return color;
-				}
-				return randomColor()
+		const getRandomColor = colorsTaken => {
+			const predefinedColors = ["#B1DDF1", "#9F87AF", "#EE6C4D", "#5EF38C", "#08415C"]
+			for (const color of predefinedColors) {
+				if (!colorsTaken.includes(color))
+					return color;
 			}
-			const getData = async () => {
-				const course = await getCourseDetailsById(courseId)
-				const professorsColors = {}
-				for (const period of course.periods) {
-					const professorId = period.professorId
-					if (professorId in professorsColors) {
-						period.color = professorsColors[professorId]
-						continue
-					}
-					const color = getRandomColor(Object.values(professorsColors));
-					professorsColors[professorId] = color
-					period.color = color
-
-				};
-				setCourse(course)
-			}
-			getData()
+			return randomColor()
 		}
-	}, [isLoadingProfessors]);
+		const getData = async () => {
+			const course = await getCourseDetailsById(courseId)
+			const professorsColors = {}
+			for (const period of course.periods) {
+				const professorId = period.professorId
+				if (professorId in professorsColors) {
+					period.color = professorsColors[professorId]
+					continue
+				}
+				const color = getRandomColor(Object.values(professorsColors));
+				professorsColors[professorId] = color
+				period.color = color
+
+			};
+			setCourse(course)
+		}
+		getData()
+	}, []);
 
 	const onUpdateTask = async () => {
 		const course = await getCourseDetailsById(courseId)

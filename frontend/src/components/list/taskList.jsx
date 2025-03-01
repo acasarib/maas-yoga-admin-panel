@@ -160,7 +160,6 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   const modalStyles = matches ? { minWidth: '650px' } : {}
 
   useEffect(() => {
-    console.log('tasks changed');
     const courseTasks = tasks.filter(tk => tk.courseId === courseId);
     setFilteredTasks(courseTasks);
   }, [tasks, courses])

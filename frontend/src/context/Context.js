@@ -105,24 +105,14 @@ export const Provider = ({ children }) => {
         return tasksList
     }
 
-    const getColleges = async () => {
-        if (colleges.length > 0) return colleges;
+    const getColleges = async (force = false) => {
+        if (force === false && colleges.length > 0) return colleges;
         setIsLoadingColleges(true)
         const data = await collegesService.getColleges();
         setIsLoadingColleges(false)
         setColleges(data);
         return data;
     };
-
-    const getStudents = async () => {
-        const studentsList = await studentsService.getStudents();
-        studentsList.forEach(student => {
-            student.label = student.name + ' ' + student.lastName;
-            student.value = student.id;
-        });
-        setStudents(studentsList);
-        setIsLoadingStudents(false);
-    }
 
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
@@ -142,7 +132,6 @@ export const Provider = ({ children }) => {
         
         getNotifications();
         getUsers();
-        getStudents();
     }, [user]);
 
     
@@ -155,17 +144,6 @@ export const Provider = ({ children }) => {
     const clearNotifications = async () => {
         await Promise.all(notifications.map(notification => notificationsService.removeById(notification.id)))
         setNotifications([])
-    }
-
-    const getPayments = async () => {
-        const paymentsList = await paymentsService.getAllPayments();
-        const sortedList = paymentsList.sort((a, b) => {
-            const dateA = new Date(a.at);
-            const dateB = new Date(b.at);
-            return dateB - dateA;
-        });
-        setPayments(sortedList);
-        setIsLoadingPayments(false);
     }
 
     const getStudentPayments = async (studentId) => {
@@ -184,7 +162,6 @@ export const Provider = ({ children }) => {
         return JSON.parse(JSON.stringify(item1));
     }
 
-    const getStudentById = studentId => students.find(student => student.id == studentId);
     const getUserById = userId => users.find(user => user.id == userId);
 
     const getProfessorDetailsById = async (professorId) => {
@@ -201,25 +178,7 @@ export const Provider = ({ children }) => {
     }
 
     const getStudentDetailsById = async studentId => {
-        const localStudent = getStudentById(studentId);
-        if (localStudent) {
-            if ("courseTasks" in localStudent) {
-                return localStudent;
-            }
-            const student = await studentsService.getStudent(studentId);
-            setStudents(prev => prev.map(s => {
-                if (s.id === studentId) {
-                    return student;
-                } else {
-                    return s;
-                }
-            }))
-            return student;
-        } else {
-            const student = await studentsService.getStudent(studentId);
-            setStudents(prev => [...students, student]);
-            return student;
-        }
+        return studentsService.getStudent(studentId);
     }
 
     const newProfessorPayment = async (professorId, courseId, periodFrom, periodTo, value) => {
@@ -249,10 +208,6 @@ export const Provider = ({ children }) => {
             const createdPayment = await paymentsService.informPayment(payment);
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue informado exitosamente!')
             createdPayment.user = user;
-            if (createdPayment.courseId !== null)
-                createdPayment.course = await getCourseDetailsById(createdPayment.courseId);
-            if (createdPayment.studentId)
-                createdPayment.student = getStudentById(createdPayment.studentId);
             setPayments(current => [...current, createdPayment]);
             return createdPayment;
         } catch(e) {
@@ -265,10 +220,6 @@ export const Provider = ({ children }) => {
             const editedPayment = await paymentsService.editPayment(payment);
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue editado exitosamente!')
             editedPayment.user = user;
-            if (editedPayment.courseId !== null)
-                editedPayment.course = await getCourseDetailsById(editedPayment.courseId);
-            if (editedPayment.studentId)
-                editedPayment.student = getStudentById(editedPayment.studentId);
             setPayments(current => current.map(p => p.id === payment.id ? merge(p, editedPayment) : p));
         } catch(e) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser editado... Por favor inténtelo nuevamente.');
@@ -332,8 +283,10 @@ export const Provider = ({ children }) => {
         changeAlertStatusAndMessage(true, 'success', 'La sede fue creada exitosamente!')
         createdCollege.label = createdCollege.name;
         createdCollege.value = createdCollege.id;
-        setColleges(current => [...current, createdCollege]);
-        return createdCollege;
+        const newColleges = JSON.parse(JSON.stringify(colleges))
+        newColleges.push(createdCollege)
+        setColleges(newColleges);
+        return newColleges;
     }
 
     const newProfessor = async (professor) => {
@@ -660,8 +613,8 @@ export const Provider = ({ children }) => {
             d.professorsNames = d.professors.map(p => p.name);
             d.professors.forEach(professor => {
                 professor.result.payments.forEach(payment => {
-                    if (payment.studentId)
-                        payment.student = getStudentById(payment.studentId);
+                    //if (payment.studentId) TODO: ver esto si rompe algo
+                        //payment.student = getStudentById(payment.studentId);
                     if (payment.userId)
                         payment.user = getUserById(payment.userId);
                 });
@@ -759,7 +712,6 @@ export const Provider = ({ children }) => {
             editClazz,
             deleteClazz,
             deleteCategory,
-            getStudents,
             editCategory,
             newCategory,
             verifyClazz,

@@ -7,8 +7,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import { useFormik } from 'formik';
 import { Context } from "../../context/Context";
-import Autosuggest from 'react-autosuggest';
 import tasksService from "../../services/tasksService";
+import CustomAutoSuggest from "../select/customAutoSuggest";
 
 export default function TaskModal(props) {
     const { associateTask, changeAlertStatusAndMessage } = useContext(Context);
@@ -75,27 +75,13 @@ export default function TaskModal(props) {
     const onSuggestionsClearRequested = () => {        
         setTasks([])
     }
-
-    const onChangeTaskTitle = (_, { newValue }) => {
-        setTaskTitle(newValue)
-    }
     
-    const inputProps = {
-        placeholder: 'Titulo',
-        className: 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
-        value: taskTitle,
-        onChange: onChangeTaskTitle,
-    };
-
-    const onSuggestionSelected = (_, suggestion) => {
-        const taskSelected = suggestion.suggestion
+    const onSuggestionSelected = (taskSelected) => {
         setComment(taskSelected.comment)
         if (taskSelected.limitDate != null){
             setLimitDate(dayjs(new Date(taskSelected.limitDate)))
         }
     }
-
-    const renderSuggestion = (task) => <span className="block p-2 cursor-pointer hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">{task.title}</span>
 
     return(
         <>          
@@ -109,21 +95,15 @@ export default function TaskModal(props) {
                            <label className={"block text-gray-700 text-sm font-bold mb-2"}>
                                 Titulo
                             </label>
-                            <Autosuggest
+                            <CustomAutoSuggest
                                 suggestions={tasks}
-                                renderSuggestion={renderSuggestion}
                                 getSuggestionValue={(task) => task.title}
                                 onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                                 onSuggestionsClearRequested={onSuggestionsClearRequested}
-                                inputProps={inputProps}
+                                placeholder={"Titulo"}
                                 onSuggestionSelected={onSuggestionSelected}
-                                theme={{
-                                    container: "relative",
-                                    suggestionsContainer: "absolute z-10 w-full bg-white shadow-md rounded-lg",
-                                    suggestionsList: "list-none p-0 m-0",
-                                    suggestion: "p-2 cursor-pointer hover:bg-gray-100 text-gray-700 rounded-md",
-                                    suggestionHighlighted: "bg-blue-100",
-                                }}
+                                value={taskTitle}
+                                onChange={setTaskTitle}
                             />
                         </div>
                         <div className="mb-4">

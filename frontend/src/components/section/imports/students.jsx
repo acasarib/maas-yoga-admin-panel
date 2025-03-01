@@ -1,9 +1,21 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../../context/Context";
 import ImportModule from "./importModule";
+import studentsService from "../../../services/studentsService";
 
 export default function ImportStudents({ onCancel }) {
-    const { students, newStudents } = useContext(Context);
+    const { newStudents } = useContext(Context);
+    const [students, setStudents] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const students = await studentsService.getStudentsLegacy();
+            setStudents(students);
+        }
+        fetchData()
+    }, [])
+    
+
     const csvToObject = csv => {
         const onlyStudentsPermission = student => student["id_permiso"] === "3";
         const mapNull = str => str === "NULL" ? null : str;

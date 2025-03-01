@@ -34,6 +34,8 @@ import StudentCard from '../components/card/studentCard';
 import useToggle from '../hooks/useToggle';
 import SelectClass from '../components/select/selectClass';
 import SelectColleges from '../components/select/selectColleges';
+import SelectStudent from '../components/select/selectStudent';
+import SelectCourses from '../components/select/selectCourses';
 
 function Course({ course, student }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -391,16 +393,10 @@ const CourseDetail = () => {
 
     const getOnlyStudentsOfSameCourse = () => {
         if ((selectedCourse == null) || (studentCourses.length > 0)) {
-            return students;
+            return null;
         }
-        return students.filter(st => st.courses.some(course => course.id == selectedCourse.id))
+        return selectedCourse.students
     }
-
-	useEffect(() => {
-	  console.log(studentPayments);
-	  
-	}, [studentPayments])
-	
 
 	return (
 		<Container disableTitle className="max-w-full" items={[{ name: "Alumnos", href: "/home/students" }, { name: `${student?.name || ''} ${student?.lastName || ''}` }]}>
@@ -441,24 +437,23 @@ const CourseDetail = () => {
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
                 <div className="mt-4">
-                    <Select
+                    <SelectStudent
                         onChange={handleChangeStudent}
                         options={getOnlyStudentsOfSameCourse()}
                         value={selectedStudent}
-                        getOptionLabel ={(student)=> `${student?.name} ${student?.lastName}`}
-                        getOptionValue ={(student)=> student.id}
-                    /></div>
+                    />
+                </div>
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
                 <div className="mt-4">
-                    <Select
+                    <SelectCourses
                         onChange={setSelectedCourse}
-                        options={(studentCourses.length > 0) ? studentCourses : courses}
+                        value={selectedCourse}
+                        options={(studentCourses.length > 0) ? studentCourses : null}
                         defaultValue={selectedCourse}
-                        getOptionLabel ={(course)=> course.title}
-                        getOptionValue ={(course)=> course.id}
-                    /></div>
+                    />
+                </div>
             </div>)}
             <div className="col-span-2 pb-1">
                 <CustomCheckbox

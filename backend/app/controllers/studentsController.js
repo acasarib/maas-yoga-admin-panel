@@ -1,3 +1,5 @@
+import { student } from "../db/index.js";
+import Specification from "../models/Specification.js";
 import * as studentService from "../services/studentService.js";
 import { StatusCodes } from "http-status-codes";
 
@@ -10,6 +12,19 @@ export default {
     try {
       const createdStudent = await studentService.create(req.body);
       res.status(StatusCodes.CREATED).json(createdStudent);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /students/exists [POST]
+   * @returns HttpStatus Json with isDuplicated true|false
+   */
+  exists: async (req, res, next) => {
+    try {
+      const exists = await studentService.exists(req.body);
+      res.status(StatusCodes.OK).json({ exists });
     } catch (e) {
       next(e);
     }
@@ -87,7 +102,24 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const students = await studentService.getAll();
+      const { q, page, size } = req.query;
+      const querySpecification = q;
+      const isOrOperation = req.query.isOrOperation === "true";
+      const specification = new Specification(querySpecification, student, isOrOperation);
+      const students = await studentService.getAll(page, size, specification);
+      res.status(StatusCodes.OK).json(students);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /students/legacy [GET]
+   * @returns HttpStatus ok and array of @Student
+   */
+  getAllLegacy: async (req, res, next) => {
+    try {
+      const students = await studentService.getAllLegacy();
       res.status(StatusCodes.OK).json(students);
     } catch (e) {
       next(e);

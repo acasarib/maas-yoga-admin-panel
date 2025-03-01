@@ -5,7 +5,7 @@ import * as notificationService from "./notificationService.js";
 import { Op } from "sequelize";
 import utils from "../utils/functions.js";
 
-const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz];
+const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz, student];
 /**
  * 
  * @param {Array||Payment} paymentParam 

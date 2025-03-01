@@ -15,7 +15,7 @@ import DeletePaymentModal from "../modal/deletePaymentModal";
 import Spinner from "../spinner/spinner";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
-    const { user, users, changeAlertStatusAndMessage, getUserById, courses } = useContext(Context);
+    const { user, changeAlertStatusAndMessage, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
     const deletePaymentModal = useModal()
@@ -304,7 +304,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
             }
         })
         return columns;
-    }, [dateField, courses, showOpResultDate]); 
+    }, [dateField, showOpResultDate]); 
 
     useEffect(() => {
         setFilteredPayments(payments);

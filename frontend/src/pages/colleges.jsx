@@ -12,17 +12,17 @@ import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import Select from "../components/select/select";
 import Spinner from "../components/spinner/spinner";
+import SelectCourses from "../components/select/selectCourses";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { courses, getColleges, isLoadingColleges, deleteCollege, editCollege, addCoursesToCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
+    const { getColleges, isLoadingColleges, deleteCollege, editCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
     const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
     const [collegeToEdit, setCollegeToEdit] = useState({});
-    const [selectedOption, setSelectedOption] = useState([]);
     const [colleges, setColleges] = useState([]);
     const [displayCoursesModal, setDisplayCoursesModal] = useState(false);
     const [coursesList, setCoursesList] = useState([]);
@@ -43,6 +43,9 @@ export default function Colleges(props) {
         setIsLoading(true);
         try{
             await deleteCollege(collegeId);
+            setTimeout(() => {
+                fetchColleges(true)
+            }, 500);
         }catch{
             changeAlertStatusAndMessage(true, 'error', 'La sede no pudo ser eliminada... Por favor inténtelo nuevamente.')
         }
@@ -63,14 +66,6 @@ export default function Colleges(props) {
         setCoursesList(courses);
         setCollegeName(collegeName);
     }
-
-    var handleChange = (selectedOpt) => {
-        let arr = [];
-        selectedOpt.forEach(opt => {
-            arr.push(opt.id);
-        })
-        setSelectedOption(arr);
-    };
 
     const columns = [
         {
@@ -156,21 +151,17 @@ export default function Colleges(props) {
                 };
                 setIsLoading(true);
                 try {
-                  if(edit) {
-                        await editCollege(collegeId, body);
+                    if(edit) {
+                        const newColleges = await editCollege(collegeId, body);
+                        setColleges(newColleges)
                         setEdit(false);
-                        if(selectedOption.length > 0) {
-                            await addCoursesToCollege(collegeId, selectedOption);
-                        }
-                  }else{
-                        const createdCollege = await newCollege(body);
-                        setCollegeId(createdCollege.id);
-                        if(selectedOption.length > 0) {
-                            await addCoursesToCollege(createdCollege.id, selectedOption);
-                        }
-                  }
-                  setIsLoading(false);
-                  setDisplayModal(false);
+                    }else{
+                        const newColleges = await newCollege(body);
+                        setColleges(newColleges)
+                    }
+                    setIsLoading(false);
+                    setDisplayModal(false);
+                    fetchColleges(true)
                 } catch (error) {
                 changeAlertStatusAndMessage(true, 'error', 'La sede no pudo ser creada... Por favor inténtelo nuevamente.')
                   setIsLoading(false);
@@ -180,8 +171,8 @@ export default function Colleges(props) {
               },
     });
 
-    const fetchColleges = async () => {
-        const colleges = await getColleges()        
+    const fetchColleges = async (force) => {
+        const colleges = await getColleges(force)        
         setColleges(colleges)
     }
 
@@ -236,18 +227,6 @@ export default function Colleges(props) {
                                     onChange={formik.handleChange}
                             />
                             </div>
-                        </div>
-                        <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                    Asignar cursos
-                                </label>
-                                <Select
-                                    isMulti
-                                    onChange={handleChange}
-                                    options={courses}
-                                    getOptionLabel ={(course)=> course.title}
-                                    getOptionValue ={(course)=> course.id}
-                                />
                         </div>
                     </form>
                 </>
