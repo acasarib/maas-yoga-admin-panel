@@ -388,7 +388,7 @@ export default function Courses(props) {
             } else {
                 setSearchByTitle(searchParams.searchValue)
             }
-        }, 500)); // Espera 500ms después de que el usuario deje de escribir
+        }, 50)); // Espera 500ms después de que el usuario deje de escribir
     }
 
     return (
