@@ -15,6 +15,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
 
     useEffect(() => {
         if (searchValue !== "") {
+            
             const currentFilteringColumn = getCurrentFilteringColumn();
             const byAllFields = currentFilteringColumn === undefined;
             if (handleCustomSearchValue != undefined) {
@@ -87,7 +88,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
         <div>
             {searchableColumns.length > 0 && <SearchBar
                 searchValue={searchValue}
-                onChangeSearch={setSearchValue}
+                onChangeSearch={(value) => setSearchValue(value)}
                 typeValue={typeValue}
                 onChangeType={setTypeValue}
                 searchableColumns={searchableColumns}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
@@ -7,8 +7,14 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import styles from "./searchBar.module.css";
+import ButtonPrimary from "../button/primary";
 
-export default function SearchBar({ className = "", searchableColumns, searchValue, onChangeSearch, typeValue, onChangeType }) {
+    export default function SearchBar({ className = "", searchableColumns, searchValue, onChangeSearch, typeValue, onChangeType }) {
+    const [valueToSearch, setValueToSearch] = useState('');
+
+    const confirmSearch = () => {
+        onChangeSearch(valueToSearch);
+    }
 
     return(
         <>
@@ -20,8 +26,7 @@ export default function SearchBar({ className = "", searchableColumns, searchVal
                     size="small"
                     startAdornment={<InputAdornment position="start"><SearchIcon/></InputAdornment>}
                     label="Buscar"
-                    value={searchValue}
-                    onChange={(e) => onChangeSearch(e.target.value)}
+                    onChange={(e) => setValueToSearch(e.target.value)}
                 />
             </FormControl>
             <TextField
@@ -40,5 +45,6 @@ export default function SearchBar({ className = "", searchableColumns, searchVal
             ))}
             </TextField>
         </div>
+        <ButtonPrimary onClick={() => confirmSearch()} className="mt-2">Buscar <SearchIcon className="ml-1"/></ButtonPrimary>
     </>);
 } 
