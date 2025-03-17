@@ -39,6 +39,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [isSecretaryPayment, setIsSecretaryPayment] = useState(false)
     const [isClassPayment, setIsClassPayment] = useState(false)
     const [selectedCollege, setSelectedCollege] = useState(null);
+    const [searchParams, setSearchParams] = useState(null);
     const inputFileRef = useRef(null);
     const [fileId, setFileId] = useState(null);
     const [selectedProfessor, setSelectedProfessor] = useState(null);
@@ -81,25 +82,35 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setResetTable(true)
     }, []);
 
-    const fetchPayments = async (page = currentPage, size = perPage, searchParams, isOrOperation = false) => {
+    useEffect(() => {
+        if (searchParams == null) return
+        fetchPayments()
+    }, [searchParams]);
+
+    const fetchPayments = async (page = currentPage, size = perPage, params = searchParams) => {
         setIsLoading(true)
-        if (searchParams) {
-            if ("at" in searchParams)
-                searchParams.at.value = fromDDMMYYYYStringToDate(searchParams.at.value);
-            if ('operativeResult' in searchParams)
-                searchParams.operativeResult.value = fromDDMMYYYYStringToDate(searchParams.operativeResult.value);
+        const isOrOperation = params?.isOrOperation || false
+        if (params) {
+            delete params.isOrOperation;
+        }
+        if (params) {
+            if ("at" in params)
+                params.at.value = fromDDMMYYYYStringToDate(params.at.value);
+            if ('operativeResult' in params)
+                params.operativeResult.value = fromDDMMYYYYStringToDate(params.operativeResult.value);
         }
         if (defaultTypeValue) {
-            if (searchParams === undefined) {
-                searchParams = {}
+            if (params === undefined) {
+                params = {}
             }
-            searchParams[defaultTypeValue] = {
+            params[defaultTypeValue] = {
                 value: defaultSearchValue,
                 operation: 'eq'
             }
         }
+        console.log(params);
         
-        const data = await paymentsService.getAllPaymentsVerified(page, size, searchParams, isOrOperation);
+        const data = await paymentsService.getAllPaymentsVerified(page, size, params, isOrOperation);
         if (initialData == null) {
             setInitialData(data)
         }
@@ -118,17 +129,18 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             if (searchValue === "") {//Sin filtro
                 searchValue = undefined;
                 searchBy = undefined;
-                fetchPayments(currentPage, perPage, null);
+                setSearchParams({ isOrOperation: false });
             } else if (!searchParams.byAllFields) {// Un filtro solo
                 const params = {
+                    isOrOperation: false,
                     [searchBy]: {
                         value: searchValue,
                         operation: searchOperation,
                     }
                 }
-                fetchPayments(currentPage, perPage, params, false);
+                setSearchParams(params);
             } else { // Filtro Todos
-                const params = {}
+                const params = { isOrOperation: true }
                 const searchBy = ["id", "value", "type", "note"];
                 
                 searchParams.columns.forEach(column => {
@@ -136,14 +148,15 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     if (searchBy.includes(column.serverProp)) {
                         params[column.serverProp] = {
                             value: searchValue,
-                            operation: searchOperation,
+                            operation: column.serverOperation || 'iLike',
                         }
                     }
                 })
-                fetchPayments(currentPage, perPage, params, true);
+                setSearchParams(params);
             }
         }, 500)); // Espera 500ms después de que el usuario deje de escribir
          
+        
     }
 
     const handlePageChange = page => {

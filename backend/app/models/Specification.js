@@ -1,5 +1,5 @@
 import { ALLOWED_SEQUELIZE_OPERATIONS, SPECIFICATION_VALUE_SEPARATOR, SPECIFICATION_QUERY_SEPARATOR } from "../utils/constants.js";
-import { Sequelize, Op } from "sequelize";
+import { Sequelize, Op, literal } from "sequelize";
 import { StatusCodes } from "http-status-codes";
 import { sequelize } from "../db/index.js";
 import utils from "../utils/functions.js";
@@ -51,8 +51,10 @@ class Specification {
         if (!(valueType instanceof Sequelize.STRING)) {
           let valueSplitedBySeparator = value.split(SPECIFICATION_VALUE_SEPARATOR);
           if (valueType instanceof Sequelize.DataTypes.INTEGER || valueType instanceof Sequelize.DataTypes.FLOAT) {
-            const isValidValue = utils.isNumber(value);
-            value = isValidValue ? Number(value) : null;
+            if (!value.includes("%")) {
+              const isValidValue = utils.isNumber(value);
+              value = isValidValue ? Number(value) : null;
+            }
           } else {
             if (valueType instanceof Sequelize.DataTypes.DATE)
               valueSplitedBySeparator = valueSplitedBySeparator.map(Number);

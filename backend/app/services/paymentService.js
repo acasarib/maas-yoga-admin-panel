@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { payment, course, student, user, file, professor, secretaryPayment, servicePayment, item, headquarter, clazz } from "../db/index.js";
 import * as logService from "./logService.js";
 import * as notificationService from "./notificationService.js";
-import { Op } from "sequelize";
+import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
 
 const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz, student];
@@ -246,9 +246,26 @@ export const getAllUnverified = async (page = 1, size = 10, specification) => {
 
 export const getAllVerified = async (page = 1, size = 10, specification) => {
   const spec = specification.getSequelizeSpecification();
-  const where = {
-    [Op.and]: [{verified: true}, spec]
-  };
+  let where = {};
+  if (spec.value !== undefined || (spec[Op.or] !== undefined && spec[Op.or].value !== undefined)) {
+    let obj = spec.value || spec[Op.or].value;
+    let value = obj[Op.like] || obj[Op.eq];
+    delete spec.value;
+    if (spec[Op.or] !== undefined)
+      delete spec[Op.or].value;
+    where = {
+      [Op.and]: [{verified: true}, spec, 
+        Sequelize.where(
+          cast(col("value"), "TEXT"),
+          { [Op.like]: `%${value}%` }
+        )
+      ]
+    };
+  } else {
+    where = {
+      [Op.and]: [{verified: true}, spec]
+    };
+  }
   
   const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
   const findAllParams = {
