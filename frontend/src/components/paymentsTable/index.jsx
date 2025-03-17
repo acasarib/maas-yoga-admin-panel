@@ -178,6 +178,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
         const defaultColumns = [
             {
                 serverProp: "id",
+                serverOperation: 'eq',
                 name: 'Identificador',
                 searchCriteria: TABLE_SEARCH_CRITERIA.EQUAL,
                 hidden: true,
@@ -199,6 +200,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
             },
             {
                 serverProp: 'value',
+                serverOperation: 'like',
                 name: 'Importe',
                 cell: row => <span className={`${row.value >= 0 ? "text-blue-400" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}{row.discount && <span className="ml-1">{`(-${row.discount}%)`}</span>}</span>,
                 sortable: true,
