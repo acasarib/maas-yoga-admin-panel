@@ -54,7 +54,7 @@ export const getById = async (id) => {
     console.error(e);
   }
   const coursesIdsDictedByProfessor = [...new Set(owedPeriods.map(p => p.course.id))];
-  const coursesPayments = await payment.findAll({ where: { courseId: { [Op.in]: coursesIdsDictedByProfessor }, verified: true }});
+  const coursesPayments = await payment.findAll({ where: { courseId: { [Op.in]: coursesIdsDictedByProfessor }, verified: true }, include: [course]});
   const owedPeriodsFiltered = [];
   // Filtra los periodos que no tienen pagos de estudiantes
   for (const period of owedPeriods) {
