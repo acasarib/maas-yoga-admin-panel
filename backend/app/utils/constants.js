@@ -42,7 +42,7 @@ const STUDENT_MONTHS_CONDITIONS = {
 // https://sequelize.org/docs/v6/core-concepts/model-querying-basics/
 const ALLOWED_SEQUELIZE_OPERATIONS = [
   "eq",
-  "nq",
+  "ne",
   "is",
   "not",
   "gt",

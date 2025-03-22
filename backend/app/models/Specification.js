@@ -61,7 +61,7 @@ class Specification {
             value = valueSplitedBySeparator.length > 1 ? valueSplitedBySeparator : valueSplitedBySeparator[0];
           }
         }
-        if (value != null)
+        if (value != null || operation == "ne")
           this.queryParts.push({ attribute, operation, value });
       }
     });
