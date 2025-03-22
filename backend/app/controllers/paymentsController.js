@@ -197,11 +197,11 @@ export default {
    */
   getAllVerified: async (req, res, next) => {
     try {
-      const { q, page, size } = req.query;
+      const { q, page, size, all } = req.query;
       const querySpecification = q;
       const isOrOperation = req.query.isOrOperation === "true";
       const specification = new Specification(querySpecification, payment, isOrOperation);
-      const payments = await paymentService.getAllVerified(page, size, specification);
+      const payments = await paymentService.getAllVerified(page, size, specification, all);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
       next(e);
@@ -214,11 +214,11 @@ export default {
    */
   getAllUnverified: async (req, res, next) => {
     try {
-      const { q, page, size } = req.query;
+      const { q, page, size, all } = req.query;
       const querySpecification = q;
       const isOrOperation = req.query.isOrOperation === "true";
       const specification = new Specification(querySpecification, payment, isOrOperation);
-      const payments = await paymentService.getAllUnverified(page, size, specification);
+      const payments = await paymentService.getAllUnverified(page, size, specification, all);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
       next(e);

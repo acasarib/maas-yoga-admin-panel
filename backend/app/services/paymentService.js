@@ -209,12 +209,9 @@ export const getAll = async (page = 1, size = 10, specification) => {
  * @param {Object} specification 
  * @returns 
  */
-export const getAllUnverified = async (page = 1, size = 10, specification) => {
+export const getAllUnverified = async (page = 1, size = 10, specification, all) => {
   const spec = specification.getSequelizeSpecification();
-  const where = {
-    [Op.and]: [{verified: false}, spec]
-  };
-  
+  let where = getWhereForSearchPayment(spec, all, false);
   const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
   const findAllParams = {
     include,
@@ -226,13 +223,29 @@ export const getAllUnverified = async (page = 1, size = 10, specification) => {
     ]
   };
   let { count, rows } = await payment.findAndCountAll(findAllParams);
-  const total = await payment.sum("value", { where });
-  const incomes = await payment.sum("value", { 
-    where: { ...where, value: { [Op.gte]: 0 } }
-  });
-  const expenses = await payment.sum("value", { 
-    where: { ...where, value: { [Op.lt]: 0 } }
-  });
+  let total = 0;
+  let incomes = 0;
+  let expenses = 0;
+  try {
+    total = await payment.sum("value", { where });
+    incomes = await payment.sum("value", { 
+      where: { ...where, value: { [Op.gte]: 0 } }
+    });
+    expenses = await payment.sum("value", { 
+      where: { ...where, value: { [Op.lt]: 0 } }
+    });
+  } catch {
+    const paymentsToCount = await payment.findAll({
+      attributes: ["value"],
+      where,
+      include: [{ model: student, attributes: [] },{ model: professor, attributes: [] }, {model: user, attributes: []}],
+      raw: true
+    });
+    total = paymentsToCount.reduce((sum, p) => sum + p.value, 0);
+    incomes = paymentsToCount.reduce((sum, p) => (p.value > 0 ? sum + p.value : sum), 0);
+    expenses = paymentsToCount.reduce((sum, p) => (p.value < 0 ? sum + p.value : sum), 0);
+  }
+  
   return {
     totalItems: count,
     totalPages: Math.ceil(count / size),
@@ -244,29 +257,9 @@ export const getAllUnverified = async (page = 1, size = 10, specification) => {
   };
 };
 
-export const getAllVerified = async (page = 1, size = 10, specification) => {
+export const getAllVerified = async (page = 1, size = 10, specification, all) => {
   const spec = specification.getSequelizeSpecification();
-  let where = {};
-  if (spec.value !== undefined || (spec[Op.or] !== undefined && spec[Op.or].value !== undefined)) {
-    let obj = spec.value || spec[Op.or].value;
-    let value = obj[Op.like] || obj[Op.eq];
-    delete spec.value;
-    if (spec[Op.or] !== undefined)
-      delete spec[Op.or].value;
-    where = {
-      [Op.and]: [{verified: true}, spec, 
-        Sequelize.where(
-          cast(col("value"), "TEXT"),
-          { [Op.like]: `%${value}%` }
-        )
-      ]
-    };
-  } else {
-    where = {
-      [Op.and]: [{verified: true}, spec]
-    };
-  }
-  
+  let where = getWhereForSearchPayment(spec, all, true);
   const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
   const findAllParams = {
     include,
@@ -278,13 +271,29 @@ export const getAllVerified = async (page = 1, size = 10, specification) => {
     ]
   };
   let { count, rows } = await payment.findAndCountAll(findAllParams);
-  const total = await payment.sum("value", { where });
-  const incomes = await payment.sum("value", { 
-    where: { ...where, value: { [Op.gte]: 0 } }
-  });
-  const expenses = await payment.sum("value", { 
-    where: { ...where, value: { [Op.lt]: 0 } }
-  });
+  let total = 0;
+  let incomes = 0;
+  let expenses = 0;
+  try {
+    total = await payment.sum("value", { where });
+    incomes = await payment.sum("value", { 
+      where: { ...where, value: { [Op.gte]: 0 } }
+    });
+    expenses = await payment.sum("value", { 
+      where: { ...where, value: { [Op.lt]: 0 } }
+    });
+  } catch {
+    const paymentsToCount = await payment.findAll({
+      attributes: ["value"],
+      where,
+      include: [{ model: student, attributes: [] },{ model: professor, attributes: [] }, {model: user, attributes: []}],
+      raw: true
+    });
+    total = paymentsToCount.reduce((sum, p) => sum + p.value, 0);
+    incomes = paymentsToCount.reduce((sum, p) => (p.value > 0 ? sum + p.value : sum), 0);
+    expenses = paymentsToCount.reduce((sum, p) => (p.value < 0 ? sum + p.value : sum), 0);
+  }
+  
   return {
     totalItems: count,
     totalPages: Math.ceil(count / size),
@@ -320,4 +329,40 @@ export const changeVerified = async (id, verified, verifiedBy) => {
   else
     logService.logUpdate(id, verifiedBy);
   return payment.update(newData, { where: { id } });
+};
+
+const getWhereForSearchPayment = (spec, all, verified) => {
+  if (all != undefined) {
+    const iLike = "%"+all+"%";
+    return {
+      [Op.and]: [{ verified }, { [Op.or] : {
+        [Op.or] : [
+          { note: { [Op.iLike]: iLike } },
+          { type: { [Op.iLike]: iLike } },
+          Sequelize.literal(`CONCAT("student"."name", ' ', "student"."last_name") ILIKE '${iLike}'`),
+          Sequelize.literal(`CONCAT("user"."first_name", ' ', "user"."last_name") ILIKE '${iLike}'`),
+          Sequelize.literal(`CONCAT("professor"."name", ' ', "professor"."last_name") ILIKE '${iLike}'`)
+        ]
+      }}]
+    };
+  }
+  if (spec.value !== undefined || (spec[Op.or] !== undefined && spec[Op.or].value !== undefined)) {
+    let obj = spec.value || spec[Op.or].value;
+    let value = obj[Op.like] || obj[Op.eq];
+    delete spec.value;
+    if (spec[Op.or] !== undefined)
+      delete spec[Op.or].value;
+    return {
+      [Op.and]: [{verified}, spec, 
+        Sequelize.where(
+          cast(col("value"), "TEXT"),
+          { [Op.like]: `%${value}%` }
+        )
+      ]
+    };
+  } else {
+    return {
+      [Op.and]: [{verified}, spec]
+    };
+  }
 };

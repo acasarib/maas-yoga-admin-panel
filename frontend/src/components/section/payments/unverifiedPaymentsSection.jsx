@@ -60,18 +60,8 @@ export default function UnverifiedPaymentsSections({ defaultSearchValue, default
             }
             fetchPayments(currentPage, perPage, params, false);
         } else { // Filtro Todos
-            const params = {}
-            const searchBy = ["id", "value", "type", "note"];
+            const params = { all: searchValue }
             
-            searchParams.columns.forEach(column => {
-                if (!("serverProp" in column)) return
-                if (searchBy.includes(column.serverProp)) {
-                    params[column.serverProp] = {
-                        value: searchValue,
-                        operation: searchOperation,
-                    }
-                }
-            })
             fetchPayments(currentPage, perPage, params, true);
         }
          
