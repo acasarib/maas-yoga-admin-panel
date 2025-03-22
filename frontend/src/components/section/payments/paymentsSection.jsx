@@ -140,18 +140,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 }
                 setSearchParams(params);
             } else { // Filtro Todos
-                const params = { isOrOperation: true }
-                const searchBy = ["id", "value", "type", "note"];
-                
-                searchParams.columns.forEach(column => {
-                    if (!("serverProp" in column)) return
-                    if (searchBy.includes(column.serverProp)) {
-                        params[column.serverProp] = {
-                            value: searchValue,
-                            operation: column.serverOperation || 'iLike',
-                        }
-                    }
-                })
+                const params = { isOrOperation: true, all: searchValue }
                 setSearchParams(params);
             }
         }, 500)); // Espera 500ms después de que el usuario deje de escribir
