@@ -27,7 +27,7 @@ const ProfessorDetail = () => {
 	const verifyPaymentModal = useModal()
 	const deletePaymentModal = useModal()
 	const addProfessorPaymentModal = useModal()
-	const { isLoadingProfessors, getProfessorDetailsById, calcProfessorsPayments, informPayment } = useContext(Context);
+	const { getProfessorDetailsById, calcProfessorsPayments, informPayment } = useContext(Context);
 	const onCancelImport = () => setActiveSection("");
 
 
@@ -36,13 +36,11 @@ const ProfessorDetail = () => {
 	}, [activeSection]);
 
 	useEffect(() => {
-		if (!isLoadingProfessors) {
-			const getData = async () => {
-				setProfessor(await getProfessorDetailsById(professorId))
-			}
-			getData()
+		const getData = async () => {
+			setProfessor(await getProfessorDetailsById(professorId))
 		}
-	}, [isLoadingProfessors])
+		getData()
+	}, [])
 
 	const onClickVerifyPayment = (payment) => {
 		setPayment(payment)
