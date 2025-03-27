@@ -17,7 +17,7 @@ export const editById = async (professorParam, id) => {
 };
 
 export const getById = async (id) => {
-  const p = await professor.findByPk(id, { include: [course, payment] });
+  const p = await professor.findByPk(id, { include: [course, {model: payment, include: [course]}] });
   for (const course of p.courses) {
     course.dataValues.professorCourse = await professorCourse.findAll({ where: { courseId: course.id, professorId: p.id } });
   }
@@ -54,7 +54,7 @@ export const getById = async (id) => {
     console.error(e);
   }
   const coursesIdsDictedByProfessor = [...new Set(owedPeriods.map(p => p.course.id))];
-  const coursesPayments = await payment.findAll({ where: { courseId: { [Op.in]: coursesIdsDictedByProfessor }, verified: true }, include: [course]});
+  const coursesPayments = await payment.findAll({ where: { courseId: { [Op.in]: coursesIdsDictedByProfessor }, verified: true }});
   const owedPeriodsFiltered = [];
   // Filtra los periodos que no tienen pagos de estudiantes
   for (const period of owedPeriods) {
