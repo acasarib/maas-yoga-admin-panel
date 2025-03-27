@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { course, professor, payment, professorCourse } from "../db/index.js";
+import { course, professor, payment, professorCourse, user } from "../db/index.js";
 import utils from "../utils/functions.js";
 
 export const create = async (professorParam) => {
@@ -17,7 +17,11 @@ export const editById = async (professorParam, id) => {
 };
 
 export const getById = async (id) => {
-  const p = await professor.findByPk(id, { include: [course, {model: payment, include: [course]}] });
+  const p = await professor.findByPk(id, { include: [course, {model: payment, include: [course, {
+    model: user,
+    as: "verifiedByUser",
+    attributes: ["firstName", "lastName"]
+  }]}] });
   for (const course of p.courses) {
     course.dataValues.professorCourse = await professorCourse.findAll({ where: { courseId: course.id, professorId: p.id } });
   }
