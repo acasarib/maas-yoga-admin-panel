@@ -282,11 +282,11 @@ export const getAllVerified = async (page = 1, size = 10, specification, all) =>
     expenses = await payment.sum("value", { 
       where: { ...where, value: { [Op.lt]: 0 } }
     });
-  } catch {
+  } catch(e) {
     const paymentsToCount = await payment.findAll({
       attributes: ["value"],
       where,
-      include: [{ model: student, attributes: [] },{ model: professor, attributes: [] }, {model: user, attributes: []}],
+      include: [{ model: item, attributes: [] },{ model: course, attributes: [] },{ model: student, attributes: [] },{ model: professor, attributes: [] }, {model: user, attributes: []}],
       raw: true
     });
     total = paymentsToCount.reduce((sum, p) => sum + p.value, 0);
@@ -337,9 +337,13 @@ const getWhereForSearchPayment = (spec, all, verified) => {
     return {
       [Op.and]: [{ verified }, { [Op.or] : {
         [Op.or] : [
+          { value: { [Op.eq]: all } },
+          { type: { [Op.iLike]: iLike } },
           { note: { [Op.iLike]: iLike } },
           { type: { [Op.iLike]: iLike } },
           Sequelize.literal(`CONCAT("student"."name", ' ', "student"."last_name") ILIKE '${iLike}'`),
+          Sequelize.literal(`"item"."title" ILIKE '${iLike}'`),
+          Sequelize.literal(`"course"."title" ILIKE '${iLike}'`),
           Sequelize.literal(`CONCAT("user"."first_name", ' ', "user"."last_name") ILIKE '${iLike}'`),
           Sequelize.literal(`CONCAT("professor"."name", ' ', "professor"."last_name") ILIKE '${iLike}'`)
         ]
@@ -361,6 +365,11 @@ const getWhereForSearchPayment = (spec, all, verified) => {
       ]
     };
   } else {
+    if (spec.note != undefined) {
+      const iLike = spec.note[Op.iLike];
+      spec.note = { [Op.or] : [Sequelize.literal(`"item"."title" ILIKE '${iLike}'`),
+        Sequelize.literal(`"course"."title" ILIKE '${iLike}'`)]};
+    }
     return {
       [Op.and]: [{verified}, spec]
     };
