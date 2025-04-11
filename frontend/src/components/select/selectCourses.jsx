@@ -13,7 +13,7 @@ export default function SelectCourses({ options, defaultValue, onChange, value, 
   }
 
   useEffect(() => {
-    if (value)
+    if (value?.title)
       setCourseTitle(value.title)
   }, [value])
   
