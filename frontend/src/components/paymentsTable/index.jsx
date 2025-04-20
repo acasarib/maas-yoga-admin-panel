@@ -383,7 +383,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     labelOff="Mostrar egresos"
                     className="ml-2"
                     disabled={showIncomes}
-                    onChange={() => {onSwitchDischarges(!showDischarges);setShowDischarges(!showDischarges)}}
+                    onChange={() => {onSwitchIncomes(!showDischarges);setShowDischarges(!showDischarges)}}
                 />
                 <CustomCheckbox
                     checked={showIncomes}
@@ -391,7 +391,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     labelOff="Mostrar ingresos"
                     className="ml-2"
                     disabled={showDischarges}
-                    onChange={() => {onSwitchIncomes(!showIncomes);setShowIncomes(!showIncomes)}}
+                    onChange={() => {onSwitchDischarges(!showIncomes);setShowIncomes(!showIncomes)}}
                 />      
                 <CustomCheckbox
                     checked={showOpResultDate}
