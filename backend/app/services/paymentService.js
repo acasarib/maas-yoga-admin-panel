@@ -353,6 +353,11 @@ const getWhereForSearchPayment = (spec, all, verified) => {
   if (spec.value !== undefined || (spec[Op.or] !== undefined && spec[Op.or].value !== undefined)) {
     let obj = spec.value || spec[Op.or].value;
     let value = obj[Op.like] || obj[Op.eq];
+    if (value === undefined) {
+      return {
+        [Op.and]: [{verified}, spec,]
+      };
+    }
     delete spec.value;
     if (spec[Op.or] !== undefined)
       delete spec[Op.or].value;

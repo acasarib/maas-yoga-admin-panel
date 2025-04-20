@@ -14,7 +14,9 @@ import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
 import Spinner from "../spinner/spinner";
 
-export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "", payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, onClickVerifyPayment }) {
+export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
+    payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
+    onClickVerifyPayment, onSwitchDischarges = () => console.log("no implementado"), onSwitchIncomes = () => console.log("no implementado") }) {
     const { user, changeAlertStatusAndMessage, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
@@ -317,7 +319,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
     }, [])
 
     const updateTableSummary = payments =>  {
-        setTableSummary({
+        setTableSummary({// Si quien invoca el componente no pasa el parametro 'summary' entonces se calcula con el array de pagos
             total: getBalanceForAllPayments(payments),
             incomes: getPayments(payments),
             expenses: getDischarges(payments),
@@ -381,7 +383,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     labelOff="Mostrar egresos"
                     className="ml-2"
                     disabled={showIncomes}
-                    onChange={() => setShowDischarges(!showDischarges)}
+                    onChange={() => {onSwitchDischarges(!showDischarges);setShowDischarges(!showDischarges)}}
                 />
                 <CustomCheckbox
                     checked={showIncomes}
@@ -389,7 +391,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     labelOff="Mostrar ingresos"
                     className="ml-2"
                     disabled={showDischarges}
-                    onChange={() => setShowIncomes(!showIncomes)}
+                    onChange={() => {onSwitchIncomes(!showIncomes);setShowIncomes(!showIncomes)}}
                 />      
                 <CustomCheckbox
                     checked={showOpResultDate}
