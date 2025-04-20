@@ -5,7 +5,11 @@ import * as notificationService from "./notificationService.js";
 import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
 
-const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz, student];
+const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz, student,{
+  model: user,
+  as: "verifiedByUser",
+  attributes: ["firstName", "lastName"]
+}];
 /**
  * 
  * @param {Array||Payment} paymentParam 
