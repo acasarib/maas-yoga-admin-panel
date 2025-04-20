@@ -171,7 +171,6 @@ export default {
         return new Promise((resolve, reject) => {            
             let uri = `api/v1/payments/verified?page=${page}&size=${size}&isOrOperation=${isOrOperation}`
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
-            console.log(filters, 'ff');
             
             if (filters && Object.keys(filters).length > 0) {
                 const queryString = Object.keys(filters)

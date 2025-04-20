@@ -40,6 +40,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [isClassPayment, setIsClassPayment] = useState(false)
     const [selectedCollege, setSelectedCollege] = useState(null);
     const [searchParams, setSearchParams] = useState(null);
+    const showIncomes = useToggle()
+    const showDischarges = useToggle()
     const inputFileRef = useRef(null);
     const [fileId, setFileId] = useState(null);
     const [selectedProfessor, setSelectedProfessor] = useState(null);
@@ -78,6 +80,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     }, [resetTable])
 
     useEffect(() => {
+        if (showIncomes.value === true || showDischarges.value === true)
+            fetchPayments()
+    }, [showIncomes.value, showDischarges.value])
+
+    useEffect(() => {
         fetchPayments();
         setResetTable(true)
     }, []);
@@ -106,6 +113,21 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             params[defaultTypeValue] = {
                 value: defaultSearchValue,
                 operation: 'eq'
+            }
+        }
+
+        if (showIncomes.value) {
+            if (params == null) params = {}
+            params.value = {
+                value: 0,
+                operation: 'gt',
+            }
+        }
+        if (showDischarges.value) {
+            if (params == null) params = {}
+            params.value = {
+                value: 0,
+                operation: 'lt',
             }
         }
         console.log(params);
@@ -429,6 +451,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         <>
         <div className="mb-6 md:my-6 md:mx-4">
             <PaymentsTable
+                onSwitchDischarges={showIncomes.toggle}
+                onSwitchIncomes={showDischarges.toggle}
                 pageableProps={{
                     resetTable,
                     handleCustomSearchValue: handleOnSearch,

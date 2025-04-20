@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PaymentsTable from "../../paymentsTable";
 import paymentsService from "../../../services/paymentsService";
 import { fromDDMMYYYYStringToDate } from "../../../utils";
+import useToggle from "../../../hooks/useToggle";
 
 export default function UnverifiedPaymentsSections({ defaultSearchValue, defaultTypeValue, }) {
     const [resetTable, setResetTable] = useState(false);
@@ -11,11 +12,18 @@ export default function UnverifiedPaymentsSections({ defaultSearchValue, default
     const [perPage, setPerPage] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
     const [tableSummary, setTableSummary] = useState(null)
+    const showIncomes = useToggle()
+    const showDischarges = useToggle()
 
     useEffect(() => {
         if (resetTable)
             setResetTable(false)
     }, [resetTable])
+
+    useEffect(() => {
+        if (showIncomes.value === true || showDischarges.value === true)
+            fetchPayments()
+    }, [showIncomes.value, showDischarges.value])
 
     useEffect(() => {
         fetchPayments();
@@ -34,6 +42,20 @@ export default function UnverifiedPaymentsSections({ defaultSearchValue, default
             searchParams[defaultTypeValue] = {
                 value: defaultSearchValue,
                 operation: 'eq'
+            }
+        }
+        if (showIncomes.value) {
+            if (searchParams == null) searchParams = {}
+            searchParams.value = {
+                value: 0,
+                operation: 'gt',
+            }
+        }
+        if (showDischarges.value) {
+            if (searchParams == null) searchParams = {}
+            searchParams.value = {
+                value: 0,
+                operation: 'lt',
             }
         }
         const data = await paymentsService.getAllPaymentsUnverified(page, size, searchParams, isOrOperation);        
@@ -80,6 +102,8 @@ export default function UnverifiedPaymentsSections({ defaultSearchValue, default
     return (<>
         <div className="mb-6 md:my-6 mx-8 md:mx-4">
             <PaymentsTable
+                onSwitchDischarges={showIncomes.toggle}
+                onSwitchIncomes={showDischarges.toggle}
                 pageableProps={{
                     resetTable,
                     handleCustomSearchValue: handleOnSearch,
