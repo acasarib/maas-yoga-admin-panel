@@ -147,6 +147,17 @@ export function fromDDMMYYYYStringToDate(date) {
     }
 }
 
+export function getTimestampsFromMonthYear(dateStr) {
+    const [monthStr, yearStr] = dateStr.split('/');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1;
+  
+    const startAt = new Date(year, month, 1);
+    const endAt = new Date(year, month + 1, 0);
+  
+    return `${startAt.getTime()}:${endAt.getTime()}`;
+}
+
 export function formatPaymentValue(value, fromBlance) {
     try {
         let paymentValue = value.toString();

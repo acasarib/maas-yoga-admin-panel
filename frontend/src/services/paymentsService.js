@@ -178,6 +178,9 @@ export default {
                         if (key == 'all') return ''
                         if (key == 'at' || key == 'operativeResult') {
                             if (filters[key].value == null) return '';
+                            if (typeof filters[key].value === 'string') {
+                                return filters[key].value;
+                            }
                             const startAt = new Date(filters[key].value.getTime());
                             startAt.setHours(0, 0, 0, 0);
                             const endAt = new Date(filters[key].value.getTime());
@@ -214,6 +217,9 @@ export default {
                         if (key == 'all') return ''
                         if (key == 'at' || key == 'operativeResult') {
                             if (filters[key].value == null) return '';
+                            if (typeof filters[key].value === 'string') {
+                                return filters[key].value;
+                            }
                             const startAt = new Date(filters[key].value.getTime());
                             startAt.setHours(0, 0, 0, 0);
                             const endAt = new Date(filters[key].value.getTime());
