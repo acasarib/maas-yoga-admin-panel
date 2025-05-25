@@ -47,9 +47,9 @@ const StudentCoursesInfo = ({ student, onSeePayments }) => {
 	const upToDate = <><Tooltip title="Al dia"><CheckIcon style={{ color: '#72EA8D' }}/></Tooltip></>
 
 	return (<>
-		<div className='flex'>
+		<div className='flex items-center' style={{minWidth: '100px'}}>
 			{"circular" in student.pendingPayments ? <>
-				{hasAnyPendingPayment ? pendingPayment : <>{upToDate}<Tooltip title={`${formatPaymentValue(student.circularPayment.value)}`} className='underline text-yellow-900 mx-1 cursor-pointer'><Link to={`/home/payments?id=${student.circularPayment.id}`}>Ver pago</Link></Tooltip></>}
+				{hasAnyPendingPayment ? pendingPayment : <>{upToDate}<Tooltip title={`${formatPaymentValue(student.circularPayment.value)}`} className='underline text-yellow-900 mx-1 cursor-pointer'><Link target='_blank' to={`/home/payments?id=${student.circularPayment.id}`}>Ver pago</Link></Tooltip></>}
 			</> : <>
 			<div className='underline text-yellow-900 mx-1 cursor-pointer' onClick={() => onSeePayments(student)}>Ver pagos</div>
 			{(hasAnyPendingPayment || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_PAID) && pendingPayment}
