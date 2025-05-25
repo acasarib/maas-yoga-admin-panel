@@ -39,6 +39,9 @@ export default function UnverifiedPaymentsSections({ defaultSearchValue, default
                 searchParams.operativeResult.value = fromDDMMYYYYStringToDate(searchParams.operativeResult.value);
         }
         if (defaultTypeValue) {
+            if (searchParams === undefined || searchParams === null) {
+                searchParams = {}
+            }
             searchParams[defaultTypeValue] = {
                 value: defaultSearchValue,
                 operation: 'eq'

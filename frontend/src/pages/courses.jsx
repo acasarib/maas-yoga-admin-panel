@@ -247,7 +247,7 @@ export default function Courses(props) {
         },
         {
             name: 'Pagó matrícula',
-            selector: row => row.registrationPaymentId ? 'Si' : 'No',
+            selector: row => row.registrationPaid ? 'Si' : 'No',
             sortable: true,
             minWidth: '150px'
         },
