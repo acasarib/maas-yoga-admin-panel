@@ -23,6 +23,10 @@ class Specification {
       let error = false;
       const splitBySpaces = part.split(" ");
       let [attribute, operation, value] = splitBySpaces;
+      if (splitBySpaces.length > 3) {
+        value = part.replace(attribute + " " + operation, "");
+        value = value.slice(1);
+      }
       const isAssociationAttribute = attribute.includes(".");
       if (isAssociationAttribute) {
         const [associationName, associationAttribute] = attribute.split(".");

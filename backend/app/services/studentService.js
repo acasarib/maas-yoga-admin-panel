@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, where, literal } from "sequelize";
 import { student, course, courseTask, payment, sequelize, courseStudent, courseStudentSuspend, studentCourseTask } from "../db/index.js";
 import { STUDENT_MONTHS_CONDITIONS, STUDENT_STATUS } from "../utils/constants.js";
 import utils from "../utils/functions.js";
@@ -203,14 +203,32 @@ export const getAllLegacy = async () => {
 };
 
 export const getAll = async (page = 1, size = 10, specification) => {
-  const where = specification.getSequelizeSpecification();
+  const whereSpec = specification.getSequelizeSpecification();
+  if (whereSpec[Op.or] != undefined && whereSpec[Op.or].name != undefined && whereSpec[Op.or].lastName != undefined) {
+    const searchValue = "%" + whereSpec[Op.or].name[Op.iLike].replace("%", "");
+    delete whereSpec[Op.or].name;
+    delete whereSpec[Op.or].lastName;
+    const copyWhereAttributes = [];
+    const keys = Object.keys(whereSpec[Op.or]);
+    for (let key of keys) {
+      copyWhereAttributes.push({ [key]:whereSpec[Op.or][key] });
+    }
+    //TODO: sql inyection
+    copyWhereAttributes.push(where(
+      literal(`CONCAT("student"."name", ' ', "student"."last_name")`),
+      {
+        [Op.iLike]: searchValue
+      }
+    ));
+    whereSpec[Op.or] = copyWhereAttributes
+  }
   const include = specification.getSequelizeSpecificationAssociations([course]);
-  const findAllParams = {
+  const findAllParams = {//
     distinct: true,
     include,
     limit: size,
     offset: (page - 1) * size,
-    where,
+    where: whereSpec,
   };
   let { count, rows } = await student.findAndCountAll(findAllParams);
   return {
