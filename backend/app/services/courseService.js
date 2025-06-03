@@ -300,8 +300,8 @@ export const setCompletedStudentTask = async (studentCourseTaskParam, courseTask
  * @param {String} to in format yyyy-mm-dd
  */
 export const calcProfessorsPayments = async (from, to, professorId, courseId) => {
-  const startDate = new Date(from);
-  const endDate = new Date(to);
+  const startDate = utils.parseDateFromStringYYYYMMDD(from);
+  const endDate = utils.parseDateFromStringYYYYMMDD(to);
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
   const paymentsInRange = await payment.findAll({

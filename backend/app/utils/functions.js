@@ -97,5 +97,11 @@ export default {
     const start = new Date(startDate).getTime();
     const end = new Date(endDate).getTime();
     return check >= start && check <= end;
+  },
+
+  parseDateFromStringYYYYMMDD(dateString) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day);
   }
+
 };
