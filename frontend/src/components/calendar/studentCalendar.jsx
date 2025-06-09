@@ -37,6 +37,8 @@ export default function StudentCalendar({ periods, registration }) {
             return (<BlueBudget>Inscripto</BlueBudget>);
         } else if (status == STUDENT_MONTHS_CONDITIONS.SUSPEND) {
             return (<YellowBudget>Suspendido</YellowBudget>);
+        } else if (status == STUDENT_MONTHS_CONDITIONS.CIRCULAR_NOT_PAID) {
+            return (<BlueBudget>Curso circular</BlueBudget>);
         }
     }
 
