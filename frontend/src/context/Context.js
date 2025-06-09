@@ -481,10 +481,15 @@ export const Provider = ({ children }) => {
         const courses = [];
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth()+1;
+        const now = new Date().toISOString();
         student.courses.forEach(course => {
             let memberSince = student.courseStudents.find(cs => cs.courseId == course.id).createdAt;
             memberSince = new Date(memberSince);
             const periods = {};
+            if (course.startAt == null)
+                course.startAt = now;
+            if (course.endAt == null)
+                course.endAt = now;
             series(course.startAt, course.endAt)
             .forEach(date => {
                 const year = date.getFullYear();
@@ -495,21 +500,33 @@ export const Provider = ({ children }) => {
                         periods[year][i] = false;
                     }
                 }
+                // Si todavia no se pago el curso, se marca como pendiente
                 if ((year > currentYear) || (month > currentMonth && year == currentYear)) {
                     periods[year][month] = {
                         condition: STUDENT_MONTHS_CONDITIONS.PENDING
                     };
-                } else {
+                } else { // Si ya paso el mes, se marca como no pagado (mas adelante se verifica si esta al dia)
                     periods[year][month] = {
                         condition: STUDENT_MONTHS_CONDITIONS.NOT_PAID
                     };
                 }
+                // Si el estudiante no asistio a la clase, se marca como no asistido
                 if (!((year > memberSince.getFullYear()) || (month > (memberSince.getMonth()) && year == memberSince.getFullYear()))) {
                     periods[year][month] = {
                         condition: STUDENT_MONTHS_CONDITIONS.NOT_TAKEN
                     };
                 }
+                // Si el curso es circular y no se pago, se marca como no pagado circular
+                if (course.isCircular && periods[year][month].condition == STUDENT_MONTHS_CONDITIONS.NOT_PAID) {
+                    periods[year][month].condition = STUDENT_MONTHS_CONDITIONS.CIRCULAR_NOT_PAID;
+                }
+
             });
+            if (course.isCircular) {
+                const circularCoursePaid = student.payments.some(payment => payment.courseId == course.id)
+                courses.push({ ...course, memberSince, periods, isUpToDate: circularCoursePaid });
+                return;
+            }
             student.payments.forEach(payment => {
                 if (payment.courseId != course.id)
                     return

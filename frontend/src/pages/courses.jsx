@@ -5,7 +5,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SchoolIcon from '@mui/icons-material/School';
-import dayjs from 'dayjs';
 import useToggle from "../hooks/useToggle"
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import TaskModal from "../components/courses/taskModal";
@@ -27,7 +26,7 @@ import CreateUpdateCourseModal from "../components/modal/createUpdateCourse";
 import useModal from '../hooks/useModal'
 
 export default function Courses(props) {
-    const { isLoadingStudents, deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
+    const { deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
     const [opResult, setOpResult] = useState('No hay cursos.');
