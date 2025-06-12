@@ -353,7 +353,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
             studentId: (edit && selectedStudent !== null) ? selectedStudent.id : (isDischarge ? null : selectedStudent.id),
-            professorId: selectedProfessor !== null ? selectedProfessor.id : null,
+            professorId: selectedProfessor !== null ? selectedProfessor.id : (edit && paymentToEdit?.professorId !== null ? paymentToEdit.professorId : null),
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
             operativeResult: edit ? operativeResult : operativeResult.$d.getTime(),
