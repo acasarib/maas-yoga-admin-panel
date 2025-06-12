@@ -87,7 +87,7 @@ function Course({ course, student }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, students, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)

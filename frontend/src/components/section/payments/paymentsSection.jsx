@@ -28,7 +28,6 @@ import SelectCourses from "../../select/selectCourses";
 import SelectStudent from "../../select/selectStudent";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
-
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
@@ -119,7 +118,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             }
         }
         if (defaultTypeValue) {
-            if (params === undefined) {
+            if (params === undefined || params === null) {
                 params = {}
             }
             params[defaultTypeValue] = {

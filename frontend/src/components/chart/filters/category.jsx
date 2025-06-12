@@ -29,7 +29,14 @@ export default function FilterPaymentCategory({ onChange }) {
     <div>
         <span className="block text-gray-700 text-sm font-bold mb-2">Categoria</span>
         <div className="flex">
-            <Select className="payment-filter-width" options={categories} value={selectedCategory} onChange={setSelectedCategory}/>
+            <Select
+                className="payment-filter-width"
+                options={categories}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                getOptionLabel={(category)=> category.title}
+                getOptionValue={(category)=> category.id}
+            />
         </div>
     </div>
     );
