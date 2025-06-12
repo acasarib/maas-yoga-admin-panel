@@ -101,6 +101,7 @@ export default {
     },
     getStudents(page, size, filters) {
         return new Promise((resolve, reject) => {
+            filters = Object.assign({}, filters)
             let uri = `api/v1/students?page=${page}&size=${size}`
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             if (filters && Object.keys(filters).length > 0) {

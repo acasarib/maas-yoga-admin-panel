@@ -13,6 +13,7 @@ export const STUDENT_MONTHS_CONDITIONS = {
     NOT_PAID: "NOT_PAID",
     PENDING: "PENDING",
     SUSPEND: "SUSPEND",
+    CIRCULAR_NOT_PAID: "CIRCULAR_NOT_PAID",
 }
 
 export const STUDENT_STATUS = {
@@ -58,4 +59,4 @@ export const PAYMENT_OPTIONS = [
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
 
-export const APP_VERSION = "1.0.8";
+export const APP_VERSION = "1.0.9";
