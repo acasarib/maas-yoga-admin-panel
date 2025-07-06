@@ -55,8 +55,20 @@ export const PAYMENT_OPTIONS = [
         label: 'Débito de tarjeta',
         value: 'Débito de tarjeta'
     },
+    {
+        label: 'Crédito en proveedor',
+        value: 'Crédito en proveedor'
+    },
+    {
+        label: 'Crédito en cuenta',
+        value: 'Crédito en cuenta'
+    },
+    {
+        label: 'Crédito en tarjeta',
+        value: 'Crédito en tarjeta'
+    },
 ];
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
 
-export const APP_VERSION = "1.0.9";
+export const APP_VERSION = "1.1.0";

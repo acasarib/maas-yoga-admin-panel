@@ -1,7 +1,7 @@
 const PERMISSIONS = {
   CREATE_USER: "PERMISSION_CREATE_USER"
 };
-const APP_VERSION = "1.0.8";
+const APP_VERSION = "1.1.0";
 const PAYMENT_TYPES = {
   MERCADO_PAGO: "Mercado pago",
   PAYPAL: "Paypal",
@@ -9,7 +9,10 @@ const PAYMENT_TYPES = {
   TRANSFER: "Transferencia",
   CREDIT_CARD: "Tarjeta de credito",
   DEBIT_ACCOUNT: "Débito de cuenta",
-  DEBIT_CARD: "Débito de tarjeta"
+  DEBIT_CARD: "Débito de tarjeta",
+  CREDIT_PROVIDER: "Crédito en proveedor",
+  CREDIT_ACCOUNT: "Crédito en cuenta",
+  CREDIT_CARD_CUSTOM: "Crédito en tarjeta"
 };
 const STUDENT_STATUS = {
   ACTIVE: "ACTIVE",
