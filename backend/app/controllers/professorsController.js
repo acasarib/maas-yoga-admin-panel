@@ -74,4 +74,17 @@ export default {
     }
   },
 
+  /**
+   * /professors/pending-payments [GET]
+   * @returns HttpStatus ok and array of @Professor with pending payments (owedPeriods, notVerifiedPeriods)
+   */
+  getPendingPayments: async (req, res, next) => {
+    try {
+      const professors = await professorService.getPendingPayments();
+      res.status(StatusCodes.OK).json(professors);
+    } catch (e) {
+      next(e);
+    }
+  },
+
 };
