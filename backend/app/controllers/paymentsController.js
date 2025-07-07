@@ -268,4 +268,18 @@ export default {
     }
   },
 
+  /**
+   * /payments/:id/receipt [GET]
+   * Descarga el comprobante PDF de un pago
+   */
+  getReceipt: async (req, res, next) => {
+    try {
+      const pdfBuffer = await paymentService.getReceipt(req.params.id, req.user);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=recibo_${req.params.id}.pdf`);
+      res.send(Buffer.from(pdfBuffer));
+    } catch (e) {
+      next(e);
+    }
+  }
 };

@@ -4,6 +4,7 @@ import * as logService from "./logService.js";
 import * as notificationService from "./notificationService.js";
 import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
+import { fillPaymentReceiptPDF } from "../utils/pdfUtils.js";
 
 const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz, student,{
   model: user,
@@ -322,6 +323,39 @@ export const getById = async (id) => {
   if (p == null)
     throw ({ statusCode: StatusCodes.NOT_FOUND, message: "payment not found" });
   return p;
+};
+
+export const getReceipt = async (paymentId, { firstName, lastName }) => {
+  const payment = await getById(paymentId);
+  const date = utils.dateToDDMMYYYY(new Date(payment.at));
+  let price = payment.value;
+  if (payment.discount)
+    price += (payment.discount / 100) * price;
+  // Formatear precio
+  price = `$${price.toLocaleString("es-AR")}`;
+  // Formatear from
+  const from = `${firstName} ${lastName}`;
+  // Descripción
+  const description = payment.course?.title || '';
+  // Tipo de pago
+  const paymentType = payment.type;
+  // Descuento
+  const discount = payment.discount;
+  let discountValue = (payment.discount / 100) * payment.value;
+  discountValue = `$-${discountValue.toLocaleString("es-AR")}`;
+  // Total
+  const total = `$${payment.value.toLocaleString("es-AR")}`;
+
+  return fillPaymentReceiptPDF({
+    date,
+    from,
+    description,
+    paymentType,
+    price,
+    discount,
+    total,
+    discountValue,
+  });
 };
 
 export const changeVerified = async (id, verified, verifiedBy) => {
