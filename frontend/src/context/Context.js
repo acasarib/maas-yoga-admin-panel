@@ -116,9 +116,10 @@ export const Provider = ({ children }) => {
 
     const generateReceipt = async (paymentId) => {
         try {
-            const response = await fetch(`http://localhost:3002/api/v1/payments/${paymentId}/receipt`, {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_HOST}api/v1/payments/${paymentId}/receipt`, {
                 headers: {
-                    'Authorization': `Bearer ey`
+                    'Authorization': `Bearer ${token}`
                 }
             });
     
