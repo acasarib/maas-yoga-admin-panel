@@ -116,7 +116,7 @@ export const Provider = ({ children }) => {
 
     const generateReceipt = async (paymentId) => {
         try {
-            const response = await fetch(`/api/receipts/${paymentId}`);
+            const response = await paymentsService.generateReceipt(paymentId);
     
             if (!response.ok) {
                 throw new Error('Respuesta no OK');
