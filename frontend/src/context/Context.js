@@ -116,12 +116,32 @@ export const Provider = ({ children }) => {
 
     const generateReceipt = async (paymentId) => {
         try {
-            const receipt = await paymentsService.generateReceipt(paymentId);
-            return receipt;
-        }catch {
-            changeAlertStatusAndMessage(true, 'error', 'No fue posible generar el recibo... Por favor inténtelo nuevamente.');
+            const response = await fetch(`/api/receipts/${paymentId}`);
+    
+            if (!response.ok) {
+                throw new Error('Respuesta no OK');
+            }
+    
+            const arrayBuffer = await response.arrayBuffer();
+            const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+    
+            if (!(blob instanceof Blob)) {
+                throw new Error('No se generó un Blob válido');
+            }
+    
+            console.log(response, 'response', blob, 'blob', arrayBuffer, 'arrayBuffer');
+            
+            return blob;
+        } catch (error) {
+            changeAlertStatusAndMessage(
+                true,
+                'error',
+                'No fue posible generar el recibo... Por favor inténtelo nuevamente.'
+            );
+            console.error('Error en generateReceipt:', error);
+            return null; // 👈 IMPORTANTE: devolvé algo si ocurre error
         }
-    }
+    };
 
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);

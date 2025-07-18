@@ -344,18 +344,27 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
     const downloadReceipt = async (paymentId) => {
         try {
-            const receipt = await generateReceipt(paymentId);
-            const blob = new Blob([receipt], { type: 'application/pdf' });
+            const blob = await generateReceipt(paymentId);
+            setAddReceipt(false);
+            console.log(blob, 'blob');
+            
+    
+            if (!blob) throw new Error('Blob indefinido');
+    
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
+            console.log(link, 'link', url, 'url');
+            
             link.download = `recibo-${paymentId}.pdf`;
+            document.body.appendChild(link);
             link.click();
+            link.remove();
             URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error al descargar el recibo:', error);
         }
-    }
+    };
 
     const handleInformPayment = async () => {        
         setIsLoadingPayment(true);
