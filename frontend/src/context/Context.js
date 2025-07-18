@@ -114,6 +114,15 @@ export const Provider = ({ children }) => {
         return data;
     };
 
+    const generateReceipt = async (paymentId) => {
+        try {
+            const receipt = await paymentsService.generateReceipt(paymentId);
+            return receipt;
+        }catch {
+            changeAlertStatusAndMessage(true, 'error', 'No fue posible generar el recibo... Por favor inténtelo nuevamente.');
+        }
+    }
+
     useEffect(() => {
         console.log("App running version=" + APP_VERSION);
         if (user === null) return;
@@ -705,6 +714,7 @@ export const Provider = ({ children }) => {
             addCoursesToCollege,
             newCollege,
             newClazz,
+            generateReceipt,
             newUser,
             deleteUser,
             deleteStudent,
