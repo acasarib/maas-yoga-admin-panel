@@ -46,6 +46,19 @@ export default {
                 })
         });
     },
+    generateReceipt(paymentId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/payments/${paymentId}/receipt`, {})
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     informPayment(paymentInfo) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;  
