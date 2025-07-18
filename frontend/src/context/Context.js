@@ -116,11 +116,11 @@ export const Provider = ({ children }) => {
 
     const generateReceipt = async (paymentId) => {
         try {
-            const response = await paymentsService.generateReceipt(paymentId);
-    
-            if (!response.ok) {
-                throw new Error('Respuesta no OK');
-            }
+            const response = await fetch(`http://localhost:3002/api/v1/payments/${paymentId}/receipt`, {
+                headers: {
+                    'Authorization': `Bearer ey`
+                }
+            });
     
             const arrayBuffer = await response.arrayBuffer();
             const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
