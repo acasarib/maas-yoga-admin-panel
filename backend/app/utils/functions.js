@@ -109,6 +109,11 @@ export default {
   parseDateFromStringYYYYMMDD(dateString) {
     const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day);
+  },
+
+  capitalizeString(str) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
 };
