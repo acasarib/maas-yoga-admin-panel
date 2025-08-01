@@ -11,7 +11,8 @@ export default {
    */
   create: async (req, res, next) => {
     try {
-      const createdPayment = await paymentService.create(req.body, req.user.id);
+      const sendEmail = req.query.sendEmail === "true";
+      const createdPayment = await paymentService.create(req.body, req.user.id, sendEmail);
       res.status(StatusCodes.CREATED).json(createdPayment);
     } catch (e) {
       next(e);
