@@ -399,9 +399,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 }
                 await editPayment(data);
             }else {
-                const sendReceipt = selectedStudent?.email;
+                const sendReceipt = addReceipt && selectedStudent?.email;
                 const savedPayment = await informPayment(data, sendReceipt);
-                if(addReceipt && !sendReceipt) {
+                if(addReceipt && !selectedStudent?.email) {
                     await downloadReceipt(savedPayment.id);
                 }
             }
