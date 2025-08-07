@@ -24,8 +24,10 @@ import SelectClass from "../../select/selectClass";
 import SelectColleges from "../../select/selectColleges";
 import ServicesCard from "../../servicesCard";
 import SelectProfessors from "../../select/selectProfessors";
+import WarningIcon from '@mui/icons-material/Warning';
 import SelectCourses from "../../select/selectCourses";
 import SelectStudent from "../../select/selectStudent";
+import YellowBudget from "../../badget/yellow";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
     const [file, setFile] = useState([]);
@@ -397,8 +399,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 }
                 await editPayment(data);
             }else {
-                const savedPayment = await informPayment(data);
-                if(addReceipt) {
+                const sendReceipt = selectedStudent?.email;
+                const savedPayment = await informPayment(data, sendReceipt);
+                if(addReceipt && !sendReceipt) {
                     await downloadReceipt(savedPayment.id);
                 }
             }
@@ -451,6 +454,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         if(st?.courses?.length > 0) {
             setStudentCourses(st.courses);
         }
+        console.log(st);
+        
         setSelectedStudent(st);
     }
 
@@ -669,13 +674,14 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
                 <div className="mt-2"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
             </div>
-            {(paymentMethod === 'Efectivo') && (selectedCourse.id) && <div className="col-span-2 md:col-span-1 pb-1">
+            {(paymentMethod === 'Efectivo') && (selectedCourse.id) && <div className="col-span-2 pb-1">
                 <CustomCheckbox
                     label="Generar recibo"
                     name="addReceipt"
                     checked={addReceipt}
                     onChange={setAddReceipt}
                 />
+                {!selectedStudent?.email && <YellowBudget className="mt-2 w-full"><WarningIcon fontSize="small" className="mr-2"/>No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.</YellowBudget>}
             </div>}
                 <div className="col-span-2 md:col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
