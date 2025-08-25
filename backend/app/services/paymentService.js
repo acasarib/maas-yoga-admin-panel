@@ -350,7 +350,7 @@ export const getReceipt = async (paymentId, { firstName, lastName }) => {
   // Formatear precio
   price = `$${price.toLocaleString("es-AR")}`;
   // Formatear from
-  const from = `${firstName} ${lastName}`;
+  const from = `${payment?.student?.name} ${payment?.student?.lastName}`;
   // Descripción
   const description = payment.course?.title || '';
   // Tipo de pago
@@ -457,15 +457,9 @@ const sendReceiptByEmail = async (paymentId, informerId) => {
       console.log(`Usuario informador ${informerId} no encontrado`);
       return;
     }
-
-    const informerFirstName = utils.capitalizeString(informerUser.firstName);
-    const informerLastName = utils.capitalizeString(informerUser.lastName);
     
     // Generar el PDF del recibo
-    const pdfBuffer = await getReceipt(paymentId, {
-      firstName: informerFirstName,
-      lastName: informerLastName
-    });
+    const pdfBuffer = await getReceipt(paymentId);
     
     const studentFirstName = utils.capitalizeString(paymentData.student.name);
     const studentLastName = utils.capitalizeString(paymentData.student.lastName);
