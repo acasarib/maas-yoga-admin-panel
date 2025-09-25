@@ -176,6 +176,13 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
         return dateB - dateA;
     };
 
+    const valueSortFunction = (rowA, rowB) => {
+        // Convertir a números para asegurar ordenamiento numérico
+        const valueA = parseFloat(rowA.value);
+        const valueB = parseFloat(rowB.value);
+        return valueB - valueA;
+    };
+
     const columns = useMemo(() => {
         const defaultColumns = [
             {
@@ -207,7 +214,8 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                 cell: row => <span className={`${row.value >= 0 ? "text-blue-400" : "text-red-800"} whitespace-nowrap w-16 font-bold`}>{formatPaymentValue(row.value)}{row.discount && <span className="ml-1">{`(-${row.discount}%)`}</span>}</span>,
                 sortable: true,
                 searchable: true,
-                selector: row => row.value.toString(),
+                selector: row => row.value,
+                sortFunction: valueSortFunction,
                 minWidth: '120px',
             },
             {
