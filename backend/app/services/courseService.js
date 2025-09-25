@@ -318,7 +318,17 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
       isRegistrationPayment: {
         [Op.eq]: false
       }
-    }
+    },
+    include: [
+      {
+        model: student,
+        attributes: ["name", "lastName"]
+      },
+      {
+        model: course,
+        attributes: ["title"]
+      }
+    ]
   });
   let coursesIds = paymentsInRange.map(payment => payment.courseId);
   coursesIds = utils.removeDuplicated(coursesIds);
