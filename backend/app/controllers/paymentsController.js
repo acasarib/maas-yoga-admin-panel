@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { payment } from "../db/index.js";
 import { getById } from "../services/studentService.js";
+import { PAYMENT_TYPES } from "../utils/constants.js";
 
 export default {
   /**
@@ -11,7 +12,7 @@ export default {
    */
   create: async (req, res, next) => {
     try {
-      const sendEmail = req.query.sendEmail === "true";
+      const sendEmail = req.query.sendEmail === "true" && req.body.type === PAYMENT_TYPES.CASH;
       const createdPayment = await paymentService.create(req.body, req.user.id, sendEmail);
       res.status(StatusCodes.CREATED).json(createdPayment);
     } catch (e) {
