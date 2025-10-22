@@ -5,7 +5,7 @@ import CommonTextArea from "../../../components/commonTextArea";
 import Modal from "../../../components/modal";
 import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
-import { PAYMENT_OPTIONS } from "../../../constants";
+import { CASH_PAYMENT_TYPE, PAYMENT_OPTIONS } from "../../../constants";
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import PaymentsTable from "../../../components/paymentsTable";
@@ -330,6 +330,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             setSelectedStudent(payment.student);
         }
         const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
+        console.log('metodo ', method[0]);
+        console.log('selectedSt ', payment.student);
+        
         setPaymentMethod(method[0]);
         setPaymentAt(dayjs(new Date(payment.at)));
         setOperativeResult(dayjs(new Date(payment.operativeResult)));
@@ -392,14 +395,14 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             delete data.courseId;
         }
         try{
+            const sendReceipt = addReceipt && selectedStudent?.email;
             if(edit) {
                 data.id = paymentToEdit.id;
                 if(addReceipt) {
                     await downloadReceipt(data.id);
                 }
-                await editPayment(data);
+                await editPayment(data, sendReceipt);
             }else {
-                const sendReceipt = addReceipt && selectedStudent?.email;
                 const savedPayment = await informPayment(data, sendReceipt);
                 if(addReceipt && !selectedStudent?.email) {
                     await downloadReceipt(savedPayment.id);
@@ -674,7 +677,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
                 <div className="mt-2"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
             </div>
-            {(paymentMethod === 'Efectivo') && (selectedCourse.id) && <div className="col-span-2 pb-1">
+            {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && (selectedCourse?.id !== null && selectedCourse?.id !== undefined) && <div className="col-span-2 pb-1">
                 <CustomCheckbox
                     label="Generar recibo"
                     name="addReceipt"
