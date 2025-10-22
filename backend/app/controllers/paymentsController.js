@@ -250,7 +250,8 @@ export default {
    */
   updatePayment: async (req, res, next) => {
     try {
-      const updatedPayment = await paymentService.updatePayment(req.params.id, req.body, req.user.id);
+      const sendEmail = req.query.sendEmail === "true" && req.body.type === PAYMENT_TYPES.CASH;
+      const updatedPayment = await paymentService.updatePayment(req.params.id, req.body, req.user.id, sendEmail);
       res.status(StatusCodes.OK).json(updatedPayment);
     } catch (e) {
       next(e);
