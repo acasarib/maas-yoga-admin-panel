@@ -245,9 +245,9 @@ export const Provider = ({ children }) => {
         }
     };
 
-    const editPayment = async payment => {
+    const editPayment = async (payment, sendReceipt) => {
         try {
-            const editedPayment = await paymentsService.editPayment(payment);
+            const editedPayment = await paymentsService.editPayment(payment, sendReceipt);
             changeAlertStatusAndMessage(true, 'success', 'El movimiento fue editado exitosamente!')
             editedPayment.user = user;
             setPayments(current => current.map(p => p.id === payment.id ? merge(p, editedPayment) : p));

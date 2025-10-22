@@ -115,11 +115,11 @@ export default {
                 })
         });
     },
-    editPayment(payment) {
+    editPayment(payment, sendReceipt) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/payments/${payment.id}`, payment)
+                .put(baseUrl + `api/v1/payments/${payment.id}${sendReceipt ? '?sendEmail=true' : ''}`, payment)
                 .then((response) => {
                     resolve(response.data);
                 })
