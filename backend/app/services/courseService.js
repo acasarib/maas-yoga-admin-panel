@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor, sequelize } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
 import { getStudentsByCourse } from "./studentService.js";
+import ExcelJS from "exceljs";
 
 const paymentBelongToProfessor = (payment, professor) => {
   try {
@@ -403,7 +404,7 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
   return coursesInRange;
 };
 
-export const addProfessorPayments = async (data, informerId = null) => {
+export const addProfessorPayments = async (data, from, to, informerId = null) => {
   const payments = data.map(d => ({
     type: PAYMENT_TYPES.CASH,
     value: d.collectedByProfessor *-1,
@@ -414,6 +415,8 @@ export const addProfessorPayments = async (data, informerId = null) => {
     professorCourseId: d.professorCourseId,
     professorId: d.professorId,
     userId: informerId,
+    periodFrom: from,
+    periodTo: to,
   }));
   let paymentsAdded = 0;
   for (const p of payments) {
@@ -421,7 +424,7 @@ export const addProfessorPayments = async (data, informerId = null) => {
       where: {
         periodFrom: from,
         periodTo: to,
-        professor: p.professor,
+        professorId: p.professorId,
       }
     });
     if (alreadyCalculated === 0) {
@@ -435,4 +438,90 @@ export const addProfessorPayments = async (data, informerId = null) => {
 export const addProfessorPayment = async (payment, from, to, informerId) => {
   const amountAdded = await addProfessorPayments([payment], from, to, informerId);
   return amountAdded === 1;
+};
+
+export const exportProfessorsPayments = async (from, to) => {
+  const startDate = utils.parseDateFromStringYYYYMMDD(from);
+  const endDate = utils.parseDateFromStringYYYYMMDD(to);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+
+  // Get all payments in the range
+  const paymentsInRange = await payment.findAll({
+    where: {
+      operativeResult: {
+        [Op.between]: [startDate, endDate]
+      },
+      courseId: { [Op.not]: null },
+      value: { [Op.gt]: 0 },
+      isRegistrationPayment: { [Op.eq]: false }
+    },
+    include: [
+      {
+        model: student,
+        attributes: ["name", "lastName"]
+      },
+      {
+        model: course,
+        attributes: ["title"]
+      }
+    ]
+  });
+
+  // Group payments by course
+  const coursePayments = {};
+  paymentsInRange.forEach(p => {
+    if (!coursePayments[p.courseId]) {
+      coursePayments[p.courseId] = {
+        courseTitle: p.course.title,
+        paymentsWithDiscount: [],
+        paymentsWithoutDiscount: []
+      };
+    }
+    
+    if (p.discount && p.discount > 0) {
+      coursePayments[p.courseId].paymentsWithDiscount.push(p);
+    } else {
+      coursePayments[p.courseId].paymentsWithoutDiscount.push(p);
+    }
+  });
+
+  // Create Excel workbook
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Pagos Profesores");
+
+  // Add headers
+  worksheet.addRow(["Curso", "Cantidad Pagos Sin Descuento", "Cantidad Pagos Con Descuento", "Total"]);
+  
+  // Style headers
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FFE0E0E0" }
+  };
+
+  // Add data rows
+  Object.values(coursePayments).forEach(courseData => {
+    const withoutDiscountCount = courseData.paymentsWithoutDiscount.length;
+    const withDiscountCount = courseData.paymentsWithDiscount.length;
+    const total = withoutDiscountCount + withDiscountCount;
+    
+    worksheet.addRow([
+      courseData.courseTitle,
+      withoutDiscountCount,
+      withDiscountCount,
+      total
+    ]);
+  });
+
+  // Auto-fit columns
+  worksheet.columns.forEach(column => {
+    column.width = 20;
+  });
+
+  // Generate buffer
+  const buffer = await workbook.xlsx.writeBuffer();
+  return buffer;
 };

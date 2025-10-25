@@ -235,6 +235,23 @@ export default {
       }
       res.status(StatusCodes.OK).json(details);
     } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /export-professors-payments [POST]
+   * @returns Excel file
+   */
+  exportProfessorsPayments: async (req, res, next) => {
+    try {
+      const { from, to } = req.body;
+      const excelBuffer = await courseService.exportProfessorsPayments(from, to);
+      
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename=pagos-profesores-${from}-${to}.xlsx`);
+      res.send(excelBuffer);
+    } catch (e) {
       console.log(e);
       next(e);
     }

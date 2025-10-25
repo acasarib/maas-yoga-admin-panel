@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import Modal from "../components/modal";
 import "react-datepicker/dist/react-datepicker.css";
 import InfoIcon from '@mui/icons-material/Info';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Container from "../components/container";
 import { Context } from "../context/Context";
@@ -11,6 +12,7 @@ import PaymentInfo from "../components/paymentInfo";
 import CourseProfessorCard from "../components/courses/CourseProfessorCalculation/courseProfessorCard";
 import useToggle from "../hooks/useToggle";
 import Loader from "../components/spinner/loader";
+import coursesService from "../services/coursesService";
 
 export default function ProfessorPayments(props) {
     const { calcProfessorsPayments } = useContext(Context);
@@ -30,6 +32,30 @@ export default function ProfessorPayments(props) {
         console.log("Data: ", sortedData);
         setData(sortedData);
         isLoading.disable()
+    }
+
+    const handleExportPayments = async () => {
+        try {
+            const parsedFrom = dateToYYYYMMDD(from.$d);
+            const parsedTo = dateToYYYYMMDD(to.$d);
+            
+            const response = await coursesService.exportProfessorsPayments(parsedFrom, parsedTo);
+            
+            // Create blob and download
+            const blob = new Blob([response], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `pagos-profesores-${parsedFrom}-${parsedTo}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al exportar:', error);
+        }
     }
 
     const onInformPayment = payment => {
@@ -72,9 +98,15 @@ export default function ProfessorPayments(props) {
                             onChange={(newValue) => setTo(newValue)}
                         />
                     </div>
-                    <div className="ml-2 mt-8 flex items-center">
+                    <div className="ml-2 mt-8 flex items-center gap-2">
                         {isLoading.value ? <Loader/> :
-                        <ButtonPrimary disabled={from == null || to == null} onClick={handleCalcProfessorsPayments}>Calcular</ButtonPrimary>
+                        <>
+                            <ButtonPrimary disabled={from == null || to == null} onClick={handleCalcProfessorsPayments}>Calcular</ButtonPrimary>
+                            <ButtonPrimary disabled={from == null || to == null || data == null} onClick={handleExportPayments}>
+                                <FileDownloadIcon className="mr-1" fontSize="small" />
+                                Exportar
+                            </ButtonPrimary>
+                        </>
                         }
                     </div>
                 </div>

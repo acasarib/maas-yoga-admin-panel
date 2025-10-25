@@ -23,6 +23,7 @@ router.get("/tasks/:courseTaskId/students", verifyToken, controller.getStudentsT
 router.put("/tasks/:courseTaskId/students/:studentId", verifyToken, controller.setCompletedStudentTask);
 
 router.post("/calc-professors-payments", verifyToken, controller.calcProfessorsPayments);
+router.post("/export-professors-payments", verifyToken, controller.exportProfessorsPayments);
 router.post("/add-professor-payment", verifyToken, controller.addProfessorPayment);
 
 export default router;
