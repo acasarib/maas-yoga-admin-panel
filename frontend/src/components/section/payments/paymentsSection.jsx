@@ -48,7 +48,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [fileId, setFileId] = useState(null);
     const [selectedProfessor, setSelectedProfessor] = useState(null);
     const [ammount, setAmmount] = useState(null);
-    const [addReceipt, setAddReceipt] = useState(false);
+    const addReceipt = useToggle(false);
     const [paymentMethod, setPaymentMethod] = useState(null);
     const [note, setNote] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -351,16 +351,13 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const downloadReceipt = async (paymentId) => {
         try {
             const blob = await generateReceipt(paymentId);
-            setAddReceipt(false);
-            console.log(blob, 'blob');
-            
-    
+            addReceipt.disable();
+
             if (!blob) throw new Error('Blob indefinido');
     
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            console.log(link, 'link', url, 'url');
             
             link.download = `recibo-${paymentId}.pdf`;
             document.body.appendChild(link);
@@ -382,7 +379,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             type: (edit && paymentMethod !== null) ? (paymentMethod.value || paymentMethod) : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
             value: edit ? getValue() : (isDischarge ? (ammount * -1).toFixed(3) : ammount),
-            studentId: (edit && selectedStudent !== null) ? selectedStudent.id : (isDischarge ? null : selectedStudent.id),
+            studentId: (edit && selectedStudent !== null) ? selectedStudent.id : (isDischarge ? null : selectedStudent?.id),
             professorId: selectedProfessor !== null ? selectedProfessor.id : (edit && paymentToEdit?.professorId !== null ? paymentToEdit.professorId : null),
             note: note,
             at: edit ? paymentAt : paymentAt.$d.getTime(),
@@ -396,16 +393,20 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             delete data.courseId;
         }
         try{
-            const sendReceipt = addReceipt && selectedStudent?.email;
+            const sendReceipt = addReceipt.value && selectedStudent?.email;
+            
             if(edit) {
                 data.id = paymentToEdit.id;
-                if(addReceipt) {
+                if(addReceipt.value) {
                     await downloadReceipt(data.id);
                 }
                 await editPayment(data, sendReceipt);
             }else {
+                
                 const savedPayment = await informPayment(data, sendReceipt);
-                if(addReceipt && !selectedStudent?.email) {
+                const studentHasEmail = selectedStudent?.email !== null && selectedStudent?.email !== undefined; 
+                if(addReceipt.value && studentHasEmail) {
+                    
                     await downloadReceipt(savedPayment.id);
                 }
             }
@@ -683,8 +684,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     <CustomCheckbox
                         label="Generar recibo"
                         name="addReceipt"
-                        checked={addReceipt}
-                        onChange={setAddReceipt}
+                        checked={addReceipt.value}
+                        onChange={addReceipt.toggle}
                     />
                     <div className="ml-1 text-gray-500 cursor-help" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
                         <InfoIcon fontSize="small" />
