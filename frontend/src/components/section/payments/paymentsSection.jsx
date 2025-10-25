@@ -25,6 +25,7 @@ import SelectColleges from "../../select/selectColleges";
 import ServicesCard from "../../servicesCard";
 import SelectProfessors from "../../select/selectProfessors";
 import WarningIcon from '@mui/icons-material/Warning';
+import InfoIcon from '@mui/icons-material/Info';
 import SelectCourses from "../../select/selectCourses";
 import SelectStudent from "../../select/selectStudent";
 import YellowBudget from "../../badget/yellow";
@@ -677,13 +678,18 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
                 <div className="mt-2"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
             </div>
-            {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && (selectedCourse?.id !== null && selectedCourse?.id !== undefined) && <div className="col-span-2 pb-1">
-                <CustomCheckbox
-                    label="Generar recibo"
-                    name="addReceipt"
-                    checked={addReceipt}
-                    onChange={setAddReceipt}
-                />
+            {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && <div className="col-span-2 pb-1">
+                <div className="flex items-center">
+                    <CustomCheckbox
+                        label="Generar recibo"
+                        name="addReceipt"
+                        checked={addReceipt}
+                        onChange={setAddReceipt}
+                    />
+                    <div className="ml-1 text-gray-500 cursor-help" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
+                        <InfoIcon fontSize="small" />
+                    </div>
+                </div>
                 {!selectedStudent?.email && <YellowBudget className="mt-2 w-full"><WarningIcon fontSize="small" className="mr-2"/>No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.</YellowBudget>}
             </div>}
                 <div className="col-span-2 md:col-span-2">
