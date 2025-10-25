@@ -348,7 +348,7 @@ export const getById = async (id) => {
   return p;
 };
 
-export const getReceipt = async (paymentId, { firstName, lastName }) => {
+export const getReceipt = async (paymentId) => {
   const payment = await getById(paymentId);
   const date = utils.dateToDDMMYYYY(new Date(payment.at));
   let price = payment.value;
@@ -359,7 +359,7 @@ export const getReceipt = async (paymentId, { firstName, lastName }) => {
   // Formatear from
   const from = `${payment?.student?.name} ${payment?.student?.lastName}`;
   // Descripción
-  const description = payment.course?.title || '';
+  const description = getReceiptDescription(payment);
   // Tipo de pago
   const paymentType = payment.type;
   // Descuento
@@ -379,6 +379,16 @@ export const getReceipt = async (paymentId, { firstName, lastName }) => {
     total,
     discountValue,
   });
+};
+
+const getReceiptDescription = (payment) => {
+  if (payment.course)
+    return payment.course.title;
+  if (payment.item)
+    return payment.item.title;
+  if (payment.clazz)
+    return payment.clazz.title;
+  return "";
 };
 
 export const changeVerified = async (id, verified, verifiedBy) => {
