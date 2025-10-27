@@ -387,7 +387,7 @@ export default {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .put(baseUrl + `api/v1/payments/${paymentId}/verified`, {verified: true})
+                .put(baseUrl + `api/v1/payments/${paymentId}/verified`, {verified: true})
                 .then((response) => {
                     resolve(response.data);
                 })
@@ -396,5 +396,17 @@ export default {
                 })
         });
     },
+    createMercadoPagoPreference(paymentData) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + 'api/v1/payments/mercadopago/preference', paymentData)
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.response?.data || error.data)
+                })
+        });
+    },
 };
-

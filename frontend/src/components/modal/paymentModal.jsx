@@ -15,6 +15,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
     const [mercadoPagoOption, setMercadoPagoOption] = useState('link');
     const [isGenerating, setIsGenerating] = useState(false);
     const [amount, setAmount] = useState(monthData?.amount || 0);
+    const [discount, setDiscount] = useState(0);
 
     const handlePaymentMethodChange = (event) => {
         setPaymentMethod(event.target.value);
@@ -26,6 +27,10 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
 
     const handleAmountChange = (event) => {
         setAmount(parseFloat(event.target.value) || 0);
+    };
+
+    const handleDiscountChange = (event) => {
+        setDiscount(parseFloat(event.target.value) || 0);
     };
 
     // Actualizar el precio cuando cambien los datos del mes
@@ -43,7 +48,8 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                 mercadoPagoOption,
                 studentData,
                 monthData,
-                amount
+                amount,
+                discount
             });
         } catch (error) {
             console.error('Error generating payment:', error);
@@ -208,6 +214,24 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                     </div>
                 </FormControl>
 
+                {/* Discount Input */}
+                <FormControl component="fieldset">
+                    <FormLabel component="legend" className="text-gray-900 font-medium">
+                        Descuento
+                    </FormLabel>
+                    <div className="mt-2">
+                        <input
+                            type="number"
+                            value={discount}
+                            onChange={handleDiscountChange}
+                            min="0"
+                            step="0.01"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Ingrese el descuento"
+                        />
+                    </div>
+                </FormControl>
+
                 {/* Student and Course Info */}
                 {studentData && monthData && (
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -217,6 +241,8 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                             <p><span className="font-medium">Mes:</span> {monthData.monthName}</p>
                             <p><span className="font-medium">Año:</span> {monthData.year}</p>
                             <p><span className="font-medium">Importe:</span> ${amount}</p>
+                            <p><span className="font-medium">Descuento:</span> ${discount}</p>
+                            <p><span className="font-medium">Total:</span> ${(amount - discount).toFixed(2)}</p>
                         </div>
                     </div>
                 )}

@@ -59,6 +59,7 @@ function Course({ course, student }) {
 				month: paymentData.monthData.month,
 				year: paymentData.monthData.year,
 				amount: paymentData.amount,
+				discount: paymentData.discount || 0,
 				mercadoPagoOption: paymentData.mercadoPagoOption
 			});
 			
