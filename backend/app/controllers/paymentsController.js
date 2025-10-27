@@ -1,4 +1,5 @@
 import * as paymentService from "../services/paymentService.js";
+import * as mercadoPagoService from "../services/mercadoPagoService.js";
 import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { payment } from "../db/index.js";
@@ -281,6 +282,50 @@ export default {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename=recibo_${req.params.id}.pdf`);
       res.send(Buffer.from(pdfBuffer));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/mercadopago/preference [POST]
+   * Crear preferencia de pago de MercadoPago
+   * @returns HttpStatus created and preference data
+   */
+  createMercadoPagoPreference: async (req, res, next) => {
+    try {
+      const { studentId, courseId, year, month, mercadoPagoOption } = req.body;
+      
+      // Validar datos requeridos
+      if (!studentId || !courseId || !year || !month) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "Missing required fields: studentId, courseId, year, month"
+        });
+      }
+
+      const preference = await mercadoPagoService.createPaymentPreference({
+        studentId,
+        courseId,
+        year,
+        month,
+        mercadoPagoOption: mercadoPagoOption || "link"
+      });
+
+      res.status(StatusCodes.CREATED).json(preference);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/mercadopago/webhook [POST]
+   * Webhook para notificaciones de MercadoPago
+   * @returns HttpStatus ok
+   */
+  mercadoPagoWebhook: async (req, res, next) => {
+    try {
+      await mercadoPagoService.processWebhookNotification(req.body);
+      res.status(StatusCodes.OK).json({ received: true });
     } catch (e) {
       next(e);
     }

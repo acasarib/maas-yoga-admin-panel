@@ -50,27 +50,42 @@ function Course({ course, student }) {
 
 	const handleGeneratePayment = async (paymentData) => {
 		try {
-			// TODO: Implement backend API call for payment generation
 			console.log('Payment data:', paymentData);
 			
-			// Example of what the backend call might look like:
-			// const response = await paymentsService.generatePaymentLink({
-			//     studentId: student.id,
-			//     courseId: course.id,
-			//     month: paymentData.monthData.month,
-			//     year: paymentData.monthData.year,
-			//     paymentMethod: paymentData.paymentMethod,
-			//     mercadoPagoOption: paymentData.mercadoPagoOption
-			// });
+			// Crear preferencia de pago en MercadoPago
+			const response = await paymentsService.createMercadoPagoPreference({
+				studentId: student.id,
+				courseId: course.id,
+				month: paymentData.monthData.month,
+				year: paymentData.monthData.year,
+				mercadoPagoOption: paymentData.mercadoPagoOption
+			});
 			
-			// For now, show success message
-			changeAlertStatusAndMessage(true, 'success', 
-				`Solicitud de pago generada para ${paymentData.monthData.monthName} ${paymentData.monthData.year} mediante ${paymentData.paymentMethod} (${paymentData.mercadoPagoOption})`
-			);
+			console.log('MercadoPago preference created:', response);
+			
+			// Manejar diferentes opciones de MercadoPago
+			if (paymentData.mercadoPagoOption === 'link') {
+				// Abrir el link de pago en una nueva ventana
+				window.open(response.init_point, '_blank');
+				changeAlertStatusAndMessage(true, 'success', 
+					`Link de pago generado para ${paymentData.monthData.monthName} ${paymentData.monthData.year}. Se abrió en una nueva ventana.`
+				);
+			} else if (paymentData.mercadoPagoOption === 'qr') {
+				// TODO: Mostrar código QR
+				changeAlertStatusAndMessage(true, 'info', 
+					`Código QR generado para ${paymentData.monthData.monthName} ${paymentData.monthData.year}. Funcionalidad de QR pendiente de implementar.`
+				);
+			} else if (paymentData.mercadoPagoOption === 'email') {
+				// TODO: Enviar por email
+				changeAlertStatusAndMessage(true, 'info', 
+					`Email de pago programado para ${paymentData.monthData.monthName} ${paymentData.monthData.year}. Funcionalidad de email pendiente de implementar.`
+				);
+			}
 			
 		} catch (error) {
 			console.error('Error generating payment:', error);
-			changeAlertStatusAndMessage(true, 'error', 'Error al generar el pago. Por favor inténtelo nuevamente.');
+			const errorMessage = error?.error || error?.message || 'Error al generar el pago. Por favor inténtelo nuevamente.';
+			changeAlertStatusAndMessage(true, 'error', errorMessage);
 		}
 	}
 
