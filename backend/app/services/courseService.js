@@ -441,87 +441,194 @@ export const addProfessorPayment = async (payment, from, to, informerId) => {
 };
 
 export const exportProfessorsPayments = async (from, to) => {
-  const startDate = utils.parseDateFromStringYYYYMMDD(from);
-  const endDate = utils.parseDateFromStringYYYYMMDD(to);
-  startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(23, 59, 59, 999);
-
-  // Get all payments in the range
-  const paymentsInRange = await payment.findAll({
-    where: {
-      operativeResult: {
-        [Op.between]: [startDate, endDate]
-      },
-      courseId: { [Op.not]: null },
-      value: { [Op.gt]: 0 },
-      isRegistrationPayment: { [Op.eq]: false }
-    },
-    include: [
-      {
-        model: student,
-        attributes: ["name", "lastName"]
-      },
-      {
-        model: course,
-        attributes: ["title"]
-      }
-    ]
-  });
-
-  // Group payments by course
-  const coursePayments = {};
-  paymentsInRange.forEach(p => {
-    if (!coursePayments[p.courseId]) {
-      coursePayments[p.courseId] = {
-        courseTitle: p.course.title,
-        paymentsWithDiscount: [],
-        paymentsWithoutDiscount: []
-      };
-    }
-    
-    if (p.discount && p.discount > 0) {
-      coursePayments[p.courseId].paymentsWithDiscount.push(p);
-    } else {
-      coursePayments[p.courseId].paymentsWithoutDiscount.push(p);
-    }
-  });
+  const details = await calcProfessorsPayments(from, to);
 
   // Create Excel workbook
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("Pagos Profesores");
+  const worksheetsByProfesorFullName = {};
+  details.forEach(course => {
+    course.professors = course.professors.filter(professor => "result" in professor);
+  });
+  details.forEach(course => {
+    course.professors.forEach(professor => {
+      const fullName = `${professor.name} ${professor.lastName}`;
+      if (!worksheetsByProfesorFullName[fullName]) {
+        worksheetsByProfesorFullName[fullName] = {
+          worksheet: workbook.addWorksheet(fullName),
+          courses: [],
+          payments: []
+        };
+      }
+      worksheetsByProfesorFullName[fullName].courses.push(course);
+      worksheetsByProfesorFullName[fullName].payments.push(...professor.result.payments);
+    });
+  });
 
-  // Add headers
-  worksheet.addRow(["Curso", "Cantidad Pagos Sin Descuento", "Cantidad Pagos Con Descuento", "Total"]);
-  
-  // Style headers
-  const headerRow = worksheet.getRow(1);
-  headerRow.font = { bold: true };
-  headerRow.fill = {
-    type: "pattern",
-    pattern: "solid",
-    fgColor: { argb: "FFE0E0E0" }
-  };
-
-  // Add data rows
-  Object.values(coursePayments).forEach(courseData => {
-    const withoutDiscountCount = courseData.paymentsWithoutDiscount.length;
-    const withDiscountCount = courseData.paymentsWithDiscount.length;
-    const total = withoutDiscountCount + withDiscountCount;
+  Object.keys(worksheetsByProfesorFullName).forEach(fullName => {
+    const worksheet = worksheetsByProfesorFullName[fullName].worksheet;
+    const courses = worksheetsByProfesorFullName[fullName].courses;
+    const payments = worksheetsByProfesorFullName[fullName].payments;
     
-    worksheet.addRow([
-      courseData.courseTitle,
-      withoutDiscountCount,
-      withDiscountCount,
-      total
-    ]);
-  });
+    let currentRow = 1;
+    
+    // Add headers
+    worksheet.addRow(["Curso", "Pagos", "Cantidad Alumnos", "Total"]);
+    const headerRow = worksheet.getRow(currentRow);
+    headerRow.font = { bold: true };
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE0E0E0" }
+    };
+    currentRow++;
+    
+    courses.forEach(course => {
+      const coursePayments = payments.filter(payment => payment.courseId === course.id);
+      
+      if (coursePayments.length == 0)
+        return;
+      // Add course header row
+      const courseHeaderRow = worksheet.getRow(currentRow);
+      courseHeaderRow.getCell(1).value = course.title;
+      courseHeaderRow.getCell(1).font = { bold: true };
+      
+      const uniqueStudents = [...new Set(coursePayments.map(p => p.studentId))];
+      courseHeaderRow.getCell(3).value = uniqueStudents.length;
+      courseHeaderRow.getCell(3).font = { bold: true };
+      
+      const totalAmount = coursePayments.reduce((sum, p) => sum + p.value, 0);
+      courseHeaderRow.getCell(4).value = "$" + totalAmount;
+      courseHeaderRow.getCell(4).font = { bold: true };
+      currentRow++;
 
-  // Auto-fit columns
-  worksheet.columns.forEach(column => {
-    column.width = 20;
-  });
+      // Group payments by discount percentage
+      const paymentGroups = {};
+      
+      coursePayments.forEach(p => {
+        const discount = p.discount || 0;
+        const originalAmount = p.value;
+        const key = `${originalAmount}-${discount}`;
+        
+        if (!paymentGroups[key]) {
+          paymentGroups[key] = {
+            count: 0,
+            amount: originalAmount,
+            discount: discount,
+            total: 0
+          };
+        }
+        
+        paymentGroups[key].count++;
+        paymentGroups[key].total += originalAmount;
+      });
 
-  // Generate buffer
+      // Add payment group rows
+      for (const group of Object.values(paymentGroups)) {
+        const paymentRow = worksheet.getRow(currentRow);
+        paymentRow.getCell(2).value = `${group.count} x $${group.amount} (${group.discount}%)`;
+        paymentRow.getCell(3).value = group.count;
+        paymentRow.getCell(4).value = "$" + group.total;
+        
+        currentRow++;
+      }
+      
+      // Add empty row between courses
+      currentRow++;
+    });
+    
+    // Auto-fit columns
+    worksheet.columns.forEach(column => {
+      column.width = 25;
+    });
+  });
+  
+
+  // Process each professor
+  // for (const [professorName, courses] of Object.entries(professorData)) {
+  //   // Add professor name in bold
+  //   const professorRow = worksheet.getRow(currentRow);
+  //   professorRow.getCell(1).value = professorName;
+  //   professorRow.getCell(1).font = { bold: true, size: 14 };
+  //   currentRow++;
+
+  //   // Process each course for this professor
+  //   for (const [courseId, courseData] of Object.entries(courses)) {
+  //     // Add course header row
+  //     const courseHeaderRow = worksheet.getRow(currentRow);
+  //     courseHeaderRow.getCell(1).value = courseData.courseTitle;
+  //     courseHeaderRow.getCell(1).font = { bold: true };
+      
+  //     const uniqueStudents = [...new Set(courseData.payments.map(p => p.studentId))];
+  //     courseHeaderRow.getCell(2).value = uniqueStudents.length;
+  //     courseHeaderRow.getCell(2).font = { bold: true };
+      
+  //     const totalAmount = courseData.payments.reduce((sum, p) => sum + p.value, 0);
+  //     courseHeaderRow.getCell(3).value = totalAmount;
+  //     courseHeaderRow.getCell(3).font = { bold: true };
+  //     currentRow++;
+
+  //     // Group payments by amount and discount
+  //     const paymentGroups = {};
+      
+  //     courseData.payments.forEach(p => {
+  //       const discount = p.discount || 0;
+  //       const originalAmount = p.value;
+  //       const key = `${originalAmount}-${discount}`;
+        
+  //       if (!paymentGroups[key]) {
+  //         paymentGroups[key] = {
+  //           count: 0,
+  //           amount: originalAmount,
+  //           discount: discount,
+  //           total: 0
+  //         };
+  //       }
+        
+  //       paymentGroups[key].count++;
+  //       paymentGroups[key].total += originalAmount;
+  //     });
+
+  //     // Add payment group rows
+  //     for (const group of Object.values(paymentGroups)) {
+  //       const paymentRow = worksheet.getRow(currentRow);
+  //       paymentRow.getCell(1).value = group.count;
+        
+  //       if (group.discount > 0) {
+  //         const discountedAmount = group.amount * (1 - group.discount / 100);
+  //         paymentRow.getCell(2).value = `${discountedAmount} (${group.discount}% desc)`;
+  //         paymentRow.getCell(3).value = discountedAmount * group.count;
+  //       } else {
+  //         paymentRow.getCell(2).value = group.amount;
+  //         paymentRow.getCell(3).value = group.total;
+  //       }
+        
+  //       currentRow++;
+  //     }
+      
+  //     // Add empty row between courses
+  //     currentRow++;
+  //   }
+    
+  //   // Add empty row between professors
+  //   currentRow++;
+  // }
+
+  // // Set column headers
+  // worksheet.getRow(1).insertRow(1, ["Cantidad", "Importe", "Total"]);
+  // const headerRow = worksheet.getRow(1);
+  // headerRow.font = { bold: true };
+  // headerRow.fill = {
+  //   type: "pattern",
+  //   pattern: "solid",
+  //   fgColor: { argb: "FFE0E0E0" }
+  // };
+
+  // // Auto-fit columns
+  // worksheet.columns.forEach(column => {
+  //   column.width = 25;
+  // });
+
+  // // Generate buffer
   const buffer = await workbook.xlsx.writeBuffer();
   return buffer;
 };
