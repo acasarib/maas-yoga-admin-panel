@@ -39,13 +39,39 @@ import SelectCourses from '../components/select/selectCourses';
 
 function Course({ course, student }) {
 	const [isOpen, setIsOpen] = useState(false);
-    const { updateInscriptionDate } = useContext(Context);
+    const { updateInscriptionDate, changeAlertStatusAndMessage } = useContext(Context);
 	const [editInscriptionDate, setEditInscriptionDate] = useState(false);
 	const switchEditInscriptionDate = () => setEditInscriptionDate(!editInscriptionDate);
 	const [inputValue, setInputValue] = useState("");
 	const handleOnEditInscriptionDate = () => {
 		updateInscriptionDate(student.id, course.id, inputValue.$d)
 		switchEditInscriptionDate();
+	}
+
+	const handleGeneratePayment = async (paymentData) => {
+		try {
+			// TODO: Implement backend API call for payment generation
+			console.log('Payment data:', paymentData);
+			
+			// Example of what the backend call might look like:
+			// const response = await paymentsService.generatePaymentLink({
+			//     studentId: student.id,
+			//     courseId: course.id,
+			//     month: paymentData.monthData.month,
+			//     year: paymentData.monthData.year,
+			//     paymentMethod: paymentData.paymentMethod,
+			//     mercadoPagoOption: paymentData.mercadoPagoOption
+			// });
+			
+			// For now, show success message
+			changeAlertStatusAndMessage(true, 'success', 
+				`Solicitud de pago generada para ${paymentData.monthData.monthName} ${paymentData.monthData.year} mediante ${paymentData.paymentMethod} (${paymentData.mercadoPagoOption})`
+			);
+			
+		} catch (error) {
+			console.error('Error generating payment:', error);
+			changeAlertStatusAndMessage(true, 'error', 'Error al generar el pago. Por favor inténtelo nuevamente.');
+		}
 	}
 
 	useEffect(() => {
@@ -80,7 +106,12 @@ function Course({ course, student }) {
 						</span>
 					</>}
 			</div>
-			<StudentCalendar periods={course.periods} />
+			<StudentCalendar 
+				periods={course.periods} 
+				allowAddPayment 
+				studentData={student}
+				onGeneratePayment={handleGeneratePayment}
+			/>
 		</Collapse>
 	</>);
 }

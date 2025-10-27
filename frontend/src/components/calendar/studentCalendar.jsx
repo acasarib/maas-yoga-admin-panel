@@ -13,9 +13,12 @@ import BlueBudget from "../badget/blue";
 import Tooltip from '@mui/material/Tooltip';
 import { STUDENT_MONTHS_CONDITIONS } from "../../constants";
 import YellowBudget from "../badget/yellow";
+import PaymentModal from "../modal/paymentModal";
 
-export default function StudentCalendar({ periods, registration }) {
+export default function StudentCalendar({ periods, registration, allowAddPayment, studentData, onGeneratePayment }) {
     const [currentYear, setCurrentYear] = useState(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [selectedPaymentData, setSelectedPaymentData] = useState(null);
     const years = Object.keys(periods);
     const arrowLeftDisabled = years.filter(year => parseInt(year) < parseInt(currentYear)).length === 0;
     const arrowRightDisabled = years.filter(year => parseInt(year) > parseInt(currentYear)).length === 0;
@@ -25,14 +28,45 @@ export default function StudentCalendar({ periods, registration }) {
         return monthNames[parseInt(month)-1];
     }
 
+    const handlePaymentClick = (month) => {
+        if (!allowAddPayment) return;
+        
+        setSelectedPaymentData({
+            monthName: getMonthName(month),
+            month: month,
+            year: currentYear,
+            amount: periods[currentYear][month].amount || null
+        });
+        setIsPaymentModalOpen(true);
+    };
+
+    const handleClosePaymentModal = () => {
+        setIsPaymentModalOpen(false);
+        setSelectedPaymentData(null);
+    };
+
     const getMonthDetail = month => {
         const status = periods[currentYear][month].condition;
         if (status == STUDENT_MONTHS_CONDITIONS.PAID) {
             return (<Tooltip title={(<><div>Fecha que se realizo el pago: {formatDateDDMMYY(periods[currentYear][month].payment.at)}</div><div>Importe ${periods[currentYear][month].payment.value}</div></>)}><span><GreenBudget><CheckIcon fontSize="small"/>Pagado</GreenBudget></span></Tooltip>);
         } else if (status == STUDENT_MONTHS_CONDITIONS.PENDING) {
-            return (<PendingBudget>Pendiente</PendingBudget>);
+            return (
+                <span 
+                    className={allowAddPayment ? "cursor-pointer" : ""} 
+                    onClick={() => handlePaymentClick(month)}
+                >
+                    <PendingBudget>Pendiente</PendingBudget>
+                </span>
+            );
         } else if (status == STUDENT_MONTHS_CONDITIONS.NOT_PAID) {
-            return (<RedBudget><CloseIcon fontSize="small"/>No pagado</RedBudget>);
+            return (
+                <span 
+                    className={allowAddPayment ? "cursor-pointer" : ""} 
+                    onClick={() => handlePaymentClick(month)}
+                >
+                    <RedBudget><CloseIcon fontSize="small"/>No pagado</RedBudget>
+                </span>
+            );
         } else if (status == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN) {
             return (<BlueBudget>Inscripto</BlueBudget>);
         } else if (status == STUDENT_MONTHS_CONDITIONS.SUSPEND) {
@@ -68,5 +102,12 @@ export default function StudentCalendar({ periods, registration }) {
                 )
             }
         </div>
+        <PaymentModal
+            isOpen={isPaymentModalOpen}
+            onClose={handleClosePaymentModal}
+            studentData={studentData}
+            monthData={selectedPaymentData}
+            onGeneratePayment={onGeneratePayment}
+        />
     </>);
 }
