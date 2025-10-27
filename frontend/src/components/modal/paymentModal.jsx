@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../modal';
 import PaymentIcon from '@mui/icons-material/Payment';
 import Radio from '@mui/material/Radio';
@@ -14,6 +14,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
     const [paymentMethod, setPaymentMethod] = useState('mercadopago');
     const [mercadoPagoOption, setMercadoPagoOption] = useState('link');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [amount, setAmount] = useState(monthData?.amount || 0);
 
     const handlePaymentMethodChange = (event) => {
         setPaymentMethod(event.target.value);
@@ -23,6 +24,17 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
         setMercadoPagoOption(event.target.value);
     };
 
+    const handleAmountChange = (event) => {
+        setAmount(parseFloat(event.target.value) || 0);
+    };
+
+    // Actualizar el precio cuando cambien los datos del mes
+    useEffect(() => {
+        if (monthData?.amount) {
+            setAmount(monthData.amount);
+        }
+    }, [monthData]);
+
     const handleGeneratePayment = async () => {
         setIsGenerating(true);
         try {
@@ -30,7 +42,8 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                 paymentMethod,
                 mercadoPagoOption,
                 studentData,
-                monthData
+                monthData,
+                amount
             });
         } catch (error) {
             console.error('Error generating payment:', error);
@@ -177,6 +190,24 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                     </FormControl>
                 )}
 
+                {/* Amount Input */}
+                <FormControl component="fieldset">
+                    <FormLabel component="legend" className="text-gray-900 font-medium">
+                        Importe del pago
+                    </FormLabel>
+                    <div className="mt-2">
+                        <input
+                            type="number"
+                            value={amount}
+                            onChange={handleAmountChange}
+                            min="0"
+                            step="0.01"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Ingrese el importe"
+                        />
+                    </div>
+                </FormControl>
+
                 {/* Student and Course Info */}
                 {studentData && monthData && (
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -185,9 +216,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                             <p><span className="font-medium">Alumno:</span> {studentData.name}</p>
                             <p><span className="font-medium">Mes:</span> {monthData.monthName}</p>
                             <p><span className="font-medium">Año:</span> {monthData.year}</p>
-                            {monthData.amount && (
-                                <p><span className="font-medium">Importe:</span> ${monthData.amount}</p>
-                            )}
+                            <p><span className="font-medium">Importe:</span> ${amount}</p>
                         </div>
                     </div>
                 )}

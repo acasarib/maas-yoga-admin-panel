@@ -3,8 +3,17 @@ import { getById as getStudentById } from './studentService.js';
 import { getById as getCourseById } from './courseService.js';
 
 // Configurar MercadoPago con las credenciales
+const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+
+if (!accessToken) {
+  console.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
+  throw new Error("MercadoPago access token is required");
+}
+
+console.log("MercadoPago Access Token configurado:", accessToken.substring(0, 10) + "...");
+
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+  accessToken: accessToken,
   options: {
     timeout: 5000,
     idempotencyKey: 'abc'
@@ -20,12 +29,14 @@ const preference = new Preference(client);
  * @param {string} paymentData.courseId - ID del curso
  * @param {number} paymentData.year - Año del pago
  * @param {number} paymentData.month - Mes del pago (1-12)
+ * @param {number} paymentData.amount - Precio del pago
  * @param {string} paymentData.mercadoPagoOption - Opción de MercadoPago (link, qr, email)
  * @returns {Object} Preferencia creada con el link de pago
  */
 export const createPaymentPreference = async (paymentData) => {
   try {
-    const { studentId, courseId, year, month, mercadoPagoOption } = paymentData;
+    console.log("Creando preferencia de MercadoPago con datos:", paymentData);
+    const { studentId, courseId, year, month, amount, mercadoPagoOption } = paymentData;
 
     // Obtener datos del estudiante y curso
     const student = await getStudentById(studentId);
@@ -46,7 +57,7 @@ export const createPaymentPreference = async (paymentData) => {
     ];
     
     const monthName = monthNames[month - 1];
-    const description = `Pago de ${monthName} ${year} - ${student.name}`;
+    const description = `Pago de ${monthName} ${year} - ${student.name} ${student.lastName}`;
 
     // Configurar la preferencia de pago
     const preferenceData = {
@@ -56,29 +67,15 @@ export const createPaymentPreference = async (paymentData) => {
           title: course.title,
           description: description,
           quantity: 1,
-          unit_price: parseFloat(course.price),
-          currency_id: 'ARS' // Cambiar según tu país
+          unit_price: parseFloat(amount),
+          currency_id: 'ARS'
         }
       ],
-      payer: {
-        name: student.name,
-        email: student.email || 'noemail@example.com'//
-      },
-      back_urls: {
-        success: `${process.env.MERCADO_PAGO_WEB_HOOK_URL}/payments/success`,
-        failure: `${process.env.MERCADO_PAGO_WEB_HOOK_URL}/payments/failure`,
-        pending: `${process.env.MERCADO_PAGO_WEB_HOOK_URL}/payments/pending`
-      },
-      auto_return: 'approved',
       external_reference: `${studentId}_${courseId}_${year}_${month}`,
-      notification_url: `${process.env.MERCADO_PAGO_WEB_HOOK_URL}/payments/mercadopago/webhook`,
-      metadata: {
-        student_id: studentId,
-        course_id: courseId,
-        year: year,
-        month: month,
-        mercado_pago_option: mercadoPagoOption
-      }
+      // Webhook solo si está configurado
+      ...(process.env.MERCADOPAGO_WEB_HOOK_URL && {
+        notification_url: `${process.env.MERCADOPAGO_WEB_HOOK_URL}/api/v1/payments/mercadopago/webhook`
+      })
     };
 
     // Crear la preferencia

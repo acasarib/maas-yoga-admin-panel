@@ -294,12 +294,12 @@ export default {
    */
   createMercadoPagoPreference: async (req, res, next) => {
     try {
-      const { studentId, courseId, year, month, mercadoPagoOption } = req.body;
+      const { studentId, courseId, year, month, mercadoPagoOption, amount } = req.body;
       
       // Validar datos requeridos
-      if (!studentId || !courseId || !year || !month) {
+      if (!studentId || !courseId || !year || !month || !amount) {
         return res.status(StatusCodes.BAD_REQUEST).json({
-          error: "Missing required fields: studentId, courseId, year, month"
+          error: "Missing required fields: studentId, courseId, year, month, amount"
         });
       }
 
@@ -308,6 +308,7 @@ export default {
         courseId,
         year,
         month,
+        amount,
         mercadoPagoOption: mercadoPagoOption || "link"
       });
 
