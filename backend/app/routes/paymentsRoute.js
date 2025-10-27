@@ -25,4 +25,5 @@ router.get("/:id/receipt", verifyToken, controller.getReceipt);
 router.get("/:id", verifyToken, controller.getById);
 router.post("/mercadopago/preference", verifyToken, controller.createMercadoPagoPreference);
 router.post("/mercadopago/webhook", controller.mercadoPagoWebhook);
+router.get("/mercadopago/webhook-info", verifyToken, controller.getWebhookInfo);
 export default router;

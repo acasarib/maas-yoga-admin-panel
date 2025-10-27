@@ -294,7 +294,7 @@ export default {
    */
   createMercadoPagoPreference: async (req, res, next) => {
     try {
-      const { studentId, courseId, year, month, mercadoPagoOption, amount } = req.body;
+      const { studentId, courseId, year, month, mercadoPagoOption, amount, discount } = req.body;
       
       // Validar datos requeridos
       if (!studentId || !courseId || !year || !month || !amount) {
@@ -309,6 +309,7 @@ export default {
         year,
         month,
         amount,
+        discount: discount || 0,
         mercadoPagoOption: mercadoPagoOption || "link"
       });
 
@@ -325,8 +326,38 @@ export default {
    */
   mercadoPagoWebhook: async (req, res, next) => {
     try {
-      await mercadoPagoService.processWebhookNotification(req.body);
-      res.status(StatusCodes.OK).json({ received: true });
+      console.log("=== MERCADOPAGO WEBHOOK RECEIVED ===");
+      console.log("Headers:", JSON.stringify(req.headers, null, 2));
+      console.log("Body:", JSON.stringify(req.body, null, 2));
+      console.log("Query params:", JSON.stringify(req.query, null, 2));
+      console.log("=====================================");
+
+      const result = await mercadoPagoService.processWebhookNotification({
+        headers: req.headers,
+        body: req.body,
+        query: req.query
+      });
+
+      res.status(StatusCodes.OK).json({ 
+        received: true, 
+        timestamp: new Date().toISOString(),
+        processed: result
+      });
+    } catch (e) {
+      console.error("Error processing webhook:", e);
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/mercadopago/webhook-info [GET]
+   * Obtener información de webhooks recibidos (para debugging)
+   * @returns HttpStatus ok
+   */
+  getWebhookInfo: async (req, res, next) => {
+    try {
+      const webhookInfo = await mercadoPagoService.getWebhookHistory();
+      res.status(StatusCodes.OK).json(webhookInfo);
     } catch (e) {
       next(e);
     }
