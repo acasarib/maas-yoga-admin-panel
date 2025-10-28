@@ -1,36 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../modal';
 import PaymentIcon from '@mui/icons-material/Payment';
-import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import LinkIcon from '@mui/icons-material/Link';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 import EmailIcon from '@mui/icons-material/Email';
+import CommonInput from '../commonInput';
+import CustomRadio from '../radio/customRadio';
+import CustomCheckbox from '../checkbox/customCheckbox';
 
 const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayment }) => {
     const [paymentMethod, setPaymentMethod] = useState('mercadopago');
     const [mercadoPagoOption, setMercadoPagoOption] = useState('link');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [amount, setAmount] = useState(monthData?.amount || 0);
-    const [discount, setDiscount] = useState(0);
+    const [amount, setAmount] = useState(monthData?.amount || "");
+    const [discount, setDiscount] = useState("");
+    const [notifyOnPayment, setNotifyOnPayment] = useState(false);
 
-    const handlePaymentMethodChange = (event) => {
-        setPaymentMethod(event.target.value);
-    };
 
     const handleMercadoPagoOptionChange = (event) => {
         setMercadoPagoOption(event.target.value);
     };
 
     const handleAmountChange = (event) => {
-        setAmount(parseFloat(event.target.value) || 0);
+        setAmount(event.target.value);
     };
 
     const handleDiscountChange = (event) => {
-        setDiscount(parseFloat(event.target.value) || 0);
+        setDiscount(event.target.value);
+    };
+
+    const handleNotifyChange = (event) => {
+        setNotifyOnPayment(event.target.checked);
     };
 
     // Actualizar el precio cuando cambien los datos del mes
@@ -48,8 +51,9 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                 mercadoPagoOption,
                 studentData,
                 monthData,
-                amount,
-                discount
+                amount: parseFloat(amount) || 0,
+                discount: parseFloat(discount) || 0,
+                notifyOnPayment
             });
         } catch (error) {
             console.error('Error generating payment:', error);
@@ -109,128 +113,128 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                     Seleccione el método de pago para abonar el curso.
                 </p>
 
-                {/* Payment Method Selection */}
-                <FormControl component="fieldset">
-                    <FormLabel component="legend" className="text-gray-900 font-medium">
+                {/* Payment Method Tabs */}
+                <div>
+                    <FormLabel component="legend" className="text-gray-900 font-medium mb-3 block">
                         Método de pago
                     </FormLabel>
-                    <RadioGroup
-                        value={paymentMethod}
-                        onChange={handlePaymentMethodChange}
-                        className="mt-2"
-                    >
-                        <FormControlLabel 
-                            value="mercadopago" 
-                            control={<Radio color="primary" />} 
-                            label={
-                                <div className="flex items-center">
-                                    <img 
-                                        src="https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/5.21.22/mercadolibre/logo_small.png" 
-                                        alt="MercadoPago" 
-                                        className="w-6 h-6 mr-2"
-                                    />
-                                    MercadoPago
-                                </div>
-                            }
-                        />
-                    </RadioGroup>
-                </FormControl>
+                    <div className="border-b border-gray-200">
+                        <nav className="-mb-px flex space-x-8">
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('mercadopago')}
+                                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+                                    paymentMethod === 'mercadopago'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                            >
+                                <img 
+                                    src="/assets/images/mp.png" 
+                                    alt="Mercado Pago" 
+                                    className="w-8 h-6 mr-2 object-contain"
+                                />
+                                Mercado Pago
+                            </button>
+                        </nav>
+                    </div>
+                </div>
 
                 {/* MercadoPago Options */}
                 {paymentMethod === 'mercadopago' && (
-                    <FormControl component="fieldset" className="ml-4">
-                        <FormLabel component="legend" className="text-gray-900 font-medium">
-                            Opciones de MercadoPago
-                        </FormLabel>
-                        <RadioGroup
-                            value={mercadoPagoOption}
-                            onChange={handleMercadoPagoOptionChange}
-                            className="mt-2"
-                        >
-                            <FormControlLabel 
-                                value="link" 
-                                control={<Radio color="primary" size="small" />} 
-                                label={
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center">
-                                            {getMercadoPagoOptionIcon('link')}
-                                            <span>Enlace de pago</span>
+                    <div className="mt-6">
+                        <FormControl component="fieldset">
+                            <FormLabel component="legend" className="text-gray-900 font-medium">
+                                Opciones de Mercado Pago
+                            </FormLabel>
+                            <RadioGroup
+                                value={mercadoPagoOption}
+                                onChange={handleMercadoPagoOptionChange}
+                                className="mt-3 space-y-2"
+                            >
+                                <CustomRadio 
+                                    value="link"
+                                    label={
+                                        <div className="flex items-start w-full">
+                                            <div className="flex-shrink-0 mr-3 mt-2">
+                                                {getMercadoPagoOptionIcon('link')}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">Enlace de pago</span>
+                                                <span className="text-sm text-gray-500 mt-1">
+                                                    {getMercadoPagoOptionDescription('link')}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="text-sm text-gray-500 ml-6">
-                                            {getMercadoPagoOptionDescription('link')}
-                                        </span>
-                                    </div>
-                                }
-                            />
-                            <FormControlLabel 
-                                value="qr" 
-                                control={<Radio color="primary" size="small" />} 
-                                label={
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center">
-                                            {getMercadoPagoOptionIcon('qr')}
-                                            <span>Código QR</span>
+                                    }
+                                />
+                                <CustomRadio 
+                                    value="qr"
+                                    label={
+                                        <div className="flex items-start w-full">
+                                            <div className="flex-shrink-0 mr-3 mt-2">
+                                                {getMercadoPagoOptionIcon('qr')}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">Código QR</span>
+                                                <span className="text-sm text-gray-500 mt-1">
+                                                    {getMercadoPagoOptionDescription('qr')}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="text-sm text-gray-500 ml-6">
-                                            {getMercadoPagoOptionDescription('qr')}
-                                        </span>
-                                    </div>
-                                }
-                            />
-                            <FormControlLabel 
-                                value="email" 
-                                control={<Radio color="primary" size="small" />} 
-                                label={
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center">
-                                            {getMercadoPagoOptionIcon('email')}
-                                            <span>Envío por email</span>
+                                    }
+                                />
+                                <CustomRadio 
+                                    value="email"
+                                    label={
+                                        <div className="flex items-start w-full">
+                                            <div className="flex-shrink-0 mr-3 mt-2">
+                                                {getMercadoPagoOptionIcon('email')}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">Envío por email</span>
+                                                <span className="text-sm text-gray-500 mt-1">
+                                                    {getMercadoPagoOptionDescription('email')}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="text-sm text-gray-500 ml-6">
-                                            {getMercadoPagoOptionDescription('email')}
-                                        </span>
-                                    </div>
-                                }
-                            />
-                        </RadioGroup>
-                    </FormControl>
+                                    }
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                    </div>
                 )}
 
-                {/* Amount Input */}
-                <FormControl component="fieldset">
-                    <FormLabel component="legend" className="text-gray-900 font-medium">
-                        Importe del pago
-                    </FormLabel>
-                    <div className="mt-2">
-                        <input
-                            type="number"
+                {/* Amount and Discount Inputs */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="pb-1">
+                        <CommonInput 
+                            label="Importe del pago"
+                            name="amount"
+                            className="block font-bold text-sm text-gray-700 mb-2"
+                            type="number" 
+                            placeholder="Ingrese el importe" 
                             value={amount}
                             onChange={handleAmountChange}
                             min="0"
-                            step="0.01"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Ingrese el importe"
+                            step="1"
                         />
                     </div>
-                </FormControl>
 
-                {/* Discount Input */}
-                <FormControl component="fieldset">
-                    <FormLabel component="legend" className="text-gray-900 font-medium">
-                        Descuento
-                    </FormLabel>
-                    <div className="mt-2">
-                        <input
-                            type="number"
+                    <div className="pb-1">
+                        <CommonInput 
+                            label="Descuento"
+                            name="discount"
+                            className="block font-bold text-sm text-gray-700 mb-2"
+                            type="number" 
+                            placeholder="Ingrese el descuento" 
                             value={discount}
                             onChange={handleDiscountChange}
                             min="0"
                             step="0.01"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Ingrese el descuento"
                         />
                     </div>
-                </FormControl>
+                </div>
 
                 {/* Student and Course Info */}
                 {studentData && monthData && (
@@ -238,14 +242,20 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                         <h4 className="font-medium text-gray-900 mb-2">Detalles del pago</h4>
                         <div className="text-sm text-gray-600 space-y-1">
                             <p><span className="font-medium">Alumno:</span> {studentData.name}</p>
-                            <p><span className="font-medium">Mes:</span> {monthData.monthName}</p>
                             <p><span className="font-medium">Año:</span> {monthData.year}</p>
+                            <p><span className="font-medium">Mes:</span> {monthData.monthName}</p>
                             <p><span className="font-medium">Importe:</span> ${amount}</p>
-                            <p><span className="font-medium">Descuento:</span> ${discount}</p>
-                            <p><span className="font-medium">Total:</span> ${(amount - discount).toFixed(2)}</p>
+                            <p><span className="font-medium">Descuento:</span> {discount}%</p>
                         </div>
                     </div>
                 )}
+
+                {/* Notification Checkbox */}
+                <CustomCheckbox
+                    checked={notifyOnPayment}
+                    onChange={handleNotifyChange}
+                    label="Notificarme cuando se acredite el pago"
+                />
             </div>
         </Modal>
     );
