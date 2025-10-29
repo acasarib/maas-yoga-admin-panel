@@ -321,8 +321,9 @@ export default {
       if (value && (isNaN(value) || parseFloat(value) <= 0)) {
         errors.push("value must be greater than 0");
       }
-      if (discount && (isNaN(discount) || parseFloat(discount) < 0)) {
-        errors.push("discount must be greater than 0");
+      if (discount != null) {
+        if (isNaN(discount) || parseFloat(discount) < 0)
+          errors.push("discount must be greater than 0");
       }
       
       if (errors.length > 0) {
