@@ -1,8 +1,9 @@
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import { getById as getStudentById } from './studentService.js';
 import { getById as getCourseById } from './courseService.js';
 import * as paymentService from './paymentService.js';
 import { PAYMENT_TYPES } from '../utils/constants.js';
+import { mercado_pago_payment } from '../db/index.js';
 
 // Configurar MercadoPago con las credenciales
 const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -47,35 +48,36 @@ export const createPaymentPreference = async (paymentData) => {
     const course = await getCourseById(courseId);
 
     if (!student) {
-      throw new Error('student not found'); //TODO: 404
+      throw new Error("student not found"); //TODO: 404
     }
 
     if (!course) {
-      throw new Error('course not found');
+      throw new Error("course not found");
     }
 
     // Crear descripción del pago
     const monthNames = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ];
     
     const monthName = monthNames[month - 1];
     const description = `Pago de ${monthName} ${year} - ${student.name} ${student.lastName}`;
 
     // Configurar la preferencia de pago
+    const externalReference = `course_${courseId}_student_${studentId}_${year}_${month}`;
     const preferenceData = {
       items: [
         {
-          id: `course_${courseId}_${studentId}_${year}_${month}`,
-          title: course.title,
+          id: `course_${courseId}_student_${studentId}_${year}_${month}`,
+          title: `${course.title} - ${monthName} ${year}`,
           description: description,
           quantity: 1,
           unit_price: parseFloat(amount),
-          currency_id: 'ARS'
+          currency_id: "ARS"
         }
       ],
-      external_reference: `${studentId}_${courseId}_${year}_${month}`,
+      external_reference: externalReference,
       // Webhook solo si está configurado
       ...(process.env.MERCADOPAGO_WEB_HOOK_URL && {
         notification_url: `${process.env.MERCADOPAGO_WEB_HOOK_URL}/api/v1/payments/mercadopago/webhook`
@@ -98,6 +100,35 @@ export const createPaymentPreference = async (paymentData) => {
     // Crear la preferencia
     const result = await preference.create({ body: preferenceData });
 
+    // Guardar la preferencia en nuestra base de datos
+    const preferenceId = `pref_${result.id}_${studentId}_${courseId}_${year}_${month}`;
+    const preferenceLink = result.init_point || result.sandbox_init_point;
+    
+    try {
+      await mercado_pago_payment.create({
+        id: preferenceId,
+        preferenceId,
+        externalReference,
+        status: "pending",
+        completed: false,
+        studentId: parseInt(studentId),
+        courseId: parseInt(courseId),
+        year: parseInt(year),
+        month: parseInt(month),
+        originalAmount: parseFloat(amount),
+        discount: parseFloat(discount || 0),
+        finalAmount: parseFloat(amount),
+        paymentId: null,
+        preferenceLink: preferenceLink,
+        studentName: `${student.name} ${student.lastName}`,
+        courseTitle: course.title,
+        monthName: monthName,
+      });
+    } catch (error) {
+      console.error("Error saving preference to database:", error);
+      // No fallar si no se puede guardar en DB, pero logear el error
+    }
+
     return {
       id: result.id,
       init_point: result.init_point,
@@ -108,8 +139,62 @@ export const createPaymentPreference = async (paymentData) => {
     };
 
   } catch (error) {
-    console.error('Error creating MercadoPago preference:', error);
+    console.error("Error creating MercadoPago preference:", error);
     throw new Error(`Error al crear preferencia de pago: ${error.message}`);
+  }
+};
+
+export const getAndUpdateMercadoPagoPayment = async (paymentId) => {
+  // Obtener detalles actualizados desde MercadoPago API
+  const paymentDetails = await getPaymentDetailsFromMercadoPago(paymentId);
+  if (paymentDetails == null) {
+    return null;
+  }
+  const externalReference = paymentDetails.external_reference;
+
+  try {
+    // Buscar el pago en nuestra base de datos
+    let mpPayment = await mercado_pago_payment.findOne({ where: { externalReference } });
+    
+    if (mpPayment == null || mpPayment == undefined) {
+      // No deberia pasar, pero igualmente proceso el pago
+      console.log("Payment not found in database");
+      return paymentDetails;
+    }
+    // Si existe, actualizar el status
+    await mpPayment.update({
+      id: paymentId,
+      status: paymentDetails.status,
+      transactionAmount: paymentDetails.transaction_amount,
+      paymentMethodId: paymentDetails.payment_method_id,
+      paymentTypeId: paymentDetails.payment_type_id,
+      statusDetail: paymentDetails.status_detail,
+    });
+    
+    // Agregar los datos actualizados al objeto de respuesta
+    paymentDetails.completed = mpPayment.completed;
+    paymentDetails.paymentId = mpPayment.paymentId;
+  } catch (error) {
+    console.error("Error managing MercadoPago payment in database:", error);
+    throw error;
+  }
+  
+  return paymentDetails;
+};
+
+export const updateMercadoPagoPayment = async (paymentId, paymentDetails) => {
+  try {
+    const mpPayment = await mercado_pago_payment.findByPk(paymentId);
+    if (mpPayment) {
+      await mpPayment.update({
+        completed: paymentDetails.completed,
+        paymentId: paymentDetails.paymentId,
+        status: paymentDetails.status,
+      });
+    }
+  } catch (error) {
+    console.error("Error updating MercadoPago payment:", error);
+    throw error;
   }
 };
 
@@ -121,120 +206,52 @@ export const createPaymentPreference = async (paymentData) => {
 export const processWebhookNotification = async (notification) => {
   try {
     const timestamp = new Date().toISOString();
+    console.log("Processing webhook notification at " + timestamp);
+    console.log("Notification body:", notification.body);
+    console.log("Notification query:", notification.query);
+    
   
     //TODO: Almacenar webhooks en base de datos
-    // Determinar el tipo de notificación
-    let paymentStatus = "unknown";
     let paymentId = null;
     let paymentDetails = null;
-    
     if (notification.body?.type !== "payment") {
       return;
     }
     paymentId = notification.body?.data?.id;
-    //TODO: ver casos bordes
-    try {
-      paymentDetails = await getPaymentDetailsFromMercadoPago(paymentId);
-      if (paymentDetails == null) {
-        return;
-      }
-      
-      paymentStatus = paymentDetails.status;
-      
-      // Usar metadata si está disponible, sino usar external_reference como fallback
-      let paymentData = null;
-      if (paymentDetails.metadata && Object.keys(paymentDetails.metadata).length > 0) {
-        console.log('=== USING METADATA ===');
-        console.log('Metadata:', paymentDetails.metadata);
-        
-        paymentData = {
-          studentId: parseInt(paymentDetails.metadata.student_id),
-          courseId: parseInt(paymentDetails.metadata.course_id),
-          year: parseInt(paymentDetails.metadata.year),
-          month: parseInt(paymentDetails.metadata.month),
-          originalAmount: parseFloat(paymentDetails.metadata.original_amount),
-          discount: parseFloat(paymentDetails.metadata.discount || 0),
-          finalAmount: parseFloat(paymentDetails.metadata.final_amount),
-          studentName: paymentDetails.metadata.student_name,
-          courseTitle: paymentDetails.metadata.course_title,
-          monthName: paymentDetails.metadata.month_name
-        };
-        
-        console.log('=== PAYMENT DETAILS FROM METADATA ===');
-        console.log('Student:', paymentData.studentName);
-        console.log('Course:', paymentData.courseTitle);
-        console.log('Payment for:', paymentData.monthName, paymentData.year);
-        console.log('Original amount:', paymentData.originalAmount);
-        console.log('Discount:', paymentData.discount);
-        console.log('Final amount:', paymentData.finalAmount);
-        console.log('Paid amount:', paymentDetails.transaction_amount);
-        console.log('Payment status:', paymentStatus);
-        
-      } else if (paymentDetails.external_reference) {
-        console.log('=== USING EXTERNAL REFERENCE (FALLBACK) ===');
-        const referenceData = parseExternalReference(paymentDetails.external_reference);
-        if (referenceData == null) {
-          return;
-        }
-        
-        // Obtener detalles completos del estudiante y curso
-        const courseDetails = await getCourseAndStudentDetails(referenceData);
-        if (courseDetails == null) {
-          return;
-        }
-        
-        paymentData = {
-          studentId: referenceData.studentId,
-          courseId: referenceData.courseId,
-          year: referenceData.year,
-          month: referenceData.month,
-          originalAmount: paymentDetails.transaction_amount, // No tenemos el original
-          discount: 0, // No tenemos el descuento
-          finalAmount: paymentDetails.transaction_amount,
-          studentName: `${courseDetails.student?.name} ${courseDetails.student?.lastName}`,
-          courseTitle: courseDetails.course?.title,
-          monthName: getMonthName(referenceData.month)
-        };
-        
-        console.log('=== PAYMENT DETAILS FROM REFERENCE ===');
-        console.log('Student:', paymentData.studentName);
-        console.log('Course:', paymentData.courseTitle);
-        console.log('Payment for:', paymentData.monthName, paymentData.year);
-        console.log('Amount:', paymentData.finalAmount);
-        console.log('Payment status:', paymentStatus);
-      } else {
-        console.log('No metadata or external_reference found');
-        return;
-      }
-      
-      // Si el pago fue aprobado, crear el registro en la base de datos
-      if (paymentStatus === 'approved') {
-        console.log('=== CREATING PAYMENT IN DATABASE ===');
-        await createPaymentInDatabaseFromMetadata(paymentDetails, paymentData);
-      }
-    } catch (error) {
-      console.error("Error getting payment details:", error);
+    paymentDetails = await getAndUpdateMercadoPagoPayment(paymentId);
+    if (paymentDetails == null) {
+      console.error("Payment details not found, id=" + paymentId);
       return;
     }
     
-    // Simular diferentes estados basados en la acción si no se pudo obtener el detalle
-    if (!paymentDetails) {
-      switch (notification.body?.action) {
-      case "payment.created":
-        paymentStatus = "pending";
-        break;
-      case "payment.updated":
-        paymentStatus = "processing";
-        break;
-      default:
-        paymentStatus = "unknown";
-      }
+    let paymentData = null;
+    if (paymentDetails.metadata && Object.keys(paymentDetails.metadata).length > 0) {        
+      paymentData = {
+        studentId: parseInt(paymentDetails.metadata.student_id),
+        courseId: parseInt(paymentDetails.metadata.course_id),
+        year: parseInt(paymentDetails.metadata.year),
+        month: parseInt(paymentDetails.metadata.month),
+        originalAmount: parseFloat(paymentDetails.metadata.original_amount),
+        discount: parseFloat(paymentDetails.metadata.discount || 0),
+        finalAmount: parseFloat(paymentDetails.metadata.final_amount),
+        studentName: paymentDetails.metadata.student_name,
+        courseTitle: paymentDetails.metadata.course_title,
+        monthName: paymentDetails.metadata.month_name
+      };
+    }
+
+    // Si el pago fue aprobado, crear el registro en la base de datos
+    if (paymentDetails.status === "approved" && !paymentDetails.completed) {
+      const createdPayment = await createPaymentInDatabaseFromMetadata(paymentDetails, paymentData);
+      paymentDetails.completed = true;
+      paymentDetails.paymentId = createdPayment.id;
+      await updateMercadoPagoPayment(paymentId, paymentDetails);
     }
     
     return { 
       success: true, 
       paymentId, 
-      paymentStatus,
+      paymentStatus: paymentDetails.status,
       timestamp 
     };
   } catch (error) {
@@ -248,7 +265,50 @@ export const processWebhookNotification = async (notification) => {
  * @returns {Object} Historial de webhooks
  */
 export const getWebhookHistory = async () => {
-  //TODO: implementar
+  try {
+    // Obtener todos los registros de mercado_pago_payment con relaciones
+    const payments = await mercado_pago_payment.findAll({
+      include: [
+        {
+          association: "student",
+          attributes: ["id", "name", "lastName", "email"]
+        },
+        {
+          association: "course", 
+          attributes: ["id", "title"]
+        },
+        {
+          association: "payment",
+          attributes: ["id", "value", "at", "verified"]
+        }
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: 100 // Limitar a los últimos 100 registros
+    });
+
+    // Estadísticas básicas
+    const stats = {
+      total: payments.length,
+      completed: payments.filter(p => p.completed).length,
+      pending: payments.filter(p => !p.completed).length,
+      byStatus: {}
+    };
+
+    // Contar por status
+    payments.forEach(payment => {
+      stats.byStatus[payment.status] = (stats.byStatus[payment.status] || 0) + 1;
+    });
+
+    return {
+      success: true,
+      data: payments,
+      stats: stats,
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error("Error getting webhook history:", error);
+    throw error;
+  }
 };
 
 /**
@@ -283,31 +343,8 @@ const getPaymentDetailsFromMercadoPago = async (paymentId) => {
     const paymentData = await payment.get({ id: paymentId });
     return paymentData;
   } catch (error) {
-    console.error('Error getting payment details from MercadoPago:', error);
+    console.error("Error getting payment details from MercadoPago:", error);
     throw error;
-  }
-};
-
-/**
- * Parsear external_reference para extraer datos del pago
- * @param {string} externalReference - Referencia externa (formato: studentId_courseId_year_month)
- * @returns {Object} Datos parseados
- */
-const parseExternalReference = (externalReference) => {
-  try {
-    const parts = externalReference.split('_');
-    if (parts.length === 4) {
-      return {
-        studentId: parseInt(parts[0]),
-        courseId: parseInt(parts[1]),
-        year: parseInt(parts[2]),
-        month: parseInt(parts[3])
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error('Error parsing external reference:', error);
-    return null;
   }
 };
 
@@ -384,57 +421,12 @@ const createPaymentInDatabaseFromMetadata = async (paymentDetails, paymentData) 
       paymentTypeId: paymentDetails.payment_type_id,
       statusDetail: paymentDetails.status_detail
     };
-
-    console.log('Creating payment with metadata:', dbPaymentData);
     
     // Crear el pago en la base de datos
-    const createdPayment = await paymentService.create(dbPaymentData, null, false);
-    
-    console.log('Payment created successfully in database:', createdPayment.id);
-    
+    const createdPayment = await paymentService.create(dbPaymentData, null, false);    
     return createdPayment;
   } catch (error) {
-    console.error('Error creating payment in database:', error);
-    throw error;
-  }
-};
-
-const createPaymentInDatabase = async (paymentDetails, referenceData, courseDetails) => {
-  try {
-    // Calcular fechas
-    const now = new Date();
-    const operativeDate = new Date(referenceData.year, referenceData.month - 1, 15); // Día 15 del mes especificado
-    
-    // Preparar datos del pago
-    const paymentData = {
-      studentId: referenceData.studentId,
-      courseId: referenceData.courseId,
-      amount: paymentDetails.transaction_amount,
-      discount: 0, // TODO: Calcular descuento desde el monto original vs monto pagado
-      type: PAYMENT_TYPES.MERCADO_PAGO,
-      at: operativeDate.getTime(), // Fecha operativa (día 15 del mes)
-      operativeResult: operativeDate.getTime(), // Misma fecha operativa
-      createdAt: now, // Fecha actual de creación
-      verified: true, // Los pagos de MercadoPago se consideran verificados automáticamente
-      mercadoPagoId: paymentDetails.id, // ID del pago en MercadoPago
-      mercadoPagoStatus: paymentDetails.status,
-      description: `Pago MercadoPago - ${getMonthName(referenceData.month)} ${referenceData.year}`,
-      // Agregar información adicional de MercadoPago
-      paymentMethodId: paymentDetails.payment_method_id,
-      paymentTypeId: paymentDetails.payment_type_id,
-      statusDetail: paymentDetails.status_detail
-    };
-
-    console.log('Creating payment with data:', paymentData);
-    
-    // Crear el pago en la base de datos
-    const createdPayment = await paymentService.create(paymentData, null, false);
-    
-    console.log('Payment created successfully in database:', createdPayment.id);
-    
-    return createdPayment;
-  } catch (error) {
-    console.error('Error creating payment in database:', error);
+    console.error("Error creating payment in database:", error);
     throw error;
   }
 };
