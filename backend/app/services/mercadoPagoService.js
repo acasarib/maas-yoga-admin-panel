@@ -4,6 +4,13 @@ import { getById as getCourseById } from './courseService.js';
 import * as paymentService from './paymentService.js';
 import { PAYMENT_TYPES } from '../utils/constants.js';
 import { mercado_pago_payment } from '../db/index.js';
+import QRCode from 'qrcode';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configurar MercadoPago con las credenciales
 const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -33,26 +40,50 @@ const payment = new Payment(client);
  * @param {string} paymentData.courseId - ID del curso
  * @param {number} paymentData.year - Año del pago
  * @param {number} paymentData.month - Mes del pago (1-12)
- * @param {number} paymentData.amount - Precio del pago
+ * @param {number} paymentData.value - Precio del pago
  * @param {number} paymentData.discount - Descuento del pago
- * @param {string} paymentData.mercadoPagoOption - Opción de MercadoPago (link, qr, email)
  * @returns {Object} Preferencia creada con el link de pago
  */
 export const createPaymentPreference = async (paymentData) => {
   try {
-    console.log("Creando preferencia de MercadoPago con datos:", paymentData);
-    const { studentId, courseId, year, month, amount, discount, mercadoPagoOption } = paymentData;
+    const { studentId, courseId, year, month, value, discount } = paymentData;
+
+    // Verificar si ya existe una preferencia para este estudiante, curso, año y mes
+    const existingPreference = await mercado_pago_payment.findOne({
+      where: {
+        student_id: studentId,
+        course_id: courseId,
+        year: year,
+        month: month,
+        value: value,
+        discount: discount,
+      }
+    });
+
+    // Si ya existe, devolver la preferencia existente
+    if (existingPreference) {
+      return {
+        id: existingPreference.id,
+        link: existingPreference.preferenceLink,
+        externalReference: existingPreference.externalReference,
+        mercadoPagoPaymentId: existingPreference.id,
+      };
+    }
 
     // Obtener datos del estudiante y curso
     const student = await getStudentById(studentId);
     const course = await getCourseById(courseId);
 
     if (!student) {
-      throw new Error("student not found"); //TODO: 404
+      const error = new Error("Estudiante no encontrado");
+      error.statusCode = 404;
+      throw error;
     }
 
     if (!course) {
-      throw new Error("course not found");
+      const error = new Error("Curso no encontrado");
+      error.statusCode = 404;
+      throw error;
     }
 
     // Crear descripción del pago
@@ -73,7 +104,7 @@ export const createPaymentPreference = async (paymentData) => {
           title: `${course.title} - ${monthName} ${year}`,
           description: description,
           quantity: 1,
-          unit_price: parseFloat(amount),
+          unit_price: parseFloat(value),
           currency_id: "ARS"
         }
       ],
@@ -87,10 +118,8 @@ export const createPaymentPreference = async (paymentData) => {
         course_id: courseId,
         year: year,
         month: month,
-        original_amount: amount,
+        value: value,
         discount: discount || 0,
-        final_amount: amount - (discount || 0),
-        mercado_pago_option: mercadoPagoOption,
         student_name: `${student.name} ${student.lastName}`,
         course_title: course.title,
         month_name: monthName
@@ -104,8 +133,9 @@ export const createPaymentPreference = async (paymentData) => {
     const preferenceId = `pref_${result.id}_${studentId}_${courseId}_${year}_${month}`;
     const preferenceLink = result.init_point || result.sandbox_init_point;
     
+    let savedPreference = null;
     try {
-      await mercado_pago_payment.create({
+      savedPreference = await mercado_pago_payment.create({
         id: preferenceId,
         preferenceId,
         externalReference,
@@ -115,9 +145,8 @@ export const createPaymentPreference = async (paymentData) => {
         courseId: parseInt(courseId),
         year: parseInt(year),
         month: parseInt(month),
-        originalAmount: parseFloat(amount),
+        value: parseFloat(value),
         discount: parseFloat(discount || 0),
-        finalAmount: parseFloat(amount),
         paymentId: null,
         preferenceLink: preferenceLink,
         studentName: `${student.name} ${student.lastName}`,
@@ -130,12 +159,10 @@ export const createPaymentPreference = async (paymentData) => {
     }
 
     return {
-      id: result.id,
-      init_point: result.init_point,
-      sandbox_init_point: result.sandbox_init_point,
-      qr_code: result.qr_code,
-      external_reference: result.external_reference,
-      mercado_pago_option: mercadoPagoOption
+      id: savedPreference.id,
+      link: result.init_point,
+      externalReference: result.external_reference,
+      mercadoPagoPaymentId: savedPreference?.id || null
     };
 
   } catch (error) {
@@ -165,7 +192,7 @@ export const getAndUpdateMercadoPagoPayment = async (paymentId) => {
     await mpPayment.update({
       id: paymentId,
       status: paymentDetails.status,
-      transactionAmount: paymentDetails.transaction_amount,
+      value: paymentDetails.value,
       paymentMethodId: paymentDetails.payment_method_id,
       paymentTypeId: paymentDetails.payment_type_id,
       statusDetail: paymentDetails.status_detail,
@@ -206,12 +233,7 @@ export const updateMercadoPagoPayment = async (paymentId, paymentDetails) => {
 export const processWebhookNotification = async (notification) => {
   try {
     const timestamp = new Date().toISOString();
-    console.log("Processing webhook notification at " + timestamp);
-    console.log("Notification body:", notification.body);
-    console.log("Notification query:", notification.query);
-    
   
-    //TODO: Almacenar webhooks en base de datos
     let paymentId = null;
     let paymentDetails = null;
     if (notification.body?.type !== "payment") {
@@ -231,9 +253,8 @@ export const processWebhookNotification = async (notification) => {
         courseId: parseInt(paymentDetails.metadata.course_id),
         year: parseInt(paymentDetails.metadata.year),
         month: parseInt(paymentDetails.metadata.month),
-        originalAmount: parseFloat(paymentDetails.metadata.original_amount),
+        value: parseFloat(paymentDetails.metadata.value),
         discount: parseFloat(paymentDetails.metadata.discount || 0),
-        finalAmount: parseFloat(paymentDetails.metadata.final_amount),
         studentName: paymentDetails.metadata.student_name,
         courseTitle: paymentDetails.metadata.course_title,
         monthName: paymentDetails.metadata.month_name
@@ -406,7 +427,7 @@ const createPaymentInDatabaseFromMetadata = async (paymentDetails, paymentData) 
     const dbPaymentData = {
       studentId: paymentData.studentId,
       courseId: paymentData.courseId,
-      value: paymentData.originalAmount, // Monto original (antes del descuento)
+      value: paymentData.value, // Monto original (antes del descuento)
       discount: paymentData.discount, // Descuento aplicado
       type: PAYMENT_TYPES.MERCADO_PAGO,
       at: operativeDate.getTime(), // Fecha operativa (día 15 del mes)
@@ -427,6 +448,163 @@ const createPaymentInDatabaseFromMetadata = async (paymentDetails, paymentData) 
     return createdPayment;
   } catch (error) {
     console.error("Error creating payment in database:", error);
+    throw error;
+  }
+};
+
+/**
+ * Generar código QR con logo embebido
+ * @param {string} paymentLink - Link de pago de MercadoPago
+ * @returns {Buffer} Buffer de la imagen QR con logo
+ */
+export const generateQRWithLogo = async (paymentLink) => {
+  try {
+    // Dynamic import de Jimp para compatibilidad con ES modules
+    const { default: Jimp } = await import('jimp');
+    
+    // Generar QR code básico
+    const qrBuffer = await QRCode.toBuffer(paymentLink, {
+      errorCorrectionLevel: 'H', // Alto nivel de corrección para permitir logo
+      type: 'png',
+      quality: 0.92,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      width: 300
+    });
+
+    // Cargar el QR generado
+    const qrImage = await Jimp.read(qrBuffer);
+    
+    // Cargar el logo
+    const logoPath = path.join(__dirname, '../images/logo.png');
+    let logoImage;
+    
+    try {
+      logoImage = await Jimp.read(logoPath);
+    } catch (error) {
+      console.warn('Logo no encontrado, generando QR sin logo:', error.message);
+      return qrBuffer; // Devolver QR sin logo si no se encuentra el archivo
+    }
+
+    // Redimensionar logo (aproximadamente 20% del tamaño del QR)
+    const logoSize = Math.floor(qrImage.getWidth() * 0.2);
+    logoImage.resize(logoSize, logoSize);
+
+    // Crear un fondo blanco circular para el logo
+    const logoWithBackground = new Jimp(logoSize + 20, logoSize + 20, 0xFFFFFFFF);
+    
+    // Centrar el logo en el fondo blanco
+    logoWithBackground.composite(logoImage, 10, 10);
+
+    // Calcular posición central para el logo
+    const centerX = Math.floor((qrImage.getWidth() - logoWithBackground.getWidth()) / 2);
+    const centerY = Math.floor((qrImage.getHeight() - logoWithBackground.getHeight()) / 2);
+
+    // Superponer el logo en el centro del QR
+    qrImage.composite(logoWithBackground, centerX, centerY);
+
+    // Convertir a buffer
+    const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
+    return finalBuffer;
+
+  } catch (error) {
+    console.error("Error generating QR with logo:", error);
+    throw error;
+  }
+};
+
+/**
+ * Enviar email con link de pago
+ * @param {Object} emailData - Datos del email
+ * @returns {Promise} Resultado del envío
+ */
+export const sendPaymentEmail = async (emailData) => {
+  try {
+    const { paymentLink, studentEmail, studentName, courseName, monthName, year } = emailData;
+
+    // Configurar transporter (usar variables de entorno para configuración)
+    const transporter = nodemailer.createTransporter({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: process.env.SMTP_PORT || 587,
+      secure: false, // true para 465, false para otros puertos
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+
+    // Verificar configuración
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      throw new Error('Configuración de email no encontrada. Verifique SMTP_USER y SMTP_PASS en variables de entorno.');
+    }
+
+    // Contenido del email
+    const mailOptions = {
+      from: `"Sistema de Pagos" <${process.env.SMTP_USER}>`,
+      to: studentEmail,
+      subject: `Link de pago - ${courseName} - ${monthName} ${year}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Link de Pago - ${courseName}</h2>
+          
+          <p>Hola <strong>${studentName}</strong>,</p>
+          
+          <p>Te enviamos el link de pago para:</p>
+          <ul>
+            <li><strong>Curso:</strong> ${courseName}</li>
+            <li><strong>Período:</strong> ${monthName} ${year}</li>
+          </ul>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${paymentLink}" 
+               style="background-color: #009ee3; color: white; padding: 15px 30px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;">
+              Pagar Ahora
+            </a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px;">
+            Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:<br>
+            <a href="${paymentLink}">${paymentLink}</a>
+          </p>
+          
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+          <p style="color: #999; font-size: 12px;">
+            Este es un email automático, por favor no responder.
+          </p>
+        </div>
+      `
+    };
+
+    // Enviar email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email enviado:', info.messageId);
+    
+    return {
+      success: true,
+      messageId: info.messageId
+    };
+
+  } catch (error) {
+    console.error("Error sending payment email:", error);
+    throw error;
+  }
+};
+
+/**
+ * Obtener preferencia de MercadoPago por ID
+ * @param {string} id - ID de la preferencia
+ * @returns {Object} Datos de la preferencia
+ */
+export const getMercadoPagoPaymentById = async (id) => {
+  try {
+    const preference = await mercado_pago_payment.findByPk(id);
+    return preference;
+  } catch (error) {
+    console.error("Error getting MercadoPago payment by ID:", error);
     throw error;
   }
 };

@@ -1,13 +1,24 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import PaymentIcon from '@mui/icons-material/Payment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import EmailIcon from '@mui/icons-material/Email';
 import Container from "../components/container";
-import { Context } from "../context/Context";
+import Table from "../components/table";
+import Tooltip from '@mui/material/Tooltip';
+import { Link } from "react-router-dom";
+import QRModal from '../components/modal/qrModal';
+import { Snackbar, Alert } from '@mui/material';
 
 export default function ConsultaPagos() {
     const [activeTab, setActiveTab] = useState('mercadopago');
     const [webhookData, setWebhookData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+    const [qrPreferenceId, setQrPreferenceId] = useState(null);
+    const [qrPaymentInfo, setQrPaymentInfo] = useState(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
     const tabs = [
         {
@@ -45,6 +56,161 @@ export default function ConsultaPagos() {
             setLoading(false);
         }
     };
+
+    const handleCopyLink = async (link) => {
+        try {
+            await navigator.clipboard.writeText(link);
+            setSnackbar({
+                open: true,
+                message: 'Link copiado al portapapeles',
+                severity: 'success'
+            });
+        } catch (err) {
+            console.error('Error al copiar el link:', err);
+            setSnackbar({
+                open: true,
+                message: 'Error al copiar el link',
+                severity: 'error'
+            });
+        }
+    };
+
+    const handleGenerateQR = (payment) => {
+        // Abrir modal de QR con los datos del pago
+        setQrPreferenceId(payment.id);
+        setQrPaymentInfo({
+            monthName: payment.monthName,
+            year: payment.year,
+            studentName: payment.studentName,
+            courseName: payment.courseTitle
+        });
+        setIsQRModalOpen(true);
+    };
+
+    const handleCloseQRModal = () => {
+        setIsQRModalOpen(false);
+        setQrPreferenceId(null);
+        setQrPaymentInfo(null);
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
+    };
+
+    const handleSendEmail = (payment) => {
+        // TODO: Implementar envío de email
+        console.log('Enviar email para:', payment);
+    };
+
+    const columns = [
+        {
+            name: 'Estudiante',
+            selector: row => row.studentName,
+            cell: row => (
+                <Link 
+                    to={`/home/students/${row.studentId}`} 
+                    className="underline text-yellow-900 mx-1 cursor-pointer"
+                >
+                    {row.studentName}
+                </Link>
+            ),
+            sortable: true,
+            searchable: true,
+        },
+        {
+            name: 'Curso',
+            selector: row => row.courseTitle,
+            cell: row => (
+                <Link 
+                    to={`/home/courses/${row.courseId}`} 
+                    className="underline text-yellow-900 mx-1 cursor-pointer"
+                >
+                    {row.courseTitle}
+                </Link>
+            ),
+            sortable: true,
+            searchable: true,
+        },
+        {
+            name: 'Período',
+            selector: row => `${row.monthName} ${row.year}`,
+            sortable: true,
+        },
+        {
+            name: 'Monto',
+            selector: row => row.finalAmount,
+            cell: row => (
+                <div>
+                    ${row.finalAmount}
+                    {row.discount > 0 && (
+                        <span className="text-green-600 text-xs ml-1">
+                            (-{row.discount}%)
+                        </span>
+                    )}
+                </div>
+            ),
+            sortable: true,
+        },
+        {
+            name: 'Estado',
+            selector: row => row.status,
+            cell: row => (
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    row.completed 
+                        ? 'bg-green-100 text-green-800' 
+                        : row.status === 'approved'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                    {row.completed ? 'Completado' : row.status}
+                </span>
+            ),
+            sortable: true,
+        },
+        {
+            name: 'Acciones',
+            cell: row => (
+                <div className="flex w-full justify-center">
+                    {row.preferenceLink && (
+                        <>
+                            <Tooltip title="Copiar link">
+                                <button 
+                                    className="rounded-full p-1 bg-blue-200 hover:bg-blue-300 mx-1" 
+                                    onClick={() => handleCopyLink(row.preferenceLink)}
+                                >
+                                    <ContentCopyIcon fontSize="small" />
+                                </button>
+                            </Tooltip>
+                            <Tooltip title="Generar QR">
+                                <button 
+                                    className="rounded-full p-1 bg-purple-200 hover:bg-purple-300 mx-1" 
+                                    onClick={() => handleGenerateQR(row)}
+                                >
+                                    <QrCodeIcon fontSize="small" />
+                                </button>
+                            </Tooltip>
+                            <Tooltip title={row.studentEmail ? "Enviar email" : "El estudiante no tiene email"}>
+                                <span>
+                                    <button 
+                                        className={`rounded-full p-1 mx-1 ${
+                                            row.studentEmail 
+                                                ? 'bg-green-200 hover:bg-green-300 cursor-pointer' 
+                                                : 'bg-gray-200 cursor-not-allowed opacity-50'
+                                        }`}
+                                        onClick={() => row.studentEmail && handleSendEmail(row)}
+                                        disabled={!row.studentEmail}
+                                    >
+                                        <EmailIcon fontSize="small" />
+                                    </button>
+                                </span>
+                            </Tooltip>
+                        </>
+                    )}
+                </div>
+            ),
+            sortable: false,
+        },
+    ];
 
     return (
         <Container title="Consulta Pagos">
@@ -120,86 +286,25 @@ export default function ConsultaPagos() {
                                     </div>
 
                                     {/* Payments Table */}
-                                    <div className="bg-white border rounded-lg overflow-hidden">
-                                        <div className="px-6 py-4 border-b border-gray-200">
-                                            <h3 className="text-lg font-medium text-gray-900">Historial de Pagos</h3>
-                                        </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full divide-y divide-gray-200">
-                                                <thead className="bg-gray-50">
-                                                    <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudiante</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curso</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {webhookData.data?.map((payment) => (
-                                                        <tr key={payment.id}>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                                                                {payment.id.substring(0, 20)}...
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                                {payment.studentName}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                                {payment.courseTitle}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                                {payment.monthName} {payment.year}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                                ${payment.finalAmount}
-                                                                {payment.discount > 0 && (
-                                                                    <span className="text-green-600 text-xs ml-1">
-                                                                        (-{payment.discount}%)
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                    payment.completed 
-                                                                        ? 'bg-green-100 text-green-800' 
-                                                                        : payment.status === 'approved'
-                                                                        ? 'bg-blue-100 text-blue-800'
-                                                                        : 'bg-yellow-100 text-yellow-800'
-                                                                }`}>
-                                                                    {payment.completed ? 'Completado' : payment.status}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                                {payment.preferenceLink && (
-                                                                    <a 
-                                                                        href={payment.preferenceLink} 
-                                                                        target="_blank" 
-                                                                        rel="noopener noreferrer"
-                                                                        className="text-blue-600 hover:text-blue-800 underline"
-                                                                    >
-                                                                        Ver enlace
-                                                                    </a>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        
-                                        {(!webhookData.data || webhookData.data.length === 0) && (
-                                            <div className="text-center py-12">
-                                                <PaymentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                                                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                    No hay datos disponibles
-                                                </h3>
-                                                <p className="text-gray-500">
-                                                    No se encontraron registros de pagos de Mercado Pago
-                                                </p>
-                                            </div>
-                                        )}
+                                    <div className="mb-4">
+                                        <h3 className="text-lg font-medium text-gray-900 mb-4">Historial de Pagos</h3>
+                                        <Table
+                                            columns={columns}
+                                            data={webhookData.data || []}
+                                            pagination
+                                            paginationRowsPerPageOptions={[10, 25, 50, 100]}
+                                            noDataComponent={
+                                                <div className="text-center py-12">
+                                                    <PaymentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                        No hay datos disponibles
+                                                    </h3>
+                                                    <p className="text-gray-500">
+                                                        No se encontraron registros de pagos de Mercado Pago
+                                                    </p>
+                                                </div>
+                                            }
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -207,6 +312,30 @@ export default function ConsultaPagos() {
                     )}
                 </div>
             </div>
+            
+            {/* Modal QR */}
+            <QRModal 
+                isOpen={isQRModalOpen} 
+                onClose={handleCloseQRModal} 
+                preferenceId={qrPreferenceId} 
+                paymentInfo={qrPaymentInfo} 
+            />
+            
+            {/* Snackbar para notificaciones */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseSnackbar} 
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }

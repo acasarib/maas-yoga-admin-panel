@@ -48,10 +48,9 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
         try {
             await onGeneratePayment({
                 paymentMethod,
-                mercadoPagoOption,
                 studentData,
                 monthData,
-                amount: parseFloat(amount) || 0,
+                value: parseFloat(amount) || 0,
                 discount: parseFloat(discount) || 0,
                 notifyOnPayment
             });
@@ -186,15 +185,21 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                                 />
                                 <CustomRadio 
                                     value="email"
+                                    disabled={!studentData?.email}
                                     label={
                                         <div className="flex items-start w-full">
                                             <div className="flex-shrink-0 mr-3 mt-2">
                                                 {getMercadoPagoOptionIcon('email')}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="font-medium">Envío por email</span>
+                                                <span className={`font-medium ${!studentData?.email ? 'text-gray-400' : ''}`}>
+                                                    Envío por email
+                                                </span>
                                                 <span className="text-sm text-gray-500 mt-1">
-                                                    {getMercadoPagoOptionDescription('email')}
+                                                    {studentData?.email 
+                                                        ? `Enviar a: ${studentData.email}` 
+                                                        : 'El alumno no tiene email asociado'
+                                                    }
                                                 </span>
                                             </div>
                                         </div>

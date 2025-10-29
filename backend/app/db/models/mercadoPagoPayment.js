@@ -32,7 +32,7 @@ const mercadoPagoPayment = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
-    originalAmount: {
+    value: {
       type: Sequelize.FLOAT,
       allowNull: false,
     },
@@ -40,10 +40,6 @@ const mercadoPagoPayment = (sequelize) => {
       type: Sequelize.FLOAT,
       allowNull: true,
       defaultValue: 0,
-    },
-    finalAmount: {
-      type: Sequelize.FLOAT,
-      allowNull: false,
     },
     paymentId: {
       type: Sequelize.INTEGER,
