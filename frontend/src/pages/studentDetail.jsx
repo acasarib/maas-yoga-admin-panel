@@ -25,6 +25,8 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import Spinner from '../components/spinner/spinner';
 import PaymentsTable from '../components/paymentsTable';
 import DeletePaymentModal from '../components/modal/deletePaymentModal';
+import PaymentModal from '../components/modal/paymentModal';
+import QRModal from '../components/modal/qrModal';
 import { PAYMENT_OPTIONS } from '../constants';
 import StorageIconButton from '../components/button/storageIconButton';
 import dayjs from 'dayjs';
@@ -37,7 +39,7 @@ import SelectColleges from '../components/select/selectColleges';
 import SelectStudent from '../components/select/selectStudent';
 import SelectCourses from '../components/select/selectCourses';
 
-function Course({ course, student }) {
+function Course({ course, student, onOpenQRModal }) {
 	const [isOpen, setIsOpen] = useState(false);
     const { updateInscriptionDate, changeAlertStatusAndMessage } = useContext(Context);
 	const [editInscriptionDate, setEditInscriptionDate] = useState(false);
@@ -58,30 +60,57 @@ function Course({ course, student }) {
 				courseId: course.id,
 				month: paymentData.monthData.month,
 				year: paymentData.monthData.year,
-				amount: paymentData.amount,
+				value: paymentData.value,
 				discount: paymentData.discount || 0,
-				mercadoPagoOption: paymentData.mercadoPagoOption
 			});
 			
 			console.log('MercadoPago preference created:', response);
 			
 			// Manejar diferentes opciones de MercadoPago
 			if (paymentData.mercadoPagoOption === 'link') {
-				// Abrir el link de pago en una nueva ventana
-				window.open(response.init_point, '_blank');
-				changeAlertStatusAndMessage(true, 'success', 
-					`Link de pago generado para ${paymentData.monthData.monthName} ${paymentData.monthData.year}. Se abrió en una nueva ventana.`
-				);
+				// Copiar el link de pago al portapapeles
+				try {
+					await navigator.clipboard.writeText(response.link);
+					changeAlertStatusAndMessage(true, 'success', 'Copiado al portapapeles');
+				} catch (err) {
+					console.error('Error al copiar al portapapeles:', err);
+					changeAlertStatusAndMessage(true, 'error', 'Error al copiar el enlace');
+				}
 			} else if (paymentData.mercadoPagoOption === 'qr') {
-				// TODO: Mostrar código QR
-				changeAlertStatusAndMessage(true, 'info', 
-					`Código QR generado para ${paymentData.monthData.monthName} ${paymentData.monthData.year}. Funcionalidad de QR pendiente de implementar.`
+				// Abrir modal de QR
+				console.log('QR option selected, response:', response);
+				console.log('mercadoPagoPaymentId:', response.mercadoPagoPaymentId);
+				
+				onOpenQRModal(response.mercadoPagoPaymentId, {
+					monthName: paymentData.monthData.monthName,
+					year: paymentData.monthData.year,
+					studentName: `${student.name} ${student.lastName}`,
+					courseName: course.title
+				});
+				
+				changeAlertStatusAndMessage(true, 'success', 
+					`Preferencia de pago creada para ${paymentData.monthData.monthName} ${paymentData.monthData.year}`
 				);
 			} else if (paymentData.mercadoPagoOption === 'email') {
-				// TODO: Enviar por email
-				changeAlertStatusAndMessage(true, 'info', 
-					`Email de pago programado para ${paymentData.monthData.monthName} ${paymentData.monthData.year}. Funcionalidad de email pendiente de implementar.`
-				);
+				// Enviar por email
+				try {
+					await paymentsService.sendMercadoPagoEmail({
+						paymentLink: response.link,
+						studentEmail: student.email,
+						studentName: `${student.name} ${student.lastName}`,
+						courseName: course.title,
+						monthName: paymentData.monthData.monthName,
+						year: paymentData.monthData.year
+					});
+					
+					changeAlertStatusAndMessage(true, 'success', 
+						`Email enviado correctamente a ${student.email}`
+					);
+				} catch (error) {
+					console.error('Error sending email:', error);
+					const errorMessage = error?.error || 'Error al enviar el email';
+					changeAlertStatusAndMessage(true, 'error', errorMessage);
+				}
 			}
 			
 		} catch (error) {
@@ -144,6 +173,9 @@ const CourseDetail = () => {
 	const [paymentMethod, setPaymentMethod] = useState(null);
     const [note, setNote] = useState('');
     const [isDischarge, setIsDischarge] = useState(false);
+    const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+    const [qrPreferenceId, setQrPreferenceId] = useState(null);
+    const [qrPaymentInfo, setQrPaymentInfo] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
     const [operativeResult, setOperativeResult] = useState(dayjs(new Date()));
@@ -431,6 +463,20 @@ const CourseDetail = () => {
 		deletePaymentModal.close()
 	}
 
+	const handleOpenQRModal = (preferenceId, paymentInfo) => {
+		console.log('handleOpenQRModal called with:', { preferenceId, paymentInfo });
+		setQrPreferenceId(preferenceId);
+		setQrPaymentInfo(paymentInfo);
+		setIsQRModalOpen(true);
+		console.log('Modal state set to open');
+	}
+
+	const handleCloseQRModal = () => {
+		setIsQRModalOpen(false);
+		setQrPreferenceId(null);
+		setQrPaymentInfo(null);
+	}
+
     const handleFileChange = (e) => {
         if (e.target.files) {
           setFile([...file, e.target.files[0]]);
@@ -452,6 +498,12 @@ const CourseDetail = () => {
 				<>
 					<h1 className='text-2xl md:text-3xl text-center mb-12'>{student?.name} {student?.lastName}</h1>
 					<DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal} />
+					<QRModal 
+						isOpen={isQRModalOpen} 
+						onClose={handleCloseQRModal} 
+						preferenceId={qrPreferenceId} 
+						paymentInfo={qrPaymentInfo} 
+					/>
 					<Box sx={{ width: '100%', typography: 'body1' }}>
 						<TabContext value={tabValue}>
 							<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -704,7 +756,7 @@ const CourseDetail = () => {
 							</TabPanel>
 							<TabPanel className="pt-4" value="3">
 								{courses.map((course, i) => <List key={i} component="div" disablePadding>
-									<Course student={student} course={course} />
+									<Course student={student} course={course} onOpenQRModal={handleOpenQRModal} />
 								</List>)}
 							</TabPanel>
 							<TabPanel className="pt-4" value="4">

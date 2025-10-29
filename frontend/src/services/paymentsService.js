@@ -409,4 +409,34 @@ export default {
                 })
         });
     },
+
+    generateMercadoPagoQR(qrData) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + 'api/v1/payments/mercadopago/qr', qrData, {
+                    responseType: 'arraybuffer' // Para recibir la imagen como buffer
+                })
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.response?.data || error.data)
+                })
+        });
+    },
+
+    sendMercadoPagoEmail(emailData) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + 'api/v1/payments/mercadopago/email', emailData)
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error.response?.data || error.data)
+                })
+        });
+    },
 };

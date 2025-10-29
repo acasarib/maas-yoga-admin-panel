@@ -294,12 +294,41 @@ export default {
    */
   createMercadoPagoPreference: async (req, res, next) => {
     try {
-      const { studentId, courseId, year, month, mercadoPagoOption, amount, discount } = req.body;
+      const { studentId, courseId, year, month, value, discount } = req.body;
       
       // Validar datos requeridos
-      if (!studentId || !courseId || !year || !month || !amount) {
+      const errors = [];
+      
+      if (!studentId) errors.push("studentId required");
+      if (!courseId) errors.push("courseId required");
+      if (!year) errors.push("year required");
+      if (!month) errors.push("month requireed");
+      if (!value) errors.push("value required");
+      
+      // Validar que sean números mayores a 0
+      if (studentId && (isNaN(studentId) || parseInt(studentId) < 0)) {
+        errors.push("studentId must be greater than 0");
+      }
+      if (courseId && (isNaN(courseId) || parseInt(courseId) <= 0)) {
+        errors.push("courseId must be greater than 0");
+      }
+      if (year && (isNaN(year) || parseInt(year) <= 0)) {
+        errors.push("year must be greater than 0");
+      }
+      if (month && (isNaN(month) || parseInt(month) <= 0 || parseInt(month) > 12)) {
+        errors.push("month must be between 1 and 12");
+      }
+      if (value && (isNaN(value) || parseFloat(value) <= 0)) {
+        errors.push("value must be greater than 0");
+      }
+      if (discount && (isNaN(discount) || parseFloat(discount) < 0)) {
+        errors.push("discount must be greater than 0");
+      }
+      
+      if (errors.length > 0) {
         return res.status(StatusCodes.BAD_REQUEST).json({
-          error: "Missing required fields: studentId, courseId, year, month, amount"
+          error: "validation errors",
+          details: errors
         });
       }
 
@@ -308,13 +337,132 @@ export default {
         courseId,
         year,
         month,
-        amount,
+        value,
         discount: discount || 0,
-        mercadoPagoOption: mercadoPagoOption || "link"
       });
 
       res.status(StatusCodes.CREATED).json(preference);
     } catch (e) {
+      // Manejar errores específicos con códigos de estado
+      if (e.statusCode === 404) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          error: e.message
+        });
+      }
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/mercadopago/qr [POST]
+   * Generar código QR con logo embebido para un link de pago
+   * @returns HttpStatus ok with QR image
+   */
+  generateMercadoPagoQR: async (req, res, next) => {
+    try {
+      const { paymentLink } = req.body;
+      
+      if (!paymentLink) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "El link de pago es requerido"
+        });
+      }
+
+      // Generar QR con logo embebido
+      const qrBuffer = await mercadoPagoService.generateQRWithLogo(paymentLink);
+      
+      // Enviar la imagen como respuesta
+      res.set({
+        'Content-Type': 'image/png',
+        'Content-Length': qrBuffer.length
+      });
+      
+      res.send(qrBuffer);
+    } catch (e) {
+      console.error('Error generating QR:', e);
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/mercadopago/preference/:id/qr [GET]
+   * Generar código QR para una preferencia existente
+   * @returns HttpStatus ok with QR image
+   */
+  generateMercadoPagoQRById: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      
+      if (!id) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "El ID de la preferencia es requerido"
+        });
+      }
+
+      // Buscar la preferencia en la base de datos
+      const preference = await mercadoPagoService.getMercadoPagoPaymentById(id);
+      
+      if (!preference) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          error: "Preferencia de pago no encontrada"
+        });
+      }
+
+      // Verificar que existe el link de la preferencia
+      const paymentLink = preference.preferenceLink;
+      if (!paymentLink) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "La preferencia no tiene un link de pago válido"
+        });
+      }
+
+      // Generar QR con el link de la preferencia
+      const qrBuffer = await mercadoPagoService.generateQRWithLogo(paymentLink);
+      
+      // Enviar la imagen como respuesta
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Length": qrBuffer.length
+      });
+      
+      res.send(qrBuffer);
+    } catch (e) {
+      console.error("Error generating QR by ID:", e);
+      next(e);
+    }
+  },
+
+  /**
+   * /payments/mercadopago/email [POST]
+   * Enviar link de pago por email
+   * @returns HttpStatus ok
+   */
+  sendMercadoPagoEmail: async (req, res, next) => {
+    try {
+      const { paymentLink, studentEmail, studentName, courseName, monthName, year } = req.body;
+      
+      if (!paymentLink || !studentEmail) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "El link de pago y email del estudiante son requeridos"
+        });
+      }
+
+      // Enviar email
+      await mercadoPagoService.sendPaymentEmail({
+        paymentLink,
+        studentEmail,
+        studentName,
+        courseName,
+        monthName,
+        year
+      });
+      
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Email enviado correctamente"
+      });
+    } catch (e) {
+      console.error('Error sending email:', e);
       next(e);
     }
   },
