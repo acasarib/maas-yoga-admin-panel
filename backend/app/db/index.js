@@ -55,7 +55,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse } = sequelize.models;
+const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse, mercado_pago_payment } = sequelize.models;
 
 notificationPayment.belongsTo(payment, { through: "payment_id" });
 notificationPayment.belongsTo(user, { through: "user_id" });
@@ -114,6 +114,14 @@ clazz.hasMany(clazzDayDetail, { onDelete: "CASCADE", foreignKey: "id" });
 clazz.belongsTo(headquarter);
 headquarter.hasMany(clazz);
 
+// Relaciones para MercadoPago Payment
+mercado_pago_payment.belongsTo(student, { foreignKey: "studentId", as: "student" });
+mercado_pago_payment.belongsTo(course, { foreignKey: "courseId", as: "course" });
+mercado_pago_payment.belongsTo(payment, { foreignKey: "paymentId", as: "payment" });
+student.hasMany(mercado_pago_payment, { foreignKey: "studentId" });
+course.hasMany(mercado_pago_payment, { foreignKey: "courseId" });
+payment.hasOne(mercado_pago_payment, { foreignKey: "paymentId" });
+
 export {
   sequelize,
   professor,
@@ -138,4 +146,5 @@ export {
   servicePayment,
   secretaryPayment,
   notificationPayment,
+  mercado_pago_payment,
 };

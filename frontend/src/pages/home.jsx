@@ -21,15 +21,19 @@ import Courses from "./courses";
 import Professors from "./professors";
 import Categories from "./categories";
 import Imports from "./imports";
+import ConsultaPagos from "./consultaPagos";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 import NavItem from "../components/navItem";
+import NavItemWithSubitems from "../components/navItemWithSubitems";
 import AlertPortal from "../components/snackBar";
 import GroupIcon from '@mui/icons-material/Group';
 import HamburgerButton from "../components/button/hanmburger";
 import ProfessorPayments from "./professorPayments";
 import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import PaymentIcon from '@mui/icons-material/Payment';
 import ProfessorDetail from "./professorDetail";
 import CourseDetail from "./courseDetail";
 import StudentDetail from "./studentDetail";
@@ -166,9 +170,29 @@ export default function Home(props) {
                                 <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses || props.courseDetail} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
                                 <NavItem onClick={closeSidebar} target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
-                                <NavItem onClick={closeSidebar} target={"imports"} isActive={props.imports} icon={<ImportExportIcon/>}>Importar datos</NavItem>
                                 <NavItem onClick={closeSidebar} target={"diary"} isActive={props.diary} icon={<MenuBookIcon/>}>Agenda</NavItem>
                                 {isMasterAdmin && (<NavItem onClick={closeSidebar} target={"new-user"} isActive={props.newUser} icon={<GroupIcon/>}>Usuarios</NavItem>)}
+                                <NavItemWithSubitems
+                                    onClick={closeSidebar}
+                                    isActive={props.imports || props.consultaPagos}
+                                    icon={<MoreHorizIcon/>}
+                                    subitems={[
+                                        {
+                                            target: "imports",
+                                            label: "Importar datos",
+                                            icon: <ImportExportIcon fontSize="small" />,
+                                            isActive: props.imports
+                                        },
+                                        {
+                                            target: "consulta-pagos",
+                                            label: "Consulta Pagos",
+                                            icon: <PaymentIcon fontSize="small" />,
+                                            isActive: props.consultaPagos
+                                        }
+                                    ]}
+                                >
+                                    Otros
+                                </NavItemWithSubitems>
                             </ul>
                             </div>
                         </div>
@@ -200,6 +224,7 @@ export default function Home(props) {
                     {props.courseDetail && (<><CourseDetail/></>)}
                     {props.studentDetail && (<><StudentDetail/></>)}
                     {props.professors && (<><Professors/></>)}
+                    {props.consultaPagos && (<><ConsultaPagos/></>)}
                 </main>
                 </div>
             </div>

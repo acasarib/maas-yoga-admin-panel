@@ -26,6 +26,7 @@ export default function App() {
           <Route path="/home/professors" element={<Home professors />} />
           <Route path="/home/professors/:professorId" element={<Home professorDetail />} />
           <Route path="/home/professor-payments" element={<Home professorPayments />} />
+          <Route path="/home/consulta-pagos" element={<Home consultaPagos />} />
         </Routes>
       </Router>
   );
