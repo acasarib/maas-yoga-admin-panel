@@ -58,7 +58,7 @@ const StudentCard = ({ student }) => {
               Fecha de registro
             </dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {new Date(student.createdAt).toLocaleDateString()}
+              {new Date(student.createdAt).toLocaleDateString('es-ES')}
             </dd>
           </div>
         </dl>
