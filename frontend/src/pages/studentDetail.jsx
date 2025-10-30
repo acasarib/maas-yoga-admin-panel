@@ -52,8 +52,6 @@ function Course({ course, student, onOpenQRModal }) {
 
 	const handleGeneratePayment = async (paymentData) => {
 		try {
-			console.log('Payment data:', paymentData);
-			
 			// Crear preferencia de pago en MercadoPago
 			const response = await paymentsService.createMercadoPagoPreference({
 				studentId: student.id,
@@ -62,9 +60,8 @@ function Course({ course, student, onOpenQRModal }) {
 				year: paymentData.monthData.year,
 				value: paymentData.value,
 				discount: paymentData.discount || 0,
+                sendNotification: paymentData.notifyOnPayment,
 			});
-			
-			console.log('MercadoPago preference created:', response);
 			
 			// Manejar diferentes opciones de MercadoPago
 			if (paymentData.mercadoPagoOption === 'link') {
@@ -78,9 +75,6 @@ function Course({ course, student, onOpenQRModal }) {
 				}
 			} else if (paymentData.mercadoPagoOption === 'qr') {
 				// Abrir modal de QR
-				console.log('QR option selected, response:', response);
-				console.log('mercadoPagoPaymentId:', response.mercadoPagoPaymentId);
-				
 				onOpenQRModal(response.mercadoPagoPaymentId, {
 					monthName: paymentData.monthData.monthName,
 					year: paymentData.monthData.year,
@@ -92,24 +86,23 @@ function Course({ course, student, onOpenQRModal }) {
 					`Preferencia de pago creada para ${paymentData.monthData.monthName} ${paymentData.monthData.year}`
 				);
 			} else if (paymentData.mercadoPagoOption === 'email') {
-				// Enviar por email
+				// Enviar por email usando el nuevo endpoint
 				try {
-					await paymentsService.sendMercadoPagoEmail({
-						paymentLink: response.link,
-						studentEmail: student.email,
-						studentName: `${student.name} ${student.lastName}`,
-						courseName: course.title,
-						monthName: paymentData.monthData.monthName,
-						year: paymentData.monthData.year
-					});
+					const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+					const emailResponse = await fetch(`${baseUrl}api/v1/payments/mercadopago/preference/${response.mercadoPagoPaymentId}/email`);
 					
+					if (!emailResponse.ok) {
+						const errorData = await emailResponse.json();
+						throw new Error(errorData.error || 'Error al enviar el email');
+					}
+					
+					const emailResult = await emailResponse.json();
 					changeAlertStatusAndMessage(true, 'success', 
-						`Email enviado correctamente a ${student.email}`
+						`Email enviado a ${emailResult.email} para ${paymentData.monthData.monthName} ${paymentData.monthData.year}`
 					);
 				} catch (error) {
 					console.error('Error sending email:', error);
-					const errorMessage = error?.error || 'Error al enviar el email';
-					changeAlertStatusAndMessage(true, 'error', errorMessage);
+					changeAlertStatusAndMessage(true, 'error', error.message || 'Error al enviar el email');
 				}
 			}
 			
@@ -464,11 +457,9 @@ const CourseDetail = () => {
 	}
 
 	const handleOpenQRModal = (preferenceId, paymentInfo) => {
-		console.log('handleOpenQRModal called with:', { preferenceId, paymentInfo });
 		setQrPreferenceId(preferenceId);
 		setQrPaymentInfo(paymentInfo);
 		setIsQRModalOpen(true);
-		console.log('Modal state set to open');
 	}
 
 	const handleCloseQRModal = () => {

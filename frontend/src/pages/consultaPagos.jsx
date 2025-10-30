@@ -6,11 +6,12 @@ import EmailIcon from '@mui/icons-material/Email';
 import Container from "../components/container";
 import Table from "../components/table";
 import Tooltip from '@mui/material/Tooltip';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import QRModal from '../components/modal/qrModal';
 import { Snackbar, Alert } from '@mui/material';
 
 export default function ConsultaPagos() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('mercadopago');
     const [webhookData, setWebhookData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -97,9 +98,36 @@ export default function ConsultaPagos() {
         setSnackbar({ ...snackbar, open: false });
     };
 
-    const handleSendEmail = (payment) => {
-        // TODO: Implementar envío de email
-        console.log('Enviar email para:', payment);
+    const handleSendEmail = async (payment) => {
+        try {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            const response = await fetch(`${baseUrl}api/v1/payments/mercadopago/preference/${payment.id}/email`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al enviar el email');
+            }
+            
+            const result = await response.json();
+            setSnackbar({
+                open: true,
+                message: `Email enviado a ${result.email}`,
+                severity: 'success'
+            });
+        } catch (err) {
+            console.error('Error sending email:', err);
+            setSnackbar({
+                open: true,
+                message: err.message || 'Error al enviar el email',
+                severity: 'error'
+            });
+        }
+    };
+
+    const handleStatusClick = (payment) => {
+        if (payment.completed && payment.paymentId) {
+            navigate(`/home/payments?id=${payment.paymentId}`);
+        }
     };
 
     const columns = [
@@ -138,33 +166,171 @@ export default function ConsultaPagos() {
         },
         {
             name: 'Monto',
-            selector: row => row.finalAmount,
-            cell: row => (
-                <div>
-                    ${row.finalAmount}
-                    {row.discount > 0 && (
-                        <span className="text-green-600 text-xs ml-1">
-                            (-{row.discount}%)
-                        </span>
-                    )}
-                </div>
-            ),
+            selector: row => row.value,
+            cell: row => "$" + row.value,
             sortable: true,
         },
         {
             name: 'Estado',
             selector: row => row.status,
-            cell: row => (
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    row.completed 
-                        ? 'bg-green-100 text-green-800' 
-                        : row.status === 'approved'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                    {row.completed ? 'Completado' : row.status}
-                </span>
-            ),
+            cell: row => {
+                const getStatusInfo = () => {
+                    // Si está completado, siempre es "Aprobado" en verde
+                    if (row.completed) {
+                        return {
+                            label: 'Aprobado',
+                            className: 'bg-green-100 text-green-800',
+                            tooltip: 'Pago completado y aprobado'
+                        };
+                    }
+
+                    // Evaluar según el status
+                    switch (row.status) {
+                        case 'approved':
+                            return {
+                                label: 'Aprobado',
+                                className: 'bg-blue-100 text-blue-800',
+                                tooltip: 'El pago se realizó con al menos un reembolso parcial.'
+                            };
+                        case 'authorized':
+                            return {
+                                label: 'Autorizado',
+                                className: 'bg-blue-100 text-blue-800',
+                                tooltip: 'Pago autorizado y pendiente de captura'
+                            };
+
+                        case 'in_process':
+                            const inProcessLabels = {
+                                'offline_process': 'Procesando Offline',
+                                'pending_contingency': 'Procesando',
+                                'pending_review_manual': 'Revisión Manual'
+                            };
+                            const inProcessTooltips = {
+                                'offline_process': 'Por una falta de procesamiento online, el pago está siendo procesado de manera offline',
+                                'pending_contingency': 'Estamos procesando tu pago. Menos de 2 días hábiles te avisaremos por e-mail si se acreditó',
+                                'pending_review_manual': 'Estamos procesando tu pago. Menos de 2 días hábiles te avisaremos por e-mail si se acreditó o si necesitamos más información'
+                            };
+                            return {
+                                label: inProcessLabels[row.statusDetail] || 'En Proceso',
+                                className: 'bg-orange-100 text-orange-800',
+                                tooltip: inProcessTooltips[row.statusDetail] || 'Pago en proceso'
+                            };
+
+                        case 'pending':
+                            const pendingLabels = {
+                                'pending_waiting_transfer': 'Pendiente',
+                                'pending_waiting_payment': 'Pendiente',
+                                'pending_challenge': 'Confirmando'
+                            };
+                            const pendingTooltips = {
+                                'pending_waiting_transfer': 'Esperando a que el usuario termine el proceso de pago en su banco',
+                                'pending_waiting_payment': 'El pago queda pendiente hasta que el usuario realice el pago',
+                                'pending_challenge': 'Hay una confirmación pendiente a causa de un challenge'
+                            };
+                            return {
+                                label: pendingLabels[row.statusDetail] || 'Pendiente',
+                                className: 'bg-gray-100 text-gray-800',
+                                tooltip: pendingTooltips[row.statusDetail] || 'Pago pendiente'
+                            };
+
+                        case 'cancelled':
+                            const cancelledLabels = {
+                                'expired': 'Expirado',
+                                'by_collector': 'Cancelado',
+                                'by_payer': 'Cancelado'
+                            };
+                            const cancelledTooltips = {
+                                'expired': 'El pago fue cancelado luego de haber estado 30 días en un estado pendiente',
+                                'by_collector': 'El pago fue cancelado por el collector',
+                                'by_payer': 'El pago fue cancelado por el pagador'
+                            };
+                            return {
+                                label: cancelledLabels[row.statusDetail] || 'Cancelado',
+                                className: 'bg-red-100 text-red-800',
+                                tooltip: cancelledTooltips[row.statusDetail] || 'Pago cancelado'
+                            };
+
+                        case 'refunded':
+                            const refoundTooltips = {
+                                "refunded": "El pago fue devuelto por el collector.",
+                                "by_admin": "El pago fue devuelto por el administrador."
+                            }
+                            return {
+                                label: "Devuelto",
+                                className: 'bg-red-100 text-red-800',
+                                tooltip: refoundTooltips[row.statusDetail] || 'Pago devuelto'
+                            };
+
+                        case 'charged_back':
+                            const chargedBackLabels = {
+                                'settled': 'Retenido',
+                                'reimbursed': 'Devuelto',
+                                'in_process': 'Contracargo en Proceso'
+                            };
+                            const chargedBackTooltips = {
+                                'settled': 'El dinero fue retenido luego de un proceso de contracargo',
+                                'reimbursed': 'El dinero fue devuelto luego de un proceso de contracargo',
+                                'in_process': 'El pago está en proceso de ser recuperado debido a un desconocimiento por parte del pagador'
+                            };
+                            return {
+                                label: chargedBackLabels[row.statusDetail] || 'Contracargo',
+                                className: 'bg-red-100 text-red-800',
+                                tooltip: chargedBackTooltips[row.statusDetail] || 'Contracargo'
+                            };
+
+                        case 'rejected':
+                            const rejectedLabels = {
+                                'bank_error': 'Error Bancario',
+                                'cc_rejected_3ds_challenge': 'Rechazado 3DS',
+                                'cc_rejected_3ds_mandatory': '3DS Obligatorio',
+                                'cc_rejected_bad_filled_card_number': 'Número de Tarjeta',
+                                'cc_rejected_bad_filled_date': 'Fecha Vencimiento',
+                                'cc_rejected_bad_filled_other': 'Datos Incorrectos',
+                                'cc_rejected_bad_filled_security_code': 'Código Seguridad',
+                                'cc_rejected_blacklist': 'Lista Negra',
+                                'cc_rejected_call_for_authorize': 'Autorizar Pago',
+                                'cc_rejected_card_disabled': 'Tarjeta Deshabilitada',
+                                'cc_rejected_card_error': 'Error de Tarjeta',
+                                'cc_rejected_duplicated_payment': 'Pago Duplicado',
+                                'cc_rejected_high_risk': 'Alto Riesgo',
+                                'cc_rejected_insufficient_amount': 'Fondos Insuficientes',
+                                'cc_rejected_invalid_installments': 'Cuotas Inválidas',
+                                'cc_rejected_max_attempts': 'Máximo Intentos',
+                                'cc_rejected_other_reason': 'Otro Motivo',
+                                'cc_amount_rate_limit_exceeded': 'Límite Excedido',
+                                'rejected_insufficient_data': 'Datos Insuficientes',
+                                'rejected_by_bank': 'Rechazado por Banco',
+                                'rejected_by_regulations': 'Rechazado por Regulaciones',
+                                'insufficient_amount': 'Monto Insuficiente'
+                            };
+                            return {
+                                label: rejectedLabels[row.statusDetail] || 'Rechazado',
+                                className: 'bg-red-100 text-red-800',
+                                tooltip: `Pago rechazado: ${row.statusDetail || 'motivo desconocido'}`
+                            };
+
+                        default:
+                            return {
+                                label: row.status || 'Desconocido',
+                                className: 'bg-gray-100 text-gray-800',
+                                tooltip: `Estado: ${row.status || 'desconocido'}`
+                            };
+                    }
+                };
+
+                const statusInfo = getStatusInfo();
+
+                return (
+                    <Tooltip title={statusInfo.tooltip}>
+                        <span 
+                            className={`${row.completed ? "cursor-pointer" : "cursor-help"} inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusInfo.className}`}
+                            onClick={() => handleStatusClick(row)}
+                        >
+                            {statusInfo.label}
+                        </span>
+                    </Tooltip>
+                );
+            },
             sortable: true,
         },
         {
@@ -189,16 +355,16 @@ export default function ConsultaPagos() {
                                     <QrCodeIcon fontSize="small" />
                                 </button>
                             </Tooltip>
-                            <Tooltip title={row.studentEmail ? "Enviar email" : "El estudiante no tiene email"}>
+                            <Tooltip title={hasEmail(row.student.email) ? "Enviar email" : "El estudiante no tiene email"}>
                                 <span>
                                     <button 
                                         className={`rounded-full p-1 mx-1 ${
-                                            row.studentEmail 
+                                            hasEmail(row.student.email) 
                                                 ? 'bg-green-200 hover:bg-green-300 cursor-pointer' 
                                                 : 'bg-gray-200 cursor-not-allowed opacity-50'
                                         }`}
-                                        onClick={() => row.studentEmail && handleSendEmail(row)}
-                                        disabled={!row.studentEmail}
+                                        onClick={() => row.student.email && handleSendEmail(row)}
+                                        disabled={!hasEmail(row.student.email)}
                                     >
                                         <EmailIcon fontSize="small" />
                                     </button>
@@ -211,6 +377,10 @@ export default function ConsultaPagos() {
             sortable: false,
         },
     ];
+
+    const hasEmail = (email) => {
+        return email !== undefined && email != null && email !== "";
+    };
 
     return (
         <Container title="Consulta Pagos">

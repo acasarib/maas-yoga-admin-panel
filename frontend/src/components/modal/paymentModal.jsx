@@ -48,6 +48,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
         try {
             await onGeneratePayment({
                 paymentMethod,
+                mercadoPagoOption,
                 studentData,
                 monthData,
                 value: parseFloat(amount) || 0,
@@ -104,7 +105,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                 <span>Generar pago</span>
             )}
             onClick={handleGeneratePayment}
-            buttonDisabled={isGenerating}
+            buttonDisabled={isGenerating || amount === "" || amount === "0"}
             size="medium"
         >
             <div className="space-y-6">
@@ -124,7 +125,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                                 onClick={() => setPaymentMethod('mercadopago')}
                                 className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
                                     paymentMethod === 'mercadopago'
-                                        ? 'border-blue-500 text-blue-600'
+                                        ? 'border-orange-500 text-orange-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                             >
