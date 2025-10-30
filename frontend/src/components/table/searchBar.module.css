@@ -1,9 +1,27 @@
+.searchBarContainer {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    width: 100%;
+}
+
+.searchBarInputsContainer {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+}
+
 .searchBarInput {
     width: 65%;
 }
 
 .searchBarType {
     width: 35%;
+}
+
+.searchButton {
+    margin: 0 !important;
+    white-space: nowrap;
 }
 
 @media screen and (min-width: 430px) {
