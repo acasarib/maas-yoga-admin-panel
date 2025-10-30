@@ -1,15 +1,10 @@
 import React, { useState } from "react";
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
 import styles from "./searchBar.module.css";
+import Loader from "../spinner/loader";
 import ButtonPrimary from "../button/primary";
 
-    export default function SearchBar({ className = "", searchableColumns, searchValue, onChangeSearch, typeValue, onChangeType }) {
+    export default function SearchBar({ className = "", searchableColumns, searchValue, onChangeSearch, typeValue, onChangeType, isLoading = false }) {
     const [valueToSearch, setValueToSearch] = useState('');
 
     const confirmSearch = () => {
@@ -24,35 +19,45 @@ import ButtonPrimary from "../button/primary";
 
     return(
         <div className={`${styles.searchBarContainer} ${className}`}>
-            <div className={styles.searchBarInputsContainer}>
-                <FormControl className={styles.searchBarInput}>
-                    <InputLabel htmlFor="outlined-adornment-amount">Buscar</InputLabel>
-                    <OutlinedInput
-                        id="search-bar-table"
-                        size="small"
-                        startAdornment={<InputAdornment position="start"><SearchIcon/></InputAdornment>}
-                        label="Buscar"
+            <div className={styles.integratedSearchBar}>
+                <div className={styles.searchInputSection}>
+                    <div className={styles.searchIconContainer}>
+                        {isLoading ? (
+                            <Loader className={styles.searchLoader} />
+                        ) : (
+                            <SearchIcon className={styles.searchIcon} />
+                        )}
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Buscar..."
+                        value={valueToSearch}
                         onChange={(e) => setValueToSearch(e.target.value)}
                         onKeyPress={handleKeyPress}
+                        className={styles.searchInput}
                     />
-                </FormControl>
-                <TextField
-                    className={styles.searchBarType}
-                    id="search-bar-type"
-                    select
-                    label="Buscar por"
-                    value={typeValue}
-                    onChange={(e) => onChangeType(e.target.value)}
-                    size="small"
+                </div>
+                
+                <div className={styles.searchTypeSection}>
+                    <select
+                        value={typeValue}
+                        onChange={(e) => onChangeType(e.target.value)}
+                        className={styles.searchTypeSelect}
+                    >
+                        {searchableColumns.map(column => (
+                            <option key={column.name} value={column.name}>
+                                {column.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                
+                <ButtonPrimary
+                    onClick={confirmSearch}
+                    className={styles.searchButtonIntegrated}
+                    disabled={isLoading}
                 >
-                {searchableColumns.map(column => (
-                    <MenuItem key={column.name} value={column.name}>
-                        {column.name}
-                    </MenuItem>
-                ))}
-                </TextField>
-                <ButtonPrimary onClick={() => confirmSearch()} className={styles.searchButton}>
-                    Buscar <SearchIcon className="ml-1"/>
+                    Buscar
                 </ButtonPrimary>
             </div>
         </div>
