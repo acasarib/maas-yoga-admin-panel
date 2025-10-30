@@ -16,35 +16,45 @@ import ButtonPrimary from "../button/primary";
         onChangeSearch(valueToSearch);
     }
 
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            confirmSearch();
+        }
+    }
+
     return(
-        <>
-        <div>
-            <FormControl className={styles.searchBarInput}>
-                <InputLabel htmlFor="outlined-adornment-amount">Buscar</InputLabel>
-                <OutlinedInput
-                    id="search-bar-table"
+        <div className={`${styles.searchBarContainer} ${className}`}>
+            <div className={styles.searchBarInputsContainer}>
+                <FormControl className={styles.searchBarInput}>
+                    <InputLabel htmlFor="outlined-adornment-amount">Buscar</InputLabel>
+                    <OutlinedInput
+                        id="search-bar-table"
+                        size="small"
+                        startAdornment={<InputAdornment position="start"><SearchIcon/></InputAdornment>}
+                        label="Buscar"
+                        onChange={(e) => setValueToSearch(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                    />
+                </FormControl>
+                <TextField
+                    className={styles.searchBarType}
+                    id="search-bar-type"
+                    select
+                    label="Buscar por"
+                    value={typeValue}
+                    onChange={(e) => onChangeType(e.target.value)}
                     size="small"
-                    startAdornment={<InputAdornment position="start"><SearchIcon/></InputAdornment>}
-                    label="Buscar"
-                    onChange={(e) => setValueToSearch(e.target.value)}
-                />
-            </FormControl>
-            <TextField
-                className={styles.searchBarType}
-                id="search-bar-type"
-                select
-                label="Buscar por"
-                value={typeValue}
-                onChange={(e) => onChangeType(e.target.value)}
-                size="small"
-            >
-            {searchableColumns.map(column => (
-                <MenuItem key={column.name} value={column.name}>
-                    {column.name}
-                </MenuItem>
-            ))}
-            </TextField>
+                >
+                {searchableColumns.map(column => (
+                    <MenuItem key={column.name} value={column.name}>
+                        {column.name}
+                    </MenuItem>
+                ))}
+                </TextField>
+                <ButtonPrimary onClick={() => confirmSearch()} className={styles.searchButton}>
+                    Buscar <SearchIcon className="ml-1"/>
+                </ButtonPrimary>
+            </div>
         </div>
-        <ButtonPrimary onClick={() => confirmSearch()} className="mt-2">Buscar <SearchIcon className="ml-1"/></ButtonPrimary>
-    </>);
+    );
 } 

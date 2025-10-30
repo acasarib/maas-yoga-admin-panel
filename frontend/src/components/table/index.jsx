@@ -87,6 +87,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
     return(
         <div>
             {searchableColumns.length > 0 && <SearchBar
+                className="mb-4"
                 searchValue={searchValue}
                 onChangeSearch={(value) => setSearchValue(value)}
                 typeValue={typeValue}
