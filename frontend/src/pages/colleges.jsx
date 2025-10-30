@@ -10,9 +10,7 @@ import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
-import Select from "../components/select/select";
-import Spinner from "../components/spinner/spinner";
-import SelectCourses from "../components/select/selectCourses";
+import Loader from "../components/spinner/loader";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
@@ -20,7 +18,6 @@ export default function Colleges(props) {
     const { getColleges, isLoadingColleges, deleteCollege, editCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
-    const [opResult, setOpResult] = useState('Verificando cursos...');
     const [edit, setEdit] = useState(false);
     const [collegeToEdit, setCollegeToEdit] = useState({});
     const [colleges, setColleges] = useState([]);
@@ -185,10 +182,10 @@ export default function Colleges(props) {
             <Container title="Sedes">
                 <Table
                     progressPending={isLoadingColleges}
-                    progressComponent={<Spinner/>}
+                    progressComponent={<Loader className="w-16 h-16" />}
                     columns={columns}
                     data={colleges}
-                    noDataComponent={opResult}
+                    noDataComponent={"No hay sedes"}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
                 <div className="flex justify-end mt-6">

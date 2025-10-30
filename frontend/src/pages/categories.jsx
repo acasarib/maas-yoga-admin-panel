@@ -12,7 +12,7 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
-import Spinner from "../components/spinner/spinner";
+import Loader from "../components/spinner/loader";
 
 //TODO: categorias reactivas, al agregar una nueva, editar una nueva o eliminar, la lista de categorias no se actualiza
 //TODO2: categorias paginadas
@@ -197,10 +197,10 @@ export default function Categories(props) {
                     columns={columns}
                     data={categories}
                     progressPending={isLoadingCategories}
-                    progressComponent={<Spinner/>}
+                    progressComponent={<Loader className="w-16 h-16" />}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     responsive
-                    noDataComponent={'Verificando rubros...'}
+                    noDataComponent={'No hay rubros'}
                 />
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
