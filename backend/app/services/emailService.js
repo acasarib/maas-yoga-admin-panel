@@ -111,4 +111,107 @@ export const sendPaymentReceipt = async (studentEmail, studentName, pdfBuffer, p
   const html = loadEmailTemplate(firstName, lastName);
 
   return await sendEmailWithPDF(studentEmail, subject, text, pdfBuffer, pdfFileName, html);
-}; 
+};
+
+/**
+ * Envía un email con el link de pago de MercadoPago
+ * @param {Object} emailData - Datos del email
+ * @param {string} emailData.paymentLink - Link de pago de MercadoPago
+ * @param {string} emailData.studentEmail - Email del estudiante
+ * @param {string} emailData.studentName - Nombre completo del estudiante
+ * @param {string} emailData.courseName - Nombre del curso
+ * @param {string} emailData.monthName - Nombre del mes
+ * @param {number} emailData.year - Año del pago
+ * @param {number} emailData.amount - Importe del pago
+ * @param {string} emailData.qrImageBase64 - Imagen QR en base64 (opcional)
+ * @returns {Promise} - Resultado del envío
+ */
+export const sendPaymentLink = async (emailData) => {
+  try {
+    const { paymentLink, studentEmail, studentName, courseName, monthName, year, amount, qrImageBase64 } = emailData;
+
+    // Configurar transporter
+    const transporter = createTransporter();
+
+    // Preparar attachments si hay QR
+    const attachments = [];
+    let qrImageHtml = '';
+    
+    if (qrImageBase64) {
+      attachments.push({
+        filename: 'qr-code.png',
+        content: qrImageBase64,
+        encoding: 'base64',
+        cid: 'qrcode'
+      });
+      
+      qrImageHtml = `
+        <div style="text-align: center; margin: 30px 0;">
+          <img src="cid:qrcode" alt="Código QR de Pago" style="max-width: 200px; border: 1px solid #ddd; border-radius: 8px;">
+        </div>
+      `;
+    }
+
+    // Contenido del email
+    const mailOptions = {
+      from: `"Sistema de Pagos" <${process.env.SMTP_USER}>`,
+      to: studentEmail,
+      subject: `Link de pago - ${courseName} - ${monthName} ${year}`,
+      attachments: attachments,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <img src="https://i.imgur.com/JMM3XLw.png" alt="MAAS Yoga Logo" 
+                 style="max-width: 300px; height: auto;">
+          </div>
+          
+          <h2 style="color: #333; text-align: center; margin-bottom: 30px;">Link de Pago</h2>
+          
+          <p style="font-size: 16px;">Hola <strong>${studentName}</strong>,</p>
+          <p style="font-size: 16px;">Te enviamos el link de pago para:</p>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              <li style="padding: 8px 0; border-bottom: 1px solid #dee2e6;"><strong>Curso:</strong> ${courseName}</li>
+              <li style="padding: 8px 0; border-bottom: 1px solid #dee2e6;"><strong>Período:</strong> ${monthName} ${year}</li>
+              <li style="padding: 8px 0;"><strong>Importe:</strong> $${amount}</li>
+            </ul>
+          </div>
+          
+          ${qrImageHtml}
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${paymentLink}" 
+               style="background-color: #007bff; color: white; padding: 15px 30px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;
+                      font-size: 16px; font-weight: bold;">
+              Pagar Ahora
+            </a>
+          </div>
+          
+          <p style="font-size: 16px;">Saludos,<br><strong>Equipo MAAS Yoga</strong></p>
+        </div>
+      `,
+      text: `
+        Hola ${studentName},
+        
+        Te enviamos el link de pago para:
+        - Curso: ${courseName}
+        - Período: ${monthName} ${year}
+        - Importe: $${amount}
+        
+        Link de pago: ${paymentLink}
+        
+        Saludos,
+        Equipo MAAS Yoga
+      `
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Email de pago enviado exitosamente:", result.messageId);
+    return result;
+  } catch (error) {
+    console.error("Error enviando email de pago:", error);
+    throw error;
+  }
+};

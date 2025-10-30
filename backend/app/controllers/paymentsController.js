@@ -294,7 +294,7 @@ export default {
    */
   createMercadoPagoPreference: async (req, res, next) => {
     try {
-      const { studentId, courseId, year, month, value, discount } = req.body;
+      const { studentId, courseId, year, month, value, discount, sendNotification = false, } = req.body;
       
       // Validar datos requeridos
       const errors = [];
@@ -340,6 +340,8 @@ export default {
         month,
         value,
         discount: discount || 0,
+        sendNotification,
+        informerId: req.user.id,
       });
 
       res.status(StatusCodes.CREATED).json(preference);
@@ -413,7 +415,7 @@ export default {
       const paymentLink = preference.preferenceLink;
       if (!paymentLink) {
         return res.status(StatusCodes.BAD_REQUEST).json({
-          error: "La preferencia no tiene un link de pago válido"
+          error: "id required"
         });
       }
 
@@ -429,18 +431,85 @@ export default {
       res.send(qrBuffer);
     } catch (e) {
       console.error("Error generating QR by ID:", e);
-      next(e);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        error: "Error interno del servidor al generar el código QR"
+      });
     }
   },
 
   /**
-   * /payments/mercadopago/email [POST]
-   * Enviar link de pago por email
-   * @returns HttpStatus ok
+   * Envía un email con el link de pago de MercadoPago usando el ID de la preferencia
+   */
+  sendMercadoPagoEmailById: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      
+      if (!id) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "id required"
+        });
+      }
+
+      // Buscar la preferencia en la base de datos
+      const preference = await mercadoPagoService.getMercadoPagoPaymentById(id);
+      
+      if (!preference) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          error: "preference not found"
+        });
+      }
+
+      // Verificar que existe el link de la preferencia
+      const paymentLink = preference.preferenceLink;
+      if (!paymentLink) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "invalid preference link"
+        });
+      }
+
+      // Buscar datos del estudiante para obtener el email
+      const student = await getById(preference.studentId);
+      if (!student) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          error: "Estudiante no encontrado"
+        });
+      }
+
+      if (!student.email) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "no email found in student"
+        });
+      }
+
+      // Enviar email
+      await mercadoPagoService.sendPaymentEmail({
+        paymentLink,
+        studentEmail: student.email,
+        studentName: preference.studentName,
+        courseName: preference.courseTitle,
+        monthName: preference.monthName,
+        year: preference.year,
+        amount: preference.value - (preference.discount || 0)
+      });
+
+      res.status(StatusCodes.OK).json({
+        message: "Email enviado exitosamente",
+        email: student.email
+      });
+    } catch (e) {
+      console.error("Error sending email by ID:", e);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        error: "Error interno del servidor al enviar el email"
+      });
+    }
+  },
+
+  /**
+   * Envía un email con el link de pago de MercadoPago
    */
   sendMercadoPagoEmail: async (req, res, next) => {
     try {
-      const { paymentLink, studentEmail, studentName, courseName, monthName, year } = req.body;
+      const { paymentLink, studentEmail, studentName, courseName, monthName, year, amount } = req.body;
       
       if (!paymentLink || !studentEmail) {
         return res.status(StatusCodes.BAD_REQUEST).json({
@@ -455,7 +524,8 @@ export default {
         studentName,
         courseName,
         monthName,
-        year
+        year,
+        amount: amount || 0
       });
       
       res.status(StatusCodes.OK).json({

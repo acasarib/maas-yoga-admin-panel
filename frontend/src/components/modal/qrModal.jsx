@@ -7,14 +7,11 @@ import { IconButton } from '@mui/material';
 import ButtonPrimary from '../button/primary';
 
 const QRModal = ({ isOpen, onClose, preferenceId, paymentInfo }) => {
-    console.log('QRModal rendered with props:', { isOpen, preferenceId, paymentInfo });
-    
     const [qrImageUrl, setQrImageUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        console.log('QRModal useEffect triggered:', { isOpen, preferenceId });
         if (isOpen && preferenceId) {
             loadQRImage();
         }
@@ -34,7 +31,6 @@ const QRModal = ({ isOpen, onClose, preferenceId, paymentInfo }) => {
             
             const blob = await response.blob();
             const imageUrl = URL.createObjectURL(blob);
-            console.log('QR Image URL:', imageUrl);
             setQrImageUrl(imageUrl);
         } catch (err) {
             console.error('Error loading QR:', err);

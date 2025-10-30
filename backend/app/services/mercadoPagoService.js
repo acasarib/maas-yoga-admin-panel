@@ -3,11 +3,11 @@ import { getById as getStudentById } from './studentService.js';
 import { getById as getCourseById } from './courseService.js';
 import * as paymentService from './paymentService.js';
 import { PAYMENT_TYPES } from '../utils/constants.js';
-import { mercado_pago_payment } from '../db/index.js';
+import { mercado_pago_payment, notificationPayment, user } from '../db/index.js';
 import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import nodemailer from 'nodemailer';
+import * as emailService from "./emailService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,7 +46,7 @@ const payment = new Payment(client);
  */
 export const createPaymentPreference = async (paymentData) => {
   try {
-    const { studentId, courseId, year, month, value, discount } = paymentData;
+    const { studentId, courseId, year, month, value, discount, sendNotification, informerId } = paymentData;
 
     // Verificar si ya existe una preferencia para este estudiante, curso, año y mes
     const existingPreference = await mercado_pago_payment.findOne({
@@ -98,6 +98,7 @@ export const createPaymentPreference = async (paymentData) => {
     // Configurar la preferencia de pago
     const externalReference = `course_${courseId}_student_${studentId}_${year}_${month}`;
     const preferenceData = {
+      statement_descriptor: `MAAS Yoga - ${course.title}`,
       items: [
         {
           id: `course_${courseId}_student_${studentId}_${year}_${month}`,
@@ -122,7 +123,9 @@ export const createPaymentPreference = async (paymentData) => {
         discount: discount || 0,
         student_name: `${student.name} ${student.lastName}`,
         course_title: course.title,
-        month_name: monthName
+        month_name: monthName,
+        send_notification: sendNotification || false,
+        informer_id: informerId,
       }
     };
 
@@ -209,14 +212,15 @@ export const getAndUpdateMercadoPagoPayment = async (paymentId) => {
   return paymentDetails;
 };
 
-export const updateMercadoPagoPayment = async (paymentId, paymentDetails) => {
+export const updateMercadoPagoPayment = async (paymentDetails) => {
   try {
-    const mpPayment = await mercado_pago_payment.findByPk(paymentId);
+    const mpPayment = await mercado_pago_payment.findOne({ where: { externalReference: paymentDetails.external_reference } });
     if (mpPayment) {
       await mpPayment.update({
         completed: paymentDetails.completed,
         paymentId: paymentDetails.paymentId,
         status: paymentDetails.status,
+        statusDetail: paymentDetails.status_detail,
       });
     }
   } catch (error) {
@@ -257,7 +261,11 @@ export const processWebhookNotification = async (notification) => {
         discount: parseFloat(paymentDetails.metadata.discount || 0),
         studentName: paymentDetails.metadata.student_name,
         courseTitle: paymentDetails.metadata.course_title,
-        monthName: paymentDetails.metadata.month_name
+        monthName: paymentDetails.metadata.month_name,
+        sendNotification: paymentDetails.metadata.send_notification,
+        informerId: paymentDetails.metadata.informer_id,
+        statusDetail: paymentDetails.status_detail,
+        externalReference: paymentDetails.external_reference,
       };
     }
 
@@ -266,7 +274,10 @@ export const processWebhookNotification = async (notification) => {
       const createdPayment = await createPaymentInDatabaseFromMetadata(paymentDetails, paymentData);
       paymentDetails.completed = true;
       paymentDetails.paymentId = createdPayment.id;
-      await updateMercadoPagoPayment(paymentId, paymentDetails);
+      await updateMercadoPagoPayment(paymentDetails);
+      if (paymentData.sendNotification) {
+        await sendNotificationToUser(paymentData, createdPayment.id);
+      }
     }
     
     return { 
@@ -321,7 +332,6 @@ export const getWebhookHistory = async () => {
     });
 
     return {
-      success: true,
       data: payments,
       stats: stats,
       timestamp: new Date().toISOString()
@@ -523,71 +533,23 @@ export const generateQRWithLogo = async (paymentLink) => {
  */
 export const sendPaymentEmail = async (emailData) => {
   try {
-    const { paymentLink, studentEmail, studentName, courseName, monthName, year } = emailData;
-
-    // Configurar transporter (usar variables de entorno para configuración)
-    const transporter = nodemailer.createTransporter({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: process.env.SMTP_PORT || 587,
-      secure: false, // true para 465, false para otros puertos
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
-
-    // Verificar configuración
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      throw new Error('Configuración de email no encontrada. Verifique SMTP_USER y SMTP_PASS en variables de entorno.');
-    }
-
-    // Contenido del email
-    const mailOptions = {
-      from: `"Sistema de Pagos" <${process.env.SMTP_USER}>`,
-      to: studentEmail,
-      subject: `Link de pago - ${courseName} - ${monthName} ${year}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Link de Pago - ${courseName}</h2>
-          
-          <p>Hola <strong>${studentName}</strong>,</p>
-          
-          <p>Te enviamos el link de pago para:</p>
-          <ul>
-            <li><strong>Curso:</strong> ${courseName}</li>
-            <li><strong>Período:</strong> ${monthName} ${year}</li>
-          </ul>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${paymentLink}" 
-               style="background-color: #009ee3; color: white; padding: 15px 30px; 
-                      text-decoration: none; border-radius: 5px; display: inline-block;">
-              Pagar Ahora
-            </a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">
-            Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:<br>
-            <a href="${paymentLink}">${paymentLink}</a>
-          </p>
-          
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-          <p style="color: #999; font-size: 12px;">
-            Este es un email automático, por favor no responder.
-          </p>
-        </div>
-      `
+    // Generar QR code en base64 para incluir en el email
+    const qrBuffer = await generateQRWithLogo(emailData.paymentLink);
+    const qrImageBase64 = qrBuffer.toString('base64');
+    
+    // Agregar el QR al emailData
+    const emailDataWithQR = {
+      ...emailData,
+      qrImageBase64
     };
-
-    // Enviar email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email enviado:', info.messageId);
+    
+    // Delegar al emailService para mantener separación de responsabilidades
+    const result = await emailService.sendPaymentLink(emailDataWithQR);
     
     return {
       success: true,
-      messageId: info.messageId
+      messageId: result.messageId
     };
-
   } catch (error) {
     console.error("Error sending payment email:", error);
     throw error;
@@ -605,6 +567,15 @@ export const getMercadoPagoPaymentById = async (id) => {
     return preference;
   } catch (error) {
     console.error("Error getting MercadoPago payment by ID:", error);
+    throw error;
+  }
+};
+
+const sendNotificationToUser = async (paymentData, paymentId) => {
+  try {
+    notificationPayment.create({ paymentId, userId: paymentData.informerId });
+  } catch (error) {
+    console.error("Error sending notification to user:", error);
     throw error;
   }
 };
