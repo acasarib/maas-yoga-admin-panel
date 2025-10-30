@@ -38,6 +38,7 @@ import SelectClass from '../components/select/selectClass';
 import SelectColleges from '../components/select/selectColleges';
 import SelectStudent from '../components/select/selectStudent';
 import SelectCourses from '../components/select/selectCourses';
+import StudentDetailSkeleton from '../components/skeleton/studentDetailSkeleton';
 
 function Course({ course, student, onOpenQRModal }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -759,9 +760,7 @@ const CourseDetail = () => {
 					</Box>
 				</>
 
-				: <div className="flex justify-center items-center h-screen">
-					<Spinner />
-				</div>
+				: <StudentDetailSkeleton />
 			}
 		</Container>
 	)

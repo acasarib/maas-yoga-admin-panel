@@ -20,9 +20,9 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TasksTable from '../components/table/tasksTable';
 import TaskModal from '../components/courses/taskModal';
 import CopyTaskModal from '../components/courses/copyTaskModal';
-import Spinner from '../components/spinner/spinner';
 import CourseDetailModal from '../components/modal/courseDetailModal';
 import Link from '../components/link/link';
+import CourseDetailSkeleton from '../components/skeleton/courseDetailSkeleton';
 
 const ProfessorCalendar = ({ coursePeriods }) => Object.keys(coursePeriods).map(year => <div className='mb-2' key={year}>
 	<div className='font-medium text-xl mb-1'>{year}</div>
@@ -301,9 +301,7 @@ const CourseDetail = () => {
 			</Box>
 		</>
 		
-		: <div className="flex justify-center items-center h-screen">
-			<Spinner/>
-		</div>
+		: <CourseDetailSkeleton />
 		}
     </Container>
   )
