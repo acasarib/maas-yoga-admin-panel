@@ -295,6 +295,9 @@ export const setCompletedStudentTask = async (studentCourseTaskParam, courseTask
   studentCourseTask.update(studentCourseTaskParam, { where: { courseTaskId, studentId } });
 };
 
+
+const isCriteriaByStudent = (criteria) => criteria === CRITERIA_COURSES.STUDENT || criteria === CRITERIA_COURSES.STUDENT_ASSISTANCE;
+
 /**
  * 
  * @param {String} from in format yyyy-mm-dd
@@ -377,13 +380,12 @@ export const calcProfessorsPayments = async (from, to, professorId, courseId) =>
       }
     }
   }
-  const isCriteriaByStudent = (criteria) => criteria === CRITERIA_COURSES.STUDENT || criteria === CRITERIA_COURSES.STUDENT_ASSISTANCE;
   for (const course of coursesInRange) {
     for (const prof of course.professors) {
       if ("result" in prof) {
         prof.result.courseId = course.id;
-        prof.result.criteria = prof.criteria;
-        prof.result.criteriaValue = prof.criteriaValue;
+        prof.result.criteria = prof.result.period.criteria;
+        prof.result.criteriaValue = prof.result.period.criteriaValue;
         prof.result.collectedByPayments = prof.result.payments.reduce((total, p) => total + p.value, 0);
         prof.result.totalStudents = prof.result.payments.map(p => p.studentId);
         prof.result.totalStudents = utils.removeDuplicated(prof.result.totalStudents).length;
@@ -456,10 +458,12 @@ export const exportProfessorsPayments = async (from, to) => {
         worksheetsByProfesorFullName[fullName] = {
           worksheet: workbook.addWorksheet(fullName),
           courses: [],
-          payments: []
+          payments: [],
+          results: [],
         };
       }
       worksheetsByProfesorFullName[fullName].courses.push(course);
+      worksheetsByProfesorFullName[fullName].results.push(professor.result);
       worksheetsByProfesorFullName[fullName].payments.push(...professor.result.payments);
     });
   });
@@ -468,6 +472,7 @@ export const exportProfessorsPayments = async (from, to) => {
     const worksheet = worksheetsByProfesorFullName[fullName].worksheet;
     const courses = worksheetsByProfesorFullName[fullName].courses;
     const payments = worksheetsByProfesorFullName[fullName].payments;
+    const results = worksheetsByProfesorFullName[fullName].results;
     
     let currentRow = 1;
     
@@ -484,6 +489,9 @@ export const exportProfessorsPayments = async (from, to) => {
     
     courses.forEach(course => {
       const coursePayments = payments.filter(payment => payment.courseId === course.id);
+      const courseResult = results.find(result => result.courseId === course.id);
+      if (courseResult == null || courseResult == undefined)
+        return;
       
       if (coursePayments.length == 0)
         return;
@@ -496,7 +504,7 @@ export const exportProfessorsPayments = async (from, to) => {
       courseHeaderRow.getCell(3).value = uniqueStudents.length;
       courseHeaderRow.getCell(3).font = { bold: true };
       
-      const totalAmount = coursePayments.reduce((sum, p) => sum + p.value, 0);
+      const totalAmount = courseResult.collectedByProfessor;
       courseHeaderRow.getCell(4).value = "$" + totalAmount;
       courseHeaderRow.getCell(4).font = { bold: true };
       currentRow++;
@@ -527,8 +535,29 @@ export const exportProfessorsPayments = async (from, to) => {
         const paymentRow = worksheet.getRow(currentRow);
         paymentRow.getCell(2).value = `${group.count} x $${group.amount} (${group.discount}%)`;
         paymentRow.getCell(3).value = group.count;
-        paymentRow.getCell(4).value = "$" + group.total;
-        
+        let total = 0;
+        if (isCriteriaByStudent(courseResult.criteria)) {
+          const criteriaValue = parseFloat(courseResult.criteriaValue);
+          if (group.discount !== null) {
+            total += criteriaValue * ( (100 - group.discount) / 100);
+          } else {
+            total += criteriaValue;
+          }
+          total = total * group.count;
+        } else {
+          const percentage = parseFloat(courseResult.criteriaValue);
+          const courseValue = courseResult.courseValue;
+          
+          const discount = group.discount ?? 0;
+          if (courseValue == null || courseValue == undefined) {
+            total += group.amount;
+          } else {
+            total += courseValue * (1 - (discount / 100));
+          }
+          total = (percentage / 100) * total;
+          total = total * group.count;
+        }
+        paymentRow.getCell(4).value = "$" + total;
         currentRow++;
       }
       
