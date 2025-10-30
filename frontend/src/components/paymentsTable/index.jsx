@@ -12,7 +12,7 @@ import { Tooltip } from "@mui/material";
 import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
-import Spinner from "../spinner/spinner";
+import Loader from "../spinner/loader";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
@@ -369,7 +369,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
             serverPaginationData: payments,
             paginationServer: true,
             progressPending: isLoading,
-            progressComponent: <Spinner/>,
+            progressComponent: <Loader className="w-16 h-16" />,
         }
     } else {
         tableProps = {

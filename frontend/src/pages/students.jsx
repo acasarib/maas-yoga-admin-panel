@@ -13,8 +13,8 @@ import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 import ButtonPrimary from "../components/button/primary";
 import { useNavigate } from "react-router-dom";
 import studentsService from "../services/studentsService";
-import Spinner from "../components/spinner/spinner";
 import useToggle from "../hooks/useToggle";
+import Loader from "../components/spinner/loader";
 
 export default function Students(props) {
     const { students, isLoadingStudents, deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
@@ -23,7 +23,6 @@ export default function Students(props) {
     const [deleteModal, setDeleteModal] = useState(false);
     const navigate = useNavigate(); 
     const [studentId, setStudentId] = useState(null);
-    const [opResult, setOpResult] = useState('Verificando alumnos...');
     const [edit, setEdit] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState({});
     const [isDocumentDuplicated, setIsDocumentDuplicated] = useState(false);
@@ -238,9 +237,9 @@ export default function Students(props) {
                     columns={columns}
                     serverPaginationData={pageableStudents}
                     paginationServer
-                    noDataComponent={opResult}
+                    noDataComponent={"No hay alumnos"}
                     progressPending={isLoading.value}
-                    progressComponent={<Spinner/>}
+                    progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}
                     onChangePage={handlePageChange}
                     onChangeRowsPerPage={handlePerRowsChange}

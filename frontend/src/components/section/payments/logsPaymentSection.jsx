@@ -3,8 +3,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { dateToString } from "../../../utils";
 import Table from "../../table";
 import { LOG_PAYMENT_ACTIONS } from "../../../constants";
-import Spinner from "../../spinner/spinner";
 import logsService from "../../../services/logsService";
+import Loader from "../../spinner/loader";
 
 export default function LogsPaymentSection(props) {
     const [pageableLogs, setPageableLogs] = useState([]);
@@ -105,7 +105,7 @@ export default function LogsPaymentSection(props) {
                 paginationServer
                 noDataComponent={"No hay registros."}
                 progressPending={isLoading}
-                progressComponent={<Spinner/>}
+                progressComponent={<Loader className="w-16 h-16" />}
                 paginationTotalRows={totalRows}
                 onChangePage={handlePageChange}
                 onChangeRowsPerPage={handlePerRowsChange}

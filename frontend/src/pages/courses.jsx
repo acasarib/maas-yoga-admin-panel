@@ -21,9 +21,9 @@ import { STUDENT_STATUS, TABLE_SEARCH_CRITERIA } from "../constants";
 import { Link } from "react-router-dom";
 import StudentCalendar from "../components/calendar/studentCalendar";
 import coursesService from "../services/coursesService";
-import Spinner from "../components/spinner/spinner";
 import CreateUpdateCourseModal from "../components/modal/createUpdateCourse";
 import useModal from '../hooks/useModal'
+import Loader from "../components/spinner/loader";
 
 export default function Courses(props) {
     const { deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
@@ -403,7 +403,7 @@ export default function Courses(props) {
                     defaultSearchValue={defaultIdPayment}
                     noDataComponent={opResult}
                     progressPending={isLoading.value}
-                    progressComponent={<Spinner/>}
+                    progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}
                     onChangePage={handlePageChange}
                     onChangeRowsPerPage={handlePerRowsChange}
