@@ -477,7 +477,7 @@ export const exportProfessorsPayments = async (from, to) => {
     let currentRow = 1;
     
     // Add headers
-    worksheet.addRow(["Curso", "Pagos", "Cantidad Alumnos", "Total"]);
+    worksheet.addRow(["Curso", "Pagos", "Total"]);
     const headerRow = worksheet.getRow(currentRow);
     headerRow.font = { bold: true };
     headerRow.fill = {
@@ -500,13 +500,9 @@ export const exportProfessorsPayments = async (from, to) => {
       courseHeaderRow.getCell(1).value = course.title;
       courseHeaderRow.getCell(1).font = { bold: true };
       
-      const uniqueStudents = [...new Set(coursePayments.map(p => p.studentId))];
-      courseHeaderRow.getCell(3).value = uniqueStudents.length;
-      courseHeaderRow.getCell(3).font = { bold: true };
-      
       const totalAmount = courseResult.collectedByProfessor;
-      courseHeaderRow.getCell(4).value = "$" + totalAmount;
-      courseHeaderRow.getCell(4).font = { bold: true };
+      courseHeaderRow.getCell(3).value = "$" + totalAmount;
+      courseHeaderRow.getCell(3).font = { bold: true };
       currentRow++;
 
       // Group payments by discount percentage
@@ -534,7 +530,6 @@ export const exportProfessorsPayments = async (from, to) => {
       for (const group of Object.values(paymentGroups)) {
         const paymentRow = worksheet.getRow(currentRow);
         paymentRow.getCell(2).value = `${group.count} x $${group.amount} (${group.discount}%)`;
-        paymentRow.getCell(3).value = group.count;
         let total = 0;
         if (isCriteriaByStudent(courseResult.criteria)) {
           const criteriaValue = parseFloat(courseResult.criteriaValue);
@@ -557,7 +552,7 @@ export const exportProfessorsPayments = async (from, to) => {
           total = (percentage / 100) * total;
           total = total * group.count;
         }
-        paymentRow.getCell(4).value = "$" + total;
+        paymentRow.getCell(3).value = "$" + total;
         currentRow++;
       }
       
