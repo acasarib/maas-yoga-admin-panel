@@ -7,7 +7,7 @@ export default function ButtonSecondary({ onClick, className, children, disabled
         type="button"
         ref={innerRef}
         disabled={disabled}
-        className={`${!disabled ? "focus:outline-none focus:ring-2 focus:ring-gray-500 hover:bg-gray-100 bg-white border-gray-300 text-yellow-900" : "bg-disabled"}  rounded-md border border-transparent px-4 py-2 font-medium text-yellow-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 sm:text-sm ${className}`}
+        className={`${!disabled ? "focus:outline-none focus:ring-2 focus:ring-gray-500 hover:bg-gray-100 bg-white border-gray-300 text-yellow-900 hover:shadow-md" : "bg-disabled"}  rounded-md border border-transparent px-4 py-2 font-medium text-yellow-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 sm:text-sm transition-all duration-200 ease-in-out transform ${className}`}
         onClick={onClick}
         >
             {children}
