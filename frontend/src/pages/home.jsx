@@ -40,7 +40,7 @@ import StudentDetail from "./studentDetail";
 import NotificationIcon from "../components/badget/notification";
 import NotificationDropdown from "../components/notificationDropdown/notificationDropdown";
 import useToggle from "../hooks/useToggle";
-
+ 
 export default function Home(props) {
     const { setUser, notifications } = useContext(Context);
     const [isOpenSidebar, setIsOpenSidebar] = useState(false);
