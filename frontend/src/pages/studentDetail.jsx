@@ -558,10 +558,12 @@ const CourseDetail = () => {
         </>)}
             {(selectedCourse !== null && selectedStudent !== null) && 
                 <div className="col-span-2 md:col-span-2">
-                    <div className="flex items-center mb-2">
-                        <input onChange={discountCheckbox.toggle} name="discount" id="discount" type="checkbox" checked={discountCheckbox.value} value="discount" className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" />
-                        <label htmlFor="discount" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-900">Aplicar descuento</label>
-                    </div>
+                    <CustomCheckbox
+                        checked={discountCheckbox.value}
+                        label="Aplicar descuento"
+                        onChange={discountCheckbox.toggle}
+                        className="mb-2"
+                    />
                     <div>
                         <CommonInput 
                             disabled={!discountCheckbox.value}

@@ -161,17 +161,17 @@ export default function Home(props) {
                             </div>
                             <div className="p-4">
                             <ul className="space-y-1">
-                                <NavItem onClick={closeSidebar} target={"payments"} isActive={props.payments || props.professorPayments} icon={<PaidIcon/>}>Movimientos</NavItem>
-                                <NavItem onClick={closeSidebar} target={"tasks"} isActive={props.tasks} icon={<AssignmentIcon/>}>Tareas pendientes</NavItem>
-                                <NavItem onClick={closeSidebar} target={"balance"} isActive={props.balance} icon={<BalanceIcon/>}>Balance</NavItem>
-                                <NavItem onClick={closeSidebar} target={"students"} isActive={props.students|| props.studentDetail} icon={<SchoolIcon/>}>Alumnos</NavItem>
-                                <NavItem onClick={closeSidebar} target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon/>}>Sedes</NavItem>
-                                <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors || props.professorDetail} icon={<HailIcon/>}>Profesores</NavItem>
-                                <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses || props.courseDetail} icon={<LocalLibraryIcon/>}>Cursos</NavItem>
-                                <NavItem onClick={closeSidebar} target={"classes"} isActive={props.classes} icon={<HistoryEduIcon/>}>Clases</NavItem>
-                                <NavItem onClick={closeSidebar} target={"categories"} isActive={props.categories} icon={<CategoryIcon/>}>Rubros</NavItem>
-                                <NavItem onClick={closeSidebar} target={"diary"} isActive={props.diary} icon={<MenuBookIcon/>}>Agenda</NavItem>
-                                {isMasterAdmin && (<NavItem onClick={closeSidebar} target={"new-user"} isActive={props.newUser} icon={<GroupIcon/>}>Usuarios</NavItem>)}
+                                <NavItem onClick={closeSidebar} target={"payments"} isActive={props.payments || props.professorPayments} icon={<PaidIcon sx={{ fontSize: 20 }}/>}>Movimientos</NavItem>
+                                <NavItem onClick={closeSidebar} target={"tasks"} isActive={props.tasks} icon={<AssignmentIcon sx={{ fontSize: 20 }}/>}>Tareas pendientes</NavItem>
+                                <NavItem onClick={closeSidebar} target={"balance"} isActive={props.balance} icon={<BalanceIcon sx={{ fontSize: 20 }}/>}>Balance</NavItem>
+                                <NavItem onClick={closeSidebar} target={"students"} isActive={props.students|| props.studentDetail} icon={<SchoolIcon sx={{ fontSize: 20 }}/>}>Alumnos</NavItem>
+                                <NavItem onClick={closeSidebar} target={"colleges"} isActive={props.colleges} icon={<AccountBalanceIcon sx={{ fontSize: 20 }}/>}>Sedes</NavItem>
+                                <NavItem onClick={closeSidebar} target={"professors"} isActive={props.professors || props.professorDetail} icon={<HailIcon sx={{ fontSize: 20 }}/>}>Profesores</NavItem>
+                                <NavItem onClick={closeSidebar} target={"courses"} isActive={props.courses || props.courseDetail} icon={<LocalLibraryIcon sx={{ fontSize: 20 }}/>}>Cursos</NavItem>
+                                <NavItem onClick={closeSidebar} target={"classes"} isActive={props.classes} icon={<HistoryEduIcon sx={{ fontSize: 20 }}/>}>Clases</NavItem>
+                                <NavItem onClick={closeSidebar} target={"categories"} isActive={props.categories} icon={<CategoryIcon sx={{ fontSize: 20 }}/>}>Rubros</NavItem>
+                                <NavItem onClick={closeSidebar} target={"diary"} isActive={props.diary} icon={<MenuBookIcon sx={{ fontSize: 20 }}/>}>Agenda</NavItem>
+                                {isMasterAdmin && (<NavItem onClick={closeSidebar} target={"new-user"} isActive={props.newUser} icon={<GroupIcon sx={{ fontSize: 20 }}/>}>Usuarios</NavItem>)}
                                 <NavItemWithSubitems
                                     onClick={closeSidebar}
                                     isActive={props.imports || props.consultaPagos}

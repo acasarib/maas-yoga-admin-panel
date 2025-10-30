@@ -8,9 +8,19 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
     const [searchValue, setSearchValue] = useState(defaultSearchValue !== undefined ? defaultSearchValue : "");
     const [typeValue, setTypeValue] = useState(defaultTypeValue !== undefined ? defaultTypeValue : searchableColumns[0]?.name);
     const [dataFiltered, setDataFiltered] = useState(data);
+    const [isSearching, setIsSearching] = useState(false);
     const effectCalls = useRef(0)
 
     const getCurrentFilteringColumn = () => columns.filter(column => column.name === typeValue)[0];
+    
+    const handleSearchChange = (value) => {
+        setIsSearching(true);
+        setSearchValue(value);
+        // Simular un pequeño delay para mostrar el loader
+        setTimeout(() => {
+            setIsSearching(false);
+        }, 300);
+    };
     
 
     useEffect(() => {
@@ -89,10 +99,11 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
             {searchableColumns.length > 0 && <SearchBar
                 className="mb-4"
                 searchValue={searchValue}
-                onChangeSearch={(value) => setSearchValue(value)}
+                onChangeSearch={handleSearchChange}
                 typeValue={typeValue}
                 onChangeType={setTypeValue}
                 searchableColumns={searchableColumns}
+                isLoading={isSearching}
             />}
             <DataTable
                 className={`rounded-3xl shadow-lg mt-1 ${className}`}
