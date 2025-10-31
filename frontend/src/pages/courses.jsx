@@ -24,12 +24,14 @@ import coursesService from "../services/coursesService";
 import CreateUpdateCourseModal from "../components/modal/createUpdateCourse";
 import useModal from '../hooks/useModal'
 import Loader from "../components/spinner/loader";
+import DeleteButton from "../components/button/deleteButton";
+import EditButton from "../components/button/editButton";
+import AddTaskButton from "../components/button/addTaskButton";
 
 export default function Courses(props) {
     const { deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
-    const [opResult, setOpResult] = useState('No hay cursos.');
     const [courseToEdit, setCourseToEdit] = useState(null);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
     const [isTaskStudentModal, setIsTaskStudentModal] = useState(false);
@@ -178,12 +180,12 @@ export default function Courses(props) {
         },
         {
             name: 'Alumnos',
-            selector: row => { return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title, row.id)}>Ver alumnos</button></div>) },
+            selector: row => (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title, row.id)}>Ver alumnos</button></div>),
             sortable: true,
         },
         {
             name: 'Tareas',
-            selector: row => { return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title, row.id)}>Ver tareas</button></div>) },
+            selector: row => (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title, row.id)}>Ver tareas</button></div>),
             sortable: true,
         },
         {
@@ -193,9 +195,7 @@ export default function Courses(props) {
         },
         {
             name: 'Acciones',
-            cell: row => {
-                return (<div className="flex flex-nowrap"><button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => openAddTaskmodal(row.id, row.title)}><Tooltip title="Agregar tarea"><AddTaskIcon /></Tooltip></button><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><Tooltip title="Borrar"><DeleteIcon /></Tooltip></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><Tooltip title="Editar"><EditIcon /></Tooltip></button></div>)
-            },
+            cell: row => (<div className="flex flex-nowrap"><AddTaskButton onClick={() => openAddTaskmodal(row.id, row.title)}/><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], []);
@@ -401,7 +401,7 @@ export default function Courses(props) {
                     paginationServer={searchByTitle == undefined || searchByTitle == ""}
                     defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
                     defaultSearchValue={defaultIdPayment}
-                    noDataComponent={opResult}
+                    noDataComponent={"No hay cursos"}
                     progressPending={isLoading.value}
                     progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}

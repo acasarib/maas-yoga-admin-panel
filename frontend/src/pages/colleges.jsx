@@ -4,13 +4,14 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import SchoolIcon from '@mui/icons-material/School';
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import Loader from "../components/spinner/loader";
+import DeleteButton from "../components/button/deleteButton";
+import EditButton from "../components/button/editButton";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
@@ -73,7 +74,7 @@ export default function Colleges(props) {
         },
         {
             name: 'Ubicación',
-            cell: row => {return (<><div className="flex flex-col justify-center">
+            cell: row => (<><div className="flex flex-col justify-center">
             <div className="relative py-3 sm:max-w-xl sm:mx-auto">
               <div className="group cursor-pointer relative inline-block">{row.location}
                 <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
@@ -82,18 +83,17 @@ export default function Colleges(props) {
                 </div>
               </div>
             </div>
-          </div></>)},
+          </div></>),
             sortable: true,
         },
         {
             name: 'Cursos',
-            selector: row => {return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name)}>Ver cursos</button></div>)},
+            selector: row => (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openCoursesModal(row.courses, row.name)}>Ver cursos</button></div>),
             sortable: true,
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
-        },
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ];
