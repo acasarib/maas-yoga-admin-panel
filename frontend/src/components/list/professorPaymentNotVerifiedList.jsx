@@ -1,8 +1,8 @@
 import React from 'react'
-import DoneIcon from '@mui/icons-material/Done';
 import { Tooltip } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { capitalizeFirstCharacter, formatPaymentValue, getMonthNameByMonthNumber } from '../../utils';
+import DeleteButton from '../button/deleteButton';
+import VerifyButton from '../button/verifyButton';
 
 const ProfessorPaymentNotVerifiedList = ({ periods, onClickVerifyPayment, onClickDeletePayment }) => {
 
@@ -19,12 +19,8 @@ const ProfessorPaymentNotVerifiedList = ({ periods, onClickVerifyPayment, onClic
             </div>
 
             <div className="mt-1 max-w-2xl text-sm text-gray-500">
-              <Tooltip title="Verificar">
-                <button className="rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1" onClick={() => onClickVerifyPayment(period.payment)}><DoneIcon /></button>
-              </Tooltip>
-              <Tooltip title="Eliminar">
-                <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => onClickDeletePayment(period.payment)}><DeleteIcon /></button>
-              </Tooltip>
+              <VerifyButton onClick={() => onClickVerifyPayment(period.payment)}/>
+              <DeleteButton onClick={() => onClickDeletePayment(period.payment)}/>
             </div>
           </div>
         </div>

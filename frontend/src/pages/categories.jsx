@@ -4,7 +4,6 @@ import Modal from "../components/modal";
 import CommonInput from "../components/commonInput";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewSlider from 'react-view-slider'
-import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import Table from "../components/table";
 import { Context } from "../context/Context";
@@ -13,6 +12,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import Loader from "../components/spinner/loader";
+import DeleteButton from "../components/button/deleteButton";
+import EditButton from "../components/button/editButton";
 
 //TODO: categorias reactivas, al agregar una nueva, editar una nueva o eliminar, la lista de categorias no se actualiza
 //TODO2: categorias paginadas
@@ -167,7 +168,7 @@ export default function Categories(props) {
         {
             name: 'Acciones',
             maxWidth: '20%',
-            cell: row => <div className="flex flex-nowrap"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>
+            cell: row => <div className="flex flex-nowrap"><DeleteButton onClick={() => openDeleteModal(row)} /><EditButton onClick={() => openEditModal(row)}/></div>
         },
     ];
 

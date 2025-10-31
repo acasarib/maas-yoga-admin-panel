@@ -12,7 +12,8 @@ import { orange } from '@mui/material/colors';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import DeleteButton from "../components/button/deleteButton";
+import EditButton from "../components/button/editButton";
 
 export default function NewUser(props) {
 
@@ -127,8 +128,7 @@ const validate = (values) => {
     },
     {
       name: 'Acciones',
-      cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
-      },
+      cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
       sortable: true,
     },
   ];

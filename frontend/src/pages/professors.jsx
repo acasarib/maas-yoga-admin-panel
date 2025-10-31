@@ -4,13 +4,14 @@ import SchoolIcon from '@mui/icons-material/School';
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import CustomRadio from "../components/radio/customRadio";
 import { useNavigate } from "react-router-dom";
+import DeleteButton from "../components/button/deleteButton";
+import EditButton from "../components/button/editButton";
 
 export default function Professors(props) {
     const { getProfessors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
@@ -91,8 +92,7 @@ export default function Professors(props) {
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}><EditIcon /></button></div>)
-        },
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], [professors]);

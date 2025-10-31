@@ -29,6 +29,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import SelectCourses from "../../select/selectCourses";
 import SelectStudent from "../../select/selectStudent";
 import YellowBudget from "../../badget/yellow";
+import ButtonPrimary from "../../button/primary";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
     const [file, setFile] = useState([]);
@@ -499,7 +500,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
     return (
         <>
-        <div className="mb-6 md:my-6 md:mx-4">
+        <div className="mb-6 md:my-6">
             <PaymentsTable
                 onSwitchDischarges={showIncomes.toggle}
                 onSwitchIncomes={showDischarges.toggle}
@@ -785,17 +786,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
         <div className="flex flex-row justify-between">
             <Link to="/home/professor-payments">
-                <div
-                    className="mr-4 mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Calcular pagos</span>
-                </div>
+                <ButtonPrimary>Calcular pagos</ButtonPrimary>
             </Link>
             <div>
-                <button onClick={informDischarge}
-                    className="mr-4 mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Informar egreso</span>
-                </button>
-                <button onClick={() => setOpenModal(true)}
-                    className="mt-6 bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap"><span className="font-bold text-sm text-yellow-900">Informar ingreso</span>
-                </button>
+                <ButtonPrimary className={"mr-4"} onClick={informDischarge}>Informar egreso</ButtonPrimary>
+                <ButtonPrimary onClick={() => setOpenModal(true)}>Informar ingreso</ButtonPrimary>
             </div>
         </div>
         </>

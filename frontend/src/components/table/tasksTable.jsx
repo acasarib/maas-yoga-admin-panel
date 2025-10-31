@@ -5,13 +5,13 @@ import useResize from '../../hooks/useResize';
 import SchoolIcon from '@mui/icons-material/School';
 import Modal from '../modal';
 import { formatDateDDMMYY } from "../../utils";
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
 import EditTaskModal from '../courses/editTaskModal';
+import DeleteButton from '../button/deleteButton';
+import EditButton from '../button/editButton';
 
 const TasksTable = ({ course, onUpdateTask }) => {
     const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
@@ -117,12 +117,8 @@ const TasksTable = ({ course, onUpdateTask }) => {
             name: 'Acciones',
             cell: row => (
             <div className="flex flex-nowrap">
-                <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteTaskModal(row.id, row.title)}>
-                    <Tooltip title="Borrar"><DeleteIcon /></Tooltip>
-                </button>
-                <button className="rounded-full p-1 bg-orange-200 mx-1 hover:bg-orange-300 mx-1" onClick={() => openEditTaskModal(row)}>
-                    <Tooltip title="Editar"><EditIcon /></Tooltip>
-                </button>
+                <DeleteButton onClick={() => openDeleteTaskModal(row.id, row.title)}/>
+                <EditButton onClick={() => openEditTaskModal(row)}/>
             </div>),
             sortable: false,
         },

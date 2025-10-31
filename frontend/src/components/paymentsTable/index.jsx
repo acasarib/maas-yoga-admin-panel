@@ -1,18 +1,17 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import Table from "../table";
-import DeleteIcon from '@mui/icons-material/Delete';
 import { Context } from "../../context/Context";
 import { dateToString, formatPaymentValue } from "../../utils";
-import DoneIcon from '@mui/icons-material/Done';
 import { TABLE_SEARCH_CRITERIA } from "../../constants";
-import EditIcon from '@mui/icons-material/Edit';
 import CustomCheckbox from "../checkbox/customCheckbox";
 import TableSummary from '../table/summary'
-import { Tooltip } from "@mui/material";
 import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
 import Loader from "../spinner/loader";
+import DeleteButton from "../button/deleteButton";
+import EditButton from "../button/editButton";
+import VerifyButton from "../button/verifyButton";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
@@ -280,24 +279,10 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                 name: 'Acciones',
                 cell: row => (<>
                     <div className="flex w-full justify-center">
-                        <Tooltip title="Eliminar">
-                            <button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => openDeleteModal(row)}>
-                                <DeleteIcon />
-                            </button>
-                        </Tooltip>
-                        {canVerify && (
-                            <Tooltip title="Verificar">
-                                <button className={`rounded-full p-1 bg-green-200 hover:bg-green-300 mx-1 ${row.verified ? "invisible" : ""}`} onClick={() => openVerifyModal(row)}>
-                                    <DoneIcon />
-                                </button>
-                            </Tooltip>)
+                        <DeleteButton onClick={() => openDeleteModal(row)} />
+                        {canVerify && (<VerifyButton invisible={row.verified} onClick={() => openVerifyModal(row)} />)
                         }
-                        {editMode && (
-                            <Tooltip title="Editar">
-                                <button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => openEditModal(row)}>
-                                    <EditIcon />
-                                </button>
-                            </Tooltip>)
+                        {editMode && (<EditButton onClick={() => openEditModal(row)}/>)
                         }
                     </div></>),
                 sortable: true,

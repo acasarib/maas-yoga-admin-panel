@@ -1,10 +1,10 @@
 import React from "react";
 import Table from "../table";
 import { useEffect } from "react";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import { useState } from "react";
 import { dateToString } from "../../utils";
+import EditButton from "../button/editButton";
+import DeleteButton from "../button/deleteButton";
 
 export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked }) {
     const [opResult, setOpResult] = useState('Verificando clases...');
@@ -45,8 +45,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
         },
         {
             name: 'Acciones',
-            cell: row => { return (<div className="flex-row"><button className="rounded-full p-1 bg-red-200 hover:bg-red-300 mx-1" onClick={() => onDelete(row.id)}><DeleteIcon /></button><button className="rounded-full p-1 bg-orange-200 hover:bg-orange-300 mx-1" onClick={() => onEdit(row)}><EditIcon /></button></div>)
-        },
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => onDelete(row.id)} /><EditButton onClick={() => onEdit(row)} /></div>),
             sortable: true,
         },
     ];
