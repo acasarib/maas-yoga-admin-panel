@@ -512,7 +512,15 @@ export const exportProfessorsPayments = async (from, to) => {
         if (i == 0) {
           const monthNames = toMonthsNames(courseResult.period.startAt, courseResult.period.endAt);
           const cell = worksheet.getRow(currentRow).getCell(1);
-          cell.value = monthNames;
+          const parsedCriterias = {
+            [CRITERIA_COURSES.PERCENTAGE]: "Porcentaje",
+            [CRITERIA_COURSES.PERCENTAGE_ASSISTANCE]: "Porcentaje Asistencia",
+            [CRITERIA_COURSES.STUDENT]: "Estudiante",
+            [CRITERIA_COURSES.STUDENT_ASSISTANCE]: "Estudiante Asistencia",
+            [CRITERIA_COURSES.ASSISTANT]: "Asistente",
+          };
+          const symbol = (courseResult.period.criteria == CRITERIA_COURSES.PERCENTAGE || courseResult.period.criteria == CRITERIA_COURSES.PERCENTAGE_ASSISTANCE) ? "%" : "$";
+          cell.value = `${monthNames} (${parsedCriterias[courseResult.period.criteria]}: ${symbol == '$' ? '$' : ''}${courseResult.period.criteriaValue}${symbol == '%' ? '%' : ''})`;
           cell.font = { bold: true };
         }
         const discount = p.discount || 0;
