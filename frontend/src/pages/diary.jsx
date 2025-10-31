@@ -4,8 +4,6 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { orange } from '@mui/material/colors';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from "../components/container";
 import Table from "../components/table";
 import diaryService from "../services/diaryService";
@@ -21,19 +19,6 @@ export default function Diary(props) {
     const [showActive, setShowActive] = useState(false);
     const [showDisabled, setShowDisabled] = useState(false);
     const [filteredStudents, setFilteredStudents] = useState([]);
-
-    const theme = createTheme({
-        palette: {
-          primary: {
-            // Purple and green play nicely together.
-            main: orange[500],
-          },
-          secondary: {
-            // This is green.A700 as hex.
-            main: '#11cb5f',
-          },
-        },
-    });
 
     const [tabValue, setTabValue] = useState("1");
 
@@ -87,7 +72,6 @@ export default function Diary(props) {
     }, [users]); 
 
     const getMoreUsers = async (page, totalRows) => {
-        console.log(page, usersPage);
         const newOffset = (totalRows / 2) + 25;
         const activeUsers = await diaryService.getUsers(25, newOffset, '2');
         const disableUsers = await diaryService.getUsers(25, newOffset, '3');
@@ -142,48 +126,46 @@ export default function Diary(props) {
 
     return (<>
         <Container title="Agenda" className="max-w-full">
-            <ThemeProvider theme={theme}>
-                <Box sx={{ width: '100%', typography: 'body1' }}>
-                    <TabContext value={tabValue}>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            <TabList onChange={handleChangeTabValue} textColor="primary" indicatorColor="primary">
-                                <Tab label="Alumnos" value="1" />
-                                <Tab label="Pagos" value="2" />
-                                <Tab label="Balance" value="3" />
-                            </TabList>
-                        </Box>
-                        <TabPanel className="pt-4" value="1">
-                            <Table
-                                columns={columns}
-                                data={filteredStudents}
-                                onChangePage={(page, totalRows) => getMoreUsers(page, totalRows)}
-                                pagination paginationRowsPerPageOptions={[24]}
-                                responsive
-                                paginationPerPage={24}
+            <Box sx={{ width: '100%', typography: 'body1' }}>
+                <TabContext value={tabValue}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <TabList onChange={handleChangeTabValue} textColor="primary" indicatorColor="primary">
+                            <Tab label="Alumnos" value="1" />
+                            <Tab label="Pagos" value="2" />
+                            <Tab label="Balance" value="3" />
+                        </TabList>
+                    </Box>
+                    <TabPanel className="pt-4" value="1">
+                        <Table
+                            columns={columns}
+                            data={filteredStudents}
+                            onChangePage={(page, totalRows) => getMoreUsers(page, totalRows)}
+                            pagination paginationRowsPerPageOptions={[24]}
+                            responsive
+                            paginationPerPage={24}
+                        />
+                        <div className="flex flex-row my-4 flex-col sm:flex-row">
+                            <CustomCheckbox
+                                checked={showActive}
+                                labelOn="Mostrar activos"
+                                labelOff="Mostrar activos"
+                                disabled={showDisabled}
+                                onChange={() => setShowActive(!showActive)}
                             />
-                            <div className="flex flex-row my-4 flex-col sm:flex-row">
-                                <CustomCheckbox
-                                    checked={showActive}
-                                    labelOn="Mostrar activos"
-                                    labelOff="Mostrar activos"
-                                    disabled={showDisabled}
-                                    onChange={() => setShowActive(!showActive)}
-                                />
-                                <CustomCheckbox
-                                    checked={showDisabled}
-                                    labelOn="Mostrar no activos"
-                                    labelOff="Mostrar no activos"
-                                    className="sm:ml-2"
-                                    disabled={showActive}
-                                    onChange={() => setShowDisabled(!showDisabled)}
-                                />          
-                            </div>
-                        </TabPanel>
-                        <TabPanel className="pt-4" value="2"><AgendaPayments/></TabPanel>
-                        <TabPanel className="pt-4" value="3"><AgendaBalance/></TabPanel>
-                    </TabContext>
-                </Box>
-            </ThemeProvider>
+                            <CustomCheckbox
+                                checked={showDisabled}
+                                labelOn="Mostrar no activos"
+                                labelOff="Mostrar no activos"
+                                className="sm:ml-2"
+                                disabled={showActive}
+                                onChange={() => setShowDisabled(!showDisabled)}
+                            />          
+                        </div>
+                    </TabPanel>
+                    <TabPanel className="pt-4" value="2"><AgendaPayments/></TabPanel>
+                    <TabPanel className="pt-4" value="3"><AgendaBalance/></TabPanel>
+                </TabContext>
+            </Box>
         </Container>
     </>);
 } 

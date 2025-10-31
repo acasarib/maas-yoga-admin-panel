@@ -4,8 +4,6 @@ import DragNDrop from "../../dragndrop/dragndrop";
 import Papa from "papaparse";
 import Table from "../../table";
 import ButtonPrimary from "../../button/primary";
-import { orange } from '@mui/material/colors';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
@@ -20,19 +18,6 @@ export default function ImportModule({ onCancel, moduleName, csvToObject, isAlre
     const [alreadyImportedData, setAlreadyImportedData] = useState(null);
     const [selectedData, setSelectedData] = useState([]);
     const [tabValue, setTabValue] = useState('1');
-
-    const theme = createTheme({
-        palette: {
-          primary: {
-            // Purple and green play nicely together.
-            main: orange[500],
-          },
-          secondary: {
-            // This is green.A700 as hex.
-            main: '#11cb5f',
-          },
-        },
-    });
 
     const onDropAccepted = (csvFile) => {
         setIsLoading(true);
@@ -116,20 +101,18 @@ export default function ImportModule({ onCancel, moduleName, csvToObject, isAlre
                     <DragNDrop multiple={false} onDropAccepted={onDropAccepted} acceptedFiles={{ 'text/csv': ['.csv'] }}/>
                     :
                 <>
-                    <ThemeProvider theme={theme}>
-                        <Box sx={{ width: '100%', typography: 'body1' }}>
-                            <TabContext value={tabValue}>
-                                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                    <TabList onChange={handleChangeTabValue}>
-                                            <Tab label="Sin importar" value="1" />
-                                            <Tab label="Ya importados" value="2" />
-                                    </TabList>
-                                </Box>
-                                <TabPanel value="1">{NotImportedTable}</TabPanel>
-                                <TabPanel value="2">{AlreadyImportedTable}</TabPanel>
-                            </TabContext>
-                        </Box>
-                    </ThemeProvider>
+                    <Box sx={{ width: '100%', typography: 'body1' }}>
+                        <TabContext value={tabValue}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                <TabList onChange={handleChangeTabValue}>
+                                        <Tab label="Sin importar" value="1" />
+                                        <Tab label="Ya importados" value="2" />
+                                </TabList>
+                            </Box>
+                            <TabPanel value="1">{NotImportedTable}</TabPanel>
+                            <TabPanel value="2">{AlreadyImportedTable}</TabPanel>
+                        </TabContext>
+                    </Box>
                 </>}
             </>}
         </div>
