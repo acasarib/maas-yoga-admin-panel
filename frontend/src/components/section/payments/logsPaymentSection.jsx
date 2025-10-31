@@ -96,7 +96,7 @@ export default function LogsPaymentSection(props) {
 
     return (
         <>
-        <div className="mb-6 md:my-6 md:mx-4">
+        <div>
             <Table
                 resetTable={resetTable}
                 handleCustomSearchValue={handleOnSearch}

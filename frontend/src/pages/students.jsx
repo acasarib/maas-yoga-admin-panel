@@ -246,7 +246,7 @@ export default function Students(props) {
                     paginationDefaultPage={currentPage}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-between mt-6 items-center">
                     <div>
                         <ButtonPrimary onClick={switchPendingPaymentsModal}>Ver alumnos deudores</ButtonPrimary>
                     </div>

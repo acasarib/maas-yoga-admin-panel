@@ -103,7 +103,7 @@ export default function UnverifiedPaymentsSections({ defaultSearchValue, default
     };
 
     return (<>
-        <div className="mb-6 md:my-6 mx-8 md:mx-4">
+        <div>
             <PaymentsTable
                 onSwitchDischarges={showIncomes.toggle}
                 onSwitchIncomes={showDischarges.toggle}

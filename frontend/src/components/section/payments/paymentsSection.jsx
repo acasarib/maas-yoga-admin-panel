@@ -499,7 +499,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
     return (
         <>
-        <div className="mb-6 md:my-6">
+        <div>
             <PaymentsTable
                 onSwitchDischarges={showIncomes.toggle}
                 onSwitchIncomes={showDischarges.toggle}
@@ -520,7 +520,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 defaultTypeValue={defaultTypeValue}
             />
         </div>
-        <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{edit ? 'Editando...' : 'Informando...'}</span></>) : <span>{edit ? 'Editar' : 'Informar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
+        <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} size="large" buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{edit ? 'Editando...' : 'Informando...'}</span></>) : <span>{edit ? 'Editar' : 'Informar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
                 <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
@@ -782,13 +782,13 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         />
 
 
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-4">
             <Link to="/home/professor-payments">
-                <ButtonPrimary>Calcular pagos</ButtonPrimary>
+                <ButtonPrimary className={"w-full sm:w-auto"}>Calcular pagos</ButtonPrimary>
             </Link>
-            <div>
-                <ButtonPrimary className={"mr-4"} onClick={informDischarge}>Informar egreso</ButtonPrimary>
-                <ButtonPrimary onClick={() => setOpenModal(true)}>Informar ingreso</ButtonPrimary>
+            <div className="flex gap-4">
+                <ButtonPrimary className={"sm:mr-4 w-full sm:w-auto"} onClick={informDischarge}>Informar egreso</ButtonPrimary>
+                <ButtonPrimary className={"w-full sm:w-auto"} onClick={() => setOpenModal(true)}>Informar ingreso</ButtonPrimary>
             </div>
         </div>
         </>

@@ -146,7 +146,7 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
                 {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
                 {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"}/>}
 
-                <div className="w-full mt-4 flex">
+                <div className="w-full mt-4 flex flex-col sm:flex-row">
                     <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
                     <CustomCheckbox
                         checked={chartByCreatedAt}
