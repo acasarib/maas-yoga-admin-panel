@@ -104,7 +104,7 @@ export default function ProfessorPayments(props) {
                             <ButtonPrimary disabled={from == null || to == null} onClick={handleCalcProfessorsPayments}>Calcular</ButtonPrimary>
                             <ButtonPrimary disabled={from == null || to == null || data == null} onClick={handleExportPayments}>
                                 <FileDownloadIcon className="mr-1" fontSize="small" />
-                                Exportar
+                                Descargar
                             </ButtonPrimary>
                         </>
                         }
