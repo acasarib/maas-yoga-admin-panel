@@ -245,8 +245,8 @@ export default {
    */
   exportProfessorsPayments: async (req, res, next) => {
     try {
-      const { from, to } = req.body;
-      const excelBuffer = await courseService.exportProfessorsPayments(from, to);
+      const { from, to, courseId, professorId } = req.body;
+      const excelBuffer = await courseService.exportProfessorsPayments(from, to, professorId, courseId);
       
       res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       res.setHeader("Content-Disposition", `attachment; filename=pagos-profesores-${from}-${to}.xlsx`);

@@ -442,8 +442,8 @@ export const addProfessorPayment = async (payment, from, to, informerId) => {
   return amountAdded === 1;
 };
 
-export const exportProfessorsPayments = async (from, to) => {
-  const details = await calcProfessorsPayments(from, to);
+export const exportProfessorsPayments = async (from, to, professorId, courseId) => {
+  const details = await calcProfessorsPayments(from, to, professorId, courseId);
 
   // Create Excel workbook
   const workbook = new ExcelJS.Workbook();

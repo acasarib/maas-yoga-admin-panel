@@ -230,10 +230,13 @@ export default {
                 })
         });
     },
-    exportProfessorsPayments(from, to) {
+    exportProfessorsPayments(from, to, courseId = null, professorId = null) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             const period = { from, to };
+            if (courseId) period.courseId = courseId;
+            if (professorId) period.professorId = professorId;
+            
             axios
                 .post(baseUrl + `api/v1/courses/export-professors-payments`, period, {
                     responseType: 'blob'

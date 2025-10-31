@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import PaidIcon from '@mui/icons-material/Paid';
+import DownloadIcon from '@mui/icons-material/Download';
 import { dateToYYYYMMDD, isByAssistance, prettyCriteria, toMonthsNames } from "../../../utils";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import List from '@mui/material/List';
@@ -14,14 +15,16 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PercentIcon from '@mui/icons-material/Percent';
 import ListItemText from '@mui/material/ListItemText';
+import { Tooltip } from '@mui/material';
 import ButtonPrimary from "../../button/primary";
 import { Context } from "../../../context/Context";
 import { CASH_PAYMENT_TYPE } from "../../../constants";
 import AddProfessorPaymentModal from "../../modal/addProfessorPaymentModal"
 import useModal from "../../../hooks/useModal";
 import PaymentAlreadyAddedWarningModal from "../../modal/paymentAlreadyAddedWarningModal";
+import coursesService from "../../../services/coursesService";
 
-export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to, onInformPayment }) {
+export default function ProfessorDetailCollapse({ professor, onShowPayments, from, to, onInformPayment, courseId }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const { informPayment } = useContext(Context);
@@ -66,6 +69,30 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
         paymentAlreadyAddedWarningModal.close()
         addProfessorPaymentModal.open()
     }
+
+    const handleDownloadProfessor = async () => {
+        try {
+            const parsedFrom = dateToYYYYMMDD(from.$d);
+            const parsedTo = dateToYYYYMMDD(to.$d);
+            
+            const response = await coursesService.exportProfessorsPayments(parsedFrom, parsedTo, courseId, professor.id);
+            
+            // Create blob and download
+            const blob = new Blob([response], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `pagos_profesor_${professor.name}_${professor.lastName}_${parsedFrom}_${parsedTo}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al exportar profesor:', error);
+        }
+    };
 
     return (<>
     <ListItemButton sx={{ pl: 4 }} onClick={() => setIsOpen(!isOpen)}>
@@ -122,13 +149,19 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 </ListItemIcon>
                 <ListItemText primary="Criterio" secondary={criteriaText} />
             </ListItem>
-            <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-12">
+            <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-4">
                 {isAlreadyInformedPayment ?
                     <ButtonPrimary onClick={paymentAlreadyAddedWarningModal.open}>Informar</ButtonPrimary>
                     :
                     <ButtonPrimary onClick={handleInform}>Informar</ButtonPrimary>
                 }
                 <ButtonPrimary onClick={() => onShowPayments(professor.result.payments)}>Ver pagos</ButtonPrimary>
+                <Tooltip title="Descargar">
+                    <ButtonPrimary onClick={handleDownloadProfessor}>
+                        <DownloadIcon className="mr-2" />
+                        Descargar
+                    </ButtonPrimary>
+                </Tooltip>
             </div>
         </List>
         <AddProfessorPaymentModal
