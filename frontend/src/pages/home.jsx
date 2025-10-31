@@ -22,6 +22,7 @@ import Professors from "./professors";
 import Categories from "./categories";
 import Imports from "./imports";
 import ConsultaPagos from "./consultaPagos";
+import Services from "./services";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Context } from "../context/Context";
 import NavItem from "../components/navItem";
@@ -34,6 +35,7 @@ import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PaymentIcon from '@mui/icons-material/Payment';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import ProfessorDetail from "./professorDetail";
 import CourseDetail from "./courseDetail";
 import StudentDetail from "./studentDetail";
@@ -174,7 +176,7 @@ export default function Home(props) {
                                 {isMasterAdmin && (<NavItem onClick={closeSidebar} target={"new-user"} isActive={props.newUser} icon={<GroupIcon sx={{ fontSize: 20 }}/>}>Usuarios</NavItem>)}
                                 <NavItemWithSubitems
                                     onClick={closeSidebar}
-                                    isActive={props.imports || props.consultaPagos}
+                                    isActive={props.imports || props.consultaPagos || props.services}
                                     icon={<MoreHorizIcon/>}
                                     subitems={[
                                         {
@@ -188,6 +190,12 @@ export default function Home(props) {
                                             label: "Consulta Pagos",
                                             icon: <PaymentIcon fontSize="small" />,
                                             isActive: props.consultaPagos
+                                        },
+                                        {
+                                            target: "servicios",
+                                            label: "Servicios",
+                                            icon: <MiscellaneousServicesIcon fontSize="small" />,
+                                            isActive: props.services
                                         }
                                     ]}
                                 >
@@ -225,6 +233,7 @@ export default function Home(props) {
                     {props.studentDetail && (<><StudentDetail/></>)}
                     {props.professors && (<><Professors/></>)}
                     {props.consultaPagos && (<><ConsultaPagos/></>)}
+                    {props.services && (<><Services/></>)}
                 </main>
                 </div>
             </div>
