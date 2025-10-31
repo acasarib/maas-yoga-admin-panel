@@ -22,7 +22,6 @@ import CustomCheckbox from "../../../components/checkbox/customCheckbox";
 import Select from "../../select/select";
 import SelectClass from "../../select/selectClass";
 import SelectColleges from "../../select/selectColleges";
-import ServicesCard from "../../servicesCard";
 import SelectProfessors from "../../select/selectProfessors";
 import WarningIcon from '@mui/icons-material/Warning';
 import InfoIcon from '@mui/icons-material/Info';
@@ -782,7 +781,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         </>} 
         />
 
-        <ServicesCard/>
 
         <div className="flex flex-row justify-between">
             <Link to="/home/professor-payments">
