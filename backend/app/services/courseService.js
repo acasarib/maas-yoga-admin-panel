@@ -510,7 +510,7 @@ export const exportProfessorsPayments = async (from, to, professorId, courseId) 
       
       coursePayments.forEach((p, i) => {
         if (i == 0) {
-          const monthNames = toMonthsNames(courseResult.period.startAt, courseResult.period.endAt);
+          const monthNames = toMonthsNames(from, to);
           const cell = worksheet.getRow(currentRow).getCell(1);
           const parsedCriterias = {
             [CRITERIA_COURSES.PERCENTAGE]: "Porcentaje",

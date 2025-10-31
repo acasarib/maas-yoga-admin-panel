@@ -11,9 +11,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Context } from '../../context/Context';
 import CustomCheckbox from '../checkbox/customCheckbox';
 import PlusButton from '../button/plus';
-import ProfessorInfo from '../courses/professorInfo'
-import EditIcon from '@mui/icons-material/Edit';
+import ProfessorInfo from '../courses/professorInfo';
 import SelectStudent from '../select/selectStudent';
+import EditButton from '../button/editButton';
 
 
 const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) => {
@@ -216,17 +216,10 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 						{courseProfessors.map((prf, index) =>
 							<div key={index} className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">
 								<div>{prf.professor?.name} {prf.professor?.lastName}</div>
-								<div>{edit && <button
-												type="button"
-												className="p-1 rounded-full bg-orange-200 ml-2"
-												onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}
-											>
-												<EditIcon />
-											</button>
-									}
+								<div>{edit && <EditButton onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}/>}
 									<button
 										type="button"
-										className="p-1 rounded-full bg-gray-100 ml-2"
+										className="rounded-full p-1 bg-gray-100 hover:bg-gray-200 hover:shadow-md mx-1 transition-all duration-200 ease-in-out transform ml-2"
 										onClick={() => removeCourseProfessor(prf)}
 									>
 										<CloseIcon />
