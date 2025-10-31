@@ -5,6 +5,8 @@ import PaidIcon from '@mui/icons-material/Paid';
 import BalanceIcon from '@mui/icons-material/Balance';
 import CategoryIcon from '@mui/icons-material/Category';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { esES } from '@mui/x-date-pickers/locales';
 import CloseIcon from '@mui/icons-material/Close';
 import SchoolIcon from '@mui/icons-material/School';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -42,6 +44,7 @@ import StudentDetail from "./studentDetail";
 import NotificationIcon from "../components/badget/notification";
 import NotificationDropdown from "../components/notificationDropdown/notificationDropdown";
 import useToggle from "../hooks/useToggle";
+import { orange } from '@mui/material/colors';//TODO: cambiar
  
 export default function Home(props) {
     const { setUser, notifications } = useContext(Context);
@@ -53,6 +56,18 @@ export default function Home(props) {
     const notificationIconRef = useRef(null)
 
     let navigate = useNavigate();
+
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: orange[500],
+          },
+          secondary: {
+            // This is green.A700 as hex.
+            main: '#11cb5f',
+          },
+        },
+    }, esES);
 
     useEffect(() => {
         var dt = new Date();
@@ -103,7 +118,7 @@ export default function Home(props) {
     const maasYogaTextColor = (<><span className="text-purple-950">Maas </span><span className="text-orange-550">Yoga</span></>)
 
     return(
-        <>
+        <ThemeProvider theme={theme}>
             <div>
                 <div className="relative bg-orange-50 h-screen overflow-y-auto max-h-screen">
                 <header className="fixed right-0 top-0 z-10 md:left-60 bg-orange-100 py-3 px-4 h-24">
@@ -237,6 +252,6 @@ export default function Home(props) {
                 </main>
                 </div>
             </div>
-        </>
+        </ThemeProvider>
     );
 } 

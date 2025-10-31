@@ -3,7 +3,6 @@ import Modal from "../components/modal";
 import "react-datepicker/dist/react-datepicker.css";
 import InfoIcon from '@mui/icons-material/Info';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Container from "../components/container";
 import { Context } from "../context/Context";
 import ButtonPrimary from "../components/button/primary";
@@ -13,6 +12,7 @@ import CourseProfessorCard from "../components/courses/CourseProfessorCalculatio
 import useToggle from "../hooks/useToggle";
 import Loader from "../components/spinner/loader";
 import coursesService from "../services/coursesService";
+import DateTimeInput from "../components/calendar/dateTimeInput";
 
 export default function ProfessorPayments(props) {
     const { calcProfessorsPayments } = useContext(Context);
@@ -77,22 +77,24 @@ export default function ProfessorPayments(props) {
         <>
             <Container title="Calculo de pagos" items={[{ name: "Movimientos", href: "/home/payments" }, { name: "Calculo de pagos" }]}>
                 <h2 className="text-xl mb-2">Rango:</h2>
-                <div className="flex">
+                <div className="flex flex-col sm:flex-row gap-2">
                     <div>
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                             Fecha de inicio
                         </label>
-                        <DateTimePicker
+                        <DateTimeInput
+                            className="w-full sm:w-auto"
                             label="Seleccionar fecha"
                             value={from}
                             onChange={(newValue) => setFrom(newValue)}
                         />
                     </div>
-                    <div className="ml-2">
+                    <div className="sm:ml-2">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                             Fecha de fin
                         </label>
-                        <DateTimePicker
+                        <DateTimeInput
+                            className="w-full sm:w-auto"
                             label="Seleccionar fecha"
                             value={to}
                             onChange={(newValue) => setTo(newValue)}

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import TaskCard from "../components/taskCard";
 import Modal from "../components/modal";
-import { orange } from '@mui/material/colors';
 import { useFormik } from 'formik';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CommonInput from "../components/commonInput";
@@ -11,7 +10,6 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Context } from "../context/Context";
 import InfoIcon from '@mui/icons-material/Info';
 import Container from "../components/container";
@@ -40,19 +38,6 @@ export default function Tasks(props) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-
-    const theme = createTheme({
-        palette: {
-          primary: {
-            // Purple and green play nicely together.
-            main: orange[500],
-          },
-          secondary: {
-            // This is green.A700 as hex.
-            main: '#11cb5f',
-          },
-        },
-    });
 
     const openEditModal = (task) => {
         setEdit(true);
@@ -140,37 +125,35 @@ export default function Tasks(props) {
     return(
         <>
             <Container title="Tareas pendientes">
-                <ThemeProvider theme={theme}>
-                    <Box sx={{ width: '100%', typography: 'body1' }}>
-                        <TabContext value={value}>
-                            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            <TabList onChange={handleChange} aria-label="lab API tabs example" textColor="primary" indicatorColor="primary">
-                                <Tab label="Todas" value="1"/>
-                                <Tab label="Pendientes" value="2" icon={(pendingTasks.length > 0) ? <><InfoIcon className="ml-1"/></> : <></>} iconPosition="end" />
-                                <Tab label="Completadas" value="3" />
-                            </TabList>
-                            </Box>
-                            <TabPanel className="pt-4" value="1">{(tasks.length > 0) ? 
-                                tasks.map((task) =>
-                                <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-                            ) :
-                                'No hay tareas'
-                            }</TabPanel>
-                            <TabPanel className="pt-4" value="2">{(pendingTasks.length > 0) ? 
-                                pendingTasks.map((task) =>
-                                <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-                            ) :
-                                'No hay tareas pendientes'
-                            }</TabPanel>
-                            <TabPanel className="pt-4" value="3">{(completedTasks.length > 0) ?
-                                completedTasks.map((task) =>
-                                <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
-                            ) :
-                                'No hay tareas completadas'
-                            }</TabPanel>
-                        </TabContext>
-                    </Box>
-                </ThemeProvider>
+                <Box sx={{ width: '100%', typography: 'body1' }}>
+                    <TabContext value={value}>
+                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <TabList onChange={handleChange} aria-label="lab API tabs example" textColor="primary" indicatorColor="primary">
+                            <Tab label="Todas" value="1"/>
+                            <Tab label="Pendientes" value="2" icon={(pendingTasks.length > 0) ? <><InfoIcon className="ml-1"/></> : <></>} iconPosition="end" />
+                            <Tab label="Completadas" value="3" />
+                        </TabList>
+                        </Box>
+                        <TabPanel className="pt-4" value="1">{(tasks.length > 0) ? 
+                            tasks.map((task) =>
+                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                        ) :
+                            'No hay tareas'
+                        }</TabPanel>
+                        <TabPanel className="pt-4" value="2">{(pendingTasks.length > 0) ? 
+                            pendingTasks.map((task) =>
+                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                        ) :
+                            'No hay tareas pendientes'
+                        }</TabPanel>
+                        <TabPanel className="pt-4" value="3">{(completedTasks.length > 0) ?
+                            completedTasks.map((task) =>
+                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                        ) :
+                            'No hay tareas completadas'
+                        }</TabPanel>
+                    </TabContext>
+                </Box>
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
