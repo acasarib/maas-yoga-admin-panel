@@ -111,7 +111,7 @@ export default function AgendaPayments() {
             </div>
             <div className="w-4/12">
                 <label style={{paddingLeft: "9px"}}>Acreditado</label>
-                <CustomCheckbox className="p-0" labelOn={"Si"} labelOff={"No"} onChange={() => setAccreditedOnly(!accreditedOnly)} checked={accreditedOnly}/>
+                <CustomCheckbox className="pl-2" labelOn={"Si"} labelOff={"No"} onChange={() => setAccreditedOnly(!accreditedOnly)} checked={accreditedOnly}/>
             </div>
         </div>
         <Table

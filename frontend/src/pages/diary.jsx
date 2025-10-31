@@ -161,12 +161,11 @@ export default function Diary(props) {
                                 responsive
                                 paginationPerPage={24}
                             />
-                            <div className="flex flex-row my-4">
+                            <div className="flex flex-row my-4 flex-col sm:flex-row">
                                 <CustomCheckbox
                                     checked={showActive}
                                     labelOn="Mostrar activos"
                                     labelOff="Mostrar activos"
-                                    className="ml-2"
                                     disabled={showDisabled}
                                     onChange={() => setShowActive(!showActive)}
                                 />
@@ -174,7 +173,7 @@ export default function Diary(props) {
                                     checked={showDisabled}
                                     labelOn="Mostrar no activos"
                                     labelOff="Mostrar no activos"
-                                    className="ml-2"
+                                    className="sm:ml-2"
                                     disabled={showActive}
                                     onChange={() => setShowDisabled(!showDisabled)}
                                 />          

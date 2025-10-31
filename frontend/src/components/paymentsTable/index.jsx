@@ -369,12 +369,11 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
     return(
         <>
             <Table {...tableProps} />
-            <div className="flex flex-row my-4">
+            <div className="flex flex-col sm:flex-row my-4">
                 <CustomCheckbox
                     checked={showDischarges}
                     labelOn="Mostrar egresos"
                     labelOff="Mostrar egresos"
-                    className="ml-2"
                     disabled={showIncomes}
                     onChange={() => {onSwitchIncomes(!showDischarges);setShowDischarges(!showDischarges)}}
                 />
@@ -382,7 +381,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     checked={showIncomes}
                     labelOn="Mostrar ingresos"
                     labelOff="Mostrar ingresos"
-                    className="ml-2"
+                    className="sm:ml-2"
                     disabled={showDischarges}
                     onChange={() => {onSwitchDischarges(!showIncomes);setShowIncomes(!showIncomes)}}
                 />      
@@ -390,7 +389,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     checked={showOpResultDate}
                     labelOn="Motrar fecha operativa"
                     labelOff="Mostrar fecha operativa"
-                    className="ml-2"
+                    className="sm:ml-2"
                     onChange={() => setShowOpResultDate(!showOpResultDate)}
                 /> 
             </div>

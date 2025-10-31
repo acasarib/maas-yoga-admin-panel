@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import { Context } from "../../context/Context";
 import CloseIcon from '@mui/icons-material/Close';
-import {Routes, Route, useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { elapsedTime, formatDateMonthDayHourMinutes } from "../../utils";
 
 export default function NotificationDropdown({ className, isOpen, onClose, buttonRef }) {
@@ -41,8 +41,8 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
 
     return (
         <div ref={modalRef} style={{width: `${notificationWidth}px`, marginLeft: `-${notificationWidth/2}px`}} className={`${className} absolute bg-white rounded-lg shadow-lg w-96 z-10`}>
-            <div className="flex justify-between items-center mb-4 p-6">
-                {notifications.length == 0 ? 
+            <div className="flex justify-between items-center p-6">
+                {notifications.length === 0 ? 
                     <span>Sin notificaciones</span>
                 :
                     <button className="text-blue-500 underline" onClick={onClear}>
@@ -53,6 +53,7 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
                     <CloseIcon/>
                 </button>
             </div>
+            <hr className="border-gray-200" />
             <div className="space-y-2">
                 {notifications.map(notification => 
                     <div key={notification.id} onClick={() => onClickNotification(notification)} className="cursor-pointer hover:bg-slate-100 py-2 px-6">

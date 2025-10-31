@@ -110,6 +110,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
                 columns={columns.filter(col => col.hidden !== true)}
                 data={serverPaginationData != undefined ? serverPaginationData : dataFiltered}
                 defaultSortFieldId={defaultSortFieldId}
+                noDataComponent={rest.noDataComponent || <div className="p-5">No hay datos</div>}
                 onChangePage={onChangePage}
                 paginationComponentOptions={{ rowsPerPageText: 'Filas por pagina:', rangeSeparatorText: 'de', noRowsPerPage: false, selectAllRowsItem: false, selectAllRowsItemText: 'Todo' }}
                 {...rest}
