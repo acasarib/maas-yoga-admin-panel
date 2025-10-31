@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import utils from "../utils/functions.js";
+import utils, { toMonthsNames } from "../utils/functions.js";
 import { StatusCodes } from "http-status-codes";
 import { course, student, courseStudent, courseTask, studentCourseTask, payment, professorCourse, professor, sequelize } from "../db/index.js";
 import { CRITERIA_COURSES, PAYMENT_TYPES } from "../utils/constants.js";
@@ -508,7 +508,13 @@ export const exportProfessorsPayments = async (from, to) => {
       // Group payments by discount percentage
       const paymentGroups = {};
       
-      coursePayments.forEach(p => {
+      coursePayments.forEach((p, i) => {
+        if (i == 0) {
+          const monthNames = toMonthsNames(courseResult.period.startAt, courseResult.period.endAt);
+          const cell = worksheet.getRow(currentRow).getCell(1);
+          cell.value = monthNames;
+          cell.font = { bold: true };
+        }
         const discount = p.discount || 0;
         const originalAmount = p.value;
         const key = `${originalAmount}-${discount}`;
