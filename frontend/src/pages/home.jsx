@@ -121,7 +121,7 @@ export default function Home(props) {
         <ThemeProvider theme={theme}>
             <div>
                 <div className="relative bg-orange-50 h-screen max-h-screen">
-                <header className="fixed right-0 top-0 z-10 md:left-60 bg-orange-100 py-3 px-4 h-24">
+                <header className="fixed right-0 top-0 z-20 md:left-60 bg-orange-100 py-3 px-4 h-24">
                     <div className="max-w-4xl mx-auto mt-4 md:mt-2">
                         <div className="flex items-center justify-between">
                             <div className="md:hidden my-auto">

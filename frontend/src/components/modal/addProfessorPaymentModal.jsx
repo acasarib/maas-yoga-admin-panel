@@ -117,7 +117,14 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
     }
     
     return(
-        <Modal hiddingButton open={isOpen} icon={<HailIcon/>} setDisplay={onClose} title={'Profesor ' + professorName + " (" + period + ")"}>
+        <Modal
+            open={isOpen}
+            icon={<HailIcon/>}
+            setDisplay={onClose}
+            title={'Profesor ' + professorName + " (" + period + ")"}
+            buttonText="Informar"
+            onClick={handleInform}
+        >
             {isOpen && <>
             {allowManualValue && manualValueEnabled ? <div>
                 <CommonInput
@@ -184,9 +191,8 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
             </div>
             </>
             }
-            <ButtonPrimary className="mt-2" onClick={handleInform}>Informar</ButtonPrimary>
             {allowManualValue && 
-                <> {manualValueEnabled ? <ButtonSecondary className="mt-2 ml-2" onClick={disableManualValue}>Calcular monto</ButtonSecondary> : <ButtonSecondary className="mt-2 ml-2" onClick={enableManualValue}>Otro monto</ButtonSecondary>}
+                <> {manualValueEnabled ? <ButtonSecondary className="mt-2" onClick={disableManualValue}>Calcular monto</ButtonSecondary> : <ButtonSecondary className="mt-2" onClick={enableManualValue}>Otro monto</ButtonSecondary>}
                 </>}
             </>}
         </Modal>

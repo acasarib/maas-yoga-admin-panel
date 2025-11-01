@@ -28,7 +28,7 @@ export default function Modal(props) {
   return (
     <>
     {(props.open) && (<>
-      <div as="div" className="relative z-10" initialfocus={cancelButtonRef} onClose={onClose}>
+      <div as="div" className="relative z-100" initialfocus={cancelButtonRef} onClose={onClose}>
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
         <div className="fixed inset-0 overflow-y-auto overflow-x-auto">

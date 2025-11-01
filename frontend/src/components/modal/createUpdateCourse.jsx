@@ -227,7 +227,7 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 						<label className="block text-gray-700 text-sm font-bold">
 							Nuevo profesor
 						</label>
-						<PlusButton fontSize="large" className="w-8 h-8 mt-0 ml-3" onClick={() => setNewProfessor(true)} />
+						<PlusButton size="small" className="ml-3" onClick={() => setNewProfessor(true)} />
 					</div>)
 				}
 				{newProfessor && (
