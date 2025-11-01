@@ -102,7 +102,7 @@ export default function ProfessorPayments(props) {
                             />
                         </div>
                     </div>
-                    <div className="sm:ml-2 mt-6 flex items-center gap-2">
+                    <div className="sm:ml-2 flex items-end my-2 sm:my-0 gap-2">
                         {isLoading.value ? (<div className="w-full flex justify-center items-center gap-2">
                             <Loader />
                         </div>) : (

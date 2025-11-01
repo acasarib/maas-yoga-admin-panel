@@ -59,7 +59,7 @@ export default function ProfessorCalendar({ onClickAddProfessorPayment, professo
                         <div>{itemList}</div>
                         <Tooltip title={"Agregar"}>
                             <div className="w-5 h-5 ml-4">
-                                <PlusButton className="w-5 h-5" fontSize={"small"} onClick={handleOnCreatePayment}/>
+                                <PlusButton size="xs" onClick={handleOnCreatePayment}/>
                             </div>
                         </Tooltip>
                     </div>)

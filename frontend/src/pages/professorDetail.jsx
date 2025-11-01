@@ -88,6 +88,9 @@ const ProfessorDetail = () => {
 				}
 				return pcSeries.some(pcSerie => formatPcSerie(pcSerie) == targetPeriod)
 			})
+			if (period === null || period === undefined) {
+				console.error("Period not found, professor no has period in selected targetPeriod");
+			}
 			setProfessorPaymentData({
 				result: { period, ...professor, totalStudents: 0, payments: [], collectedByProfessor: 0, courseId },
 				from,

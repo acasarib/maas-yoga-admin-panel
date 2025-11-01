@@ -277,8 +277,6 @@ export default function ClassesSection(props) {
         
     }
 
-    /*const white = orange[50];*/
-
     return(<>
         <ClassesTable 
             clazzes={clazzes}
