@@ -2,12 +2,12 @@ import React, { useEffect, useState, useContext } from "react";
 import CommonInput from "../commonInput";
 import Modal from "../modal";
 import dayjs from 'dayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import { useFormik } from 'formik';
 import { Context } from "../../context/Context";
 import tasksService from "../../services/tasksService";
 import CustomAutoSuggest from "../select/customAutoSuggest";
+import DateTimeInput from "../calendar/dateTimeInput";
 
 export default function TaskModal(props) {
     const { associateTask, changeAlertStatusAndMessage } = useContext(Context);
@@ -126,7 +126,7 @@ export default function TaskModal(props) {
                         <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha limite de entrega</span>
                             <div className="mt-4">
-                                <DateTimePicker
+                                <DateTimeInput
                                     label="Seleccionar fecha"
                                     value={limitDate}
                                     onChange={(newValue) => setLimitDate(newValue)}

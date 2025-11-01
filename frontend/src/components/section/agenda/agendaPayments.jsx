@@ -1,13 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Context } from "../../../context/Context";
 import dayjs from 'dayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
 import Table from "../../table";
 import CustomCheckbox from "../../checkbox/customCheckbox";
 import TableSummary from '../../table/summary'
 import SelectAgendaLocations from '../../select/selectAgendaLocations'
+import DateTimeInput from "../../calendar/dateTimeInput";
 
 export default function AgendaPayments() {
 
@@ -101,7 +99,7 @@ export default function AgendaPayments() {
                 <SelectAgendaLocations value={selectedAgendaLocation} onChange={setSelectedAgendaLocation}/>
             </div>
             <div className="w-4/12">
-                <DateTimePicker
+                <DateTimeInput
                     views={['year', 'month']}
                     label="Seleccionar fecha"
                     value={selectedDate}

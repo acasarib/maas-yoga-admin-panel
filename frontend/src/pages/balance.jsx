@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useRef, useContext } from "react";
 import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
@@ -11,7 +11,6 @@ import useDrivePicker from 'react-google-drive-picker'
 import useToggle from "../hooks/useToggle";
 import { PAYMENT_OPTIONS } from "../constants";
 import { betweenZeroAnd100 } from "../utils";
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import paymentsService from "../services/paymentsService";
 import { Context } from "../context/Context";
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,6 +24,7 @@ import SelectClass from "../components/select/selectClass";
 import SelectColleges from "../components/select/selectColleges";
 import SelectStudent from "../components/select/selectStudent";
 import SelectCourses from "../components/select/selectCourses";
+import DateTimeInput from "../components/calendar/dateTimeInput";
 
 export default function Balance(props) {
 
@@ -514,17 +514,17 @@ export default function Balance(props) {
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                     <div className="mt-4">
-                        <DateTimePicker
-                        label="Seleccionar fecha"
-                        value={paymentAt}
-                        onChange={(newValue) => setPaymentAt(newValue)}
+                        <DateTimeInput
+                            label="Seleccionar fecha"
+                            value={paymentAt}
+                            onChange={(newValue) => setPaymentAt(newValue)}
                         />
                     </div>
                 </div>
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
                     <div className="mt-4">
-                        <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={operativeResult}
                             onChange={(newValue) => setOperativeResult(newValue)}
