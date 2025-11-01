@@ -7,7 +7,7 @@ import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
 import { CASH_PAYMENT_TYPE, PAYMENT_OPTIONS } from "../../../constants";
 import dayjs from 'dayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import DateTimeInput from '../../calendar/dateTimeInput';
 import PaymentsTable from "../../../components/paymentsTable";
 import { Context } from "../../../context/Context";
 import SelectItem from "../../../components/select/selectItem";
@@ -740,7 +740,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                     <div className="mt-4">
-                        <DateTimePicker
+                        <DateTimeInput
                         label="Seleccionar fecha"
                         value={paymentAt}
                         onChange={(newValue) => setPaymentAt(newValue)}
@@ -750,7 +750,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
                     <div className="mt-4">
-                        <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={operativeResult}
                             onChange={(newValue) => setOperativeResult(newValue)}

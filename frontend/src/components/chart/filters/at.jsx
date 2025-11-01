@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import DateTimeInput from '../../calendar/dateTimeInput';
 import Select from "../../select/select";
 
 export default function FilterPaymentAt({ onChange }) {
@@ -48,22 +47,18 @@ export default function FilterPaymentAt({ onChange }) {
             <div className="my-auto flex">
                 {typeCriteriaSelected !== null && 
                     <>
-                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                            <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={at}
                             onChange={(newValue) => setAt(newValue)}
-                            />
-                        </DemoContainer>
+                        />
                     {typeCriteriaSelected.value === "between" &&
                     <><span className="mx-2">y</span>
-                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                            <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={at2}
                             onChange={(newValue) => setAt2(newValue)}
-                            />
-                        </DemoContainer>
+                        />
                     </>
                     }
                     </>

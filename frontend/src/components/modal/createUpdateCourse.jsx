@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Modal from '../modal'
 import { useFormik } from 'formik';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import CommonInput from '../commonInput';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
-import { DateTimePicker } from '@mui/x-date-pickers';
+import DateTimeInput from '../calendar/dateTimeInput';
 import useToggle from '../../hooks/useToggle';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
@@ -134,39 +133,33 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
 							Fecha de inicio
 					</label>
-					<DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-						<DateTimePicker
-							label="Seleccionar fecha"
-							value={startAt}
-							onChange={setStartAt}
-						/>
-					</DemoContainer>
+					<DateTimeInput
+						label="Seleccionar fecha"
+						value={startAt}
+						onChange={setStartAt}
+					/>
 				</div>
 				<div className={`mb-4 relative col-span-2 ${isCircular.value && "hidden"}`}>
 					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
 							Fecha de finalizacion
 					</label>
-					<DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-						<DateTimePicker
-								label="Seleccionar fecha"
-								value={endAt}
-								onChange={setEndAt}
-						/>
-					</DemoContainer>
+					<DateTimeInput
+							label="Seleccionar fecha"
+							value={endAt}
+							onChange={setEndAt}
+					/>
 				</div>
 				<div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
 					<CustomCheckbox
 						checked={needsRegistration.value}
 						labelOn="Posee matrícula"
 						labelOff="Posee matrícula"
-						className="ml-2"
 						onChange={needsRegistration.toggle}
 					/>
 					<CustomCheckbox
 						checked={isCircular.value}
 						labelOn="Es circular"
 						labelOff="Es circular"
-						className="ml-2"
 						onChange={isCircular.toggle}
 					/>
 				</div>

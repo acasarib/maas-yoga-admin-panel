@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CommonInput from "../commonInput";
 import dayjs from 'dayjs';
@@ -101,23 +100,19 @@ export default function ProfessorInfo(props) {
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                     Profesor desde
                 </label>
-                    <DemoContainer components={['DatePicker', 'DatePicker']}>
-                        <DatePicker
+                    <DatePicker
                         label="Seleccionar fecha"
                         value={startAt}
                         onChange={(v) => setStartAt(v)}
-                        />
-                    </DemoContainer>
+                    />
                 <label className="block text-gray-700 text-sm font-bold mb-2 mt-2">
                     Profesor hasta
                 </label>
-                    <DemoContainer components={['DatePicker', 'DatePicker']}>
-                        <DatePicker
+                    <DatePicker
                         label="Seleccionar fecha"
                         value={endAt}
                         onChange={(v) => setEndAt(v)}
-                        />
-                    </DemoContainer>
+                    />
             </div>
             <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-4">

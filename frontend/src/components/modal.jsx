@@ -56,21 +56,21 @@ export default function Modal(props) {
                 </div>
                 {(props.footer === undefined || props.footer == true) &&
                   <div className={`w-full rounded-b-md flex bg-orange-50 px-4 py-3 sm:flex-row-reverse sm:px-6 ${props.hiddenFooter ? "hidden" : ""}`}>
-                    {!props.hiddingButton && (<ButtonPrimary
-                      className="w-full sm:w-auto sm:ml-2 mr-1 sm:mr-0"
-                      disabled={props.buttonDisabled}
-                      onClick={handleOnClickPrimaryButton}
-                      >
-                      {props.buttonText}
-                    </ButtonPrimary>)}
                     <ButtonSecondary
-                      className="w-full sm:w-auto ml-1 sm:ml-0"
+                      className="w-full sm:w-auto sm:ml-2 mr-1 sm:mr-0"
                       type="button"
                       onClick={onClose}
                       innerRef={cancelButtonRef}
                     >
                       {props.closeText ? props.closeText : 'Cancelar'}
                     </ButtonSecondary>
+                    {!props.hiddingButton && (<ButtonPrimary
+                      className="w-full sm:w-auto ml-1 sm:ml-0"
+                      disabled={props.buttonDisabled}
+                      onClick={handleOnClickPrimaryButton}
+                      >
+                      {props.buttonText}
+                    </ButtonPrimary>)}
                   </div>
                 }
               </div>

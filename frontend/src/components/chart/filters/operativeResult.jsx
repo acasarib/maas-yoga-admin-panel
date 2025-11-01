@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import DateTimeInput from '../../calendar/dateTimeInput';
 import 'dayjs/locale/es';
 
 export default function FilterPaymentOperativeResult({ onChange }) {
@@ -36,14 +33,12 @@ export default function FilterPaymentOperativeResult({ onChange }) {
     <div>
         <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Resultado operativo</span>
         <div className="flex">
-                <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                    <DateTimePicker
-                        views={['year', 'month']}
-                        label="Seleccionar fecha"
-                        value={selectedDate}
-                        onChange={(newValue) => setSelectedDate(newValue)}
-                    />
-                </DemoContainer>
+                <DateTimeInput
+                    views={['year', 'month']}
+                    label="Seleccionar fecha"
+                    value={selectedDate}
+                    onChange={(newValue) => setSelectedDate(newValue)}
+                />
         </div>
     </div>
     );

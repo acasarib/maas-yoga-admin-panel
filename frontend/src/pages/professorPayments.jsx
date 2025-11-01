@@ -12,7 +12,7 @@ import CourseProfessorCard from "../components/courses/CourseProfessorCalculatio
 import useToggle from "../hooks/useToggle";
 import Loader from "../components/spinner/loader";
 import coursesService from "../services/coursesService";
-import DateTimeInput from "../components/calendar/dateTimeInput";
+import DateInput from "../components/calendar/dateInput";
 
 export default function ProfessorPayments(props) {
     const { calcProfessorsPayments } = useContext(Context);
@@ -78,39 +78,54 @@ export default function ProfessorPayments(props) {
             <Container title="Calculo de pagos" items={[{ name: "Movimientos", href: "/home/payments" }, { name: "Calculo de pagos" }]}>
                 <h2 className="text-xl mb-2">Rango:</h2>
                 <div className="flex flex-col sm:flex-row gap-2">
-                    <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                            Fecha de inicio
-                        </label>
-                        <DateTimeInput
-                            className="w-full sm:w-auto"
-                            label="Seleccionar fecha"
-                            value={from}
-                            onChange={(newValue) => setFrom(newValue)}
-                        />
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                                Fecha de inicio
+                            </label>
+                            <DateInput
+                                className="w-full sm:w-auto"
+                                label="Seleccionar fecha"
+                                value={from}
+                                onChange={(newValue) => setFrom(newValue)}
+                            />
+                        </div>
+                        <div className="sm:ml-2">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                                Fecha de fin
+                            </label>
+                            <DateInput
+                                className="w-full sm:w-auto"
+                                label="Seleccionar fecha"
+                                value={to}
+                                onChange={(newValue) => setTo(newValue)}
+                            />
+                        </div>
                     </div>
-                    <div className="sm:ml-2">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                            Fecha de fin
-                        </label>
-                        <DateTimeInput
-                            className="w-full sm:w-auto"
-                            label="Seleccionar fecha"
-                            value={to}
-                            onChange={(newValue) => setTo(newValue)}
-                        />
-                    </div>
-                    <div className="ml-2 mt-8 flex items-center gap-2">
-                        {isLoading.value ? <Loader/> :
-                        <>
-                            <ButtonPrimary disabled={from == null || to == null} onClick={handleCalcProfessorsPayments}>Calcular</ButtonPrimary>
-                            <ButtonPrimary disabled={from == null || to == null || data == null} onClick={handleExportPayments}>
+                    <div className="sm:ml-2 mt-6 flex items-center gap-2">
+                        {isLoading.value ? (<div className="w-full flex justify-center items-center gap-2">
+                            <Loader />
+                        </div>) : (
+                            <>
+                            <ButtonPrimary
+                                disabled={from == null || to == null}
+                                onClick={handleCalcProfessorsPayments}
+                                className="w-1/2 sm:w-auto"
+                            >
+                                Calcular
+                            </ButtonPrimary>
+
+                            <ButtonPrimary
+                                disabled={from == null || to == null || data == null}
+                                onClick={handleExportPayments}
+                                className="w-1/2 sm:w-auto flex justify-center items-center"
+                            >
                                 <FileDownloadIcon className="mr-1" fontSize="small" />
                                 Descargar
                             </ButtonPrimary>
-                        </>
-                        }
-                    </div>
+                            </>
+                        )}
+                        </div>
                 </div>
                 {data !== null &&
                     data.map((d, i) => <CourseProfessorCard onInformPayment={onInformPayment} from={from} to={to} onShowPayments={setActivePaymentsShowing} key={i} course={d}/>)}
@@ -118,7 +133,7 @@ export default function ProfessorPayments(props) {
                     open={activePaymentsShowing !== null}
                     setDisplay={() => setActivePaymentsShowing(null)}
                     size="medium"
-                    buttonText={"Cerrar"}
+                    footer={false}
                     icon={<InfoIcon/>}
                     title={"Pagos"}
                     onClick={() => setActivePaymentsShowing(null)}
