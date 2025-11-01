@@ -120,7 +120,7 @@ export default function Home(props) {
     return(
         <ThemeProvider theme={theme}>
             <div>
-                <div className="relative bg-orange-50 h-screen overflow-y-auto max-h-screen">
+                <div className="relative bg-orange-50 h-screen max-h-screen">
                 <header className="fixed right-0 top-0 z-10 md:left-60 bg-orange-100 py-3 px-4 h-24">
                     <div className="max-w-4xl mx-auto mt-4 md:mt-2">
                         <div className="flex items-center justify-between">
@@ -132,10 +132,10 @@ export default function Home(props) {
                                     <span className="text-md text-orange-550">{day}</span>
                                 </button>
                             </div>
-                            <h1 className="md:text-xl md:ml-0 ml-12 font-bold leading-none text-center">{maasYogaTextColor}<br/>Admin panel</h1>
+                            <h1 className="md:text-xl md:ml-0 sm:ml-12 font-bold leading-none text-center">{maasYogaTextColor}<br/>Admin panel</h1>
                             <div>
                                 <div className="flex">
-                                    <span className="flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
+                                    <span className="hidden sm:block flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
                                         <span className="text-sm md:text-md text-orange-550">{date}</span>
                                     </span>
                                     <span className="text-sm md:text-md text-orange-550 pl-2"><NotificationIcon innerRef={notificationIconRef} amount={notifications.length} onClick={isNotificationsOpen.toggle}/></span>
@@ -229,7 +229,7 @@ export default function Home(props) {
                     </div>
                 </aside>
 
-                <main className="relative md:ml-60 pt-16 max-h-screen overflow-auto">
+                <main className="relative md:ml-60 pt-16">
                     <span className="absolute right-0 top-0"><AlertPortal /></span>
                     {props.payments && (<><Payments/></>)}
                     {props.newUser && (<><NewUser/></>)}

@@ -6,8 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Context } from "../../../context/Context";
 import dayjs from 'dayjs';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import DateTimeInput from '../../calendar/dateTimeInput';
 import ClassesTable from "../../classesTable";
 import WeekdayPicker from "../../weekdayPicker";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -144,25 +143,21 @@ export default function ClassesSection(props) {
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                         Fecha de inicio
                     </label>
-                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                            <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={startAt}
                             onChange={(newValue) => setStartAt(newValue)}
-                            />
-                        </DemoContainer>
+                        />
                 </div>
                 <div className="mb-4 relative col-span-2">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
                         Fecha de finalización
                     </label>
-                        <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                            <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={endAt}
                             onChange={(newValue) => setEndAt(newValue)}
-                            />
-                        </DemoContainer>
+                        />
                 </div>
                 <div className="mb-4">
                     <CommonInput 

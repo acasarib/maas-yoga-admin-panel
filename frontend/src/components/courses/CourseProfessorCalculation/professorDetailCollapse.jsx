@@ -149,7 +149,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 </ListItemIcon>
                 <ListItemText primary="Criterio" secondary={criteriaText} />
             </ListItem>
-            <div className="mt-2 md:mt-4 md:flex md:flex-row justify-center gap-4">
+            <div className="mt-2 flex flex-col sm:flex-row md:mt-4 md:flex md:flex-row justify-center gap-4">
                 {isAlreadyInformedPayment ?
                     <ButtonPrimary onClick={paymentAlreadyAddedWarningModal.open}>Informar</ButtonPrimary>
                     :

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from "react";
 import CommonInput from "../commonInput";
 import Modal from "../modal";
 import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormik } from 'formik';
@@ -84,13 +83,11 @@ export default function EditTaskModal({ isOpen, task, onClose, onEditTask }) {
                         <div className="col-span-2 pb-6">
                         <span className="block text-gray-700 text-sm font-bold mb-2">Fecha limite de entrega</span>
                             <div className="mt-4">
-                                <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                                    <DateTimePicker
+                                <DateTimePicker
                                     label="Seleccionar fecha"
                                     value={limitDate}
                                     onChange={(newValue) => setLimitDate(newValue)}
-                                    />
-                                </DemoContainer>
+                                />
                             </div>
                         </div>
                     </form>
