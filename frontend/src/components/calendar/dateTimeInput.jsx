@@ -1,6 +1,12 @@
 import React from 'react'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 export const dateTimeInputStyles = {
+  '& .MuiInputLabel-shrink': {
+    padding: '8px 0 0 0',
+  },
+  '& .MuiFormLabel-root': {
+    margin: '-8px 0 0 0',
+  },
   '& .MuiInputBase-root': {
     height: '38px',
     paddingTop: '8px',
@@ -22,6 +28,7 @@ const DateTimeInput = (props) => {
     <DateTimePicker 
       {...props} 
       sx={dateTimeInputStyles}
+      slotProps={{ openPickerIcon: { fontSize: 'small' } }}
     />
   )
 }
