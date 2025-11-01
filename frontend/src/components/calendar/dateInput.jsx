@@ -7,6 +7,7 @@ const DateInput = (props) => {
     <DatePicker
       {...props} 
       sx={dateTimeInputStyles}
+      slotProps={{ openPickerIcon: { fontSize: 'small' } }}
     />
   )
 }
