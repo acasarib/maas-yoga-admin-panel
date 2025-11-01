@@ -7,11 +7,11 @@ import Table from '../table';
 import { STUDENT_STATUS } from '../../constants';
 import { getMonthNameByMonthNumber } from '../../utils';
 import useToggle from '../../hooks/useToggle';
-import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import CustomCheckbox from '../checkbox/customCheckbox';
 import ButtonPrimary from '../button/primary';
 import Select from '../select/select';
+import DateTimeInput from '../calendar/dateTimeInput';
 
 const FormattedDate = ({period}) => {
 	const [year, month] = period.split("-")
@@ -46,7 +46,7 @@ const AddSuspensionForm = ({ studentId, courseId, onAddSuspension }) => {
 		<div className='w-6/12'>
 			<div className='mb-1'>Ingrese el mes desde el cual el alumno estara suspendido</div>
 			<div className=''>
-				<DateTimePicker
+				<DateTimeInput
 					views={['year', 'month']}
 					format='YYYY/MM'
 					label="Seleccionar fecha"
@@ -59,7 +59,7 @@ const AddSuspensionForm = ({ studentId, courseId, onAddSuspension }) => {
 		<div className='ml-4 w-6/12'>
 			<div className='mb-1'>Ingrese el mes desde el cual el alumno dejara de estar suspendido</div>
 			<div className=''>
-				<DateTimePicker
+				<DateTimeInput
 					views={['year', 'month']}
 					format='YYYY/MM'
 					label="Seleccionar fecha"

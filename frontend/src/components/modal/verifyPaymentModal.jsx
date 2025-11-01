@@ -10,9 +10,9 @@ import CustomRadio from '../radio/customRadio';
 import UsageBar from 'react-usage-bar'
 import "react-usage-bar/dist/index.css"
 
-import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import Select from '../select/select';
+import DateTimeInput from '../calendar/dateTimeInput';
 
 const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 	const { verifyPayment, updatePayment, splitPayment } = useContext(Context);
@@ -117,7 +117,7 @@ const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 					<div className="col-span-2">
 						<span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
 						<div className="mt-4">
-							<DateTimePicker
+							<DateTimeInput
 								label="Seleccionar fecha"
 								value={operativeResult}
 								onChange={(newValue) => setOperativeResult(newValue)}

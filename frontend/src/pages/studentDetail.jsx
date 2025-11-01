@@ -3,9 +3,7 @@ import Container from '../components/container'
 import { useParams } from 'react-router-dom';
 import { Context } from '../context/Context';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import useModal from '../hooks/useModal';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomCheckbox from '../components/checkbox/customCheckbox';
 import CommonTextArea from '../components/commonTextArea';
 import paymentsService from '../services/paymentsService';
@@ -39,6 +37,8 @@ import SelectColleges from '../components/select/selectColleges';
 import SelectStudent from '../components/select/selectStudent';
 import SelectCourses from '../components/select/selectCourses';
 import StudentDetailSkeleton from '../components/skeleton/studentDetailSkeleton';
+import DateTimeInput from '../components/calendar/dateTimeInput';
+import DateInput from '../components/calendar/dateInput';
 
 function Course({ course, student, onOpenQRModal }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +129,7 @@ function Course({ course, student, onOpenQRModal }) {
 			<div className={`my-2 flex ${editInscriptionDate && "flex-column"}`}>Fecha de inscripción:
 				{editInscriptionDate ? (
 					<div className="flex mt-4 flex items-center">
-						<DatePicker
+						<DateInput
 							label="Seleccionar fecha"
 							value={inputValue}
 							onChange={setInputValue}
@@ -708,17 +708,17 @@ const CourseDetail = () => {
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
                     <div className="mt-4">
-                        <DateTimePicker
-                        label="Seleccionar fecha"
-                        value={paymentAt}
-                        onChange={(newValue) => setPaymentAt(newValue)}
+                        <DateTimeInput
+                            label="Seleccionar fecha"
+                            value={paymentAt}
+                            onChange={(newValue) => setPaymentAt(newValue)}
                         />
                     </div>
                 </div>
                 <div className="col-span-2">
                     <span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
                     <div className="mt-4">
-                        <DateTimePicker
+                        <DateTimeInput
                             label="Seleccionar fecha"
                             value={operativeResult}
                             onChange={(newValue) => setOperativeResult(newValue)}
