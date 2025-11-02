@@ -687,7 +687,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                         checked={addReceipt.value}
                         onChange={addReceipt.toggle}
                     />
-                    <div className="ml-1 text-gray-500 cursor-help" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
+                    <div style={{marginLeft: "-11px"}} className="text-gray-500 cursor-help" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
                         <InfoIcon fontSize="small" />
                     </div>
                 </div>

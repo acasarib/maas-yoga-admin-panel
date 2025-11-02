@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import SimpleCard from './simpleCard'
-import { capitalizeFirstCharacter, formatPaymentValue, getMonthNameByMonthNumber, series } from '../../utils'
 import WarningAlert from '../alert/warning'
 import DangerAlert from '../alert/danger'
 import SuccessAlert from '../alert/success'
