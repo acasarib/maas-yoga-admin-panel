@@ -7,6 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
+import NoDataComponent from "../components/table/noDataComponent";
 import PlusButton from "../components/button/plus";
 import CustomRadio from "../components/radio/customRadio";
 import { useNavigate } from "react-router-dom";
@@ -170,7 +171,7 @@ export default function Professors(props) {
                     data={professors}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     responsive
-                    noDataComponent={opResult}
+                    noDataComponent={<NoDataComponent Icon={SchoolIcon} title="No hay profesores" subtitle="No se encontraron profesores registrados"/>}
                 />
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>

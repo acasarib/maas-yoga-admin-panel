@@ -7,6 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import Container from "../components/container";
+import NoDataComponent from "../components/table/noDataComponent";
 import PlusButton from "../components/button/plus";
 import PendingPaymentsModal from "../components/modal/pendingPaymentsModal";
 import ButtonPrimary from "../components/button/primary";
@@ -246,7 +247,7 @@ export default function Students(props) {
                     columns={columns}
                     serverPaginationData={pageableStudents}
                     paginationServer
-                    noDataComponent={"No hay alumnos"}
+                    noDataComponent={<NoDataComponent Icon={SchoolIcon} title="No hay alumnos" subtitle="No se encontraron alumnos registrados"/>}
                     progressPending={isLoading.value}
                     progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}

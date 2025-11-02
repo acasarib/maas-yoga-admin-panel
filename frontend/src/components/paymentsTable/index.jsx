@@ -4,6 +4,7 @@ import { Context } from "../../context/Context";
 import { dateToString, formatPaymentValue } from "../../utils";
 import { TABLE_SEARCH_CRITERIA } from "../../constants";
 import CustomCheckbox from "../checkbox/customCheckbox";
+import PaidIcon from '@mui/icons-material/Paid';
 import TableSummary from '../table/summary'
 import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
@@ -12,6 +13,7 @@ import Loader from "../spinner/loader";
 import DeleteButton from "../button/deleteButton";
 import EditButton from "../button/editButton";
 import VerifyButton from "../button/verifyButton";
+import NoDataComponent from "../table/noDataComponent";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
@@ -311,7 +313,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
         setFilteredPayments(payments);
     }, [])
 
-    const updateTableSummary = payments =>  {
+    const updateTableSummary = (payments = []) =>  {
         setTableSummary({// Si quien invoca el componente no pasa el parametro 'summary' entonces se calcula con el array de pagos
             total: getBalanceForAllPayments(payments),
             incomes: getPayments(payments),
@@ -343,7 +345,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
         className: `rounded-3xl shadow-lg ${className}`,
         columns: columns,
         paginationRowsPerPageOptions: [5, 10, 25, 50, 100],
-        noDataComponent: isLoading ? 'Verificando pagos...' : 'No hay pagos disponibles',
+        noDataComponent: isLoading ? <Loader className="w-16 h-16" /> : <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No se encontraron pagos con el criterio seleccionado" />,
         pagination: true,
     }
 

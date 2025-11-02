@@ -14,6 +14,8 @@ import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import Container from "../components/container";
+import NoDataComponent from "../components/table/noDataComponent";
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import PlusButton from "../components/button/plus";
 import StudentCoursesInfo from "../components/section/courses/studentCoursesInfo";
 import useQueryParam from "../hooks/useQueryParam";
@@ -401,7 +403,7 @@ export default function Courses(props) {
                     paginationServer={searchByTitle == undefined || searchByTitle == ""}
                     defaultTypeValue={defaultIdPayment !== undefined ? "Identificador" : undefined}
                     defaultSearchValue={defaultIdPayment}
-                    noDataComponent={"No hay cursos"}
+                    noDataComponent={<NoDataComponent Icon={LocalLibraryIcon} title="No hay cursos" subtitle="No se encontraron cursos registrados"/>}
                     progressPending={isLoading.value}
                     progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}

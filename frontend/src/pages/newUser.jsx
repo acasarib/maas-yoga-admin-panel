@@ -10,6 +10,8 @@ import { Context } from "../context/Context";
 import Table from "../components/table";
 import { orange } from '@mui/material/colors';
 import Container from "../components/container";
+import NoDataComponent from "../components/table/noDataComponent";
+import GroupIcon from '@mui/icons-material/Group';
 import PlusButton from "../components/button/plus";
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteButton from "../components/button/deleteButton";
@@ -196,7 +198,7 @@ const validate = (values) => {
               data={users}
               pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
               responsive
-              noDataComponent={opResult}
+              noDataComponent={<NoDataComponent Icon={GroupIcon} title="No hay usuarios" subtitle="No se encontraron usuarios registrados"/>}
             />
             <div className="flex justify-end mt-6">
               <PlusButton onClick={() => setDisplayModal(true)}/>
