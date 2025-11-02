@@ -18,6 +18,9 @@ export const getById = async (id) => {
 
 export const getAll = async (specification) => {
   return task.findAll({
-    where: specification.getSequelizeSpecification()
+    where: specification.getSequelizeSpecification(),
+    order: [
+      ['createdAt', 'DESC']
+    ]
   });
 };
