@@ -1,18 +1,12 @@
 import React from "react";
 import Table from "../table";
-import { useEffect } from "react";
-import { useState } from "react";
 import { dateToString } from "../../utils";
 import EditButton from "../button/editButton";
 import DeleteButton from "../button/deleteButton";
+import NoDataComponent from "../table/noDataComponent";
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 
 export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked }) {
-    const [opResult, setOpResult] = useState('Verificando clases...');
-
-    useEffect(() => {
-        if(clazzes.length === 0)
-            setOpResult('No fue posible obtener las clases, por favor recargue la página...');
-    }, [clazzes]);
 
     const columns = [
         {
@@ -64,7 +58,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
             data={clazzes}
             pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
             responsive
-            noDataComponent={opResult}
+            noDataComponent={<NoDataComponent Icon={HistoryEduIcon} title="No hay clases" subtitle="No se encontraron clases registradas"/>}
         />
     );
 } 

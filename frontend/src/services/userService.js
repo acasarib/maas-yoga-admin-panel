@@ -73,7 +73,7 @@ export default {
     },
     getHealth() {
         return new Promise((resolve, reject) => {
-            const healthUrl = process.env.REACT_APP_HEALTHCHECK;
+            const healthUrl = process.env.REACT_APP_BACKEND_HOST + "api/v1/healthcheck";
             axios
                 .get(healthUrl)
                 .then((response) => {

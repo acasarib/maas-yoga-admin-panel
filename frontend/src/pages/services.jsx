@@ -15,6 +15,8 @@ import Select from "../components/select/select";
 import SelectItem from "../components/select/selectItem";
 import EditButton from "../components/button/editButton";
 import DeleteButton from "../components/button/deleteButton";
+import NoDataComponent from "../components/table/noDataComponent";
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 
 export default function Services(props) {
     const { getServices, deleteService, changeAlertStatusAndMessage, editService, newService } = useContext(Context);
@@ -190,7 +192,7 @@ export default function Services(props) {
                 columns={columns}
                 data={services}
                 progressPending={isLoading}
-                noDataComponent="No hay servicios disponibles"
+                noDataComponent={<NoDataComponent Icon={MiscellaneousServicesIcon} title="No hay servicios" subtitle="No se encontraron servicios disponibles" />}
                 pagination
                 paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
             />

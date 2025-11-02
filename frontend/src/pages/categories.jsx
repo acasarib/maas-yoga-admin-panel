@@ -14,6 +14,8 @@ import PlusButton from "../components/button/plus";
 import Loader from "../components/spinner/loader";
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
+import CategoryIcon from '@mui/icons-material/Category';
+import NoDataComponent from "../components/table/noDataComponent";
 
 //TODO: categorias reactivas, al agregar una nueva, editar una nueva o eliminar, la lista de categorias no se actualiza
 //TODO2: categorias paginadas
@@ -215,7 +217,7 @@ export default function Categories(props) {
                     progressComponent={<Loader className="w-16 h-16" />}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     responsive
-                    noDataComponent={'No hay rubros'}
+                    noDataComponent={<NoDataComponent Icon={CategoryIcon} title="No hay rubros" subtitle="No se encontraron rubros" />}
                 />
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>

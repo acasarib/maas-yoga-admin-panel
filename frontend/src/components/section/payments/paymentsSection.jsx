@@ -145,7 +145,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 operation: 'lt',
             }
         }
-        console.log(params);
         
         const data = await paymentsService.getAllPaymentsVerified(page, size, params, isOrOperation);
         if (initialData == null) {

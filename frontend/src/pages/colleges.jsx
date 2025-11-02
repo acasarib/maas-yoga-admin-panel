@@ -12,6 +12,7 @@ import PlusButton from "../components/button/plus";
 import Loader from "../components/spinner/loader";
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
+import NoDataComponent from "../components/table/noDataComponent";
 
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
@@ -186,7 +187,7 @@ export default function Colleges(props) {
                     progressComponent={<Loader className="w-16 h-16" />}
                     columns={columns}
                     data={colleges}
-                    noDataComponent={"No hay sedes"}
+                    noDataComponent={<NoDataComponent Icon={AccountBalanceIcon} title="No hay sedes" subtitle="No se encontraron sedes registradas"/>}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
                 <div className="flex justify-end mt-6">

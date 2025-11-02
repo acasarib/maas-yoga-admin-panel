@@ -5,6 +5,8 @@ import Table from "../../table";
 import { LOG_PAYMENT_ACTIONS } from "../../../constants";
 import logsService from "../../../services/logsService";
 import Loader from "../../spinner/loader";
+import NoDataComponent from "../../table/noDataComponent";
+import PaidIcon from '@mui/icons-material/Paid';
 
 export default function LogsPaymentSection(props) {
     const [pageableLogs, setPageableLogs] = useState([]);
@@ -103,7 +105,7 @@ export default function LogsPaymentSection(props) {
                 columns={columns}
                 serverPaginationData={pageableLogs}
                 paginationServer
-                noDataComponent={"No hay registros."}
+                noDataComponent={<NoDataComponent Icon={PaidIcon} title="No hay registros" subtitle="No hay registros de pagos recientes"/>}
                 progressPending={isLoading}
                 progressComponent={<Loader className="w-16 h-16" />}
                 paginationTotalRows={totalRows}
