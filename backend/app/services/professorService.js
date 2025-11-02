@@ -135,7 +135,12 @@ const getProfessorPendingPayments = async (prof) => {
     console.error(e);
   }
   const coursesIdsDictedByProfessor = [...new Set(owedPeriods.map(p => p.course.id))];
-  const coursesPayments = await payment.findAll({ where: { courseId: { [Op.in]: coursesIdsDictedByProfessor }, verified: true }});
+  const coursesPayments = await payment.findAll({ where: {
+    value: { [Op.ne]: 0 }, // Si el pago es de 0 no se considera, esto pasa porque pagan varios meses por adelantado y para que no figure deuda crean un pago vacio
+    isRegistrationPayment: false, // Los pagos de matricula no se consideran en la deuda que se le paga al profesor
+    courseId: { [Op.in]: coursesIdsDictedByProfessor },
+    verified: true,
+  }});
   const owedPeriodsFiltered = [];
   // Filtra los periodos que no tienen pagos de estudiantes
   for (const period of owedPeriods) {
