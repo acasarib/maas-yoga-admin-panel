@@ -93,8 +93,10 @@ export default function ClassesSection(props) {
     }
 
     const fetchClazzes = async (force = false) => {
+        setIsLoading(true)
         const clazzes = await getClazzes(force);
         setClazzes(clazzes);
+        setIsLoading(false)
     }
 
     useEffect(() => {
@@ -291,6 +293,7 @@ export default function ClassesSection(props) {
             clazzes={clazzes}
             onDelete={openDeleteModal}
             onEdit={openEditModal}
+            isLoading={isLoading}
         />
         <div className="flex justify-end mt-6">
             <PlusButton onClick={() => setDisplayModal(true)}/>

@@ -21,19 +21,18 @@ export default function Professors(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [professorId, setProfessorId] = useState(null);
-    const [opResult, setOpResult] = useState('Verificando profesores...');
     const [edit, setEdit] = useState(false);
     const [professorToEdit, setProfessorToEdit] = useState({});
     const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
     const [isEmailDuplicated, setIsEmailDuplicated] = useState(false);
-    const [matches, setMatches] = useState(
-        window.matchMedia("(min-width: 700px)").matches
-    )
+    
     const navigate = useNavigate(); 
 
     const fetchProfessors = async (force = false) => {
+        setIsLoading(true);
         const data = await getProfessors(force);
         setProfessors(data);
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -143,18 +142,7 @@ export default function Professors(props) {
           }
           formik.values = {};
         },
-      });
-
-    useEffect(() => {
-        if(professors.length === 0 && !isLoadingProfessors)
-            setOpResult('No fue posible obtener los profesores, por favor recargue la página...');
-    }, [professors, isLoadingProfessors]);
-
-    useEffect(() => {
-        window
-        .matchMedia("(min-width: 700px)")
-        .addEventListener('change', e => setMatches( e.matches ));
-    }, []);
+    });
 
     const checkDuplicated = (field, callback) => {
         const isDuplicated = professors.some(st => st[field] == formik.values[field]);
@@ -167,6 +155,7 @@ export default function Professors(props) {
         <>
             <Container title="Profesores">
                 <Table
+                    progressPending={isLoading}
                     columns={columns}
                     data={professors}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
