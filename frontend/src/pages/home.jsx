@@ -115,14 +115,14 @@ export default function Home(props) {
     const openSidebar = () => setIsOpenSidebar(true);
     const closeSidebar = () => setIsOpenSidebar(false);
 
-    const maasYogaTextColor = (<><span className="text-purple-950">Maas </span><span className="text-orange-550">Yoga</span></>)
+    const maasYogaTextColor = (<><span className="text-purple-950 mr-1 sm:mr-0">Maas </span><span className="text-orange-550">Yoga</span></>)
 
     return(
         <ThemeProvider theme={theme}>
             <div>
                 <div className="relative bg-orange-50 h-screen max-h-screen">
-                <header className="fixed right-0 top-0 z-20 md:left-60 bg-orange-100 py-3 px-4 h-24">
-                    <div className="max-w-4xl mx-auto mt-4 md:mt-2">
+                <header className="fixed right-0 top-0 z-20 md:left-60 bg-orange-100 py-3 px-4 sm:h-24">
+                    <div className="max-w-4xl mx-auto sm:mt-4 md:mt-2">
                         <div className="flex items-center justify-between">
                             <div className="md:hidden my-auto">
                                 <HamburgerButton onClick={openSidebar}/>
@@ -132,7 +132,18 @@ export default function Home(props) {
                                     <span className="text-md text-orange-550">{day}</span>
                                 </button>
                             </div>
-                            <h1 className="md:text-xl md:ml-0 sm:ml-12 font-bold leading-none text-center">{maasYogaTextColor}<br/>Admin panel</h1>
+                            <h1 className="md:text-xl md:ml-0 sm:ml-12 font-bold leading-none text-center">
+                                <span className="flex items-center sm:block">
+                                    <img
+                                        src="\pngegg.png"
+                                        width={24}
+                                        height={24}
+                                        alt="Maas Yoga logo"
+                                        className="sm:hidden mx-auto mr-2"
+                                    />
+                                    {maasYogaTextColor}
+                                </span>
+                                <span className="hidden sm:block">Admin panel</span></h1>
                             <div>
                                 <div className="flex">
                                     <span className="hidden sm:block flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
@@ -154,7 +165,7 @@ export default function Home(props) {
                 <aside className={`${isOpenSidebar ? "translate-x-0 w-full sm:w-5/12" : "-translate-x-full"} md:translate-x-0 md:w-64 z-50 transition-transform fixed overflow-y-auto inset-y-0 left-0 bg-white shadow-md max-h-screen`}>
                     <div className="flex flex-col justify-between h-full">
                         <div className="flex-grow">
-                            <div className="px-4 py-8 text-center border-b bg-orange-100">
+                            <div className="px-4 py-4 sm:py-8 text-center border-b bg-orange-100">
                                 <div className="md:hidden flex w-full justify-between items-center">
                                     <div className="flex items-center">
                                         <img
