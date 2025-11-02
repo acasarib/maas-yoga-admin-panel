@@ -19,6 +19,7 @@ export const create = async (clazzParam) => {
 };
 
 export const deleteById = async (id) => {
+  await clazzDayDetail.destroy({ where: { id }});
   clazz.destroy({ where: { id } });
 };
 

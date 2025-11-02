@@ -30,12 +30,12 @@ export default function Categories(props) {
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
 
+    const fetchCategories = async (force = false) => {
+        const data = await getCategories(force);
+        setCategories(data);
+    };
     useEffect(() => {
-        const fetchCategories = async () => {
-            const data = await getCategories()
-            setCategories(data)
-        }
-        fetchCategories()
+        fetchCategories(true);
     }, [])
     
 
@@ -150,6 +150,9 @@ export default function Categories(props) {
         setIsLoading(true);
         try{
             await deleteCategory(category.id);
+            setTimeout(() => {
+                fetchCategories(true)
+            }, 150);
         }catch {
             changeAlertStatusAndMessage(true, 'error', 'La categoria no pudo ser eliminada... Por favor inténtelo nuevamente.')
         }
@@ -178,11 +181,22 @@ export default function Categories(props) {
         } else {
             try{
                 const c = { ...category, items };
-                if (edit)
-                   await editCategory(c.id, c);
-                else
-                   await newCategory(c);
-    
+                if (edit) {
+                    await editCategory(c.id, c);
+                    setTimeout(() => {
+                        fetchCategories(true);
+                    }, 150);
+                } else {
+                    await newCategory(c);
+                    setTimeout(() => {
+                        fetchCategories(true);
+                    }, 150);
+                }
+                setCategory({ title: "" });
+                setItems([]);
+                setNewItem("");
+                setActiveView(0);
+                setEdit(false);
             }catch {
                 changeAlertStatusAndMessage(true, 'error', 'La categoria no pudo ser informada... Por favor inténtelo nuevamente.')
             }

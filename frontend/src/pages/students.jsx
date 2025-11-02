@@ -124,6 +124,9 @@ export default function Students(props) {
         isLoading.enable()
         try{
             await deleteStudent(studentId);
+            setTimeout(() => {
+                fetchStudents();
+            }, 150);
         }catch {
             changeAlertStatusAndMessage(true, 'error', 'El estudiante no pudo ser eliminado... Por favor inténtelo nuevamente.')
         }
@@ -206,8 +209,14 @@ export default function Students(props) {
             if(edit) {
                 await editStudent(studentId, body);
                 setEdit(false);
+                setTimeout(() => {
+                    fetchStudents();
+                }, 150);
             }else {
                 await newStudent(body);
+                setTimeout(() => {
+                    fetchStudents();
+                }, 150);
             }
             resetForm();
             isLoading.disable()

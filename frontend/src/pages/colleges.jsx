@@ -141,7 +141,7 @@ export default function Colleges(props) {
             name: edit ? collegeToEdit.name : '',
             location: edit ? collegeToEdit.location : '',
         },
-            onSubmit: async (values) => {
+            onSubmit: async (values, { resetForm }) => {
                 const body = {
                   name: values.name,
                   location: values.location,
@@ -158,6 +158,7 @@ export default function Colleges(props) {
                     }
                     setIsLoading(false);
                     setDisplayModal(false);
+                    resetForm();
                     fetchColleges(true)
                 } catch (error) {
                 changeAlertStatusAndMessage(true, 'error', 'La sede no pudo ser creada... Por favor inténtelo nuevamente.')
