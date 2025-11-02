@@ -4,6 +4,7 @@ import SearchBar from "./searchBar";
 import { TABLE_SEARCH_CRITERIA } from "../../constants";
 import NoDataComponent from "./noDataComponent";
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import Loader from "../spinner/loader";
 
 export default function Table({ serverPaginationData, handleCustomSearchValue, onFilterData = () => {} , defaultSortFieldId, className = "", columns, onChangePage, defaultSearchValue, defaultTypeValue, data, ...rest }) {
     const [searchableColumns, setSearchableColumns] = useState([]);
@@ -109,6 +110,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
             />}
             <DataTable
                 className={`rounded-3xl shadow-lg mt-1 ${className}`}
+                progressComponent={rest.progressComponent || <Loader className="w-16 h-16" />}
                 columns={columns.filter(col => col.hidden !== true)}
                 data={serverPaginationData != undefined ? serverPaginationData : dataFiltered}
                 defaultSortFieldId={defaultSortFieldId}

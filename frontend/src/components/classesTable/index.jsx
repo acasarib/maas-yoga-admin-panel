@@ -6,7 +6,7 @@ import DeleteButton from "../button/deleteButton";
 import NoDataComponent from "../table/noDataComponent";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 
-export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked }) {
+export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked, isLoading }) {
 
     const columns = [
         {
@@ -52,6 +52,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
     return(
         <Table
             columns={columns}
+            progressPending={isLoading}
             pointerOnHover={onClazzClicked !== undefined}
             highlightOnHover={onClazzClicked !== undefined}
             onRowClicked={onRowClicked}
