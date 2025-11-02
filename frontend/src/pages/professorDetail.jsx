@@ -75,6 +75,10 @@ const ProfessorDetail = () => {
 	const onClickAddProfessorPayment = async ({ from, to, professorId, courseId }) => {
 		const data = await calcProfessorsPayments(from, to, professorId, courseId);
 		try {
+			const period = data[0].professors[0]?.result?.period;
+			 if (period === null || period === undefined) {
+				console.error("Period not found, professor no has period in selected targetPeriod");
+			}
 			setProfessorPaymentData({...data[0].professors[0], students: data[0].students, from, to, courseId })
 		} catch (e) {
 			const targetPeriod = from.slice(0, -3);
