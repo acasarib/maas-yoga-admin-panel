@@ -5,7 +5,7 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 const SliderMonthCard = ({ payments, operativeResult = false, title, all = false }) => {
-    const [currentIndex, setCurrentIndex] = useState(null)
+	const [currentIndex, setCurrentIndex] = useState(null)
 	const [indexPayments, setIndexPayments] = useState([])
 	const removeDays = date => date.slice(0, -3);
 	const total = payments.reduce((total, payment) => total + payment.value, 0);
