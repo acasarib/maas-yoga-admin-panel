@@ -11,7 +11,7 @@ import ButtonPrimary from "../button/primary";
         onChangeSearch(valueToSearch);
     }
 
-    const handleKeyPress = (e) => {
+    const handleOnKeyDown = (e) => {
         if (e.key === 'Enter') {
             confirmSearch();
         }
@@ -29,12 +29,15 @@ import ButtonPrimary from "../button/primary";
                         )}
                     </div>
                     <input
-                        type="text"
+                        type="search"
+                        name="search"
+                        inputMode="search"
+                        enterKeyHint="search"
                         placeholder="Buscar..."
                         value={valueToSearch}
                         onChange={(e) => setValueToSearch(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        className={styles.searchInput}
+                        onKeyDown={handleOnKeyDown}
+                        className={`${styles.searchInput} search-input text-base`}
                     />
                 </div>
                 
