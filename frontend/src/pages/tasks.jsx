@@ -56,6 +56,9 @@ export default function Tasks(props) {
         task.completed = true;
         try{
             await editTask(task);
+            setTimeout(() => {
+                fetchTasks(true);
+            }, 150);
         }catch {
             changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser editada... Por favor inténtelo nuevamente.')
         }
@@ -67,6 +70,9 @@ export default function Tasks(props) {
         setIsLoading(true);
         try{
             await deleteTask(taskId);
+            setTimeout(() => {
+                fetchTasks(true);
+            }, 150);
         }catch {
             changeAlertStatusAndMessage(true, 'error', 'La tarea no pudo ser eliminada... Por favor inténtelo nuevamente.')
         }
@@ -92,8 +98,10 @@ export default function Tasks(props) {
                 body.id = taskId;
                 await editTask(body);
                 setEdit(false);
+                await fetchTasks(true);
             }else{
                 await createTask(body);
+                await fetchTasks(true);
             }
             setIsLoading(false);
             setDisplayModal(false);
@@ -106,9 +114,9 @@ export default function Tasks(props) {
         },
     });
 
-    const fetchTasks = async () => {
-        const tasks = await getTasks()
-        setTasks(tasks)
+    const fetchTasks = async (force = false) => {
+        const tasks = await getTasks(force);
+        setTasks(tasks);
     }
 
     useEffect(() => {
@@ -136,13 +144,13 @@ export default function Tasks(props) {
                         </Box>
                         <TabPanel className="pt-4" value="1">{(tasks.length > 0) ? 
                             tasks.map((task) =>
-                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            <TaskCard greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             'No hay tareas'
                         }</TabPanel>
                         <TabPanel className="pt-4" value="2">{(pendingTasks.length > 0) ? 
                             pendingTasks.map((task) =>
-                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            <TaskCard greenCheckEnabled title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             'No hay tareas pendientes'
                         }</TabPanel>

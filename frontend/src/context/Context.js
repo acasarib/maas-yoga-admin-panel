@@ -96,8 +96,8 @@ export const Provider = ({ children }) => {
         return data
     }
 
-    const getTasks = async () => {
-        if (tasks.length > 0) return tasks;
+    const getTasks = async (force = false) => {
+        if (!force && tasks.length > 0) return tasks;
         setIsLoadingTasks(true)
         const tasksList = await tasksService.getTasks();
         setIsLoadingTasks(false)
