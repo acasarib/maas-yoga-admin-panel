@@ -60,7 +60,7 @@ import ButtonPrimary from "../button/primary";
                     className={styles.searchButtonIntegrated}
                     disabled={isLoading}
                 >
-                    Buscar
+                    <span className="">Buscar</span>
                 </ButtonPrimary>
             </div>
         </div>
