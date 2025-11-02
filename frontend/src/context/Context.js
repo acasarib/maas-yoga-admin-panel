@@ -45,8 +45,8 @@ export const Provider = ({ children }) => {
     const [isLoadingProfessors, setIsLoadingProfessors] = useState(true);
     const [agendaLocations, setAgendaLocations] = useState([]);
 
-    const getClazzes = async () => {
-        if (clazzes.length > 0) return clazzes;
+    const getClazzes = async (force = false) => {
+        if (!force && clazzes.length > 0) return clazzes;
         const data = await clazzesService.getClazzes();
         setClazzes(data);
         return data;
@@ -66,8 +66,8 @@ export const Provider = ({ children }) => {
         return data
     }
 
-    const getCategories = async () => {
-        if (categories.length > 0) return categories;
+    const getCategories = async (force = false) => {
+        if (!force && categories.length > 0) return categories;
         isLoadingCategories.enable()
         const data = await categoriesService.getCategories();
         isLoadingCategories.disable()
@@ -75,8 +75,8 @@ export const Provider = ({ children }) => {
         return data;
     }
 
-    const getProfessors = async () => {
-        if (professors.length > 0) return professors;
+    const getProfessors = async (force = false) => {
+        if (!force && professors.length > 0) return professors;
         setIsLoadingProfessors(true)
         const pfrs = await professorsService.getProfessors();
         setProfessors(pfrs);

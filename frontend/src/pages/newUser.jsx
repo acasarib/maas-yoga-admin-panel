@@ -128,7 +128,7 @@ const validate = (values) => {
     },
     {
       name: 'Acciones',
-      cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+      cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
       sortable: true,
     },
   ];
@@ -202,7 +202,7 @@ const validate = (values) => {
               <PlusButton onClick={() => setDisplayModal(true)}/>
             </div>
         </Container>
-        <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteUser} children={<><div>{`Esta a punto de elimnar el usuario ${userToDelete}. ¿Desea continuar?`}</div></>} />
+        <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteUser} children={<><div>Esta a punto de elimnar el usuario <span className="font-bold">{userToDelete}</span>. ¿Desea continuar?</div></>} />
         <Modal icon={<PersonAddIcon />} buttonDisabled={edit ? false : disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                 <form className="pt-6 mb-4 sm:mx-auto"    
                     method="POST"

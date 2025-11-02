@@ -9,6 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { Link, useNavigate } from "react-router-dom";
 import QRModal from '../components/modal/qrModal';
 import { Snackbar, Alert } from '@mui/material';
+import NoDataComponent from "../components/table/noDataComponent";
 
 export default function ConsultaPagos() {
     const navigate = useNavigate();
@@ -464,15 +465,7 @@ export default function ConsultaPagos() {
                                             pagination
                                             paginationRowsPerPageOptions={[10, 25, 50, 100]}
                                             noDataComponent={
-                                                <div className="text-center py-12">
-                                                    <PaymentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                        No hay datos disponibles
-                                                    </h3>
-                                                    <p className="text-gray-500">
-                                                        No se encontraron registros de pagos de Mercado Pago
-                                                    </p>
-                                                </div>
+                                                <NoDataComponent Icon={PaymentIcon} title="No hay datos disponibles" subtitle="No se encontraron registros de pagos de Mercado Pago"/>
                                             }
                                         />
                                     </div>

@@ -30,13 +30,13 @@ export default function Professors(props) {
     )
     const navigate = useNavigate(); 
 
-    const fetchProfessors = async () => {
-        const data = await getProfessors();
+    const fetchProfessors = async (force = false) => {
+        const data = await getProfessors(force);
         setProfessors(data);
     };
 
     useEffect(() => {
-        fetchProfessors();
+        fetchProfessors(true);
     }, []);
 
     const [selectedProfessorInvoiceType, setSelectedProfessorInvoiceType] = useState('A');
@@ -65,6 +65,9 @@ export default function Professors(props) {
         setIsLoading(true);
         try{
             await deleteProfessor(professorId);
+            setTimeout(() => {
+                fetchProfessors(true);
+            }, 150);
         }catch {
             changeAlertStatusAndMessage(true, 'error', 'El profesor no pudo ser eliminado... Por favor inténtelo nuevamente.')
         }
@@ -120,8 +123,15 @@ export default function Professors(props) {
                 setEdit(false);
                 setProfessorId(null);
                 setProfessorToEdit({});
+                setTimeout(() => {
+                    fetchProfessors(true);
+                }, 150);
             }else {
                 await newProfessor(body);
+                setTimeout(() => {
+                    fetchProfessors(true);
+                }, 150);
+                formik.resetForm();
             }
             setIsLoading(false);
             setDisplayModal(false);

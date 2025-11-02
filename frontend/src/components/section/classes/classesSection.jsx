@@ -92,13 +92,13 @@ export default function ClassesSection(props) {
         setEdit(false);
     }
 
-    const fetchClazzes = async () => {
-        const clazzes = await getClazzes();
+    const fetchClazzes = async (force = false) => {
+        const clazzes = await getClazzes(force);
         setClazzes(clazzes);
     }
 
     useEffect(() => {
-        fetchClazzes();
+        fetchClazzes(true);
     }, [])
     
 
@@ -121,6 +121,9 @@ export default function ClassesSection(props) {
         setIsLoading(true);
         try {
             await deleteClazz(clazzId);
+            setTimeout(() => {
+                fetchClazzes(true);
+            }, 150);
             setIsLoading(false);
             setDeleteModal(false);
         } catch(e) {
@@ -243,10 +246,16 @@ export default function ClassesSection(props) {
             if(edit) {
                 await editClazz(clazzId, body);
                 setEdit(false);
-                formik.values = {};
+                setTimeout(() => {
+                    fetchClazzes(true);
+                }, 150);
+                formik.resetForm();
             }else {
                 await newClazz(body);
-                formik.values = {};
+                setTimeout(() => {
+                    fetchClazzes(true);
+                }, 150);
+                formik.resetForm();
             }
           } catch (error) {
             changeAlertStatusAndMessage(true, 'error', 'La clase no pudo ser informada... Por favor inténtelo nuevamente.')

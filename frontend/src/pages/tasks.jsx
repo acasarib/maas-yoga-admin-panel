@@ -14,6 +14,7 @@ import { Context } from "../context/Context";
 import InfoIcon from '@mui/icons-material/Info';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
+import NoDataComponent from "../components/table/noDataComponent";
 
 export default function Tasks(props) {
 
@@ -102,6 +103,7 @@ export default function Tasks(props) {
             }else{
                 await createTask(body);
                 await fetchTasks(true);
+                formik.resetForm();
             }
             setIsLoading(false);
             setDisplayModal(false);
@@ -146,19 +148,19 @@ export default function Tasks(props) {
                             tasks.map((task) =>
                             <TaskCard greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
-                            'No hay tareas'
+                            <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas" subtitle="No hay tareas que realizar"/>
                         }</TabPanel>
                         <TabPanel className="pt-4" value="2">{(pendingTasks.length > 0) ? 
                             pendingTasks.map((task) =>
                             <TaskCard greenCheckEnabled title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
-                            'No hay tareas pendientes'
+                            <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas pendientes" subtitle="No hay tareas que se deben realizar apareceran aqui"/>
                         }</TabPanel>
                         <TabPanel className="pt-4" value="3">{(completedTasks.length > 0) ?
                             completedTasks.map((task) =>
                             <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
-                            'No hay tareas completadas'
+                            <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas completadas" subtitle="Las tareas que se completen se veran aqui"/>
                         }</TabPanel>
                     </TabContext>
                 </Box>
