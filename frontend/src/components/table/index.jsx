@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
 import SearchBar from "./searchBar";
 import { TABLE_SEARCH_CRITERIA } from "../../constants";
+import NoDataComponent from "./noDataComponent";
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 export default function Table({ serverPaginationData, handleCustomSearchValue, onFilterData = () => {} , defaultSortFieldId, className = "", columns, onChangePage, defaultSearchValue, defaultTypeValue, data, ...rest }) {
     const [searchableColumns, setSearchableColumns] = useState([]);
@@ -110,7 +112,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
                 columns={columns.filter(col => col.hidden !== true)}
                 data={serverPaginationData != undefined ? serverPaginationData : dataFiltered}
                 defaultSortFieldId={defaultSortFieldId}
-                noDataComponent={rest.noDataComponent || <div className="p-5">No hay datos</div>}
+                noDataComponent={rest.noDataComponent || <NoDataComponent Icon={MenuBookIcon} title="No hay datos" subtitle="No hay datos disponibles"/>}
                 onChangePage={onChangePage}
                 paginationComponentOptions={{ rowsPerPageText: 'Filas por pagina:', rangeSeparatorText: 'de', noRowsPerPage: false, selectAllRowsItem: false, selectAllRowsItemText: 'Todo' }}
                 {...rest}
