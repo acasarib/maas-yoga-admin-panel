@@ -3,7 +3,7 @@ import { Context } from "../../context/Context";
 import Select from "./select";
 import { components } from 'react-select';
 
-export default function SelectItem({ className, onChange, value }) {
+export default function SelectItem({ className, name, onChange, value }) {
 
     const { getItems } = useContext(Context);
 
@@ -28,6 +28,7 @@ export default function SelectItem({ className, onChange, value }) {
         <Select
             className={className}
             components={{ Option: CustomItemOption }}
+            name={name}
             onChange={onChange}
             value={value}
             options={items}

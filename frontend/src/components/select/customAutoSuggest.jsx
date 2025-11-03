@@ -1,7 +1,7 @@
 import React from "react";
 import Autosuggest from "react-autosuggest";
 
-export default function CustomAutoSuggest({ className, value, onChange, placeholder, getSuggestionValue, onSuggestionSelected, ...rest }) {
+export default function CustomAutoSuggest({ className, name, value, onChange, placeholder, getSuggestionValue, onSuggestionSelected, ...rest }) {
 
   const renderSuggestion = (suggestion) => <span className="block p-2 cursor-pointer hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">{getSuggestionValue(suggestion)}</span>
 
@@ -12,6 +12,8 @@ export default function CustomAutoSuggest({ className, value, onChange, placehol
     className: 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-[#ff9800] focus:ring-1 focus:ring-[#ff9800] ' + className,
     value,
     onChange: handleOnChange,
+    name,
+    id: name,
   };
 
   const handleOnSuggestionSelected = (_, suggestion) => onSuggestionSelected(suggestion.suggestion)

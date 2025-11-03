@@ -3,7 +3,7 @@ import CustomAutoSuggest from "./customAutoSuggest";
 import coursesService from "../../services/coursesService";
 import Select from "./select";
 
-export default function SelectCourses({ options, defaultValue, onChange, value, className }) {
+export default function SelectCourses({ options, name, defaultValue, onChange, value, className }) {
   const [courses, setCourses] = useState([]);
   const [courseTitle, setCourseTitle] = useState('');
 
@@ -32,6 +32,8 @@ export default function SelectCourses({ options, defaultValue, onChange, value, 
 
   return options == null ? 
     <CustomAutoSuggest
+      name={name}
+      id={name}
       className={className}
       suggestions={courses}
       getSuggestionValue={(course) => course.title}
@@ -44,6 +46,8 @@ export default function SelectCourses({ options, defaultValue, onChange, value, 
     />
   : 
     <Select
+      name={name}
+      
       options={options}
       onChange={onChange}
       value={value}

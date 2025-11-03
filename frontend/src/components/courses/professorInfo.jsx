@@ -86,10 +86,12 @@ export default function ProfessorInfo(props) {
 
     return (
         <div className="my-3 bg-gray-100 p-3 rounded">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="selectProfessor" className="block text-gray-700 text-sm font-bold mb-2">
                 Seleccionar profesor
             </label>
-            <SelectProfessors onChange={(e) => {
+            <SelectProfessors
+                name="selectProfessor"
+                onChange={(e) => {
                     setProfessorSelected(e);
                     setIsProfessorSelected(true);
                 }}
@@ -97,18 +99,20 @@ export default function ProfessorInfo(props) {
                 className="z-50"
             />
             {isProfessorSelected && (<><div className="my-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+                <label htmlFor="professorStartAt" className="block text-gray-700 text-sm font-bold mb-2">
                     Profesor desde
                 </label>
                     <DateInput
+                        name="professorStartAt"
                         label="Seleccionar fecha"
                         value={startAt}
                         onChange={(v) => setStartAt(v)}
                     />
-                <label className="block text-gray-700 text-sm font-bold mb-2 mt-2">
+                <label htmlFor="professorEndAt" className="block text-gray-700 text-sm font-bold mb-2 mt-2">
                     Profesor hasta
                 </label>
                     <DateInput
+                        name="professorEndAt"
                         label="Seleccionar fecha"
                         value={endAt}
                         onChange={(v) => setEndAt(v)}

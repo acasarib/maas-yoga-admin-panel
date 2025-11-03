@@ -130,23 +130,25 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 				onSubmit={formik.handleSubmit}
 			>
 				<div className={`mb-4 relative col-span-2`}>
-					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="startAt">
 							Fecha de inicio
 					</label>
 					<DateTimeInput
+						name="startAt"
 						label="Seleccionar fecha"
 						value={startAt}
 						onChange={setStartAt}
 					/>
 				</div>
 				<div className={`mb-4 relative col-span-2 ${isCircular.value && "hidden"}`}>
-					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="endAt">
 							Fecha de finalizacion
 					</label>
 					<DateTimeInput
-							label="Seleccionar fecha"
-							value={endAt}
-							onChange={setEndAt}
+						name="endAt"
+						label="Seleccionar fecha"
+						value={endAt}
+						onChange={setEndAt}
 					/>
 				</div>
 				<div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -192,10 +194,11 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 					</div>
 				</div>
 				<div className="mb-4">
-					<label className="block text-gray-700 text-sm font-bold mb-2">
+					<label htmlFor='assignStudents' className="block text-gray-700 text-sm font-bold mb-2">
 						Asignar alumnos
 					</label>
 					<SelectStudent
+						name="assignStudents"
 						className="z-100"
 						isMulti
 						onChange={handleChangeStudents}

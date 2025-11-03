@@ -226,15 +226,17 @@ export default function Services(props) {
                 <div className="grid gap-10 pt-6 mb-4">
                     <div className="grid gap-4 pb-3">
                         <div>
-                            <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el Artículo</span>
-                            <SelectItem 
+                            <label htmlFor="item" className="block text-gray-700 text-sm font-bold mb-2">Seleccione el Artículo</label>
+                            <SelectItem
+                                name="item"
                                 value={selectedItem} 
                                 onChange={setSelectedItem} 
                             />
                         </div>
                         <div>
-                            <span className="block text-gray-700 text-sm font-bold mb-2">Método de pago</span>
-                            <Select 
+                            <label htmlFor="paymentType" className="block text-gray-700 text-sm font-bold mb-2">Método de pago</label>
+                            <Select
+                                name="paymentType"
                                 value={paymentMethod} 
                                 onChange={setPaymentMethod} 
                                 options={PAYMENT_OPTIONS} 
@@ -242,7 +244,8 @@ export default function Services(props) {
                             />
                         </div>
                         <div>
-                            <CommonInput 
+                            <CommonInput
+                                name="description" 
                                 label="Descripción del servicio" 
                                 value={serviceNote} 
                                 onChange={(e) => setServiceNote(e.target.value)} 
@@ -250,6 +253,7 @@ export default function Services(props) {
                         </div>
                         <div>
                             <CommonInput 
+                                name="amount"
                                 label="Valor" 
                                 type="number" 
                                 value={ammount} 
@@ -258,6 +262,7 @@ export default function Services(props) {
                         </div>
                         <div>
                             <CommonInput 
+                                name="dayOfMonth"
                                 label="Día del mes" 
                                 type="number" 
                                 min="1" 
