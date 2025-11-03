@@ -9,7 +9,7 @@ export default function CustomAutoSuggest({ className, value, onChange, placehol
 
   const inputProps = {
     placeholder,
-    className: 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ' + className,
+    className: 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-[#ff9800] focus:ring-1 focus:ring-[#ff9800] ' + className,
     value,
     onChange: handleOnChange,
   };
@@ -27,7 +27,7 @@ export default function CustomAutoSuggest({ className, value, onChange, placehol
         suggestionsContainer: "absolute z-10 w-full bg-white shadow-md rounded-lg",
         suggestionsList: "list-none p-0 m-0",
         suggestion: "p-2 cursor-pointer hover:bg-gray-100 text-gray-700 rounded-md",
-        suggestionHighlighted: "bg-blue-100",
+        suggestionHighlighted: "bg-orange-50",
       }}
       {...rest}
     />

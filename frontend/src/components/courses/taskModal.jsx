@@ -97,14 +97,14 @@ export default function TaskModal(props) {
                     >
                            <div className="mb-4 z-100">
                            <label className={"block text-gray-700 text-sm font-bold mb-2"}>
-                                Titulo
+                                Título
                             </label>
                             <CustomAutoSuggest
                                 suggestions={tasks}
                                 getSuggestionValue={(task) => task.title}
                                 onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                                 onSuggestionsClearRequested={onSuggestionsClearRequested}
-                                placeholder={"Titulo"}
+                                placeholder={"Título"}
                                 onSuggestionSelected={onSuggestionSelected}
                                 value={taskTitle}
                                 onChange={setTaskTitle}

@@ -28,7 +28,16 @@ const DateTimeInput = (props) => {
     <DateTimePicker 
       {...props} 
       sx={dateTimeInputStyles}
-      slotProps={{ openPickerIcon: { fontSize: 'small' } }}
+      slotProps={{
+        openPickerIcon: { fontSize: 'small' },
+        textField: {
+          //size: 'small',
+          inputProps: {
+              "id": props.id,
+              "name": props.name,
+          }
+        }
+      }}
     />
   )
 }
