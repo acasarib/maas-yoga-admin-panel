@@ -120,6 +120,10 @@ button.bg-disabled:disabled, button.bg-disabled[disabled] {
   }
 }
 
+.relative-important {
+  position: relative !important;
+}
+
 *::-webkit-scrollbar {
   width: 16px;
 }

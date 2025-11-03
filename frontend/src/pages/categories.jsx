@@ -69,14 +69,14 @@ export default function Categories(props) {
         {index === 0 &&
             <div className="mb-4 relative col-span-2">
                 <CommonInput 
-                    label="Titulo del rubro"    
+                    label="Título del rubro"    
                     value={category.title}
                     name="title"
                     htmlFor="title"
                     id="title"
                     onPressEnter={handleOnClickNext}
                     type="text" 
-                    placeholder="Titulo" 
+                    placeholder="Título" 
                     onChange={(e) => setCategory({ ...category, title: e.target.value })}
                 />
             </div>

@@ -80,23 +80,27 @@ export default function ProfessorPayments(props) {
                 <div className="flex flex-col sm:flex-row gap-2">
                     <div className="flex flex-col sm:flex-row gap-2">
                         <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="from">
                                 Fecha de inicio
                             </label>
                             <DateInput
                                 className="w-full sm:w-auto"
                                 label="Seleccionar fecha"
+                                id="from"
+                                name="from"
                                 value={from}
                                 onChange={(newValue) => setFrom(newValue)}
                             />
                         </div>
                         <div className="sm:ml-2">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="to">
                                 Fecha de fin
                             </label>
                             <DateInput
                                 className="w-full sm:w-auto"
                                 label="Seleccionar fecha"
+                                id="to"
+                                name="to"
                                 value={to}
                                 onChange={(newValue) => setTo(newValue)}
                             />

@@ -10,7 +10,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
 
     const columns = [
         {
-            name: 'Titulo',
+            name: 'Título',
             cell: row => {return (<><div className="flex flex-col justify-center">
             <div className="relative py-3 sm:max-w-xl sm:mx-auto">
               <div className="group cursor-pointer relative inline-block">{row.title}

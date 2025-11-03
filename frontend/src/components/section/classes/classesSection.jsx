@@ -166,14 +166,14 @@ export default function ClassesSection(props) {
                 </div>
                 <div className="mb-4">
                     <CommonInput 
-                        label="Titulo"    
+                        label="Título"    
                         onBlur={formik.handleBlur}
                         value={formik.values.title}
                         name="title"
                         htmlFor="title"
                         id="title" 
                         type="text" 
-                        placeholder="Titulo" 
+                        placeholder="Título" 
                         onChange={formik.handleChange}
                     />
                 </div>
@@ -194,6 +194,10 @@ export default function ClassesSection(props) {
                     <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
                     <div className="mt-4">
                         <SelectColleges
+                            classNames={{
+                                menu: () => "relative-important",
+                            }}
+                            itemClassName="absolute"
                             value={selectedCollege}
                             onChange={setSelectedCollege}
                             styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
