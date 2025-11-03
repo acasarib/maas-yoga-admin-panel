@@ -116,8 +116,8 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
             </div>)}
         {filtersAvailable.length > 0 &&
             <>
-            <label>Tipo de filtro</label>
-            <Select placeholder="Seleccionar" className="payment-filter-width" value={null} onChange={onSelectNewFilter} options={filtersAvailable} />
+            <label htmlFor="filterType">Tipo de filtro</label>
+            <Select name="filterType" placeholder="Seleccionar" className="payment-filter-width" value={null} onChange={onSelectNewFilter} options={filtersAvailable} />
             </>
         }
     </Modal>

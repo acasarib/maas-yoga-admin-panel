@@ -527,9 +527,10 @@ const CourseDetail = () => {
 								       <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{'Editando...'}</span></>) : <span>{'Editar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
+                <label htmlFor='student' className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</label>
                 <div className="mt-4">
                     <SelectStudent
+                        name="student"
                         onChange={handleChangeStudent}
                         options={getOnlyStudentsOfSameCourse()}
                         value={selectedStudent}
@@ -537,9 +538,10 @@ const CourseDetail = () => {
                 </div>
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
+                <label htmlFor='course' className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</label>
                 <div className="mt-4">
                     <SelectCourses
+                        name="course"
                         onChange={setSelectedCourse}
                         value={selectedCourse}
                         options={(studentCourses.length > 0) ? studentCourses : null}

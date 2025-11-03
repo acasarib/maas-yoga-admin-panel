@@ -522,9 +522,10 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         <Modal icon={<PaidIcon />} open={openModal} setDisplay={setDisplay} size="large" buttonText={isLoadingPayment ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>{edit ? 'Editando...' : 'Informando...'}</span></>) : <span>{edit ? 'Editar' : 'Informar'}</span>} onClick={handleInformPayment} title={isDischarge ? 'Informar egreso' : 'Informar ingreso'} children={<>
         <div className="grid grid-cols-2 gap-10 pt-6 mb-4">
         {!isDischarge && (<><div className="col-span-2 md:col-span-1">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</span>
+                <label htmlFor="student" className="block text-gray-700 text-sm font-bold mb-2">Seleccione la persona que realizó el pago</label>
                 <div className="mt-4">
                     <SelectStudent
+                        name="student"
                         onChange={handleChangeStudent}
                         options={getOnlyStudentsOfSameCourse()}
                         value={selectedStudent}
@@ -532,9 +533,10 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 </div>
             </div>
             {(!selectedClazz && !selectedItem) && (<div className="col-span-2 md:col-span-1">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</span>
+                <label htmlFor="course" className="block text-gray-700 text-sm font-bold mb-2">Seleccione el curso que fue abonado</label>
                 <div className="mt-4">
                     <SelectCourses
+                        name="course"
                         onChange={setSelectedCourse}
                         value={selectedCourse}
                         options={(studentCourses.length > 0) ? studentCourses : null}
@@ -653,14 +655,13 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             </>}
             {isClassPayment && 
                 <div className="col-span-2 md:col-span-2">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Profesor</span>
-                    <div className="mt-4">
-                        <SelectProfessors
-                            value={selectedProfessor}
-                            onChange={setSelectedProfessor}
-                            styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
-                        />
-                    </div>
+                    <label htmlFor="professor" className="block text-gray-700 text-sm font-bold mb-2">Profesor</label>
+                    <SelectProfessors
+                        name="professor"
+                        value={selectedProfessor}
+                        onChange={setSelectedProfessor}
+                        styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                    />
                 </div>
             }
             <div className="col-span-2 md:col-span-1 pb-1">
@@ -675,8 +676,13 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 />
             </div>
             <div className="col-span-2 md:col-span-1 pb-1">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
-                <div className="mt-2"><Select onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} /></div>
+                <label htmlFor="paymentType" className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</label>
+                <Select
+                    name="paymentType"
+                    onChange={handleChangePayments}
+                    defaultValue={edit ? paymentMethod : {}}
+                    options={PAYMENT_OPTIONS}
+                />
             </div>
             {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && <div className="col-span-2 pb-1">
                 <div className="flex items-center">
@@ -693,35 +699,33 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 {!selectedStudent?.email && <YellowBudget className="mt-2 w-full"><WarningIcon fontSize="small" className="mr-2"/>No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.</YellowBudget>}
             </div>}
                 <div className="col-span-2 md:col-span-2">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
-                    <div className="mt-4">
-                        <SelectColleges
-                            value={selectedCollege}
-                            onChange={setSelectedCollege}
-                            styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
-                        />
-                    </div>
+                    <label htmlFor="headquarter" className="block text-gray-700 text-sm font-bold mb-2">Sede</label>
+                    <SelectColleges
+                        name="headquarter"
+                        value={selectedCollege}
+                        onChange={setSelectedCollege}
+                        styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                    />
                 </div>
             {isDischarge ?
             <div className="col-span-2 md:col-span-2">
-                <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
-                <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
+                <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">Articulo</label>
+                <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
             </div>
             :
             <>
                  {(!selectedClazz && !selectedCourse) && (<div className="col-span-2 md:col-span-2">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
-                    <div className="mt-4"><SelectItem onChange={setSelectedItem} value={selectedItem} /></div>
+                    <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">Articulo</label>
+                    <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
                 </div>)}
                 {(!selectedCourse && !selectedItem) && (<div className="col-span-2 md:col-span-2">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
-                    <div className="mt-4">
-                        <SelectClass
-                            onChange={setSelectedClazz}
-                            value={selectedClazz}
-                            getOptionValue ={(clazz)=> clazz.id}
-                        />
-                    </div>
+                    <label htmlFor="clazz" className="block text-gray-700 text-sm font-bold mb-2">Clase</label>
+                    <SelectClass
+                        name="clazz"
+                        onChange={setSelectedClazz}
+                        value={selectedClazz}
+                        getOptionValue ={(clazz)=> clazz.id}
+                    />
                 </div>)}
             </>
             }
@@ -729,7 +733,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <CommonTextArea 
                     label="Nota"
                     name="note"
-                    className="block font-bold text-sm text-gray-700 mb-4"
+                    className="block font-bold text-sm text-gray-700 mb-2"
                     type="textarea" 
                     placeholder="Nota" 
                     value={note}
@@ -737,19 +741,21 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 />
             </div>
                 <div className="col-span-2">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</span>
+                    <label htmlFor="paymentAt" className="block text-gray-700 text-sm font-bold mb-2">Fecha en que se realizo el pago</label>
                     <div className="mt-4">
                         <DateTimeInput
-                        label="Seleccionar fecha"
-                        value={paymentAt}
-                        onChange={(newValue) => setPaymentAt(newValue)}
+                            name="paymentAt"
+                            label="Seleccionar fecha"
+                            value={paymentAt}
+                            onChange={(newValue) => setPaymentAt(newValue)}
                         />
                     </div>
                 </div>
                 <div className="col-span-2">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
+                    <label htmlFor="operativeResult" className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</label>
                     <div className="mt-4">
                         <DateTimeInput
+                            name="operativeResult"
                             label="Seleccionar fecha"
                             value={operativeResult}
                             onChange={(newValue) => setOperativeResult(newValue)}

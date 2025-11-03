@@ -33,7 +33,7 @@ const DateTimeInput = (props) => {
         textField: {
           //size: 'small',
           inputProps: {
-              "id": props.id,
+              "id": props.id || props.name,
               "name": props.name,
           }
         }

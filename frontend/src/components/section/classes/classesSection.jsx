@@ -145,20 +145,22 @@ export default function ClassesSection(props) {
         >
             <div className="grid grid-cols-2 gap-4">
                 <div className="mb-4 relative col-span-2">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="startAt">
                         Fecha de inicio
                     </label>
                         <DateTimeInput
+                            name="startAt"
                             label="Seleccionar fecha"
                             value={startAt}
                             onChange={(newValue) => setStartAt(newValue)}
                         />
                 </div>
                 <div className="mb-4 relative col-span-2">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="endAt">
                         Fecha de finalización
                     </label>
                         <DateTimeInput
+                            name="endAt"
                             label="Seleccionar fecha"
                             value={endAt}
                             onChange={(newValue) => setEndAt(newValue)}
@@ -191,18 +193,17 @@ export default function ClassesSection(props) {
                     />
                 </div>
                 <div className="col-span-2 md:col-span-2 pb-3">
-                    <span className="block text-gray-700 text-sm font-bold mb-2">Sede</span>
-                    <div className="mt-4">
-                        <SelectColleges
-                            classNames={{
-                                menu: () => "relative-important",
-                            }}
-                            itemClassName="absolute"
-                            value={selectedCollege}
-                            onChange={setSelectedCollege}
-                            styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
-                        />
-                    </div>
+                    <label htmlFor="headquarter" className="block text-gray-700 text-sm font-bold mb-2">Sede</label>
+                    <SelectColleges
+                        name="headquarter"
+                        classNames={{
+                            menu: () => "relative-important",
+                        }}
+                        itemClassName="absolute"
+                        value={selectedCollege}
+                        onChange={setSelectedCollege}
+                        styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
+                    />
                 </div>
             </div>
         </form>

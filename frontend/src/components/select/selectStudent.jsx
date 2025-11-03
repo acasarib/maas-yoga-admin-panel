@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import studentsService from "../../services/studentsService";
 import CustomAutoSuggest from "./customAutoSuggest";
-import Select from "./select";
+import Select, { reactSelectStyles } from "./select";
 import AsyncSelect from 'react-select/async';
 
-export default function SelectStudent({ onChange, options, value, className, defaultValue, isMulti }) {
+export default function SelectStudent({ onChange, options, value, className, defaultValue, isMulti, name }) {
   
   const [students, setStudents] = useState([]);
   const [studentFullName, setStudentFullName] = useState('');
@@ -52,6 +52,9 @@ export default function SelectStudent({ onChange, options, value, className, def
 
   return isMulti ? 
   <AsyncSelect
+    styles={reactSelectStyles()}
+    name={name}
+    inputId={name}
     cacheOptions
     defaultOptions={students}
     loadOptions={loadOptions}
@@ -65,6 +68,8 @@ export default function SelectStudent({ onChange, options, value, className, def
   />
   : options == null ? 
     <CustomAutoSuggest
+      name={name}
+      id={name}
       className={className}
       suggestions={students}
       getSuggestionValue={(student) => student.name + ' ' + student.lastName}
@@ -77,6 +82,8 @@ export default function SelectStudent({ onChange, options, value, className, def
     />
   : 
   <Select
+    name={name}
+    id={name}
     onChange={onChange}
     options={options}
     value={value}
