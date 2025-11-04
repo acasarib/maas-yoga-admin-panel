@@ -32,9 +32,9 @@ export default function Modal(props) {
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
         <div className="fixed inset-0 overflow-y-auto overflow-x-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center items-center sm:p-0">
-              <div className={`scale-up-center md:ml-64 relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-lg ${getModalSize(props.size)} ${props.className}`} style={props.style}>
-                <div className="rounded-t-md bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div className="flex min-h-full items-end justify-center p-3 text-center items-center sm:p-0">
+              <div className={`scale-up-center relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-lg ${getModalSize(props.size)} ${props.className}`} style={props.style}>
+                <div className="rounded-t-md bg-white px-4 pt-6">
                   <div className="flex flex-col">
                     <div className="modal-header w-full flex justify-between">
                       <div className="flex items-center">
@@ -49,7 +49,7 @@ export default function Modal(props) {
                       </div>
                       <CloseIcon className="cursor-pointer" onClick={onClose}/>
                     </div>
-                    <div className="mt-2">
+                    <div className="my-6">
                       {props.children}
                     </div>
                   </div>
