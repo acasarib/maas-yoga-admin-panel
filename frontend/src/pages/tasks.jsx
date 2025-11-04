@@ -167,43 +167,45 @@ export default function Tasks(props) {
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
-                <Modal icon={<AssignmentTurnedInIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar tarea' : 'Agregar tarea'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
-                        <form className="pt-6 mb-4"    
-                            method="POST"
-                            id="form"
-                            onSubmit={formik.handleSubmit}
-                        >
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="mb-4">
-                                    <CommonInput 
-                                        label="Título"    
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.title}
-                                        name="title"
-                                        htmlFor="title"
-                                        id="title" 
-                                        type="text" 
-                                        placeholder="Título" 
-                                        onChange={formik.handleChange}
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                <CommonInput 
-                                        label="Descripción"    
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.description}
-                                        name="description"
-                                        htmlFor="description"
-                                        id="description" 
-                                        type="text" 
-                                        placeholder="Descripción"
-                                        onChange={formik.handleChange}
-                                />
-                                </div>
-                            </div>
-                        </form>
-                    </>
-                } />
+                <Modal
+                    icon={<AssignmentTurnedInIcon />}
+                    onClick={formik.handleSubmit}
+                    open={displayModal}
+                    onClose={formik.resetForm}
+                    setDisplay={setDisplay}
+                    title={edit ? 'Editar tarea' : 'Agregar tarea'}
+                    buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>}
+                >
+                    <form    
+                        method="POST"
+                        id="form"
+                        onSubmit={formik.handleSubmit}
+                        className="flex flex-col gap-6"
+                    >
+                        <CommonInput 
+                            label="Título"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.title}
+                            name="title"
+                            htmlFor="title"
+                            id="title" 
+                            type="text" 
+                            placeholder="Título" 
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Descripción"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.description}
+                            name="description"
+                            htmlFor="description"
+                            id="description" 
+                            type="textarea"
+                            placeholder="Descripción"
+                            onChange={formik.handleChange}
+                        />
+                    </form>
+                </Modal>
                 <Modal icon={<Delete />} open={deleteModal} setDisplay={setDisplay} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>Esta a punto de elimnar esta tarea. ¿Desea continuar?</div></>} />
             </Container>
         </>
