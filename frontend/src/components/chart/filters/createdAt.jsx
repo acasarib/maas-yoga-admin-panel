@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import DateTimeInput from '../../calendar/dateTimeInput';
 import Select from "../../select/select";
+import Label from "../../label/label";
 
 export default function FilterPaymentCreatedAt({ onChange }) {
 
@@ -41,9 +42,9 @@ export default function FilterPaymentCreatedAt({ onChange }) {
 
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Fecha ingreso</span>
+        <Label htmlFor="createdAt">Fecha ingreso</Label>
         <div className="flex">
-            <Select placeholder="Seleccionar" className="payment-filter-width mt-3  mr-8" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
+            <Select name="createdAt" placeholder="Seleccionar" className="payment-filter-width mr-2" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
             <div className="my-auto flex">
                 {typeCriteriaSelected !== null && 
                     <>
@@ -53,7 +54,7 @@ export default function FilterPaymentCreatedAt({ onChange }) {
                             onChange={(newValue) => setAt(newValue)}
                         />
                     {typeCriteriaSelected.value === "between" &&
-                    <><span className="mx-2">y</span>
+                    <><span className="mx-2 flex items-center">y</span>
                         <DateTimeInput
                             label="Seleccionar fecha"
                             value={at2}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SelectStudent from "../../select/selectStudent";
+import Label from "../../label/label";
 
 export default function FilterPaymentStudent({ onChange }) {
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -11,9 +12,10 @@ export default function FilterPaymentStudent({ onChange }) {
     
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2">Estudiante</span>
+        <Label htmlFor="studentId">Estudiante</Label>
         <div className="flex">
             <SelectStudent
+                name="studentId"
                 className="payment-filter-width"
                 value={selectedStudent}
                 onChange={setSelectedStudent}

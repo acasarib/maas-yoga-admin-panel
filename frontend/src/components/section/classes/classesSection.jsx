@@ -13,6 +13,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewSlider from 'react-view-slider';
 import PlusButton from "../../button/plus";
 import SelectColleges from "../../select/selectColleges";
+import Label from "../../label/label";
 
 export default function ClassesSection(props) {
 
@@ -138,80 +139,74 @@ export default function ClassesSection(props) {
     const renderView = ({ index, active, transitionState }) => (
         <>
         {index === 0 &&
-        <form className="pt-6 mb-4"    
+        <form className="flex flex-col sm:grid sm:grid-cols-2 gap-6"
             method="POST"
             id="form"
             onSubmit={formik.handleSubmit}
         >
-            <div className="grid grid-cols-2 gap-4">
-                <div className="mb-4 relative col-span-2">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="startAt">
-                        Fecha de inicio
-                    </label>
-                        <DateTimeInput
-                            name="startAt"
-                            label="Seleccionar fecha"
-                            value={startAt}
-                            onChange={(newValue) => setStartAt(newValue)}
-                        />
-                </div>
-                <div className="mb-4 relative col-span-2">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="endAt">
-                        Fecha de finalización
-                    </label>
-                        <DateTimeInput
-                            name="endAt"
-                            label="Seleccionar fecha"
-                            value={endAt}
-                            onChange={(newValue) => setEndAt(newValue)}
-                        />
-                </div>
-                <div className="mb-4">
-                    <CommonInput 
-                        label="Título"    
-                        onBlur={formik.handleBlur}
-                        value={formik.values.title}
-                        name="title"
-                        htmlFor="title"
-                        id="title" 
-                        type="text" 
-                        placeholder="Título" 
-                        onChange={formik.handleChange}
-                    />
-                </div>
-                <div className="mb-4">
-                    <CommonInput 
-                            label="Docente"    
-                            onBlur={formik.handleBlur}
-                            value={formik.values.professor}
-                            name="professor"
-                            htmlFor="professor"
-                            id="professor" 
-                            type="text" 
-                            placeholder="Docente"
-                            onChange={formik.handleChange}
-                    />
-                </div>
-                <div className="col-span-2 md:col-span-2 pb-3">
-                    <label htmlFor="headquarter" className="block text-gray-700 text-sm font-bold mb-2">Sede</label>
-                    <SelectColleges
-                        name="headquarter"
-                        classNames={{
-                            menu: () => "relative-important",
-                        }}
-                        itemClassName="absolute"
-                        value={selectedCollege}
-                        onChange={setSelectedCollege}
-                        styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
-                    />
-                </div>
+            <div className='relative sm:col-span-2'>
+                <DateTimeInput
+                    className="w-full sm:w-auto"
+                    name="startAt"
+                    label="Fecha de inicio"
+                    value={startAt}
+                    onChange={(newValue) => setStartAt(newValue)}
+                />
+            </div>
+            <div className="relative sm:col-span-2">
+                <DateTimeInput
+                    className="w-full sm:w-auto"
+                    name="endAt"
+                    label="Fecha de finalización"
+                    value={endAt}
+                    onChange={(newValue) => setEndAt(newValue)}
+                />
+            </div>
+
+            <CommonInput 
+                label="Título"    
+                onBlur={formik.handleBlur}
+                value={formik.values.title}
+                name="title"
+                htmlFor="title"
+                id="title" 
+                type="text" 
+                placeholder="Título" 
+                onChange={formik.handleChange}
+            />
+
+
+            <CommonInput 
+                label="Docente"    
+                onBlur={formik.handleBlur}
+                value={formik.values.professor}
+                name="professor"
+                htmlFor="professor"
+                id="professor" 
+                type="text" 
+                placeholder="Docente"
+                onChange={formik.handleChange}
+            />
+
+            <div className="col-span-2">
+                <Label htmlFor="headquarter">Sede</Label>
+                <SelectColleges
+                    name="headquarter"
+                    classNames={{
+                        menu: () => "relative-important",
+                    }}
+                    itemClassName="absolute"
+                    value={selectedCollege}
+                    onChange={setSelectedCollege}
+                    styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
+                />
             </div>
         </form>
         }
         {index === 1 && <>
-        <div className="w-full flex justify-between">
+        <div className="w-full flex justify-between items-center mb-4">
             <div><ArrowBackIcon onClick={() => setActiveView(0)} className="cursor-pointer"/></div>
-            <div><h1 className="text-2xl md:text-3xl text-center mb-4">Dias de la clase</h1></div>
+            <div><h1 className="text-2xl md:text-3xl text-center">Dias de la clase</h1></div>
             <div></div>
         </div>
         <div className="col-span-2 md:col-span-2 pb-3">

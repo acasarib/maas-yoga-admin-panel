@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SelectItem from "../../select/selectItem";
+import Label from "../../label/label";
 
 export default function FilterPaymentItem({ onChange }) {
 
@@ -12,9 +13,9 @@ export default function FilterPaymentItem({ onChange }) {
 
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2">Articulo</span>
+        <Label htmlFor="item">Articulo</Label>
         <div className="flex">
-            <SelectItem className="payment-filter-width" value={selectedItem} onChange={setSelectedItem}/>
+            <SelectItem name="item" className="payment-filter-width" value={selectedItem} onChange={setSelectedItem}/>
         </div>
     </div>
     );

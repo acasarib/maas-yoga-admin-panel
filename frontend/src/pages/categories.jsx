@@ -67,7 +67,7 @@ export default function Categories(props) {
     const renderView = ({ index, active, transitionState }) => (
         <>
         {index === 0 &&
-            <div className="mb-4 relative col-span-2">
+            <div className="relative col-span-2">
                 <CommonInput 
                     label="Título del rubro"    
                     value={category.title}
@@ -83,9 +83,9 @@ export default function Categories(props) {
         }
         {index === 1 && 
             <div>
-                <div className="w-full flex justify-between">
+                <div className="w-full flex justify-between items-center mb-4">
                     <div><ArrowBackIcon onClick={() => setActiveView(0)} className="cursor-pointer"/></div>
-                    <div><h1 className="text-2xl md:text-3xl text-center mb-4">{category.title}</h1></div>
+                    <div><h1 className="text-2xl md:text-3xl text-center">{category.title}</h1></div>
                     <div></div>
                 </div>
                 <div className="flex items-center">

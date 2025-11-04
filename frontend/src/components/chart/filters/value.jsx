@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import CommonInput from "../../commonInput";
 import Select from "../../select/select";
+import Label from "../../label/label";
 
 export default function FilterPaymentValue({ onChange }) {
 
@@ -45,12 +46,13 @@ export default function FilterPaymentValue({ onChange }) {
 
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2">Monto del pago</span>
+        <Label htmlFor="paymentValue">Monto del pago</Label>
         <div className="flex">
-            <Select className="payment-filter-width" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
+            <Select name="paymentValue" className="payment-filter-width" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
             {typeCriteriaSelected !== null && 
                 <><CommonInput 
                     label=""
+                    currency
                     inputClassName="ml-2 payment-filter-width"
                     className="hidden"
                     value={value}
@@ -62,9 +64,10 @@ export default function FilterPaymentValue({ onChange }) {
                     onChange={(e) => handleOnChangeValue(e.target.value)}
                 />
                 {typeCriteriaSelected.value === "between" &&
-                <><span className="mx-2 my-auto">y</span>
+                <><span className="mx-2 flex items-center">y</span>
                 <CommonInput 
                     label=""
+                    currency
                     inputClassName="payment-filter-width"
                     className="hidden"
                     value={value2}

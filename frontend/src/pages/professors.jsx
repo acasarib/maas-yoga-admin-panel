@@ -166,107 +166,91 @@ export default function Professors(props) {
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar profesor' : 'Agregar profesor'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
-                    <form className="pt-6 mb-4"    
+                    <form className="flex flex-col sm:grid sm:grid-cols-2 gap-6"
                         method="POST"
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="mb-4">
-                                <CommonInput 
-                                    label="Nombre"    
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.name}
-                                    name="name"
-                                    htmlFor="name"
-                                    id="name" 
-                                    type="text" 
-                                    placeholder="Nombre" 
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <CommonInput 
-                                        label="Apellido"    
-                                        onBlur={formik.handleBlur}
-                                        value={formik.values.surname}
-                                        name="surname"
-                                        htmlFor="surname"
-                                        id="surname" 
-                                        type="text" 
-                                        placeholder="Apellido"
-                                        onChange={formik.handleChange}
-                                />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="mb-4">
-                                <CommonInput 
-                                    label="Numero de contacto"    
-                                    onBlur={() => checkDuplicated("phoneNumber", () => setIsPhoneNumberDuplicated(true))}
-                                    onFocus={() => setIsPhoneNumberDuplicated(false)}
-                                    isInvalid={isPhoneNumberDuplicated}
-                                    invalidMessage={"Numero ya registrado"}
-                                    value={formik.values.phoneNumber}
-                                    name="phoneNumber"
-                                    htmlFor="phoneNumber"
-                                    id="phoneNumber" 
-                                    type="text" 
-                                    placeholder="Numero de contacto" 
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <CommonInput 
-                                    label="Email"    
-                                    onBlur={() => checkDuplicated("email", () => setIsEmailDuplicated(true))}
-                                    onFocus={() => setIsEmailDuplicated(false)}
-                                    isInvalid={isEmailDuplicated}
-                                    invalidMessage={"Email ya registrado"}
-                                    value={formik.values.email}
-                                    name="email"
-                                    htmlFor="email"
-                                    id="email" 
-                                    type="text" 
-                                    placeholder="Email"
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="mb-4">
-                                <CustomRadio
-                                    checked={selectedProfessorInvoiceType === 'A'}
-                                    onChange={handleOptionChange}
-                                    value="A"
-                                    name="radio-buttons"
-                                    inputProps={{ 'aria-label': 'A' }}
-                                    label="FA (Factura A)"
-                                />
-                                <CustomRadio
-                                    type="radio"
-                                    value="B"
-                                    checked={selectedProfessorInvoiceType === 'B'}
-                                    onChange={handleOptionChange}
-                                    label="FB (Factura B)"
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <CustomRadio
-                                    type="radio"
-                                    value="C"
-                                    checked={selectedProfessorInvoiceType === 'C'}
-                                    onChange={handleOptionChange}
-                                    label="FC (Factura C)"
-                                />
-                                <CustomRadio
-                                    type="radio"
-                                    value="NF"
-                                    checked={selectedProfessorInvoiceType === 'NF'}
-                                    onChange={handleOptionChange}
-                                    label="NF (No Factura)"
-                                />
-                            </div>
+                        <CommonInput 
+                            label="Nombre"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.name}
+                            name="name"
+                            htmlFor="name"
+                            id="name" 
+                            type="text" 
+                            placeholder="Nombre" 
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Apellido"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.surname}
+                            name="surname"
+                            htmlFor="surname"
+                            id="surname" 
+                            type="text" 
+                            placeholder="Apellido"
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Numero de contacto"    
+                            onBlur={() => checkDuplicated("phoneNumber", () => setIsPhoneNumberDuplicated(true))}
+                            onFocus={() => setIsPhoneNumberDuplicated(false)}
+                            isInvalid={isPhoneNumberDuplicated}
+                            invalidMessage={"Numero ya registrado"}
+                            value={formik.values.phoneNumber}
+                            name="phoneNumber"
+                            htmlFor="phoneNumber"
+                            id="phoneNumber" 
+                            type="text" 
+                            placeholder="Numero de contacto" 
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Email"    
+                            onBlur={() => checkDuplicated("email", () => setIsEmailDuplicated(true))}
+                            onFocus={() => setIsEmailDuplicated(false)}
+                            isInvalid={isEmailDuplicated}
+                            invalidMessage={"Email ya registrado"}
+                            value={formik.values.email}
+                            name="email"
+                            htmlFor="email"
+                            id="email" 
+                            type="text" 
+                            placeholder="Email"
+                            onChange={formik.handleChange}
+                        />
+                        <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <CustomRadio
+                                checked={selectedProfessorInvoiceType === 'A'}
+                                onChange={handleOptionChange}
+                                value="A"
+                                name="radio-buttons"
+                                inputProps={{ 'aria-label': 'A' }}
+                                label="FA (Factura A)"
+                            />
+                            <CustomRadio
+                                type="radio"
+                                value="B"
+                                checked={selectedProfessorInvoiceType === 'B'}
+                                onChange={handleOptionChange}
+                                label="FB (Factura B)"
+                            />
+                            <CustomRadio
+                                type="radio"
+                                value="C"
+                                checked={selectedProfessorInvoiceType === 'C'}
+                                onChange={handleOptionChange}
+                                label="FC (Factura C)"
+                            />
+                            <CustomRadio
+                                type="radio"
+                                value="NF"
+                                checked={selectedProfessorInvoiceType === 'NF'}
+                                onChange={handleOptionChange}
+                                label="NF (No Factura)"
+                            />
                         </div>
                     </form>
                 </>

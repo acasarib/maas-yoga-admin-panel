@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SelectClass from "../../select/selectClass";
+import Label from "../../label/label";
 
 export default function FilterPaymentClazz({ onChange }) {
 
@@ -12,9 +13,10 @@ export default function FilterPaymentClazz({ onChange }) {
     
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2">Clase</span>
+        <Label htmlFor="clazz">Clase</Label>
         <div className="flex">
             <SelectClass
+                name="clazz"
                 className="payment-filter-width"
                 value={selectedClazz}
                 onChange={setSelectedClazz}

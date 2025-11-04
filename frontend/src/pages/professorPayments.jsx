@@ -13,6 +13,8 @@ import useToggle from "../hooks/useToggle";
 import Loader from "../components/spinner/loader";
 import coursesService from "../services/coursesService";
 import DateInput from "../components/calendar/dateInput";
+import NoDataComponent from "../components/table/noDataComponent";
+import PaidIcon from '@mui/icons-material/Paid';
 
 export default function ProfessorPayments(props) {
     const { calcProfessorsPayments } = useContext(Context);
@@ -120,7 +122,7 @@ export default function ProfessorPayments(props) {
                             </ButtonPrimary>
 
                             <ButtonPrimary
-                                disabled={from == null || to == null || data == null}
+                                disabled={from == null || to == null || data == null || data?.length === 0}
                                 onClick={handleExportPayments}
                                 className="w-1/2 sm:w-auto flex justify-center items-center"
                             >
@@ -133,6 +135,7 @@ export default function ProfessorPayments(props) {
                 </div>
                 {data !== null &&
                     data.map((d, i) => <CourseProfessorCard onInformPayment={onInformPayment} from={from} to={to} onShowPayments={setActivePaymentsShowing} key={i} course={d}/>)}
+                {data?.length === 0 && <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No hay pagos para mostrar, intente con otro rango de fechas"/>}
                 <Modal
                     open={activePaymentsShowing !== null}
                     setDisplay={() => setActivePaymentsShowing(null)}
