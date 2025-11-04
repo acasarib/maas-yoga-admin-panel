@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { PAYMENT_OPTIONS } from "../../../constants";
 import Select from "../../select/select";
+import Label from "../../label/label";
 
 export default function FilterPaymentType({ onChange }) {
 
@@ -13,8 +14,8 @@ export default function FilterPaymentType({ onChange }) {
 
     return (
     <div className="payment-filter-width">
-        <span className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</span>
-        <div className="mt-4"><Select value={selectedPayment} onChange={handleOnChange} options={PAYMENT_OPTIONS} /></div>
+        <Label htmlFor="paymentType">Modo de pago</Label>
+        <Select name="paymentType" value={selectedPayment} onChange={handleOnChange} options={PAYMENT_OPTIONS} />
     </div>
     );
 } 

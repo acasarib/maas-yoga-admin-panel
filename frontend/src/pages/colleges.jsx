@@ -194,39 +194,33 @@ export default function Colleges(props) {
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
                 <Modal icon={<AccountBalanceIcon />} onClick={formik.handleSubmit} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar sede' : 'Agregar sede'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} children={<>
-                    <form className="pt-6 mb-4"    
+                    <form className="flex flex-col sm:grid sm:grid-cols-2 gap-6" 
                         method="POST"
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="mb-4">
-                                <CommonInput 
-                                    label="Nombre"    
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.name}
-                                    name="name"
-                                    htmlFor="name"
-                                    id="name" 
-                                    type="text" 
-                                    placeholder="Nombre" 
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                            <div className="mb-4">
-                            <CommonInput 
-                                    label="Ubicación"    
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.location}
-                                    name="location"
-                                    htmlFor="location"
-                                    id="location" 
-                                    type="text" 
-                                    placeholder="Ubicación"
-                                    onChange={formik.handleChange}
-                            />
-                            </div>
-                        </div>
+                        <CommonInput 
+                            label="Nombre"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.name}
+                            name="name"
+                            htmlFor="name"
+                            id="name" 
+                            type="text" 
+                            placeholder="Nombre" 
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Ubicación"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.location}
+                            name="location"
+                            htmlFor="location"
+                            id="location" 
+                            type="text" 
+                            placeholder="Ubicación"
+                            onChange={formik.handleChange}
+                        />
                     </form>
                 </>
                 } />

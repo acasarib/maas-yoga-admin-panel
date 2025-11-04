@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SelectCourses from "../../select/selectCourses";
 import CustomCheckbox from "../../checkbox/customCheckbox";
+import Label from "../../label/label";
 
 export default function FilterPaymentCourse({ onChange }) {
 
@@ -17,9 +18,10 @@ export default function FilterPaymentCourse({ onChange }) {
     
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2">Curso</span>
+        <Label htmlFor="course">Curso</Label>
         <div className="flex space-x-4 items-end">
             <SelectCourses
+                name="course"
                 className="payment-filter-width"
                 value={selectedCourse}
                 onChange={setSelectedCourse}

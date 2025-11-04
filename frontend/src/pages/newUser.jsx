@@ -6,6 +6,7 @@ import Modal from "../components/modal";
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import CustomCheckbox from "../components/checkbox/customCheckbox";
 import { Context } from "../context/Context";
 import Table from "../components/table";
 import { orange } from '@mui/material/colors';
@@ -16,6 +17,7 @@ import PlusButton from "../components/button/plus";
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
+import Label from "../components/label/label";
 
 export default function NewUser(props) {
 
@@ -206,88 +208,83 @@ const validate = (values) => {
         </Container>
         <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteUser} children={<><div>Esta a punto de elimnar el usuario <span className="font-bold">{userToDelete}</span>. ¿Desea continuar?</div></>} />
         <Modal icon={<PersonAddIcon />} buttonDisabled={edit ? false : disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
-                <form className="pt-6 mb-4 sm:mx-auto"    
+                <form className="flex flex-col gap-6"   
                     method="POST"
                     id="form"
                     autoComplete="off"
                     onSubmit={formik.handleSubmit}
                 >
-                  <div className="mb-4 flex flex-col sm:flex-row w-full">
-                      <div className="w-full mb-4 sm:mb-0 sm:mr-1">
-                          <CommonInput 
-                              label="Nombre"    
-                              onBlur={formik.handleBlur}
-                              value={formik.values.firstName}
-                              name="firstName"
-                              htmlFor="firstName"
-                              id="firstName" 
-                              type="text" 
-                              placeholder="Nombre" 
-                              onChange={formik.handleChange}
-                          />
-                          {formik.touched.firstName && formik.errors.firstName ? (
-                              <div className="text-red-500">{formik.errors.firstName}</div>
-                          ) : null}
-                      </div>
-                      <div className="sm:w-full sm:ml-1">
-                          <CommonInput 
-                              label="Apellido"    
-                              onBlur={formik.handleBlur}
-                              value={formik.values.lastName}
-                              name="lastName"
-                              htmlFor="lastName"
-                              id="lastName" 
-                              type="text" 
-                              placeholder="Apellido" 
-                              onChange={formik.handleChange}
-                          />
-                        {formik.touched.lastName && formik.errors.lastName ? (
-                            <div className="text-red-500">{formik.errors.lastName}</div>
-                        ) : null}
-                      </div>
-                  </div>
-                  <div className="mb-4">
-                      <CommonInput 
-                          label="Email"    
-                          onBlur={formik.handleBlur}
-                          value={formik.values.email}
-                          name="email"
-                          htmlFor="email"
-                          id="email" 
-                          autoComplete="new-password"
-                          type="text" 
-                          placeholder="Email" 
-                          role="presentation"
-                          onChange={formik.handleChange}
-                      />
-                    {formik.touched.email && formik.errors.email ? (
-                        <div className="text-red-500">{formik.errors.email}</div>
+                  <div>
+                    <CommonInput 
+                        label="Nombre"    
+                        onBlur={formik.handleBlur}
+                        value={formik.values.firstName}
+                        name="firstName"
+                        htmlFor="firstName"
+                        id="firstName" 
+                        type="text" 
+                        placeholder="Nombre" 
+                        onChange={formik.handleChange}
+                    />
+                    {formik.touched.firstName && formik.errors.firstName ? (
+                        <div className="text-red-500">{formik.errors.firstName}</div>
                     ) : null}
                   </div>
-                  <div className="mb-6">
-                  {edit && (<>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Contraseña
-                    </label>
-                  <div className="flex flex-wrap gap-2"><FormGroup>
-                    <FormControlLabel control={<Checkbox  checked={restorePass} onChange={(e) => setRestorePass(e.target.checked)} sx={{
-                      color: orange[500],
-                      '&.Mui-checked': {
-                        color: orange[500],
-                      },
-                    }} />} label="Reseteo de contraseña" />
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControlLabel control={<Checkbox  checked={editPass} onChange={(e) => setEditPass(e.target.checked)} sx={{
-                      color: orange[500],
-                      '&.Mui-checked': {
-                        color: orange[500],
-                      },
-                    }} />} label="Editar contraseña" />
-                  </FormGroup>
+              
+                  <div>
+                    <CommonInput 
+                        label="Apellido"    
+                        onBlur={formik.handleBlur}
+                        value={formik.values.lastName}
+                        name="lastName"
+                        htmlFor="lastName"
+                        id="lastName" 
+                        type="text" 
+                        placeholder="Apellido" 
+                        onChange={formik.handleChange}
+                    />
+                  {formik.touched.lastName && formik.errors.lastName ? (
+                      <div className="text-red-500">{formik.errors.lastName}</div>
+                  ) : null}
+                </div>
+                
+                <div>
+                  <CommonInput 
+                      label="Email"    
+                      onBlur={formik.handleBlur}
+                      value={formik.values.email}
+                      name="email"
+                      htmlFor="email"
+                      id="email" 
+                      autoComplete="new-password"
+                      type="text" 
+                      placeholder="Email" 
+                      role="presentation"
+                      onChange={formik.handleChange}
+                  />
+                {formik.touched.email && formik.errors.email ? (
+                    <div className="text-red-500">{formik.errors.email}</div>
+                ) : null}
+              </div>
+
+              <div>
+                {edit && (<>
+                  <Label>Contraseña</Label>
+                  <div className="flex flex-col gap-2">
+                    <CustomCheckbox
+                      checked={restorePass}
+                      onChange={(e) => setRestorePass(e.target.checked)}
+                      label="Reseteo de contraseña"
+                    />
+                    <CustomCheckbox
+                      checked={editPass}
+                      onChange={(e) => setEditPass(e.target.checked)}
+                      label="Editar contraseña"
+                    />
                   </div>
-                  </>)}
-                    {((edit && editPass) || !edit) && (<>
+                  </>)
+                }
+                    {((edit && editPass) || !edit) && (<div>
                       <CommonInput 
                         label="Contraseña"    
                         onBlur={formik.handleBlur}
@@ -301,31 +298,31 @@ const validate = (values) => {
                         placeholder="******************"
                         onChange={formik.handleChange}
                     />
-                   {formik.touched.password && formik.errors.password ? (
-                       <div className="text-red-500">{formik.errors.password}</div>
-                   ) : null}
-                    </>)}
+                    {formik.touched.password && formik.errors.password ? (
+                        <div className="text-red-500">{formik.errors.password}</div>
+                    ) : null}
+                    </div>)}
                   </div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Atributos
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    <FormGroup>
-                      <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
-                        color: orange[500],
-                        '&.Mui-checked': {
+                  <div>
+                    <Label>Atributos</Label>
+                    <div className="flex flex-col gap-2">
+                      <FormGroup>
+                        <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
                           color: orange[500],
-                        },
-                      }} />} label="Permitir crear usuarios" />
-                    </FormGroup>
-                    <FormGroup>
-                      <FormControlLabel control={<Checkbox  checked={googleDriveAccess} onChange={(e) => setGoogleDriveAccess(e.target.checked)} sx={{
-                        color: orange[500],
-                        '&.Mui-checked': {
+                          '&.Mui-checked': {
+                            color: orange[500],
+                          },
+                        }} />} label="Permitir crear usuarios" />
+                      </FormGroup>
+                      <FormGroup>
+                        <FormControlLabel control={<Checkbox  checked={googleDriveAccess} onChange={(e) => setGoogleDriveAccess(e.target.checked)} sx={{
                           color: orange[500],
-                        },
-                      }} />} label="Acceso a Google Drive" />
-                    </FormGroup>
+                          '&.Mui-checked': {
+                            color: orange[500],
+                          },
+                        }} />} label="Acceso a Google Drive" />
+                      </FormGroup>
+                    </div>
                   </div>
                 </form>
         </>} />

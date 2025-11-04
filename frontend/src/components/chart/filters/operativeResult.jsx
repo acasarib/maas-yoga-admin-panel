@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import DateTimeInput from '../../calendar/dateTimeInput';
 import 'dayjs/locale/es';
+import Label from "../../label/label";
 
 export default function FilterPaymentOperativeResult({ onChange }) {
 
@@ -31,10 +32,11 @@ export default function FilterPaymentOperativeResult({ onChange }) {
 
     return (
     <div>
-        <span className="block text-gray-700 text-sm font-bold mb-2 mt-3">Resultado operativo</span>
-        <div className="flex">
+        <Label htmlFor="operativeResult">Resultado operativo</Label>
+        <div className="flex mt-4">
                 <DateTimeInput
                     views={['year', 'month']}
+                    name="operativeResult"
                     label="Seleccionar fecha"
                     value={selectedDate}
                     onChange={(newValue) => setSelectedDate(newValue)}

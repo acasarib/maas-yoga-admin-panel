@@ -13,6 +13,7 @@ import PlusButton from '../button/plus';
 import ProfessorInfo from '../courses/professorInfo';
 import SelectStudent from '../select/selectStudent';
 import EditButton from '../button/editButton';
+import Label from '../label/label';
 
 
 const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) => {
@@ -124,79 +125,67 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 			title={edit ? 'Editar curso' : 'Agregar curso'}
 			buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>}
 		>
-			<form className="pt-6 mb-4"
+			<form className="flex flex-col sm:grid sm:grid-cols-2 gap-6"
 				method="POST"
 				id="form"
 				onSubmit={formik.handleSubmit}
 			>
-				<div className={`mb-4 relative col-span-2`}>
-					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="startAt">
-							Fecha de inicio
-					</label>
+				<div className='relative sm:col-span-2'>
 					<DateTimeInput
+						className="w-full sm:w-auto"
 						name="startAt"
-						label="Seleccionar fecha"
+						label="Fecha de inicio"
 						value={startAt}
 						onChange={setStartAt}
 					/>
 				</div>
-				<div className={`mb-4 relative col-span-2 ${isCircular.value && "hidden"}`}>
-					<label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="endAt">
-							Fecha de finalizacion
-					</label>
+				<div className={`relative sm:col-span-2 ${isCircular.value && "hidden"}`}>
 					<DateTimeInput
+						className="w-full sm:w-auto"
 						name="endAt"
-						label="Seleccionar fecha"
+						label="Fecha de finalizacion"
 						value={endAt}
 						onChange={setEndAt}
 					/>
 				</div>
-				<div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-					<CustomCheckbox
-						checked={needsRegistration.value}
-						labelOn="Posee matrícula"
-						labelOff="Posee matrícula"
-						onChange={needsRegistration.toggle}
+				<CustomCheckbox
+					checked={needsRegistration.value}
+					labelOn="Posee matrícula"
+					labelOff="Posee matrícula"
+					onChange={needsRegistration.toggle}
+				/>
+				<CustomCheckbox
+					checked={isCircular.value}
+					labelOn="Es circular"
+					labelOff="Es circular"
+					onChange={isCircular.toggle}
+				/>
+				<div className="flex flex-col sm:grid sm:grid-cols-2 sm:col-span-2 gap-6">
+					<CommonInput
+						label="Título"
+						onBlur={formik.handleBlur}
+						value={formik.values.title}
+						name="title"
+						htmlFor="title"
+						id="title"
+						type="text"
+						placeholder="Título"
+						onChange={formik.handleChange}
 					/>
-					<CustomCheckbox
-						checked={isCircular.value}
-						labelOn="Es circular"
-						labelOff="Es circular"
-						onChange={isCircular.toggle}
+					<CommonInput
+						label="Descripción"
+						onBlur={formik.handleBlur}
+						value={formik.values.description}
+						name="description"
+						htmlFor="description"
+						id="description"
+						type="text"
+						placeholder="Descripción"
+						onChange={formik.handleChange}
 					/>
 				</div>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="mb-4">
-						<CommonInput
-							label="Título"
-							onBlur={formik.handleBlur}
-							value={formik.values.title}
-							name="title"
-							htmlFor="title"
-							id="title"
-							type="text"
-							placeholder="Título"
-							onChange={formik.handleChange}
-						/>
-					</div>
-					<div className="mb-4">
-						<CommonInput
-							label="Descripción"
-							onBlur={formik.handleBlur}
-							value={formik.values.description}
-							name="description"
-							htmlFor="description"
-							id="description"
-							type="text"
-							placeholder="Descripción"
-							onChange={formik.handleChange}
-						/>
-					</div>
-				</div>
-				<div className="mb-4">
-					<label htmlFor='assignStudents' className="block text-gray-700 text-sm font-bold mb-2">
-						Asignar alumnos
-					</label>
+				<div className='sm:col-span-2'>
+					<Label htmlFor='assignStudents'>Asignar alumnos</Label>
 					<SelectStudent
 						name="assignStudents"
 						className="z-100"
@@ -205,31 +194,29 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 						defaultValue={(edit && (courseToEdit.students)) ? courseToEdit.students : []}
 					/>
 				</div>
-				{courseProfessors.length > 0 && (<>
-						<label className="block text-gray-700 text-sm font-bold mb-2">
-							Profesores
-						</label>
-						{courseProfessors.map((prf, index) =>
-							<div key={index} className="my-1 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">
-								<div>{prf.professor?.name} {prf.professor?.lastName}</div>
-								<div>{edit && <EditButton onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}/>}
-									<button
-										type="button"
-										className="rounded-full p-1 bg-gray-100 hover:bg-gray-200 hover:shadow-md mx-1 transition-all duration-200 ease-in-out transform ml-2"
-										onClick={() => removeCourseProfessor(prf)}
-									>
-										<CloseIcon />
-									</button>
+				{courseProfessors.length > 0 && (<div className='col-span-2'>
+						<Label>Profesores</Label>
+						<div className='flex flex-col gap-2'>
+							{courseProfessors.map((prf, index) =>
+								<div key={index} className="px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">
+									<div>{prf.professor?.name} {prf.professor?.lastName}</div>
+									<div>{edit && <EditButton onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}/>}
+										<button
+											type="button"
+											className="rounded-full p-1 bg-gray-100 hover:bg-gray-200 hover:shadow-md mx-1 transition-all duration-200 ease-in-out transform ml-2"
+											onClick={() => removeCourseProfessor(prf)}
+										>
+											<CloseIcon />
+										</button>
+									</div>
 								</div>
-							</div>
-						)}
-					</>
+							)}
+						</div>
+					</div>
 				)}
 				{!newProfessor && (
-					<div className="mb-4 mt-2 flex items-center justify-start">
-						<label className="block text-gray-700 text-sm font-bold">
-							Nuevo profesor
-						</label>
+					<div className="flex items-center justify-start">
+						<Label>Nuevo profesor</Label>
 						<PlusButton size="small" className="ml-3" onClick={() => setNewProfessor(true)} />
 					</div>)
 				}

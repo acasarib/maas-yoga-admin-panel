@@ -14,6 +14,7 @@ import FilterPaymentClazz from "./filters/clazz";
 import FilterPaymentCreatedAt from "./filters/createdAt";
 import FilterPaymentOperativeResult from "./filters/operativeResult";
 import Select from "../select/select";
+import Label from "../label/label";
 
 export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) {
 
@@ -109,14 +110,16 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
         title="Seleccionar filtros"
         onClick={handleApplyFilter}
     >
-        {currentFilters.map(filter => 
-            <div key={filter.value} className="flex items-center justify-between mb-4">
-                {filter.component}
-                <RemoveCircleOutlineIcon className="cursor-pointer" onClick={() => removeFilter(filter)}/>
-            </div>)}
+        <div className={`mb-12 flex flex-col gap-6 ${currentFilters.length === 0 && "hidden"}`}>
+            {currentFilters.map(filter => 
+                <div key={filter.value} className="flex items-center justify-between">
+                    {filter.component}
+                    <RemoveCircleOutlineIcon className="cursor-pointer" onClick={() => removeFilter(filter)}/>
+                </div>)}
+        </div>
         {filtersAvailable.length > 0 &&
             <>
-            <label htmlFor="filterType">Tipo de filtro</label>
+            <Label htmlFor="filterType">Tipo de filtro</Label>
             <Select name="filterType" placeholder="Seleccionar" className="payment-filter-width" value={null} onChange={onSelectNewFilter} options={filtersAvailable} />
             </>
         }

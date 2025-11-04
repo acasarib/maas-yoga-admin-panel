@@ -15,7 +15,7 @@ export default function CustomCheckbox({ checked, label, labelOn, labelOff, clas
         <>
             <div className={`${className}`}>
                 <FormControlLabel
-                    label={<Label className='cursor-pointer' htmlFor={id}>{checked ? labelOn : labelOff}</Label>}
+                    label={<Label className='cursor-pointer mb-0' htmlFor={id}>{checked ? labelOn : labelOff}</Label>}
                     control={
                         <Checkbox
                             inputProps={{

@@ -264,87 +264,77 @@ export default function Students(props) {
                 </div>
                 <PendingPaymentsModal isOpen={isOpenPendingPaymentsModal} onClose={switchPendingPaymentsModal}/>
                 <Modal buttonDisabled={isDocumentDuplicated || isEmailDuplicated || isPhoneNumberDuplicated} icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
-                    <form className="pt-6 mb-4"    
+                    <form
+                        className="flex flex-col sm:grid sm:grid-cols-2 gap-6"
                         method="POST"
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="mb-4">
-                                <CommonInput 
-                                    label="Nombre"    
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.name}
-                                    name="name"
-                                    htmlFor="name"
-                                    id="name" 
-                                    type="text" 
-                                    placeholder="Nombre" 
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                            <div className="mb-4">
-                            <CommonInput 
-                                    label="Apellido"    
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.surname}
-                                    name="surname"
-                                    htmlFor="surname"
-                                    id="surname" 
-                                    type="text" 
-                                    placeholder="Apellido"
-                                    onChange={formik.handleChange}
-                            />
-                            </div>
-                            <div className="mb-4">
-                            <CommonInput 
-                                    label="Documento"    
-                                    onBlur={() => checkDuplicated("document", () => setIsDocumentDuplicated(true))}
-                                    onFocus={() => setIsDocumentDuplicated(false)}
-                                    isInvalid={isDocumentDuplicated}
-                                    invalidMessage={"Documento ya registrado"}
-                                    value={formik.values.document}
-                                    name="document"
-                                    htmlFor="document"
-                                    id="document" 
-                                    type="number" 
-                                    placeholder="Documento"
-                                    onChange={formik.handleChange}
-                            />
-                            </div>
-                            <div className="mb-4">
-                                <CommonInput 
-                                    label="Email"    
-                                    onBlur={() => checkDuplicated("email", () => setIsEmailDuplicated(true))}
-                                    onFocus={() => setIsEmailDuplicated(false)}
-                                    isInvalid={isEmailDuplicated}
-                                    invalidMessage={"Email ya registrado"}
-                                    value={formik.values.email}
-                                    name="email"
-                                    htmlFor="email"
-                                    id="email" 
-                                    type="text" 
-                                    placeholder="Email" 
-                                    onChange={formik.handleChange}
-                                />
-                            </div>
-                            <div className="mb-4">
-                            <CommonInput 
-                                    label="Numero de telefono"    
-                                    onBlur={() => checkDuplicated("phoneNumber", () => setIsPhoneNumberDuplicated(true))}
-                                    onFocus={() => setIsPhoneNumberDuplicated(false)}
-                                    isInvalid={isPhoneNumberDuplicated}
-                                    invalidMessage={"Numero ya registrado"}
-                                    value={formik.values.phoneNumber}
-                                    name="phoneNumber"
-                                    htmlFor="phoneNumber"
-                                    id="phoneNumber" 
-                                    type="number" 
-                                    placeholder="Numero de telefono"
-                                    onChange={formik.handleChange}
-                            />
-                            </div>
-                        </div>
+                        <CommonInput 
+                            label="Nombre"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.name}
+                            name="name"
+                            htmlFor="name"
+                            id="name" 
+                            type="text" 
+                            placeholder="Nombre" 
+                            onChange={formik.handleChange}
+                        />
+                    
+                        <CommonInput 
+                            label="Apellido"    
+                            onBlur={formik.handleBlur}
+                            value={formik.values.surname}
+                            name="surname"
+                            htmlFor="surname"
+                            id="surname" 
+                            type="text" 
+                            placeholder="Apellido"
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Documento"    
+                            onBlur={() => checkDuplicated("document", () => setIsDocumentDuplicated(true))}
+                            onFocus={() => setIsDocumentDuplicated(false)}
+                            isInvalid={isDocumentDuplicated}
+                            invalidMessage={"Documento ya registrado"}
+                            value={formik.values.document}
+                            name="document"
+                            htmlFor="document"
+                            id="document" 
+                            type="number" 
+                            placeholder="Documento"
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Email"    
+                            onBlur={() => checkDuplicated("email", () => setIsEmailDuplicated(true))}
+                            onFocus={() => setIsEmailDuplicated(false)}
+                            isInvalid={isEmailDuplicated}
+                            invalidMessage={"Email ya registrado"}
+                            value={formik.values.email}
+                            name="email"
+                            htmlFor="email"
+                            id="email" 
+                            type="text" 
+                            placeholder="Email" 
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput 
+                            label="Numero de telefono"    
+                            onBlur={() => checkDuplicated("phoneNumber", () => setIsPhoneNumberDuplicated(true))}
+                            onFocus={() => setIsPhoneNumberDuplicated(false)}
+                            isInvalid={isPhoneNumberDuplicated}
+                            invalidMessage={"Numero ya registrado"}
+                            value={formik.values.phoneNumber}
+                            name="phoneNumber"
+                            htmlFor="phoneNumber"
+                            id="phoneNumber" 
+                            type="number" 
+                            placeholder="Numero de telefono"
+                            onChange={formik.handleChange}
+                        />
                     </form>
                 </>
                 } />

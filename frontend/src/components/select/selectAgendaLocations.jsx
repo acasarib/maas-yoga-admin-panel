@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../context/Context";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import Label from "../label/label";
 
 export default function SelectAgendaLocations({ value, onChange }) {
     const { getAgendaLocations } = useContext(Context);
@@ -29,15 +30,15 @@ export default function SelectAgendaLocations({ value, onChange }) {
         }
     }, [localAgendaLocations]);
 
-    return(
+    return(<div>
+        <Label htmlFor="search-bar-type">Sede</Label>
         <TextField
             id="search-bar-type"
             select
-            label="Sede"
             className="w-full"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            size=""
+            size="small"
             
             >
             {localAgendaLocations.map(location => (
@@ -46,5 +47,5 @@ export default function SelectAgendaLocations({ value, onChange }) {
                 </MenuItem>
             ))}
         </TextField>
-    );
+    </div>);
 } 
