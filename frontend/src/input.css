@@ -61,14 +61,6 @@
   justify-content: flex-end;
 }
 
-.maasOrange {
-  color: #ea8215;
-}
-
-.maasPurple {
-  color: #820d82;
-}
-
 .group:hover .group-hover\:block {
 	display: block;
 }

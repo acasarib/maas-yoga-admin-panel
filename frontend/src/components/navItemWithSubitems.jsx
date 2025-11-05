@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { COLORS } from "../constants";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
@@ -12,6 +13,8 @@ export default function NavItemWithSubitems({
     expandedByDefault = false 
 }) {
     const [isExpanded, setIsExpanded] = useState(expandedByDefault);
+    const [hoveredMain, setHoveredMain] = useState(false);
+    const [hoveredSubIndex, setHoveredSubIndex] = useState(-1);
 
     const toggleExpanded = (e) => {
         e.preventDefault();
@@ -27,7 +30,13 @@ export default function NavItemWithSubitems({
             {/* Item principal */}
             <div 
                 onClick={toggleExpanded}
-                className={`${isActive ? "w-full bg-amber-600 text-white" : "w-11/12 bg-orange-50 text-yellow-900 hover:bg-orange-100 shadow-lg"} flex items-center justify-between rounded-xl font-bold text-sm py-3 px-4 cursor-pointer`}
+                onMouseEnter={() => setHoveredMain(true)}
+                onMouseLeave={() => setHoveredMain(false)}
+                style={{
+                    backgroundColor: isActive ? COLORS.primary[600] : (hoveredMain ? COLORS.primary[100] : COLORS.primary[50]),
+                    color: isActive ? 'white' : COLORS.primary[900],
+                }}
+                className={`${isActive ? "w-full text-white" : "w-11/12 shadow-lg"} transition-colors duration-150 flex items-center justify-between rounded-xl font-bold text-sm py-3 px-4 cursor-pointer`}
             >
                 <div className="flex items-center">
                     {icon}
@@ -44,7 +53,15 @@ export default function NavItemWithSubitems({
                     {subitems.map((subitem, index) => (
                         <li key={index} onClick={handleSubitemClick} className="grid place-content-stretch">
                             <Link to={`/home/${subitem.target}`}>
-                                <span className={`${subitem.isActive ? "w-full bg-amber-500 text-white" : "w-11/12 bg-orange-100 text-yellow-800 hover:bg-orange-200 shadow-sm"} flex items-center rounded-lg font-medium text-sm py-2 px-3 ml-2`}>
+                                <span
+                                    onMouseEnter={() => setHoveredSubIndex(index)}
+                                    onMouseLeave={() => setHoveredSubIndex((prev) => (prev === index ? -1 : prev))}
+                                    style={{
+                                        backgroundColor: subitem.isActive ? COLORS.primary[500] : ((hoveredSubIndex === index) ? COLORS.primary[200] : COLORS.primary[100]),
+                                        color: subitem.isActive ? 'white' : COLORS.primary[900],
+                                    }}
+                                    className={`${subitem.isActive ? "w-full text-white" : "w-11/12 shadow-sm"} transition-colors duration-150 flex items-center rounded-lg font-medium text-sm py-2 px-3 ml-2`}
+                                >
                                     {subitem.icon && <span className="mr-2">{subitem.icon}</span>}
                                     <span>{subitem.label}</span>
                                 </span>

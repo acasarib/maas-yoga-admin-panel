@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import QRModal from '../components/modal/qrModal';
 import { Snackbar, Alert } from '@mui/material';
 import NoDataComponent from "../components/table/noDataComponent";
+import { COLORS } from "../constants";
 
 export default function ConsultaPagos() {
     const navigate = useNavigate();
@@ -213,7 +214,8 @@ export default function ConsultaPagos() {
                             };
                             return {
                                 label: inProcessLabels[row.statusDetail] || 'En Proceso',
-                                className: 'bg-orange-100 text-orange-800',
+                                className: '',
+                                style: { backgroundColor: COLORS.primary[100], color: COLORS.primary[900] },
                                 tooltip: inProcessTooltips[row.statusDetail] || 'Pago en proceso'
                             };
 
@@ -230,7 +232,7 @@ export default function ConsultaPagos() {
                             };
                             return {
                                 label: pendingLabels[row.statusDetail] || 'Pendiente',
-                                className: 'bg-gray-100 text-gray-800',
+                                className: 'bg-gray-100 text-gray-900',
                                 tooltip: pendingTooltips[row.statusDetail] || 'Pago pendiente'
                             };
 
@@ -394,9 +396,10 @@ export default function ConsultaPagos() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
+                                style={activeTab === tab.id ? { borderBottomColor: COLORS.primary[500], color: COLORS.primary[600] } : {}}
                                 className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
                                     activeTab === tab.id
-                                        ? 'border-orange-500 text-orange-600'
+                                        ? ''
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                             >
@@ -413,7 +416,7 @@ export default function ConsultaPagos() {
                         <div>
                             {loading && (
                                 <div className="text-center py-12">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto mb-4" style={{ borderBottomColor: COLORS.primary[500] }}></div>
                                     <p className="text-gray-500">Cargando datos de Mercado Pago...</p>
                                 </div>
                             )}

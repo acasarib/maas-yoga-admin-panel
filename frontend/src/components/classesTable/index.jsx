@@ -5,6 +5,7 @@ import EditButton from "../button/editButton";
 import DeleteButton from "../button/deleteButton";
 import NoDataComponent from "../table/noDataComponent";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import { COLORS } from '../../constants';
 
 export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked, isLoading, disableActions }) {
 
@@ -14,9 +15,9 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
             cell: row => {return (<><div className="flex flex-col justify-center">
             <div className="relative py-3 sm:max-w-xl sm:mx-auto">
               <div className="group cursor-pointer relative inline-block">{row.title}
-                <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+                <div style={{ backgroundColor: COLORS.primary[200] }} className="opacity-0 w-28 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                   {row.title}
-                  <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                  <svg className="absolute h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon fill={COLORS.primary[200]} points="0,0 127.5,127.5 255,0"/></svg>
                 </div>
               </div>
             </div>

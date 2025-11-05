@@ -30,6 +30,7 @@ import SelectStudent from "../../select/selectStudent";
 import YellowBudget from "../../badget/yellow";
 import ButtonPrimary from "../../button/primary";
 import Label from "../../label/label";
+import { COLORS } from "../../../constants";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
     const [file, setFile] = useState([]);
@@ -731,33 +732,27 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 />
             </div>
                 <div className="col-span-2">
-                    <Label htmlFor="paymentAt">Fecha en que se realizo el pago</Label>
-                    <div className="mt-4">
-                        <DateTimeInput
-                            className="w-full sm:w-auto"
-                            name="paymentAt"
-                            label="Seleccionar fecha"
-                            value={paymentAt}
-                            onChange={(newValue) => setPaymentAt(newValue)}
-                        />
-                    </div>
+                    <DateTimeInput
+                        className="w-full sm:w-auto"
+                        name="paymentAt"
+                        label="Fecha en que se realizo el pago"
+                        value={paymentAt}
+                        onChange={(newValue) => setPaymentAt(newValue)}
+                    />
                 </div>
                 <div className="col-span-2">
-                    <Label htmlFor="operativeResult">Resultado operativo</Label>
-                    <div className="mt-4">
-                        <DateTimeInput
-                            className="w-full sm:w-auto"
-                            name="operativeResult"
-                            label="Seleccionar fecha"
-                            value={operativeResult}
-                            onChange={(newValue) => setOperativeResult(newValue)}
-                        />
-                    </div>
+                    <DateTimeInput
+                        className="w-full sm:w-auto"
+                        name="operativeResult"
+                        label="Resultado operativo"
+                        value={operativeResult}
+                        onChange={(newValue) => setOperativeResult(newValue)}
+                    />
                 </div>
             {(edit && (paymentToEdit.file && (paymentToEdit.file !== null))) && (
             <>
                 <Label>Archivo</Label>
-                <div className="my-2 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
+                <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
             </>
             )}
             {!haveFile 

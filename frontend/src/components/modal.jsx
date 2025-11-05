@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import ButtonPrimary from './button/primary';
 import ButtonSecondary from './button/secondary';
+import { COLORS } from '../constants';
 
 export default function Modal(props) {  
   const cancelButtonRef = useRef(null);
@@ -40,7 +41,7 @@ export default function Modal(props) {
                   <div className="flex flex-col">
                     <div className="modal-header w-full flex justify-between">
                       <div className="flex items-center">
-                        <div className="mr-2 mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <div style={{backgroundColor: COLORS.primary[100]}} className="mr-2 mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10">
                           {props.icon}
                         </div>
                         <div className="text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -57,7 +58,7 @@ export default function Modal(props) {
                   </div>
                 </div>
                 {(props.footer === undefined || props.footer == true) &&
-                  <div className={`w-full rounded-b-md flex bg-orange-50 px-4 py-3 flex-row-reverse sm:px-6 ${props.hiddenFooter ? "hidden" : ""}`}>
+                  <div style={{backgroundColor: COLORS.primary[50]}} className={`w-full rounded-b-md flex px-4 py-3 flex-row-reverse sm:px-6 ${props.hiddenFooter ? "hidden" : ""}`}>
                     {!props.hiddingButton && (<ButtonPrimary
                       className="w-full sm:w-auto sm:ml-2 ml-1 sm:mr-0"
                       disabled={props.buttonDisabled}

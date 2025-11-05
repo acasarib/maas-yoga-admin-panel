@@ -1,9 +1,9 @@
 import React from "react";
 import Checkbox from '@mui/material/Checkbox';
-import { orange } from '@mui/material/colors';
 import { FormControlLabel } from "@mui/material";
 import Label from "../label/label";
 import { randomId } from "../../utils";
+import { COLORS } from "../../constants";
 
 export default function CustomCheckbox({ checked, label, labelOn, labelOff, className = "", onChange = () => {}, disabled = false }) {
     labelOn = labelOn ?? label
@@ -26,9 +26,9 @@ export default function CustomCheckbox({ checked, label, labelOn, labelOff, clas
                             checked={checked}
                             disabled={disabled}
                             sx={{
-                                color: orange[500],
+                                color: COLORS.primary[500],
                                 '&.Mui-checked': {
-                                    color: orange[500],
+                                    color: COLORS.primary[500],
                                 },
                             }}
                             name="checkbox"

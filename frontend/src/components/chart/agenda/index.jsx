@@ -9,6 +9,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import InfoIcon from '@mui/icons-material/Info';
 import CustomCheckbox from "../../checkbox/customCheckbox";
 import agendaService from '../../../services/agendaService'
+import { COLORS } from '../../../constants';
 
 export default function AgendaChart({ currentChartSelected, location }) {
 
@@ -92,7 +93,7 @@ export default function AgendaChart({ currentChartSelected, location }) {
     return (
         <>
         <div className=" text-gray-700">
-            <div className="flex flex-col items-center w-full max-w-screen-md p-6 pb-6 bg-orange-50 rounded-lg shadow-xl sm:p-8">
+            <div style={{ backgroundColor: COLORS.primary[50] }} className="flex flex-col items-center w-full max-w-screen-md p-6 pb-6 rounded-lg shadow-xl sm:p-8">
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500 mb-4">{<ArrowLeftIcon onClick={onClickPreviousArrow} className="cursor-pointer"/>}{chartPeriod}<ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/></span>
                 
@@ -107,4 +108,5 @@ export default function AgendaChart({ currentChartSelected, location }) {
         </div>
         </>
     );
-} 
+}
+ 

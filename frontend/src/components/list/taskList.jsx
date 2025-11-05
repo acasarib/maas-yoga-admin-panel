@@ -10,6 +10,7 @@ import AddTaskIcon from '@mui/icons-material/AddTask';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
+import { COLORS } from '../../constants';
 
 const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
@@ -72,9 +73,9 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
         <Link to={`/home/courses?id=${row.id}`} className="flex flex-col justify-center">
           <div className="relative py-3 sm:max-w-xl sm:mx-auto">
             <div className="group cursor-pointer relative inline-block">{row.title}
-              <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+              <div style={{ backgroundColor: COLORS.primary[200] }} className="opacity-0 w-28 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                 {row.title}
-                <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0" /></svg>
+                <svg className="absolute h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon fill={COLORS.primary[200]} points="0,0 127.5,127.5 255,0" /></svg>
               </div>
             </div>
           </div>
@@ -89,9 +90,9 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
         return (<><div className="flex flex-col justify-center">
           <div className="relative py-3 sm:max-w-xl sm:mx-auto">
             <div className="group cursor-pointer relative inline-block">{row.description}
-              <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+              <div style={{ backgroundColor: COLORS.primary[200] }} className="opacity-0 w-28 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                 {row.description}
-                <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0" /></svg>
+                <svg className="absolute h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon fill={COLORS.primary[200]} points="0,0 127.5,127.5 255,0" /></svg>
               </div>
             </div>
           </div>
@@ -121,7 +122,7 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
       cell: row => (
         <div className="flex flex-row justify-center">
           <span className="my-auto mr-2">{getTasksStatus(row.id)}</span>
-          <button onClick={() => openTaskModal(row.id)} className="rounded-2xl bg-orange-200 shadow px-2 py-1 my-2">
+          <button onClick={() => openTaskModal(row.id)} style={{ backgroundColor: COLORS.primary[200] }} className="rounded-2xl shadow px-2 py-1 my-2">
             <span>{((getTasksProgress(row.id) === 0) && (getTasksStatus(row.id) !== '0/0')) && (<><CloseIcon color="error" /></>)}{(getTasksProgress(row.id) === 1) && (<><DoneAllIcon color="success" /></>)}{((getTasksProgress(row.id) < 1) && ((getTasksProgress(row.id) > 0))) && (<><DoneIcon color="success" /></>)}</span>
           </button>
         </div>),
