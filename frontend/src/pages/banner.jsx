@@ -4,6 +4,7 @@ import { useFormik } from 'formik';
 import authUser from '../services/userService';
 import CommonAlert from "../components/commonAlert";
 import CommonInput from "../components/commonInput";
+import { COLORS } from "../constants";
 
 export default function Banner() {   
 
@@ -146,7 +147,13 @@ export default function Banner() {
                         ) : null}
                         </div>
                         <div className="flex items-center justify-between">
-                        <button disabled={disabled} className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "bg-orange-300 hover:bg-orange-550 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}  type="submit">
+                        <button
+                          disabled={disabled}
+                          style={{ backgroundColor: !disabled ? COLORS.primary[300] : undefined }}
+                          className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}
+                          onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = COLORS.primary[550]; }}
+                          onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = COLORS.primary[300]; }}
+                          type="submit">
                         {isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Validando...</span></>) : <span>Ingresar</span>}
                         </button>
                         </div>

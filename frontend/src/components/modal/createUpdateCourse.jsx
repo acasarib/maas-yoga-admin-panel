@@ -14,6 +14,7 @@ import ProfessorInfo from '../courses/professorInfo';
 import SelectStudent from '../select/selectStudent';
 import EditButton from '../button/editButton';
 import Label from '../label/label';
+import { COLORS } from '../../constants';
 
 
 const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) => {
@@ -198,9 +199,9 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 						<Label>Profesores</Label>
 						<div className='flex flex-col gap-2'>
 							{courseProfessors.map((prf, index) =>
-								<div key={index} className="px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">
+								<div key={index} style={{ backgroundColor: COLORS.primary[50] }} className="px-3 py-2 flex justify-between items-center rounded-sm w-auto">
 									<div>{prf.professor?.name} {prf.professor?.lastName}</div>
-									<div>{edit && <EditButton onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}/>}
+									<div>{edit && <EditButton onClick={() => { setPeriodToEdit(prf); setNewProfessor(true) }}/>} 
 										<button
 											type="button"
 											className="rounded-full p-1 bg-gray-100 hover:bg-gray-200 hover:shadow-md mx-1 transition-all duration-200 ease-in-out transform ml-2"

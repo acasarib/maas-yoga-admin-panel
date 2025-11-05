@@ -9,7 +9,6 @@ import Checkbox from '@mui/material/Checkbox';
 import CustomCheckbox from "../components/checkbox/customCheckbox";
 import { Context } from "../context/Context";
 import Table from "../components/table";
-import { orange } from '@mui/material/colors';
 import Container from "../components/container";
 import NoDataComponent from "../components/table/noDataComponent";
 import GroupIcon from '@mui/icons-material/Group';
@@ -18,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
 import Label from "../components/label/label";
+import { COLORS } from "../constants";
 
 export default function NewUser(props) {
 
@@ -110,9 +110,9 @@ const validate = (values) => {
           cell: row => {return (<><div className="flex flex-col justify-center">
           <div className="relative py-3 sm:max-w-xl sm:mx-auto">
             <div className="group cursor-pointer relative inline-block">{row.email}
-              <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
+              <div style={{ backgroundColor: COLORS.primary[200] }} className="opacity-0 w-28 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                 {row.email}
-                <svg className="absolute text-orange-200 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                <svg className="absolute h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon fill={COLORS.primary[200]} points="0,0 127.5,127.5 255,0"/></svg>
               </div>
             </div>
           </div>
@@ -308,17 +308,17 @@ const validate = (values) => {
                     <div className="flex flex-col gap-2">
                       <FormGroup>
                         <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
-                          color: orange[500],
+                          color: COLORS.primary[500],
                           '&.Mui-checked': {
-                            color: orange[500],
+                            color: COLORS.primary[500],
                           },
                         }} />} label="Permitir crear usuarios" />
                       </FormGroup>
                       <FormGroup>
                         <FormControlLabel control={<Checkbox  checked={googleDriveAccess} onChange={(e) => setGoogleDriveAccess(e.target.checked)} sx={{
-                          color: orange[500],
+                          color: COLORS.primary[500],
                           '&.Mui-checked': {
-                            color: orange[500],
+                            color: COLORS.primary[500],
                           },
                         }} />} label="Acceso a Google Drive" />
                       </FormGroup>

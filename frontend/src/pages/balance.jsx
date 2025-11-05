@@ -28,6 +28,7 @@ import DateTimeInput from "../components/calendar/dateTimeInput";
 import Label from "../components/label/label";
 import ButtonPrimary from "../components/button/primary";
 import YellowBudget from "../components/badget/yellow";
+import { COLORS } from "../constants";
 
 export default function Balance(props) {
 
@@ -544,7 +545,7 @@ export default function Balance(props) {
                         {(edit && (paymentToEdit.file && (paymentToEdit.file !== null))) && (
                         <>
                             <Label>Archivo</Label>
-                            <div className="my-2 px-3 py-2 bg-orange-50 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
+                            <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
                         </>
                         )}
                         {!haveFile 

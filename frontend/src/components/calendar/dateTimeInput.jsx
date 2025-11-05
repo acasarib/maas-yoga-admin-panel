@@ -1,4 +1,5 @@
 import React from 'react'
+import { COLORS } from '../../constants'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Label from '../label/label';
 export const dateTimeInputStyles = {
@@ -23,6 +24,12 @@ export const dateTimeInputStyles = {
   },
   '& .MuiOutlinedInput-root': {
     overflow: 'hidden',
+    '& fieldset': { borderColor: '#e5e7eb' },
+    '&:hover fieldset': { borderColor: COLORS.primary[500] },
+    '&.Mui-focused fieldset': { borderColor: COLORS.primary[500] },
+  },
+  '& .MuiFormLabel-root.Mui-focused': {
+    color: COLORS.primary[600],
   }
 }
 const DateTimeInput = ({ label, ...props }) => {

@@ -14,6 +14,7 @@ import DeleteButton from "../button/deleteButton";
 import EditButton from "../button/editButton";
 import VerifyButton from "../button/verifyButton";
 import NoDataComponent from "../table/noDataComponent";
+import { COLORS } from "../../constants";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
@@ -273,7 +274,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
             },
             {
                 name: 'Comprobante',
-                cell: row => (<>{(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)} className="bg-orange-300 w-40 h-auto rounded-lg py-2 px-3 text-center text-white hover:bg-orange-550 whitespace-nowrap">Obtener comprobante
+                cell: row => (<>{(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)} style={{ backgroundColor: COLORS.primary[300] }} className="w-40 h-auto rounded-lg py-2 px-3 text-center text-white whitespace-nowrap">Obtener comprobante
                 </a>}</>),
                 sortable: true,
             },

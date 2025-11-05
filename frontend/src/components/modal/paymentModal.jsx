@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { COLORS } from "../../constants";
 import Modal from '../modal';
 import PaymentIcon from '@mui/icons-material/Payment';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -123,9 +124,10 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                             <button
                                 type="button"
                                 onClick={() => setPaymentMethod('mercadopago')}
+                                style={paymentMethod === 'mercadopago' ? { borderBottomColor: COLORS.primary[500], color: COLORS.primary[600] } : {}}
                                 className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
                                     paymentMethod === 'mercadopago'
-                                        ? 'border-orange-500 text-orange-600'
+                                        ? ''
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                             >

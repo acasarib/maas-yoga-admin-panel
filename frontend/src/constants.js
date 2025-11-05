@@ -72,3 +72,20 @@ export const PAYMENT_OPTIONS = [
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
 
 export const APP_VERSION = "1.2.1";
+
+export const COLORS = {
+    primary: {
+        50: "#fff7ed",//fff7ed
+        100: "#ffedd5",//ffedd5
+        200: "#fed7aa",//fed7aa
+        300: "#fdba74",//fdba74
+        400: "#ffbc1b",
+        500: "#ff9800",
+        550: "#ea8215",//ea8215
+        600: "#D97706",//D97706
+        700: "#bb4c02",
+        800: "#9a3412",//9a3412
+        900: "#713f12",//713f12
+        950: "#481700"
+    }
+}
