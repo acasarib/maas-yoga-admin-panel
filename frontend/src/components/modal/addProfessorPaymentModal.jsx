@@ -10,6 +10,7 @@ import useToggle from "../../hooks/useToggle";
 import PaymentInfo from "../paymentInfo";
 import CustomCheckbox from "../checkbox/customCheckbox";
 import Select from "../select/select";
+import Label from "../label/label";
 
 export default function AddProfessorPaymentModal({ courseValue, allowManualValue = false, courseId, selectedPeriod, criteriaType, criteriaValue, totalStudents, period, criteria, total, payments, addPayment, isOpen, onClose, professorName }) {
     const { getCourseDetailsById, changeAlertStatusAndMessage } = useContext(Context)
@@ -141,12 +142,25 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
             
             :
             <>
-            {isByAssistance(criteriaType) && <Select className="mt-4" placeholder="Seleccionar" value={value} onChange={handleChangeSelectValue} options={values} />}
+            {isByAssistance(criteriaType) && 
+                <div>
+                    <Label htmlFor="studentsAssistance">Seleccionar</Label>
+                    <Select
+                        name="studentsAssistance"
+                        placeholder="Seleccionar"
+                        value={value}
+                        onChange={handleChangeSelectValue}
+                        options={values}
+                    />
+                </div>
+            }
 
             {value.value == 'amount_students' &&  
             <>
-                <div className="mt-4">
+                <div className="mt-6">
+                    <Label htmlFor="students">Alumnos</Label>
                     <Select
+                        name="students"
                         placeholder="Seleccionar"
                         value={selectedStudents}
                         isMulti
@@ -192,7 +206,7 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
             </>
             }
             {allowManualValue && 
-                <> {manualValueEnabled ? <ButtonSecondary className="mt-2" onClick={disableManualValue}>Calcular monto</ButtonSecondary> : <ButtonSecondary className="mt-2" onClick={enableManualValue}>Otro monto</ButtonSecondary>}
+                <> {manualValueEnabled ? <ButtonSecondary className="mt-4" onClick={disableManualValue}>Calcular monto</ButtonSecondary> : <ButtonSecondary className="mt-4" onClick={enableManualValue}>Otro monto</ButtonSecondary>}
                 </>}
             </>}
         </Modal>

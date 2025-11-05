@@ -12,6 +12,7 @@ import CustomCheckbox from '../checkbox/customCheckbox';
 import ButtonPrimary from '../button/primary';
 import Select from '../select/select';
 import DateTimeInput from '../calendar/dateTimeInput';
+import Label from '../label/label';
 
 const FormattedDate = ({period}) => {
 	const [year, month] = period.split("-")
@@ -116,7 +117,9 @@ const SuspensionsModal = ({ students, isOpen, onClose, courseId }) => {
   return (
     <Modal footer={false} size={"large"} onClose={onClose} icon={<ErrorIcon />} open={isOpen} setDisplay={onClose} title="Suspensiones">
 		<h2 className='text-xl font-medium mb-2'>Seleccione un alumno</h2>
+		<Label htmlFor="student">Alumno</Label>
 		<Select
+			name="student"
 			className='z-50'
 			placeholder="Seleccionar alumno"
 			value={selectedStudent}

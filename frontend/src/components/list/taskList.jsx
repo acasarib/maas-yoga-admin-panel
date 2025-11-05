@@ -157,8 +157,6 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   },
   ];
 
-  const modalStyles = matches ? { minWidth: '650px' } : {}
-
   useEffect(() => {
     const courseTasks = tasks.filter(tk => tk.courseId === courseId);
     setFilteredTasks(courseTasks);
@@ -166,15 +164,13 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   
 
   return (<>
-    <Modal style={modalStyles} open={filteredTasksModal.isOpen} onClose={filteredTasksModal.toggle} hiddingButton icon={<AddTaskIcon />} closeText="Salir" title="Tareas del curso">
-      <div className="mt-8">
-        <Table
-          columns={taskColumn}
-          data={filteredTasks}
-          noDataComponent="Este curso no posee tareas"
-          pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
-        />
-      </div>
+    <Modal open={filteredTasksModal.isOpen} onClose={filteredTasksModal.toggle} footer={false} icon={<AddTaskIcon />} title="Tareas del curso">
+      <Table
+        columns={taskColumn}
+        data={filteredTasks}
+        noDataComponent="Este curso no posee tareas"
+        pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
+      />
     </Modal>
     <Table
       columns={coursesColumns}

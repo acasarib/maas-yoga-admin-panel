@@ -6,7 +6,7 @@ import DeleteButton from "../button/deleteButton";
 import NoDataComponent from "../table/noDataComponent";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 
-export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked, isLoading }) {
+export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked, isLoading, disableActions }) {
 
     const columns = [
         {
@@ -36,13 +36,17 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
             selector: row => dateToString(row.startAt),
             sortable: true,
             searchable: true,
-        },
+        }
+    ];
+
+    if (!disableActions) {
+        columns.push(
         {
             name: 'Acciones',
             cell: row => (<div className="flex-row"><DeleteButton onClick={() => onDelete(row.id)} /><EditButton onClick={() => onEdit(row)} /></div>),
             sortable: true,
-        },
-    ];
+        })
+    }
 
     const onRowClicked = (row) => {
         if (typeof onClazzClicked === "function")

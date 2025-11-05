@@ -49,14 +49,16 @@ export default function PendingPaymentsModal({ isOpen, onClose }) {
 
     return(
         <Modal size="large" hiddenFooter open={isOpen} setDisplay={onClose} icon={<HailIcon/>} title={"Alumnos deudores"}>
-            {data != null && getDebtorStudents()}
+            <div className="flex flex-col gap-4">
+                {data != null && getDebtorStudents()}
+            </div>
         </Modal>
     );
 }
 
 const StudentCard = ({ student }) => {
     return (
-    <div className="mt-2 w-full flex flex-col border rounded p-4 shadow-md bg-white mb-4">
+    <div className="flex flex-col border rounded p-4 shadow-md bg-white">
         <List
             sx={{ width: '100%', bgcolor: 'background.paper' }}
             component="nav"

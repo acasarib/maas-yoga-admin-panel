@@ -108,7 +108,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
             buttonDisabled={isGenerating || amount === "" || amount === "0"}
             size="medium"
         >
-            <div className="space-y-6">
+            <div>
                 <p className="text-gray-600">
                     Seleccione el método de pago para abonar el curso.
                 </p>
@@ -212,11 +212,12 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                 )}
 
                 {/* Amount and Discount Inputs */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="mt-8 mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="pb-1">
                         <CommonInput 
                             label="Importe del pago"
                             name="amount"
+                            currency
                             className="block font-bold text-sm text-gray-700 mb-2"
                             type="number" 
                             placeholder="Ingrese el importe" 
@@ -230,6 +231,7 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                     <div className="pb-1">
                         <CommonInput 
                             label="Descuento"
+                            symbol="%"
                             name="discount"
                             className="block font-bold text-sm text-gray-700 mb-2"
                             type="number" 
