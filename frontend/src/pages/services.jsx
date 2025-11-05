@@ -17,6 +17,7 @@ import EditButton from "../components/button/editButton";
 import DeleteButton from "../components/button/deleteButton";
 import NoDataComponent from "../components/table/noDataComponent";
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import Label from "../components/label/label";
 
 export default function Services(props) {
     const { getServices, deleteService, changeAlertStatusAndMessage, editService, newService } = useContext(Context);
@@ -209,9 +210,7 @@ export default function Services(props) {
                 onClick={handleDeleteService}
                 title="Eliminar servicio"
             >
-                <div className="grid gap-10 pt-6 mb-4">
-                    <div>{`¿Está seguro que desea eliminar el servicio "${selectedService?.note}"?`}</div>
-                </div>
+                <div>{`¿Está seguro que desea eliminar el servicio "${selectedService?.note}"?`}</div>
             </Modal>
 
             {/* Modal de crear/editar servicio */}
@@ -223,56 +222,55 @@ export default function Services(props) {
                 onClick={addService}
                 title={isEditingService.value ? 'Editar servicio' : 'Crear nuevo servicio'}
             >
-                <div className="grid gap-10 pt-6 mb-4">
-                    <div className="grid gap-4 pb-3">
-                        <div>
-                            <label htmlFor="item" className="block text-gray-700 text-sm font-bold mb-2">Seleccione el Artículo</label>
-                            <SelectItem
-                                name="item"
-                                value={selectedItem} 
-                                onChange={setSelectedItem} 
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="paymentType" className="block text-gray-700 text-sm font-bold mb-2">Método de pago</label>
-                            <Select
-                                name="paymentType"
-                                value={paymentMethod} 
-                                onChange={setPaymentMethod} 
-                                options={PAYMENT_OPTIONS} 
-                                placeholder="Seleccionar método de pago"
-                            />
-                        </div>
-                        <div>
-                            <CommonInput
-                                name="description" 
-                                label="Descripción del servicio" 
-                                value={serviceNote} 
-                                onChange={(e) => setServiceNote(e.target.value)} 
-                            />
-                        </div>
-                        <div>
-                            <CommonInput 
-                                name="amount"
-                                label="Valor" 
-                                type="number" 
-                                value={ammount} 
-                                onChange={(e) => setAmmount(e.target.value)} 
-                            />
-                        </div>
-                        <div>
-                            <CommonInput 
-                                name="dayOfMonth"
-                                label="Día del mes" 
-                                type="number" 
-                                min="1" 
-                                max="31" 
-                                value={dayOfMonth} 
-                                onChange={(e) => setDayOfMonth(e.target.value)} 
-                            />
-                        </div>
+                <form className="grid gap-6">
+                    <div>
+                        <Label htmlFor="item">Artículo</Label>
+                        <SelectItem
+                            name="item"
+                            value={selectedItem} 
+                            onChange={setSelectedItem} 
+                        />
                     </div>
-                </div>
+                    <div>
+                        <Label htmlFor="paymentType">Método de pago</Label>
+                        <Select
+                            name="paymentType"
+                            value={paymentMethod} 
+                            onChange={setPaymentMethod} 
+                            options={PAYMENT_OPTIONS} 
+                            placeholder="Seleccionar método de pago"
+                        />
+                    </div>
+                    <div>
+                        <CommonInput
+                            name="description" 
+                            label="Descripción del servicio" 
+                            value={serviceNote} 
+                            onChange={(e) => setServiceNote(e.target.value)} 
+                        />
+                    </div>
+                    <div>
+                        <CommonInput 
+                            name="amount"
+                            currency
+                            label="Valor" 
+                            type="number" 
+                            value={ammount} 
+                            onChange={(e) => setAmmount(e.target.value)} 
+                        />
+                    </div>
+                    <div>
+                        <CommonInput 
+                            name="dayOfMonth"
+                            label="Día del mes" 
+                            type="number" 
+                            min="1" 
+                            max="31" 
+                            value={dayOfMonth} 
+                            onChange={(e) => setDayOfMonth(e.target.value)} 
+                        />
+                    </div>
+                </form>
             </Modal>
         </Container>
     );

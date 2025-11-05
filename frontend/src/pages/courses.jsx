@@ -2,16 +2,14 @@ import React, { useState, useEffect, useContext, useMemo } from "react";
 import Modal from "../components/modal";
 import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import SchoolIcon from '@mui/icons-material/School';
 import useToggle from "../hooks/useToggle"
-import AddTaskIcon from '@mui/icons-material/AddTask';
 import TaskModal from "../components/courses/taskModal";
 import Table from "../components/table";
 import { Context } from "../context/Context";
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
-import Tooltip from '@mui/material/Tooltip';
 import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import Container from "../components/container";
 import NoDataComponent from "../components/table/noDataComponent";
@@ -304,8 +302,7 @@ export default function Courses(props) {
         },
         {
             name: 'Email',
-            cell: row => {
-                return (<><div className="flex flex-col justify-center">
+            cell: row => (<><div className="flex flex-col justify-center">
                     <div className="relative py-3 sm:max-w-xl sm:mx-auto">
                         <div className="group cursor-pointer relative inline-block">{row.email}
                             <div className="opacity-0 w-28 bg-orange-200 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
@@ -314,8 +311,7 @@ export default function Courses(props) {
                             </div>
                         </div>
                     </div>
-                </div></>)
-            },
+                </div></>),
             sortable: true,
         },
         {
@@ -425,22 +421,22 @@ export default function Courses(props) {
 
                 {addTaskModal && <TaskModal onUpdateTask={fetchCourses} isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />}
                 <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
-                <Modal size="large" style={style} hiddingButton icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal size="large" style={style} footer={false} icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={studentsColumns}
                     data={studentsLists}
-                    noDataComponent="Este curso aun no posee alumnos"
+                    noDataComponent={<NoDataComponent Icon={SchoolIcon} title="No hay alumnos" subtitle="No se encontraron alumnos inscriptos en este curso"/>}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
-                <Modal style={style} hiddingButton icon={<SchoolIcon />} open={isTaskStudentModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos de la tarea ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal style={style} footer={false} icon={<SchoolIcon />} open={isTaskStudentModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos de la tarea ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={taskStudentsColumns}
                     data={studentsLists}
-                    noDataComponent="Esta tarea aun no posee alumnos"
+                    noDataComponent={<NoDataComponent Icon={SchoolIcon} title="No hay alumnos" subtitle="Esta tarea no contiene alumnos"/>}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
-                <Modal style={style} hiddingButton icon={<SchoolIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <Table
+                <Modal style={style} footer={false} icon={<AssignmentIcon />} open={displayTasksModal} setDisplay={setDisplay} closeText="Salir" title={'Tareas del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={taskColumn}
                     data={tasksLists}
-                    noDataComponent="Este curso aun no posee tareas"
+                    noDataComponent={<NoDataComponent Icon={AssignmentIcon} title="No hay tareas" subtitle="Este curso no cuenta con tareas aún"/>}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 /></div></>} />
                 

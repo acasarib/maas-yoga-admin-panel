@@ -47,49 +47,43 @@ export default function EditTaskModal({ isOpen, task, onClose, onEditTask }) {
 
     return(
         <>          
-                <Modal icon={<EditIcon />} open={isOpen} setDisplay={onClose} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Editando...</span></>) : <span>Editar tarea</span>} onClick={formik.handleSubmit} title={`Editar tarea`} children={<>
-                <form className="pt-6 mb-4 mx-auto w-4/6"    
+                <Modal size="small" icon={<EditIcon />} open={isOpen} setDisplay={onClose} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Editando...</span></>) : <span>Editar tarea</span>} onClick={formik.handleSubmit} title={`Editar tarea`} children={<>
+                    <form className="flex flex-col gap-6" 
                         method="POST"
                         id="form"
                         onSubmit={formik.handleSubmit}
                     >
-                           <div className="mb-4 z-100">
-                            <CommonInput
-                                label="Título"
-                                name="title"
-                                onBlur={formik.handleBlur}
-                                value={formik.values.title}
-                                className="block font-bold text-sm text-gray-700 mb-4"
-                                type="text" 
-                                placeholder="Título"
-                                onChange={formik.handleChange}
-                                htmlFor="title"
-                                id="title" 
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <CommonInput 
-                                label="Comentarios"
-                                name="comment"
-                                value={formik.values.comment}
-                                className="block font-bold text-sm text-gray-700 mb-4"
-                                type="text" 
-                                htmlFor="comment"
-                                id="comment" 
-                                onChange={formik.handleChange}
-                                placeholder="Comentarios"
-                            />
-                        </div>
-                        <div className="col-span-2 pb-6">
-                        <span className="block text-gray-700 text-sm font-bold mb-2">Fecha limite de entrega</span>
-                            <div className="mt-4">
-                                <DateTimeInput
-                                    label="Seleccionar fecha"
-                                    value={limitDate}
-                                    onChange={(newValue) => setLimitDate(newValue)}
-                                />
-                            </div>
-                        </div>
+                        <CommonInput
+                            label="Título"
+                            name="title"
+                            onBlur={formik.handleBlur}
+                            value={formik.values.title}
+                            className="block font-bold text-sm text-gray-700 mb-4"
+                            type="text" 
+                            placeholder="Título"
+                            onChange={formik.handleChange}
+                            htmlFor="title"
+                            id="title" 
+                        />
+
+                        <CommonInput 
+                            label="Comentarios"
+                            name="comment"
+                            value={formik.values.comment}
+                            className="block font-bold text-sm text-gray-700 mb-4"
+                            type="text" 
+                            htmlFor="comment"
+                            id="comment" 
+                            onChange={formik.handleChange}
+                            placeholder="Comentarios"
+                        />
+                        <DateTimeInput
+                            className="w-full"
+                            name="limitDate"
+                            label="Fecha limite de entrega"
+                            value={limitDate}
+                            onChange={(newValue) => setLimitDate(newValue)}
+                        />
                     </form>
                 </>} />
         </>

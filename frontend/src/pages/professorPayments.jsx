@@ -82,12 +82,9 @@ export default function ProfessorPayments(props) {
                 <div className="flex flex-col sm:flex-row gap-2">
                     <div className="flex flex-col sm:flex-row gap-2">
                         <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="from">
-                                Fecha de inicio
-                            </label>
                             <DateInput
                                 className="w-full sm:w-auto"
-                                label="Seleccionar fecha"
+                                label="Fecha de inicio"
                                 id="from"
                                 name="from"
                                 value={from}
@@ -95,12 +92,9 @@ export default function ProfessorPayments(props) {
                             />
                         </div>
                         <div className="sm:ml-2">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="to">
-                                Fecha de fin
-                            </label>
                             <DateInput
                                 className="w-full sm:w-auto"
-                                label="Seleccionar fecha"
+                                label="Fecha de fin"
                                 id="to"
                                 name="to"
                                 value={to}
@@ -146,7 +140,8 @@ export default function ProfessorPayments(props) {
                     onClick={() => setActivePaymentsShowing(null)}
                 >
                     {activePaymentsShowing !== null && (<>
-                        <h2 className="text-xl">Periodo {dateToYYYYMMDD(from.$d)} - {dateToYYYYMMDD(to.$d)}</h2>
+                        <h2 className="flex justify-center text-xl mb-4">Periodo {dateToYYYYMMDD(from.$d)} - {dateToYYYYMMDD(to.$d)}</h2>
+                        {activePaymentsShowing.length === 0 && <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No hay pagos en el periodo seleccionado" />}
                         {activePaymentsShowing.map(payment => <PaymentInfo key={payment.id} payment={payment} />)}
                     </>)}
                 </Modal>

@@ -304,7 +304,7 @@ export default function ClassesSection(props) {
                 numViews={2}
                 activeView={activeView}
                 animateHeight
-                style={{ overflow: 'auto', padding: '4px'}}
+                style={{ overflow: 'auto' }}
             />
         </>
         } />

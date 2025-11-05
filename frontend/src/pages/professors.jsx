@@ -223,6 +223,7 @@ export default function Professors(props) {
                         />
                         <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <CustomRadio
+                                size="small"
                                 checked={selectedProfessorInvoiceType === 'A'}
                                 onChange={handleOptionChange}
                                 value="A"
@@ -231,6 +232,7 @@ export default function Professors(props) {
                                 label="FA (Factura A)"
                             />
                             <CustomRadio
+                                size="small"
                                 type="radio"
                                 value="B"
                                 checked={selectedProfessorInvoiceType === 'B'}
@@ -238,6 +240,7 @@ export default function Professors(props) {
                                 label="FB (Factura B)"
                             />
                             <CustomRadio
+                                size="small"
                                 type="radio"
                                 value="C"
                                 checked={selectedProfessorInvoiceType === 'C'}
@@ -245,6 +248,7 @@ export default function Professors(props) {
                                 label="FC (Factura C)"
                             />
                             <CustomRadio
+                                size="small"
                                 type="radio"
                                 value="NF"
                                 checked={selectedProfessorInvoiceType === 'NF'}
@@ -255,7 +259,7 @@ export default function Professors(props) {
                     </form>
                 </>
                 } />
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar profesor" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteProfessor} children={<><div>Esta a punto de elimnar este profesor. ¿Desea continuar?</div></>} />
+                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar profesor" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteProfessor} children={<><div>Esta a punto de elimnar este profesor. ¿Desea continuar?</div></>} />
             </Container>
         </>
     );

@@ -68,7 +68,7 @@ const QRModal = ({ isOpen, onClose, preferenceId, paymentInfo }) => {
             title="Código QR de Pago"
             footer={false}
         >
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto">
+            <div className="bg-white rounded-lg p-6">
 
                 {/* Payment Info */}
                 {paymentInfo && (

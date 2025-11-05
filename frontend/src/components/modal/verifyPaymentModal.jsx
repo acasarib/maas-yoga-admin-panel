@@ -13,6 +13,7 @@ import "react-usage-bar/dist/index.css"
 import dayjs from 'dayjs';
 import Select from '../select/select';
 import DateTimeInput from '../calendar/dateTimeInput';
+import Label from '../label/label';
 
 const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 	const { verifyPayment, updatePayment, splitPayment } = useContext(Context);
@@ -66,27 +67,31 @@ const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 		}
 	}
   return (
-    <Modal onClose={onClose} icon={<DoneIcon />} open={isOpen} setDisplay={onClose} title="Verificar pago" buttonText={verifying ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Verificando...</span></>) : <span>Verificar</span>} onClick={handleVerifyPayment}>
+    <Modal size="small" onClose={onClose} icon={<DoneIcon />} open={isOpen} setDisplay={onClose} title="Verificar pago" buttonText={verifying ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Verificando...</span></>) : <span>Verificar</span>} onClick={handleVerifyPayment}>
 			{payment !== null && <>
-				<div className='grid grid-cols-2 gap-10 pt-6 mb-4'>
-					<div className="col-span-2 pb-1">
-						<label className="block text-gray-700 text-sm font-bold mb-2">Total o Parcial</label>	
+				<div className='grid grid-cols-2 gap-6'>
+					<div className="col-span-2">
+						<Label htmlFor="paymentType">Tipo de pago</Label>	
 						<CustomRadio 
+							size="small"
+							name="paymentType"
 							label="Total"
 							className="block font-bold text-sm text-gray-700 mb-2"
 							checked={!isPartialPayment.value}
 							onChange={isPartialPayment.toggle}
 						/>
 						<CustomRadio 
+							size="small"
+							name="paymentType"
 							label="Parcial"
 							className="block font-bold text-sm text-gray-700 mb-2"
 							checked={isPartialPayment.value}
 							onChange={isPartialPayment.toggle}
 						/>
-
 					</div>
-					<div className={`${isPartialPayment.value ? "col-span-2" : "hidden"} md:col-span-1 pb-1`}>
+					<div className={`${isPartialPayment.value ? "col-span-2" : "hidden"} md:col-span-1`}>
 						<CommonInput 
+							currency
 							label="Importe parcial"
 							name="title"
 							className="block font-bold text-sm text-gray-700 mb-2"
@@ -96,36 +101,36 @@ const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 							onChange={(e) => setPartialPaymentValue(e.target.value)}
 						/>
 					</div>
-					<div className={`${isPartialPayment.value ? "col-span-2" : "col-span-1"} md:col-span-1 pb-1`}>
+					<div className={`md:col-span-1 col-span-2`}>
 						<CommonInput 
+							currency
 							label={isPartialPayment.value ? "Total sin verificar" : "Importe"}
-							name="title"
-							className="block font-bold text-sm text-gray-700 mb-2"
+							id="val"
+							name="val"
 							type="number" 
 							placeholder="Importe" 
 							value={paymentValue}
 							onChange={(e) => setPaymentValue(e.target.value)}
 						/>
 					</div>
-					{!isPartialPayment.value &&
-						<div className="col-span-1 pb-1"></div>
-					}
-					<div className="col-span-2 md:col-span-1 pb-1">
-						<label className="block text-gray-700 text-sm font-bold mb-2">Modo de pago</label>
-						<Select className="z-100" value={verifingPaymentMethod} onChange={setVerifingPaymentMethod} options={PAYMENT_OPTIONS} />
+					{/*!isPartialPayment.value &&
+						<div className="col-span-1"></div>
+					*/}
+					<div className="col-span-2">
+						<Label htmlFor="paymentT">Modo de pago</Label>
+						<Select className="z-100" name="paymentT" value={verifingPaymentMethod} onChange={setVerifingPaymentMethod} options={PAYMENT_OPTIONS} />
 					</div>
 					<div className="col-span-2">
-						<span className="block text-gray-700 text-sm font-bold mb-2">Resultado operativo</span>
-						<div className="mt-4">
-							<DateTimeInput
-								label="Seleccionar fecha"
-								value={operativeResult}
-								onChange={(newValue) => setOperativeResult(newValue)}
-							/>
-						</div>
-                	</div>
+						<DateTimeInput
+							className="w-full"
+							name="operativeResult"
+							label="Resultado operativo"
+							value={operativeResult}
+							onChange={(newValue) => setOperativeResult(newValue)}
+						/>
+					</div>
 				</div>
-				<div className={`${!isPartialPayment.value && 'hidden'} py-8`}>
+				<div className={`${!isPartialPayment.value && 'invisible'} mt-10`}>
 					<UsageBar errorMessage="" items={itemsToDisplay} showPercentage darkMode={false} total={parseInt(paymentValue)} />
 				</div>
 				</>

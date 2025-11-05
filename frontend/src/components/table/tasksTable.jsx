@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import useModal from '../../hooks/useModal';
 import Table from '.';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import useResize from '../../hooks/useResize';
 import SchoolIcon from '@mui/icons-material/School';
 import Modal from '../modal';
@@ -12,6 +13,7 @@ import { Context } from '../../context/Context';
 import EditTaskModal from '../courses/editTaskModal';
 import DeleteButton from '../button/deleteButton';
 import EditButton from '../button/editButton';
+import NoDataComponent from './noDataComponent';
 
 const TasksTable = ({ course, onUpdateTask }) => {
     const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
@@ -182,7 +184,7 @@ const TasksTable = ({ course, onUpdateTask }) => {
     <Table
         columns={taskColumn}
         data={course.courseTasks}
-        noDataComponent="Este curso aun no posee tareas"
+        noDataComponent={<NoDataComponent Icon={AssignmentIcon} title="No hay tareas" subtitle="Este curso no cuenta con tareas aún"/>}
         pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
     /> 
     <Modal
