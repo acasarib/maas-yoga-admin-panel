@@ -571,7 +571,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                             label="Descuento"
                             name="discount"
                             type="number" 
-                            placeholder="0%" 
+                            symbol='%'
+                            placeholder="0" 
                             value={discount}
                             onChange={(e) => handleChangeDiscount(e.target.value)}
                         />

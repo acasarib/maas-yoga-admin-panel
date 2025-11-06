@@ -224,6 +224,8 @@ const CreateUpdateCourseModal = ({ onClose, isOpen, courseToEdit, onFinish }) =>
 				{newProfessor && (
 					<ProfessorInfo
 						edit={edit}
+						minStartAt={startAt}
+						maxEndAt={isCircular.value ? undefined : endAt}
 						periodToEdit={periodToEdit}
 						editProfessor={(v, idx) => editPeriod(v, idx)}
 						closeNewProfessor={(value) => { setNewProfessor(value); setPeriodToEdit({}) }}

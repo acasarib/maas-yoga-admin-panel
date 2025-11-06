@@ -224,7 +224,6 @@ export default function Professors(props) {
                         />
                         <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <CustomRadio
-                                size="small"
                                 checked={selectedProfessorInvoiceType === 'A'}
                                 onChange={handleOptionChange}
                                 value="A"
@@ -233,7 +232,6 @@ export default function Professors(props) {
                                 label="FA (Factura A)"
                             />
                             <CustomRadio
-                                size="small"
                                 type="radio"
                                 value="B"
                                 checked={selectedProfessorInvoiceType === 'B'}
@@ -241,7 +239,6 @@ export default function Professors(props) {
                                 label="FB (Factura B)"
                             />
                             <CustomRadio
-                                size="small"
                                 type="radio"
                                 value="C"
                                 checked={selectedProfessorInvoiceType === 'C'}
@@ -249,7 +246,6 @@ export default function Professors(props) {
                                 label="FC (Factura C)"
                             />
                             <CustomRadio
-                                size="small"
                                 type="radio"
                                 value="NF"
                                 checked={selectedProfessorInvoiceType === 'NF'}
