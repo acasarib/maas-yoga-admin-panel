@@ -148,7 +148,7 @@ export default function Banner() {
                         ) : null}
                         </div>
                         <div className="flex items-center justify-between">
-                        <ButtonPrimary disabled={disabled} isLoading={isLoading}>Ingresar</ButtonPrimary>
+                          <ButtonPrimary className="w-full sm:w-auto" disabled={disabled} isLoading={isLoading}>Ingresar</ButtonPrimary>
                         </div>
                         {showNotAuthAlert && (<div className="mt-3 md:mt-6"><CommonAlert title={isAuthFail.title} message={isAuthFail.message} color="red" /></div>)
                         }

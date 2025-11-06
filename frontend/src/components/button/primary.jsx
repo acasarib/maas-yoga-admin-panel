@@ -14,7 +14,7 @@ export default function ButtonPrimary({ onClick, isLoading = false, className, c
         ref={ref}
         disabled={disabled}
         style={{ backgroundColor: bg, color }}
-        className={`${!disabled ? "hover:text-white hover:shadow-lg" : "bg-disabled"} flex rounded-md border border-transparent px-4 py-2 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-[${COLORS.primary[500]}] focus:ring-offset-2 sm:text-sm transition-all duration-200 ease-in-out transform items-center ${className}`}
+        className={`${!disabled ? "hover:text-white hover:shadow-lg" : "bg-disabled"} flex justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-[${COLORS.primary[500]}] focus:ring-offset-2 sm:text-sm transition-all duration-200 ease-in-out transform items-center ${className}`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onClick={onClick}

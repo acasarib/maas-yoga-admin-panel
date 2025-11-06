@@ -3,6 +3,8 @@ import styles from "./weekday.module.css";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { getPrettyClassDaysString, twoDigits } from '../../utils';
 import * as dayjs from 'dayjs'
+import Label from '../label/label';
+import TimeInput from '../calendar/timeInput';
 
 export default function WeekdayPicker({ days, setDays }) {
   const [lastSelectedDay, setLastSelectedDay] = useState(null);
@@ -69,19 +71,17 @@ export default function WeekdayPicker({ days, setDays }) {
           <h2 className="text-xl md:text-2xl text-center mb-2 sm:mb-4">{lastSelectedDay.completeLabel}</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <div className='flex flex-col'>
-              <label htmlFor='start-at-date-time'>Empieza</label>
-              <TimePicker
-                id="start-at-date-time"
-                format="HH:mm"
-                ampm={false}
+              <Label htmlFor='start-at-date-time'>Empieza</Label>
+              <TimeInput
+                name="start-at-date-time"
                 value={parseTimeToDayJs(lastSelectedDay.startAt)}
                 onChange={(newValue) => handleChangeTime(newValue, "startAt")}
               />
             </div>
             <div className='flex flex-col'>
-              <label>Termina</label>
-              <TimePicker
-                ampm={false}
+              <Label htmlFor='end-at-date-time'>Termina</Label>
+              <TimeInput
+                name="end-at-date-time"
                 value={parseTimeToDayJs(lastSelectedDay.endAt)}
                 onChange={(newValue) => handleChangeTime(newValue, "endAt")}
               />

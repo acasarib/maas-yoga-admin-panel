@@ -414,7 +414,7 @@ export default function ConsultaPagos() {
                 </div>
 
                 {/* Tab Content */}
-                <div className="p-6">
+                <div className="pt-6">
                     {activeTab === 'mercadopago' && (
                         <div>
                             {loading && (

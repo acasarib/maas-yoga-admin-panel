@@ -12,7 +12,7 @@ export default function TaskCard(props) {
             <div className="text-xl font-medium leading-6 text-gray-900">
                 {props.title}
             </div>
-            <div className="text-lg font-medium leading-6 text-gray-700">
+            <div className="text-lg font-medium leading-6 text-gray-700" style={{ whiteSpace: 'pre-line' }}>
                 {props.description}
             </div>
         </div>
