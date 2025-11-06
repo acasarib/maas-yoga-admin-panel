@@ -105,7 +105,7 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
     <Collapse className="ml-10" in={isOpen} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
             <ListItemButton onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <CalendarMonthIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Periodo" secondary={toMonthsNames(professor.result.period.startAt, professor.result.period.endAt, professor)} />
@@ -132,19 +132,19 @@ export default function ProfessorDetailCollapse({ professor, onShowPayments, fro
                 }
             </Collapse>
             <ListItem>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <SchoolIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Estudiantes que abonaron" secondary={professor.result.totalStudents} />
             </ListItem>
             <ListItem>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <PaidIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Total a pagar al profesor" secondary={`${professor.result.collectedByProfessor}$`} />
             </ListItem>
             <ListItem>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <PercentIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Criterio" secondary={criteriaText} />

@@ -6,6 +6,7 @@ export const reactSelectStyles = (userStyles = {}) => ({
     ...userStyles,
     control: (base, state) => ({
         ...((typeof userStyles.control === 'function') ? userStyles.control(base, state) : base),
+        backgroundColor: "white",
         borderColor: state.isFocused ? primary : base.borderColor,
         boxShadow: state.isFocused ? `0 0 0 1px ${primary}` : base.boxShadow,
         '&:hover': {
@@ -15,7 +16,7 @@ export const reactSelectStyles = (userStyles = {}) => ({
     }),
     option: (base, state) => ({
         ...((typeof userStyles.option === 'function') ? userStyles.option(base, state) : base),
-        backgroundColor: state.isFocused ? COLORS.primary[50] : base.backgroundColor, 
+        backgroundColor: state.isFocused ? COLORS.primary[50] : 'white', 
         color: "black",
         
     }),

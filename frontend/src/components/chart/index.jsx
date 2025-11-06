@@ -13,8 +13,9 @@ import ButtonPrimary from "../button/primary";
 import PaymentInfo from "../paymentInfo";
 import CustomCheckbox from "../checkbox/customCheckbox";
 import { COLORS } from '../../constants';
+import Loader from "../spinner/loader";
 
-export default function Chart({ currentChartSelected, customChainFilters, onChangeData, chartByCreatedAt, setChartByCreatedAt, chartByOpResult, setChartByOpResult }) {
+export default function Chart({ isLoadingPayments, currentChartSelected, customChainFilters, onChangeData, chartByCreatedAt, setChartByCreatedAt, chartByOpResult, setChartByOpResult }) {
 
     const [data, setData] = useState(null);
     const [currentChartBy, setCurrentChartBy] = useState("year")
@@ -62,17 +63,23 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
         const now = new Date();
         const fetchDataByYear = async () => {
             now.setFullYear(now.getFullYear() + chartPeriodIterator);
+            isLoadingPayments.enable();
             const response = await paymentsService.getAllByYear(chartByCreatedAt, chartByOpResult, now);
+            isLoadingPayments.disable();
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
             now.setMonth(now.getMonth() + chartPeriodIterator);
+            isLoadingPayments.enable();
             const response = await paymentsService.getAllByMonth(chartByCreatedAt, chartByOpResult, now);
+            isLoadingPayments.disable();
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
             now.setDate(now.getDate() + chartPeriodIterator * 7);
+            isLoadingPayments.enable();
             const response = await paymentsService.getAllByWeek(chartByCreatedAt, chartByOpResult, now);
+            isLoadingPayments.disable();
             onChangeWeekData(response);
         };
         if (currentChartSelected === "year")
@@ -85,19 +92,27 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
     
     useEffect(() => {
         const fetchDataByYear = async () => {
+            isLoadingPayments.enable();
             const response = await paymentsService.getAllByYear(chartByCreatedAt, chartByOpResult);
+            isLoadingPayments.disable();
             onChangeYearData(response);
         };
         const fetchDataByMonth = async () => {
+            isLoadingPayments.enable();
             const response = await paymentsService.getAllByMonth(chartByCreatedAt, chartByOpResult);
+            isLoadingPayments.disable();
             onChangeMonthData(response);
         };
         const fetchDataByWeek = async () => {
+            isLoadingPayments.enable();
             const response = await paymentsService.getAllByWeek(chartByCreatedAt, chartByOpResult);
+            isLoadingPayments.disable();
             onChangeWeekData(response);
         };
         const fetchDataByChainFilters = async () => {
+            isLoadingPayments.enable();
             const response = await paymentsService.getByQuery(customChainFilters);
+            isLoadingPayments.disable();
             onChangeCustomData(response);
         };
         if (currentChartSelected === "year")
@@ -142,28 +157,29 @@ export default function Chart({ currentChartSelected, customChainFilters, onChan
             <div style={{ backgroundColor: COLORS.primary[50] }} className="flex flex-col items-center w-full max-w-screen-md p-6 pb-6 rounded-lg shadow-xl sm:p-8">
                 <h2 className="text-xl font-bold">Balance {chartTitle}</h2>
                 <span className="text-sm font-semibold text-gray-500 mb-4">{currentChartSelected !== "custom" && <ArrowLeftIcon onClick={onClickPreviousArrow} className="cursor-pointer"/>}{chartPeriod}{currentChartSelected !== "custom" && <ArrowRightIcon className="cursor-pointer" onClick={onClickNextArrow}/>}</span>
-                
-                {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
-                {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
-                {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"}/>}
+                {isLoadingPayments.value ? <Loader className="my-16" size={16}/> : <>
+                    {currentChartBy === "year"  && <YearlyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
+                    {currentChartBy === "month" && <MonthlyChart data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"} />}
+                    {currentChartBy === "week"  && <WeeklyChart  data={data} field={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} height={"550px"}/>}
 
-                <div className="w-full mt-4 flex flex-col sm:flex-row">
-                    <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
-                    <CustomCheckbox
-                        checked={chartByCreatedAt}
-                        labelOn="Fecha ingreso"
-                        labelOff="Fecha indicada"
-                        className="ml-2"
-                        onChange={() => setChartByCreatedAt(!chartByCreatedAt)}
-                    />
-                    <CustomCheckbox
-                        checked={chartByOpResult}
-                        labelOn="Resultado operativo"
-                        labelOff="Resultado operativo"
-                        className="ml-2"
-                        onChange={() => setChartByOpResult(!chartByOpResult)}
-                    />
-                </div>
+                    <div className="w-full mt-4 flex flex-col sm:flex-row">
+                        <ButtonPrimary onClick={switchModal}>Ver detalle <InfoIcon className="ml-1"/></ButtonPrimary>
+                        <CustomCheckbox
+                            checked={chartByCreatedAt}
+                            labelOn="Fecha ingreso"
+                            labelOff="Fecha indicada"
+                            className="ml-2"
+                            onChange={() => setChartByCreatedAt(!chartByCreatedAt)}
+                        />
+                        <CustomCheckbox
+                            checked={chartByOpResult}
+                            labelOn="Resultado operativo"
+                            labelOff="Resultado operativo"
+                            className="ml-2"
+                            onChange={() => setChartByOpResult(!chartByOpResult)}
+                        />
+                    </div>
+                </>}
                 <Modal
                     open={isModalOpen}
                     setDisplay={switchModal}

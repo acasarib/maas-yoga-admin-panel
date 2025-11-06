@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import DateTimeInput from '../../calendar/dateTimeInput';
 import 'dayjs/locale/es';
 import Label from "../../label/label";
+import DateInput from "../../calendar/dateInput";
 
 export default function FilterPaymentOperativeResult({ onChange }) {
 
@@ -32,16 +33,13 @@ export default function FilterPaymentOperativeResult({ onChange }) {
 
     return (
     <div>
-        <Label htmlFor="operativeResult">Resultado operativo</Label>
-        <div className="flex mt-4">
-                <DateTimeInput
-                    views={['year', 'month']}
-                    name="operativeResult"
-                    label="Seleccionar fecha"
-                    value={selectedDate}
-                    onChange={(newValue) => setSelectedDate(newValue)}
-                />
-        </div>
+        <DateInput
+            views={['year', 'month']}
+            name="operativeResult"
+            label="Resultado operativo"
+            value={selectedDate}
+            onChange={(newValue) => setSelectedDate(newValue)}
+        />
     </div>
     );
 } 

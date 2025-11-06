@@ -133,7 +133,6 @@ export default function Colleges(props) {
             <Container title="Sedes">
                 <Table
                     progressPending={isLoadingColleges}
-                    progressComponent={<Loader className="w-16 h-16" />}
                     columns={columns}
                     data={colleges}
                     noDataComponent={<NoDataComponent Icon={AccountBalanceIcon} title="No hay sedes" subtitle="No se encontraron sedes registradas"/>}

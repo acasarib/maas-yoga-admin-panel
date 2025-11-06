@@ -65,7 +65,7 @@ const StudentCard = ({ student }) => {
             aria-labelledby="nested-list-subheader"
             >
             <ListItemButton>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <SchoolIcon/>
                 </ListItemIcon>
                 <Link to={`/home/students`}>
@@ -83,7 +83,7 @@ const StudentCollapse = ({ courses }) => {
     
     return (<>
         <ListItemButton onClick={() => setIsOpen(!isOpen)}>
-            <ListItemIcon className="text-yellow-900">
+            <ListItemIcon>
                 <LocalLibraryIcon/>
             </ListItemIcon>
             <ListItemText primary="Cursos impagos" />

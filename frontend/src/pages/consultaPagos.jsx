@@ -11,6 +11,7 @@ import QRModal from '../components/modal/qrModal';
 import { Snackbar, Alert } from '@mui/material';
 import NoDataComponent from "../components/table/noDataComponent";
 import { COLORS } from "../constants";
+import Loader from "../components/spinner/loader";
 
 export default function ConsultaPagos() {
     const navigate = useNavigate();
@@ -138,8 +139,9 @@ export default function ConsultaPagos() {
             selector: row => row.studentName,
             cell: row => (
                 <Link 
+                    style={{ color: COLORS.primary[900] }}
                     to={`/home/students/${row.studentId}`} 
-                    className="underline text-yellow-900 mx-1 cursor-pointer"
+                    className="underline mx-1 cursor-pointer"
                 >
                     {row.studentName}
                 </Link>
@@ -152,8 +154,9 @@ export default function ConsultaPagos() {
             selector: row => row.courseTitle,
             cell: row => (
                 <Link 
+                    style={{ color: COLORS.primary[900] }}
                     to={`/home/courses/${row.courseId}`} 
-                    className="underline text-yellow-900 mx-1 cursor-pointer"
+                    className="underline mx-1 cursor-pointer"
                 >
                     {row.courseTitle}
                 </Link>
@@ -416,8 +419,10 @@ export default function ConsultaPagos() {
                         <div>
                             {loading && (
                                 <div className="text-center py-12">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto mb-4" style={{ borderBottomColor: COLORS.primary[500] }}></div>
-                                    <p className="text-gray-500">Cargando datos de Mercado Pago...</p>
+                                    <div className="flex flex-col items-center justify-center">
+                                        <Loader/>
+                                        <p className="text-gray-500 mt-2">Cargando datos de Mercado Pago...</p>
+                                    </div>
                                 </div>
                             )}
 

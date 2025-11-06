@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useContext } from "react";
+import ReactDOM from "react-dom";
 import { Context } from "../../context/Context";
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,7 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
     const navigate = useNavigate();
     const modalRef = useRef(null);
     const notificationWidth = 350
+    const offsetY = 8
 
     const onClear = async () => {
         clearNotifications()
@@ -16,11 +18,25 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
     }
 
     useEffect(() => {
-        if (isOpen && buttonRef.current && modalRef.current) {
-            const buttonRect = buttonRef.current.getBoundingClientRect();
-            modalRef.current.style.top = `${buttonRect.bottom + window.scrollY}px`;
-            modalRef.current.style.left = `${buttonRect.left + window.scrollX}px`;
-        }
+        const updatePosition = () => {
+            if (isOpen && buttonRef.current && modalRef.current) {
+                const buttonRect = buttonRef.current.getBoundingClientRect();
+                const left = Math.max(8, Math.min(
+                    buttonRect.left + (buttonRect.width / 2) - (notificationWidth / 2),
+                    window.innerWidth - notificationWidth - 8
+                ));
+                const top = buttonRect.bottom + offsetY;
+                modalRef.current.style.top = `${top}px`;
+                modalRef.current.style.left = `${left}px`;
+            }
+        };
+        updatePosition();
+        window.addEventListener('scroll', updatePosition, true);
+        window.addEventListener('resize', updatePosition);
+        return () => {
+            window.removeEventListener('scroll', updatePosition, true);
+            window.removeEventListener('resize', updatePosition);
+        };
     }, [isOpen, buttonRef]);
 
     const getUserFullName = user => {
@@ -41,8 +57,9 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
         <>
             {/* Desktop dropdown (hidden on mobile) */}
             {isOpen && (
-                <div className="hidden md:block">
-                    <div ref={modalRef} style={{width: `${notificationWidth}px`, marginLeft: `-${notificationWidth/2}px`}} className={`${className} absolute bg-white rounded-lg shadow-lg w-96 z-10`}>
+                ReactDOM.createPortal(
+                    <div ref={modalRef} style={{width: `${notificationWidth}px`, position: 'fixed', zIndex: 50}} className="hidden md:block">
+                        <div className="bg-white rounded-lg shadow-lg w-96">
                         <div className="flex justify-between items-center p-6">
                             {notifications.length === 0 ? 
                                 <span>Sin notificaciones</span>
@@ -64,8 +81,10 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
+                        </div>
+                    </div>,
+                    document.body
+                )
             )}
 
             {/* Mobile drawer */}

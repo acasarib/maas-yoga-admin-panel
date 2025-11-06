@@ -15,6 +15,7 @@ import FilterPaymentCreatedAt from "./filters/createdAt";
 import FilterPaymentOperativeResult from "./filters/operativeResult";
 import Select from "../select/select";
 import Label from "../label/label";
+import { Tooltip } from "@mui/material";
 
 export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) {
 
@@ -48,7 +49,7 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
             component: <FilterPaymentCreatedAt onChange={value => onFilterChangeValue(value, "createdAt")} />
         },
         {
-            label: " Resultado operativo",
+            label: "Resultado operativo",
             value: "operativeResult",
             component: <FilterPaymentOperativeResult onChange={value => onFilterChangeValue(value, "operativeResult")} />
         },
@@ -111,10 +112,12 @@ export default function ChartFilterModal({ isOpen, closeModal, onApplyFilter }) 
         onClick={handleApplyFilter}
     >
         <div className={`mb-12 flex flex-col gap-6 ${currentFilters.length === 0 && "hidden"}`}>
-            {currentFilters.map(filter => 
-                <div key={filter.value} className="flex items-center justify-between">
+            {currentFilters.map((filter, i) => 
+                <div key={filter.value} className={`flex items-center justify-between ${i % 2 == 0 && "bg-gray-100 rounded"} p-4`}>
                     {filter.component}
-                    <RemoveCircleOutlineIcon className="cursor-pointer" onClick={() => removeFilter(filter)}/>
+                    <Tooltip title="Quitar filtro">
+                        <RemoveCircleOutlineIcon className="cursor-pointer" onClick={() => removeFilter(filter)}/>
+                    </Tooltip>
                 </div>)}
         </div>
         {filtersAvailable.length > 0 &&

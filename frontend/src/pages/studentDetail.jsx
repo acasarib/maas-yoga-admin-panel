@@ -123,7 +123,7 @@ function Course({ course, student, onOpenQRModal }) {
 
 	return (<>
 		<ListItemButton onClick={() => setIsOpen(!isOpen)}>
-			<ListItemIcon className="text-yellow-900">
+			<ListItemIcon>
 				<LocalLibraryIcon />
 			</ListItemIcon>
 			<ListItemText primary={<>{course.title} {course.isUpToDate === false && <RedBudget className="ml-2">Pago pendiente</RedBudget>}</>} secondary={toMonthsNames(course.startAt, course.endAt)} />

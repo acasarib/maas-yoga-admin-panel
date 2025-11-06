@@ -28,7 +28,7 @@ export default function FilterPaymentCategory({ onChange }) {
 
     return (
     <div>
-        <Label htmlFor="category">Categoria</Label>
+        <Label htmlFor="category">Rubro</Label>
         <div className="flex">
             <Select
                 name="category"
