@@ -11,6 +11,7 @@ import ClassesTable from "../../classesTable";
 import WeekdayPicker from "../../weekdayPicker";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewSlider from 'react-view-slider';
+import ClassStepper from '../../stepper/classStepper';
 import PlusButton from "../../button/plus";
 import SelectColleges from "../../select/selectColleges";
 import Label from "../../label/label";
@@ -144,6 +145,44 @@ export default function ClassesSection(props) {
             id="form"
             onSubmit={formik.handleSubmit}
         >
+            <CommonInput 
+                label="Título"    
+                onBlur={formik.handleBlur}
+                value={formik.values.title}
+                name="title"
+                htmlFor="title"
+                id="title" 
+                type="text" 
+                placeholder="Título" 
+                onChange={formik.handleChange}
+            />
+            <CommonInput 
+                label="Docente"    
+                onBlur={formik.handleBlur}
+                value={formik.values.professor}
+                name="professor"
+                htmlFor="professor"
+                id="professor" 
+                type="text" 
+                placeholder="Docente"
+                onChange={formik.handleChange}
+            />
+            <div className="col-span-2">
+                <Label htmlFor="headquarter">Sede</Label>
+                <SelectColleges
+                    name="headquarter"
+                    classNames={{
+                        menu: () => "relative-important",
+                    }}
+                    itemClassName="absolute"
+                    value={selectedCollege}
+                    onChange={setSelectedCollege}
+                    styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
+                />
+            </div>
+        </form>
+        }
+        {index === 1 && <div className="flex flex-col gap-4">
             <div className='relative sm:col-span-2'>
                 <DateTimeInput
                     className="w-full sm:w-auto"
@@ -162,57 +201,17 @@ export default function ClassesSection(props) {
                     onChange={(newValue) => setEndAt(newValue)}
                 />
             </div>
-
-            <CommonInput 
-                label="Título"    
-                onBlur={formik.handleBlur}
-                value={formik.values.title}
-                name="title"
-                htmlFor="title"
-                id="title" 
-                type="text" 
-                placeholder="Título" 
-                onChange={formik.handleChange}
-            />
-
-
-            <CommonInput 
-                label="Docente"    
-                onBlur={formik.handleBlur}
-                value={formik.values.professor}
-                name="professor"
-                htmlFor="professor"
-                id="professor" 
-                type="text" 
-                placeholder="Docente"
-                onChange={formik.handleChange}
-            />
-
-            <div className="col-span-2">
-                <Label htmlFor="headquarter">Sede</Label>
-                <SelectColleges
-                    name="headquarter"
-                    classNames={{
-                        menu: () => "relative-important",
-                    }}
-                    itemClassName="absolute"
-                    value={selectedCollege}
-                    onChange={setSelectedCollege}
-                    styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
-                />
+        </div>}
+        {index === 2 && <>
+            <div className="w-full flex justify-center items-center mb-4">
+                <div><h1 className="text-2xl md:text-3xl text-center">Dias de la clase</h1></div>
+                <div></div>
             </div>
-        </form>
-        }
-        {index === 1 && <>
-        <div className="w-full flex justify-between items-center mb-4">
-            <div><ArrowBackIcon onClick={() => setActiveView(0)} className="cursor-pointer"/></div>
-            <div><h1 className="text-2xl md:text-3xl text-center">Dias de la clase</h1></div>
-            <div></div>
-        </div>
-        <div className="col-span-2 md:col-span-2 pb-3">
-            <WeekdayPicker days={days} setDays={setDays}/>
-        </div>
-        </>}</>
+            <div className="col-span-2 md:col-span-2 pb-3">
+                <WeekdayPicker days={days} setDays={setDays}/>
+            </div>
+        </>}
+        </>
     );
 
     const onCloseModal = () => {
@@ -272,20 +271,18 @@ export default function ClassesSection(props) {
     });
 
     useEffect(() => {
-        if (activeView === 0)
+        if (activeView === 0 || activeView === 1 || activeView === 2)
             setBtnText("Siguiente");
         else
             setBtnText(edit ? "Editar" : "Crear");
-    }, [activeView]);
+    }, [activeView, edit]);
 
     const handleOnClickNext = async (e) => {
-        if (activeView === 0) {
-            setActiveView(1);
+        if (activeView < 2) {
+            setActiveView(prev => prev + 1);
         } else {
-            console.log("submit");
             formik.handleSubmit(e);
         }
-        
     }
 
     return(<>
@@ -299,13 +296,20 @@ export default function ClassesSection(props) {
             <PlusButton onClick={() => setDisplayModal(true)}/>
         </div>
         <Modal onClose={onCloseModal} className="modal-responsive w-full md:w-10/12 lg:w-8/12 xl:w-7-12 2xl:w-6/12" icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar clase' : 'Agregar clase'} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
-            <ViewSlider
-                renderView={renderView}
-                numViews={2}
-                activeView={activeView}
-                animateHeight
-                style={{ overflow: 'auto' }}
-            />
+            <div className="flex flex-col gap-6" style={{ minHeight: '220px' }}>
+                <div className="flex-shrink-0">
+                    <ClassStepper activeStep={activeView} onStepChange={setActiveView} />
+                </div>
+                <div className="flex-1">
+                    <ViewSlider
+                        renderView={renderView}
+                        numViews={3}
+                        activeView={activeView}
+                        animateHeight
+                        style={{ overflow: 'auto' }}
+                    />
+                </div>
+            </div>
         </>
         } />
         <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar clase" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteClazz} children={<><div>Esta a punto de elimnar esta clase. ¿Desea continuar?</div></>} />

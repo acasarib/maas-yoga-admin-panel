@@ -357,7 +357,7 @@ export const getReceipt = async (paymentId) => {
   // Formatear precio
   price = `$${price.toLocaleString("es-AR")}`;
   // Formatear from
-  const from = `${payment?.student?.name} ${payment?.student?.lastName}`;
+  const from = `${payment?.student?.name || ""} ${payment?.student?.lastName || ""}`;
   // Descripción
   const description = getReceiptDescription(payment);
   // Tipo de pago
