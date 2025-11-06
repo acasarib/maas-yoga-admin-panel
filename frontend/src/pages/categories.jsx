@@ -16,6 +16,8 @@ import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
 import CategoryIcon from '@mui/icons-material/Category';
 import NoDataComponent from "../components/table/noDataComponent";
+import CategoryStepper from "../components/stepper/categoryStepper";
+import { Tooltip } from "@mui/material";
 
 //TODO: categorias reactivas, al agregar una nueva, editar una nueva o eliminar, la lista de categorias no se actualiza
 //TODO2: categorias paginadas
@@ -102,7 +104,9 @@ export default function Categories(props) {
                             onChange={(e) => setNewItem(e.target.value)}
                         />
                     </div>
-                    <AddIcon className="mt-6 cursor-pointer" onClick={addItem}/>
+                    <Tooltip title="Añadir">
+                        <AddIcon className="mt-6 cursor-pointer" onClick={addItem}/>
+                    </Tooltip>
                 </div>
                 <div className="mt-6">
                     {items.map((item, i) =>
@@ -115,7 +119,9 @@ export default function Categories(props) {
                                     onChange={(e) => editItem(item.title, e.target.value)}
                                 />
                             </div>
-                            <CloseIcon className="mt-3 cursor-pointer" onClick={() => removeItem(item)}/>
+                            <Tooltip title="Quitar">
+                                <CloseIcon className="mt-3 cursor-pointer" onClick={() => removeItem(item)}/>
+                            </Tooltip>
                         </div>
                     )}
                 </div>
@@ -221,15 +227,21 @@ export default function Categories(props) {
                 <div className="flex justify-end mt-6">
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
-                <Modal onClose={closeModal} icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar rubro' : 'Agregar rubro'} buttonDisabled={activeView === 0 ? category.title === "" : items.length === 0} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
-                    <ViewSlider
-                        renderView={renderView}
-                        numViews={2}
-                        activeView={activeView}
-                        animateHeight
-                    />
-                </>
-                } />
+                <Modal onClose={closeModal} icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar rubro' : 'Agregar rubro'} buttonDisabled={activeView === 0 ? category.title === "" : (items.length === 0 || category.title === "")} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
+                    <div style={{ minHeight: "210px"}} className="flex gap-6 flex-col">
+                        <div className="flex-shrink-0">
+                            <CategoryStepper activeStep={activeView} onStepChange={setActiveView} />
+                        </div>
+                        <div className="flex-1">
+                            <ViewSlider
+                                renderView={renderView}
+                                numViews={2}
+                                activeView={activeView}
+                                animateHeight
+                            />
+                        </div>
+                    </div>
+                </>} />
                 <Modal onClose={() => setCategory({ title: "" })} icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar rubro" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCategory} children={<><div>Esta a punto de eliminar el rubro <span className="font-bold">{category.title}</span>, el rubro no debe estar asociado a ningun pago. ¿Desea continuar?</div></>} />
             </Container>
         </>
