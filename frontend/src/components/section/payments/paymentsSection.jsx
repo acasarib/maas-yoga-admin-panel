@@ -403,8 +403,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 await editPayment(data, sendReceipt);
             }else {
                 const savedPayment = await informPayment(data, sendReceipt);
-                const studentHasEmail = selectedStudent?.email !== null && selectedStudent?.email !== undefined; 
-                if(addReceipt.value && studentHasEmail) {
+                if(addReceipt.value) {
                     await downloadReceipt(savedPayment.id);
                 }
             }
