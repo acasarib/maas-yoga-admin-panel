@@ -20,8 +20,6 @@ export default function ProfessorInfo(props) {
     const [isProfessorSelected, setIsProfessorSelected] = useState(false);
 
     const handleChangeCriteria = ({ student, percentage, assistance, assistant }) => {
-        console.log({ student, percentage, assistance, assistant });
-        
         setCourseValue("")
         if (assistant) {
             setCriteria("assistant")
@@ -111,6 +109,8 @@ export default function ProfessorInfo(props) {
                     <DateInput
                         name="professorStartAt"
                         label="Profesor desde"
+                        minDate={props.minStartAt}
+                        errorMessage="La fecha en que dicta el profesor no puede ser anterior a la fecha de inicio del curso"
                         value={startAt}
                         onChange={(v) => setStartAt(v)}
                     />
@@ -118,6 +118,8 @@ export default function ProfessorInfo(props) {
                     <DateInput
                         name="professorEndAt"
                         label="Profesor hasta"
+                        maxDate={props.maxEndAt || undefined}
+                        errorMessage="La fecha en que dicta el profesor no puede ser posterior a la finalizacion del curso, a menos que el curso sea circular"
                         value={endAt}
                         onChange={(v) => setEndAt(v)}
                     />
@@ -127,21 +129,18 @@ export default function ProfessorInfo(props) {
                     <div className="divide-y ml-2 md:ml-4">
                         <div className="flex flex-col gap-4 sm:grid sm:grid-cols-3">
                             <CustomRadio
-                                size="small"
                                 value="percentage"
                                 label="Porcentaje"
                                 onChange={(e) => handleChangeCriteria({percentage: e.target.value === "percentage"})}
                                 checked={isCriteriaByPercentage()}
                             />
                             <CustomRadio
-                                size="small"
                                 value="student"
                                 label="Estudiante"
                                 onChange={(e) => handleChangeCriteria({student: e.target.value === "student"})}
                                 checked={isCriteriaByStudent()}
                             />
-                            <CustomRadio
-                                size="small"                            
+                            <CustomRadio                            
                                 label="Ayudantía"
                                 value="assistant"
                                 onChange={(e) => handleChangeCriteria({assistant: e.target.value === "assistant"})}
@@ -163,6 +162,7 @@ export default function ProfessorInfo(props) {
                         label={isCriteriaByAssistant() ? "Monto por ayudantía" : isCriteriaByPercentage() ? "Porcentaje" : "Cantidad por alumno"}    
                         value={criteriaValue}
                         name="criteriaValue"
+                        symbol={isCriteriaByAssistant() ? "$" : isCriteriaByPercentage() ? "%" : "$"}
                         id="criteriaValue" 
                         min='0'
                         type="number" 
@@ -174,6 +174,7 @@ export default function ProfessorInfo(props) {
                     <CommonInput
                         label="Valor del curso"
                         min='0'
+                        currency
                         value={courseValue}
                         name="courseValue"
                         id="courseValue" 

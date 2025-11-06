@@ -11,6 +11,7 @@ export default function CustomRadio(props) {
             control={
                 <Radio 
                     {...radioProps}
+                    size={radioProps.size || "small"}
                     sx={{
                         color: COLORS.primary[500],
                         '&.Mui-checked': {

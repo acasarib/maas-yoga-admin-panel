@@ -129,7 +129,8 @@ export default function AddProfessorPaymentModal({ courseValue, allowManualValue
             {isOpen && <>
             {allowManualValue && manualValueEnabled ? <div>
                 <CommonInput
-                    label="Monto"    
+                    label="Monto"   
+                    currency 
                     value={manualValue}
                     name="value"
                     htmlFor="value"

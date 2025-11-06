@@ -73,18 +73,14 @@ const VerifyPaymentModal = ({ onClose, isOpen, payment }) => {
 					<div className="col-span-2">
 						<Label htmlFor="paymentType">Tipo de pago</Label>	
 						<CustomRadio 
-							size="small"
 							name="paymentType"
 							label="Total"
-							className="block font-bold text-sm text-gray-700 mb-2"
 							checked={!isPartialPayment.value}
 							onChange={isPartialPayment.toggle}
 						/>
 						<CustomRadio 
-							size="small"
 							name="paymentType"
 							label="Parcial"
-							className="block font-bold text-sm text-gray-700 mb-2"
 							checked={isPartialPayment.value}
 							onChange={isPartialPayment.toggle}
 						/>
