@@ -110,7 +110,7 @@ export default function Table({ serverPaginationData, handleCustomSearchValue, o
             />}
             <DataTable
                 className={`rounded-3xl shadow-lg mt-1 ${className}`}
-                progressComponent={rest.progressComponent || <Loader className="w-16 h-16" />}
+                progressComponent={rest.progressComponent || <Loader className="py-32 flex items-center" size={16} />}
                 columns={columns.filter(col => col.hidden !== true)}
                 data={serverPaginationData != undefined ? serverPaginationData : dataFiltered}
                 defaultSortFieldId={defaultSortFieldId}

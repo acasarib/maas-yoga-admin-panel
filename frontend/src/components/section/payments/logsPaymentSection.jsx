@@ -107,7 +107,6 @@ export default function LogsPaymentSection(props) {
                 paginationServer
                 noDataComponent={<NoDataComponent Icon={PaidIcon} title="No hay registros" subtitle="No hay registros de pagos recientes"/>}
                 progressPending={isLoading}
-                progressComponent={<Loader className="w-16 h-16" />}
                 paginationTotalRows={totalRows}
                 onChangePage={handlePageChange}
                 onChangeRowsPerPage={handlePerRowsChange}

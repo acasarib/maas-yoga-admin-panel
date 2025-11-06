@@ -5,6 +5,7 @@ import authUser from '../services/userService';
 import CommonAlert from "../components/commonAlert";
 import CommonInput from "../components/commonInput";
 import { COLORS } from "../constants";
+import ButtonPrimary from "../components/button/primary";
 
 export default function Banner() {   
 
@@ -81,7 +82,7 @@ export default function Banner() {
     
     return(
         <>
-            <div className="bg-gradient-to-b from-orange-300 to-white h-screen w-screen grid content-center flex justify-center">
+            <div style={{ backgroundImage: `linear-gradient(to top, #fff, ${COLORS.primary[300]})`}} className="h-screen w-screen grid content-center flex justify-center">
               {healthAlert && (<div className="mt-3 md:mt-6"><CommonAlert title={isHealthFail.title} message={isHealthFail.message} color="yellow" /></div>)}
                 {!hideBanner ? <><div>
                     <button className="transition duration-200 ease-in-out bg-none hover:bg-none transform hover:-translate-y-1 hover:scale-125" onClick={() => setHideBanner(true)}>
@@ -147,15 +148,7 @@ export default function Banner() {
                         ) : null}
                         </div>
                         <div className="flex items-center justify-between">
-                        <button
-                          disabled={disabled}
-                          style={{ backgroundColor: !disabled ? COLORS.primary[300] : undefined }}
-                          className={disabled ? "bg-gray-300 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" : "text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}
-                          onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = COLORS.primary[550]; }}
-                          onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = COLORS.primary[300]; }}
-                          type="submit">
-                        {isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Validando...</span></>) : <span>Ingresar</span>}
-                        </button>
+                        <ButtonPrimary disabled={disabled} isLoading={isLoading}>Ingresar</ButtonPrimary>
                         </div>
                         {showNotAuthAlert && (<div className="mt-3 md:mt-6"><CommonAlert title={isAuthFail.title} message={isAuthFail.message} color="red" /></div>)
                         }

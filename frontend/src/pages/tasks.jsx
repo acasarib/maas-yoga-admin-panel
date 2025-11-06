@@ -15,6 +15,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
 import NoDataComponent from "../components/table/noDataComponent";
+import useToggle from "../hooks/useToggle";
+import Loader from "../components/spinner/loader";
 
 export default function Tasks(props) {
 
@@ -117,7 +119,9 @@ export default function Tasks(props) {
     });
 
     const fetchTasks = async (force = false) => {
+        setIsLoading(true);
         const tasks = await getTasks(force);
+        setIsLoading(false);
         setTasks(tasks);
     }
 
@@ -144,19 +148,25 @@ export default function Tasks(props) {
                             <Tab label="Completadas" value="3" />
                         </TabList>
                         </Box>
-                        <TabPanel className="pt-4" value="1">{(tasks.length > 0) ? 
+                        <TabPanel className="pt-4" value="1">
+                            {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
+                            (tasks.length > 0) ? 
                             tasks.map((task) =>
                             <TaskCard greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas" subtitle="No hay tareas que realizar"/>
                         }</TabPanel>
-                        <TabPanel className="pt-4" value="2">{(pendingTasks.length > 0) ? 
+                        <TabPanel className="pt-4" value="2">
+                            {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
+                            (pendingTasks.length > 0) ? 
                             pendingTasks.map((task) =>
                             <TaskCard greenCheckEnabled title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas pendientes" subtitle="No hay tareas que se deben realizar apareceran aqui"/>
                         }</TabPanel>
-                        <TabPanel className="pt-4" value="3">{(completedTasks.length > 0) ?
+                        <TabPanel className="pt-4" value="3">
+                            {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
+                            (completedTasks.length > 0) ?
                             completedTasks.map((task) =>
                             <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :

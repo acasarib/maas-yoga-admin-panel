@@ -10,6 +10,7 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import Spinner from "../../spinner/spinner";
+import { COLORS } from "../../../constants";
 
 export default function ImportModule({ onCancel, moduleName, csvToObject, isAlreadyImported, columns, onImport }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +94,7 @@ export default function ImportModule({ onCancel, moduleName, csvToObject, isAlre
     return (<>
         <div className="flex items-center mb-6">
             <ArrowBackIcon onClick={onCancel} className="cursor-pointer"/>
-            <h1 className="w-full text-2xl md:text-3xl text-center font-bold text-yellow-900">Importar {moduleName}</h1>
+            <h1 style={{ color: COLORS.primary[900] }} className="w-full text-2xl md:text-3xl text-center font-bold">Importar {moduleName}</h1>
         </div>
         <div>
             {isLoading ? <div className="flex justify-center"><Spinner/></div> : <>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
@@ -51,6 +51,7 @@ export default function Balance(props) {
     const [openModal, setOpenModal] = useState(false);
     const [haveFile, setHaveFile] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const isLoadingPayments = useToggle()
     const [fileName, setFilename] = useState("");
     const [file, setFile] = useState([]);
     const [paymentAt, setPaymentAt] = useState(dayjs(new Date()));
@@ -329,11 +330,12 @@ export default function Balance(props) {
                             setChartByOpResult={setChartByOpResult}
                             customChainFilters={customChainFilters}
                             currentChartSelected={currentChartSelected}
-                            onChangeData={data => setPayments(data)}    
+                            onChangeData={data => setPayments(data)}
+                            isLoadingPayments={isLoadingPayments}    
                         />
                     </div>
                 </div>
-                <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={false}/>
+                <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
 
                 {/* TODO: refactorizar este modal en uno solo que esta duplicado y es dificil de mantener. O mejor si hacemos un link y unificamos todo en una vista */}
                 <Modal

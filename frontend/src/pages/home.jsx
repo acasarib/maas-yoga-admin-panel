@@ -128,9 +128,9 @@ export default function Home(props) {
                                 <HamburgerButton onClick={openSidebar}/>
                             </div>
                             <div className="hidden ml-2 md:block my-auto">
-                                <button className="flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
+                                <span style={{ borderColor: COLORS.primary[550] }} className="flex items-center rounded-lg text-gray-600  font-semibold p-2 border">
                                     <span className="text-md" style={{ color: COLORS.primary[550] }}>{day}</span>
-                                </button>
+                                </span>
                             </div>
                             <h1 className="md:text-xl md:ml-0 sm:ml-12 font-bold leading-none text-center">
                                 <span className="flex items-center sm:block">
@@ -146,7 +146,7 @@ export default function Home(props) {
                                 <span className="hidden sm:block">Admin panel</span></h1>
                             <div>
                                 <div className="flex">
-                                    <span className="hidden sm:block flex items-center rounded-lg text-gray-600 hover:text-yellow-600  font-semibold p-2 border border-yellow-400 focus:border-yellow-300 transition">
+                                    <span style={{ borderColor: COLORS.primary[550] }} className="hidden sm:block flex items-center rounded-lg text-gray-600 font-semibold p-2 border">
                                         <span className="text-sm md:text-md" style={{ color: COLORS.primary[550] }}>{date}</span>
                                     </span>
                                     <span className="text-sm md:text-md pl-2" style={{ color: COLORS.primary[550] }}><NotificationIcon innerRef={notificationIconRef} amount={notifications.length} onClick={isNotificationsOpen.toggle}/></span>

@@ -57,7 +57,7 @@ export default function CourseProfessorCard({ onInformPayment, course, onShowPay
             aria-labelledby="nested-list-subheader"
             >
             <ListItemButton>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <LocalLibraryIcon/>
                 </ListItemIcon>
                 <Link to={`/home/courses/${course.id}`}>
@@ -65,7 +65,7 @@ export default function CourseProfessorCard({ onInformPayment, course, onShowPay
                 </Link>
             </ListItemButton>
             <ListItem>
-                <ListItemIcon className="text-yellow-900">
+                <ListItemIcon>
                     <PaidIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Ingresos" secondary={`${course.collectedByPayments}$`} />

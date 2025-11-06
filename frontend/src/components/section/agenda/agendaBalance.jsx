@@ -1,12 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
-import { Context } from "../../../context/Context";
-import dayjs from 'dayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import Table from "../../table";
-import CustomCheckbox from "../../checkbox/customCheckbox";
-import TableSummary from '../../table/summary'
+import React, { useState } from "react";
 import ChartSelector from '../../chartSelector'
 import AgendaChart from '../../chart/agenda'
 import SelectAgendaLocations from "../../select/selectAgendaLocations"

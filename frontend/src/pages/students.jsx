@@ -142,7 +142,7 @@ export default function Students(props) {
             serverOperation: 'iLike',
             name: 'Nombre',
             selector: row => row.name,
-            cell: row => <div className="underline text-yellow-900 mx-1 cursor-pointer" onClick={() => navigate(`/home/students/${row.id}`)}>{row.name}</div>,
+            cell: row => <div style={{ color: COLORS.primary[900] }} className="underline mx-1 cursor-pointer" onClick={() => navigate(`/home/students/${row.id}`)}>{row.name}</div>,
             sortable: true,
             searchable: true,
         },
@@ -250,7 +250,6 @@ export default function Students(props) {
                     paginationServer
                     noDataComponent={<NoDataComponent Icon={SchoolIcon} title="No hay alumnos" subtitle="No se encontraron alumnos registrados"/>}
                     progressPending={isLoading.value}
-                    progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}
                     onChangePage={handlePageChange}
                     onChangeRowsPerPage={handlePerRowsChange}

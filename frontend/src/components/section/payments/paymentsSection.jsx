@@ -31,6 +31,7 @@ import YellowBudget from "../../badget/yellow";
 import ButtonPrimary from "../../button/primary";
 import Label from "../../label/label";
 import { COLORS } from "../../../constants";
+import { Tooltip } from "@mui/material";
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
     const [file, setFile] = useState([]);
@@ -684,9 +685,9 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                         checked={addReceipt.value}
                         onChange={addReceipt.toggle}
                     />
-                    <div style={{marginLeft: "-11px"}} className="text-gray-500 cursor-help" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
+                    <Tooltip style={{marginLeft: "-11px"}} className="text-gray-500" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
                         <InfoIcon fontSize="small" />
-                    </div>
+                    </Tooltip>
                 </div>
                 {!selectedStudent?.email && <YellowBudget className="mt-2 w-full"><WarningIcon fontSize="small" className="mr-2"/>No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.</YellowBudget>}
             </div>}

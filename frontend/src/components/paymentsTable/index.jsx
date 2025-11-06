@@ -9,12 +9,11 @@ import TableSummary from '../table/summary'
 import VerifyPaymentModal from "../modal/verifyPaymentModal";
 import useModal from "../../hooks/useModal";
 import DeletePaymentModal from "../modal/deletePaymentModal";
-import Loader from "../spinner/loader";
 import DeleteButton from "../button/deleteButton";
 import EditButton from "../button/editButton";
 import VerifyButton from "../button/verifyButton";
 import NoDataComponent from "../table/noDataComponent";
-import { COLORS } from "../../constants";
+import DownloadButton from "../button/downloadButton";
 
 export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
@@ -273,15 +272,10 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                 selector: row => getVerifierUserFullName(row),
             },
             {
-                name: 'Comprobante',
-                cell: row => (<>{(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)} style={{ backgroundColor: COLORS.primary[300] }} className="w-40 h-auto rounded-lg py-2 px-3 text-center text-white whitespace-nowrap">Obtener comprobante
-                </a>}</>),
-                sortable: true,
-            },
-            {
                 name: 'Acciones',
                 cell: row => (<>
                     <div className="flex w-full justify-center">
+                        {(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)}><DownloadButton /></a>}
                         <DeleteButton onClick={() => openDeleteModal(row)} />
                         {canVerify && (<VerifyButton invisible={row.verified} onClick={() => openVerifyModal(row)} />)
                         }
@@ -346,7 +340,8 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
         className: `rounded-3xl shadow-lg ${className}`,
         columns: columns,
         paginationRowsPerPageOptions: [5, 10, 25, 50, 100],
-        noDataComponent: isLoading ? <Loader className="w-16 h-16" /> : <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No se encontraron pagos con el criterio seleccionado" />,
+        progressPending: isLoading,
+        noDataComponent: <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No se encontraron pagos con el criterio seleccionado" />,
         pagination: true,
     }
 
@@ -356,8 +351,6 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
             ...pageableProps,
             serverPaginationData: payments,
             paginationServer: true,
-            progressPending: isLoading,
-            progressComponent: <Loader className="w-16 h-16" />,
         }
     } else {
         tableProps = {

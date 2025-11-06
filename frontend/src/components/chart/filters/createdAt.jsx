@@ -42,21 +42,23 @@ export default function FilterPaymentCreatedAt({ onChange }) {
 
     return (
     <div>
-        <Label htmlFor="createdAt">Fecha ingreso</Label>
-        <div className="flex">
-            <Select name="createdAt" placeholder="Seleccionar" className="payment-filter-width mr-2" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
-            <div className="my-auto flex">
+        <div className="flex flex-col gap-4 md:flex-row">
+            <div>
+                <Label htmlFor="createdAt">Fecha ingreso</Label>
+                <Select name="createdAt" placeholder="Seleccionar" className="payment-filter-width mr-2" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
+            </div>
+            <div className="my-auto flex flex-col sm:flex-row">
                 {typeCriteriaSelected !== null && 
                     <>
                         <DateTimeInput
-                            label="Seleccionar fecha"
+                            label={typeCriteriaSelected.value === "between" ? "Fecha inicio" : typeCriteriaSelected.label}
                             value={at}
                             onChange={(newValue) => setAt(newValue)}
                         />
                     {typeCriteriaSelected.value === "between" &&
-                    <><span className="mx-2 flex items-center">y</span>
+                    <><div className="flex flex-col flex-end"><span className="h-38px mx-2 flex h-16 items-center">y</span></div>
                         <DateTimeInput
-                            label="Seleccionar fecha"
+                            label={typeCriteriaSelected.value === "between" ? "Fecha fin" : typeCriteriaSelected.label}
                             value={at2}
                             onChange={(newValue) => setAt2(newValue)}
                         />

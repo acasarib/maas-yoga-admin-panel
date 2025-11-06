@@ -156,7 +156,7 @@ export default function Courses(props) {
             cell: row =>
                 <Link to={`/home/courses/${row.id}`} className="flex flex-col justify-center">
                     <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-                        <div className="group cursor-pointer relative inline-block underline text-yellow-900 mx-1 cursor-pointer">{row.title}
+                        <div style={{ color: COLORS.primary[900] }} className="group cursor-pointer relative inline-block underline mx-1 cursor-pointer">{row.title}
                             <div style={{ backgroundColor: COLORS.primary[200] }} className="opacity-0 w-28 text-gray-700 text-xs rounded-lg py-2 absolute z-10 group-hover:opacity-100 bottom-full -left-1/2 ml-14 px-3 pointer-events-none">
                                 {row.title}
                                 <svg className="absolute h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon fill={COLORS.primary[200]} points="0,0 127.5,127.5 255,0" /></svg>
@@ -181,12 +181,12 @@ export default function Courses(props) {
         },
         {
             name: 'Alumnos',
-            selector: row => (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsModal(row.students, row.title, row.id)}>Ver alumnos</button></div>),
+            selector: row => (<div className="flex-row"><button style={{ color: COLORS.primary[900] }} className="underline mx-1" onClick={() => openStudentsModal(row.students, row.title, row.id)}>Ver alumnos</button></div>),
             sortable: true,
         },
         {
             name: 'Tareas',
-            selector: row => (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openTasksModal(row.courseTasks, row.title, row.id)}>Ver tareas</button></div>),
+            selector: row => (<div className="flex-row"><button style={{ color: COLORS.primary[900] }} className="underline mx-1" onClick={() => openTasksModal(row.courseTasks, row.title, row.id)}>Ver tareas</button></div>),
             sortable: true,
         },
         {
@@ -283,7 +283,7 @@ export default function Courses(props) {
         },
         {
             name: 'Alumnos',
-            selector: row => { return (<div className="flex-row"><button className="underline text-yellow-900 mx-1" onClick={() => openStudentsTaskModal(row.students, row.title, row.id)}>Ver alumnos</button></div>) },
+            selector: row => { return (<div className="flex-row"><button style={{ color: COLORS.primary[900] }} className="underline mx-1" onClick={() => openStudentsTaskModal(row.students, row.title, row.id)}>Ver alumnos</button></div>) },
             sortable: true,
         },
     ];
@@ -402,7 +402,6 @@ export default function Courses(props) {
                     defaultSearchValue={defaultIdPayment}
                     noDataComponent={<NoDataComponent Icon={LocalLibraryIcon} title="No hay cursos" subtitle="No se encontraron cursos registrados"/>}
                     progressPending={isLoading.value}
-                    progressComponent={<Loader className="w-16 h-16" />}
                     paginationTotalRows={totalRows}
                     onChangePage={handlePageChange}
                     onChangeRowsPerPage={handlePerRowsChange}

@@ -2,7 +2,7 @@ import React from 'react'
 import DangerousIcon from '@mui/icons-material/Dangerous';
 import Tooltip from '@mui/material/Tooltip';
 import CheckIcon from '@mui/icons-material/Check';
-import { STUDENT_MONTHS_CONDITIONS } from '../../../constants';
+import { COLORS, STUDENT_MONTHS_CONDITIONS } from '../../../constants';
 import ErrorIcon from '@mui/icons-material/Error';
 import { formatPaymentValue } from '../../../utils';
 import { Link } from 'react-router-dom';
@@ -49,9 +49,9 @@ const StudentCoursesInfo = ({ student, onSeePayments }) => {
 	return (<>
 		<div className='flex items-center' style={{minWidth: '100px'}}>
 			{"circular" in student.pendingPayments ? <>
-				{hasAnyPendingPayment ? pendingPayment : <>{upToDate}<Tooltip title={`${formatPaymentValue(student.circularPayment.value)}`} className='underline text-yellow-900 mx-1 cursor-pointer'><Link target='_blank' to={`/home/payments?id=${student.circularPayment.id}`}>Ver pago</Link></Tooltip></>}
+				{hasAnyPendingPayment ? pendingPayment : <>{upToDate}<Tooltip style={{ color: COLORS.primary[900] }} title={`${formatPaymentValue(student.circularPayment.value)}`} className='underline mx-1 cursor-pointer'><Link target='_blank' to={`/home/payments?id=${student.circularPayment.id}`}>Ver pago</Link></Tooltip></>}
 			</> : <>
-			<div className='underline text-yellow-900 mx-1 cursor-pointer' onClick={() => onSeePayments(student)}>Ver pagos</div>
+			<div style={{ color: COLORS.primary[900] }} className='underline mx-1 cursor-pointer' onClick={() => onSeePayments(student)}>Ver pagos</div>
 			{(hasAnyPendingPayment || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_PAID) && pendingPayment}
 			{(!hasAnyPendingPayment && (student.currentMonth == STUDENT_MONTHS_CONDITIONS.PAID || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN)) && upToDate}
 			{(!hasAnyPendingPayment && student.currentMonth == STUDENT_MONTHS_CONDITIONS.SUSPEND) && <Tooltip title="Suspendido"><ErrorIcon style={{ color: '#FFCD30' }}/></Tooltip>}

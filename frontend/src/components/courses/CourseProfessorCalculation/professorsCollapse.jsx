@@ -15,7 +15,7 @@ export default function ProfessorsCollapse({ professors, onShowPayments, from, t
 
     return (<>
     <ListItemButton onClick={() => setIsOpen(!isOpen)}>
-        <ListItemIcon className="text-yellow-900">
+        <ListItemIcon>
             <HailIcon/>
         </ListItemIcon>
         <ListItemText primary="Profesores" />

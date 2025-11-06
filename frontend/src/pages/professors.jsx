@@ -13,6 +13,7 @@ import CustomRadio from "../components/radio/customRadio";
 import { useNavigate } from "react-router-dom";
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
+import { COLORS } from "../constants";
 
 export default function Professors(props) {
     const { getProfessors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
@@ -83,7 +84,7 @@ export default function Professors(props) {
         {
             name: 'Nombre',
             selector: row => row.name,
-            cell: row => <div className="underline text-yellow-900 mx-1 cursor-pointer" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
+            cell: row => <div style={{ color: COLORS.primary[900] }} className="underline mx-1 cursor-pointer" onClick={() => handleOnClickProfessor(row)}>{row.name}</div>,
             sortable: true,
             searchable: true,
         },

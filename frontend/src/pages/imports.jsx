@@ -8,6 +8,7 @@ import ImportSubscriptionClasses from "../components/section/imports/subscriptio
 import ImportDischarges from "../components/section/imports/discharges";
 import Container from "../components/container";
 import CardItem from "../components/card/cardItem";
+import { COLORS } from "../constants";
 
 export default function Imports() {
     const [activeView, setActiveView] = useState(0);
@@ -37,7 +38,7 @@ export default function Imports() {
     )
 
     const Menu = () => (<>
-        <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-900">Importar datos</h1>
+        <h1 style={{ color: COLORS.primary[900] }} className="text-2xl md:text-3xl text-center font-bold mb-6">Importar datos</h1>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <ImportItem item="students" icon={<SchoolIcon/>}>Alumnos</ImportItem>
             <ImportItem item="subscriptionClasses" icon={<PaidIcon/>}>Abono de clases</ImportItem>

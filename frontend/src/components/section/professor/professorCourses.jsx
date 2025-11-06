@@ -10,7 +10,7 @@ function Course({ course, payments, professor, onClickAddProfessorPayment }) {
 
 	return (<>
 	<ListItemButton onClick={() => setIsOpen(!isOpen)}>
-			<ListItemIcon className="text-yellow-900">
+			<ListItemIcon>
 					<LocalLibraryIcon/>
 			</ListItemIcon>
 			<ListItemText primary={course.title} />

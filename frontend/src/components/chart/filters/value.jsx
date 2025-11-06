@@ -46,41 +46,45 @@ export default function FilterPaymentValue({ onChange }) {
 
     return (
     <div>
-        <Label htmlFor="paymentValue">Monto del pago</Label>
-        <div className="flex">
-            <Select name="paymentValue" className="payment-filter-width" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
-            {typeCriteriaSelected !== null && 
-                <><CommonInput 
-                    label=""
-                    currency
-                    inputClassName="ml-2 payment-filter-width"
-                    className="hidden"
-                    value={value}
-                    name="value"
-                    htmlFor="value"
-                    id="value" 
-                    type="number" 
-                    placeholder="Valor" 
-                    onChange={(e) => handleOnChangeValue(e.target.value)}
-                />
-                {typeCriteriaSelected.value === "between" &&
-                <><span className="mx-2 flex items-center">y</span>
-                <CommonInput 
-                    label=""
-                    currency
-                    inputClassName="payment-filter-width"
-                    className="hidden"
-                    value={value2}
-                    name="value"
-                    htmlFor="value"
-                    id="value" 
-                    type="number" 
-                    placeholder="Valor" 
-                    onChange={(e) => handleOnChangeValue2(e.target.value)}
-                /></>
+        <div className="flex flex-col gap-4 md:flex-row">
+            <div>
+                <Label htmlFor="paymentValue">Monto del pago</Label>
+                <Select name="paymentValue" className="payment-filter-width" options={typeCriterias} value={typeCriteriaSelected} onChange={setTypeCriteriaSelected}/>
+            </div>
+            <div className="mt-auto flex flex-col flex-end sm:flex-row">
+                {typeCriteriaSelected !== null && 
+                    <><CommonInput 
+                        label=""
+                        currency
+                        inputClassName="md:ml-2 payment-filter-width"
+                        className="hidden"
+                        value={value}
+                        name="value"
+                        htmlFor="value"
+                        id="value" 
+                        type="number" 
+                        placeholder="Valor" 
+                        onChange={(e) => handleOnChangeValue(e.target.value)}
+                    />
+                    {typeCriteriaSelected.value === "between" &&
+                    <><span className="mx-2 flex items-center">y</span>
+                    <CommonInput 
+                        label=""
+                        currency
+                        inputClassName="payment-filter-width"
+                        className="hidden"
+                        value={value2}
+                        name="value"
+                        htmlFor="value"
+                        id="value" 
+                        type="number" 
+                        placeholder="Valor" 
+                        onChange={(e) => handleOnChangeValue2(e.target.value)}
+                    /></>
+                    }
+                    </>
                 }
-                </>
-            }
+            </div>
         </div>
     </div>
     );

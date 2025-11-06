@@ -11,12 +11,14 @@ import diaryService from "../services/diaryService";
 import AgendaPayments from "../components/section/agenda/agendaPayments";
 import AgendaBalance from "../components/section/agenda/agendaBalance";
 import CustomCheckbox from "../components/checkbox/customCheckbox";
+import useToggle from "../hooks/useToggle";
 
 export default function Diary(props) {
     const [users, setUsers] = useState([]);
     const [limit, setLimit] = useState(25);
     const [offset, setOffset] = useState(0);
     const [usersPage, setUsersPage] = useState(1);
+    const isLoading = useToggle()
     const [showActive, setShowActive] = useState(false);
     const [showDisabled, setShowDisabled] = useState(false);
     const [filteredStudents, setFilteredStudents] = useState([]);
@@ -74,8 +76,10 @@ export default function Diary(props) {
 
     const getMoreUsers = async (page, totalRows) => {
         const newOffset = (totalRows / 2) + 25;
+        isLoading.enable()
         const activeUsers = await diaryService.getUsers(25, newOffset, '2');
         const disableUsers = await diaryService.getUsers(25, newOffset, '3');
+        isLoading.disable()
         const newUsers = activeUsers.concat(disableUsers);
         setUsers(users.concat(newUsers));
         setUsersPage(page);
@@ -93,8 +97,10 @@ export default function Diary(props) {
 
     useEffect(() => {
         const getUsers = async () => {
+            isLoading.enable()
             const activeUsers = await diaryService.getUsers(limit, offset, 2);
             const disableUsers = await diaryService.getUsers(limit, offset, 3);
+            isLoading.disable()
             const totalUsers = activeUsers.concat(disableUsers);
             setUsers(totalUsers);
             setFilteredStudents(totalUsers);
@@ -139,6 +145,7 @@ export default function Diary(props) {
                     <TabPanel className="pt-4" value="1">
                         <Table
                             columns={columns}
+                            progressPending={isLoading.value}
                             data={filteredStudents}
                             onChangePage={(page, totalRows) => getMoreUsers(page, totalRows)}
                             pagination paginationRowsPerPageOptions={[24]}

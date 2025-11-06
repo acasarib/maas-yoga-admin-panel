@@ -214,7 +214,6 @@ export default function Categories(props) {
                     columns={columns}
                     data={categories}
                     progressPending={isLoadingCategories}
-                    progressComponent={<Loader className="w-16 h-16" />}
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                     responsive
                     noDataComponent={<NoDataComponent Icon={CategoryIcon} title="No hay rubros" subtitle="No se encontraron rubros" />}

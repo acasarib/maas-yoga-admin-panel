@@ -105,7 +105,7 @@ const TasksTable = ({ course, onUpdateTask }) => {
             name: 'Alumnos',
             selector: row => 
                 <div className="flex-row">
-                    <button className="underline text-yellow-900 mx-1" onClick={() => handleSeeStudents(row.id)}>
+                    <button style={{ color: COLORS.primary[900] }} className="underline mx-1" onClick={() => handleSeeStudents(row.id)}>
                         Ver alumnos
                     </button>
                 </div>,
