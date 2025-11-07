@@ -1,7 +1,15 @@
 import nodemailer from "nodemailer";
+import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+let emailAPI = null;
+try {
+  if (process.env.BREVO_API_KEY) {
+    emailAPI = new TransactionalEmailsApi();
+    emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
+  }
+} catch (ignored) {}
 
 // Configuración del transportador de email
 const createTransporter = () => {
@@ -28,9 +36,9 @@ const createTransporter = () => {
  */
 export const sendEmailWithPDF = async (to, subject, text, pdfBuffer, pdfFileName, html = "") => {
   try {
-    const transporter = createTransporter();
+    const isSmtpEnabled = process.env.SMTP_ENABLED === "true";
     const mailOptions = {
-      from: process.env.SMTP_USER,
+      from: isSmtpEnabled ? process.env.SMTP_USER : process.env.BREVO_FROM || "tomas80868086@gmail.com",
       to: to,
       subject: subject,
       text: text,
@@ -39,18 +47,48 @@ export const sendEmailWithPDF = async (to, subject, text, pdfBuffer, pdfFileName
         {
           filename: pdfFileName,
           content: pdfBuffer,
-          contentType: "application/pdf"
+          contentType: "application/pdf",
+          type: "application/pdf",
         }
       ]
     };
-
-    const result = await transporter.sendMail(mailOptions);
+    let result = null;
+    if (isSmtpEnabled) {
+      const transporter = createTransporter();
+      result = await transporter.sendMail(mailOptions);
+    } else {
+      result = await sendEmailWithBrevo(mailOptions);
+    }
     console.log("Email enviado exitosamente:", result.messageId);
     return result;
   } catch (error) {
     console.error("Error enviando email:", error);
     throw error;
   }
+};
+
+const sendEmailWithBrevo = async (mailOptions) => {
+  let message = new SendSmtpEmail();
+  message.subject = mailOptions.subject;
+  message.textContent = mailOptions.text;
+  message.htmlContent = mailOptions.html;
+  message.sender = { name: "Maas Yoga Test", email: mailOptions.from };
+  message.to = [{ email: mailOptions.to }];
+  if (mailOptions.attachments?.length) {
+    const attachments = mailOptions.attachments.map((attachment) => {
+      const buffer = Buffer.isBuffer(attachment.content)
+        ? attachment.content
+        : Buffer.from(attachment.content);
+
+      return {
+        name: attachment.filename,
+        content: buffer.toString("base64"),
+        type: attachment.contentType || attachment.type || "application/pdf",
+      };
+    });
+    message.attachment = attachments;
+  }
+  return emailAPI.sendTransacEmail(message);
 };
 
 /**
