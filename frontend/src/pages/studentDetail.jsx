@@ -490,7 +490,7 @@ const CourseDetail = () => {
     }
 
 	return (
-		<Container disableTitle className="max-w-full" items={[{ name: "Alumnos", href: "/home/students" }, { name: `${student?.name || ''} ${student?.lastName || ''}` }]}>
+		<Container disableTitle className="max-w-full" items={[{ name: "Alumnos", href: "/home/students" }, { name: `${student?.name} ${student?.lastName}`, isLoading: student === null }]}>
 			{student !== null ?
 				<>
 					<h1 className='text-2xl md:text-3xl text-center mb-12'>{student?.name} {student?.lastName}</h1>

@@ -16,6 +16,7 @@ import DeletePaymentModal from '../components/modal/deletePaymentModal';
 import AddProfessorPaymentModal from '../components/modal/addProfessorPaymentModal';
 import { prettyCriteria, series, toMonthsNames } from '../utils';
 import { CASH_PAYMENT_TYPE } from '../constants';
+import ProfessorDetailSkeleton from '../components/skeleton/professorDetailSkeleton';
 
 const ProfessorDetail = () => {
 	let { professorId } = useParams();
@@ -173,8 +174,8 @@ const ProfessorDetail = () => {
 	}
 
   return (
-    <Container disableTitle className="max-w-full" items={[{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}` }]}>
-		{professor !== null &&
+    <Container disableTitle className="max-w-full" items={[{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}`, isLoading: professor === null }]}>
+		{professor !== null ?
 		<>
 			<h1 className='text-2xl md:text-3xl text-center mb-12'>{professor?.name} {professor?.lastName}</h1>
 			<ViewSlider
@@ -207,7 +208,7 @@ const ProfessorDetail = () => {
 				/>
 			}
 		</>
-		}
+		: <ProfessorDetailSkeleton />}
     </Container>
   )
 }

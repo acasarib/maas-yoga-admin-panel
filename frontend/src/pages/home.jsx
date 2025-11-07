@@ -240,7 +240,7 @@ export default function Home(props) {
                     </div>
                 </aside>
 
-                <main className="relative md:ml-60 sm:pt-16 pt-8">
+                <main style={{backgroundColor: COLORS.primary[50]}} className="relative md:ml-60 sm:pt-16 pt-8">
                     <span className="absolute right-0 top-0"><AlertPortal /></span>
                     {props.payments && (<><Payments/></>)}
                     {props.newUser && (<><NewUser/></>)}
