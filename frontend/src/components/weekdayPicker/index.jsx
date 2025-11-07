@@ -41,7 +41,6 @@ export default function WeekdayPicker({ days, setDays }) {
   }
 
   const parseTimeToString = date => {
-    console.log(date);
     if (date === null )
       return null
     else 
