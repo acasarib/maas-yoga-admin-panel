@@ -16,19 +16,26 @@ import SchoolIcon from '@mui/icons-material/School';
 import StudentCalendar from "../calendar/studentCalendar";
 import { formatDateDDMMYY, toMonthsNames } from "../../utils";
 import useToggle from "../../hooks/useToggle";
+import Loader from "../spinner/loader";
+import NoDataComponent from "../table/noDataComponent";
 
 export default function PendingPaymentsModal({ isOpen, onClose }) {
     const { getPendingPayments } = useContext(Context);
     const [data, setData] = useState(null);
+    const isLoading = useToggle()
 
 
     const fetchData = async () => {
+        isLoading.enable()
         const data = await getPendingPayments()
+        isLoading.disable()
         setData(data);
     }
 
     const getDebtorStudents = () => {
         const students = Object.keys(data.students).map(studentId => data.students[studentId]);
+        if (students.length === 0)
+            return <NoDataComponent Icon={SchoolIcon} title="No hay alumnos" subtitle='No se encontraron alumnos que adeuden'/>
         students.sort((a, b) => {
             if (a.lastName < b.lastName) {
               return -1;
@@ -49,9 +56,16 @@ export default function PendingPaymentsModal({ isOpen, onClose }) {
 
     return(
         <Modal size="large" hiddenFooter open={isOpen} setDisplay={onClose} icon={<HailIcon/>} title={"Alumnos deudores"}>
-            <div className="flex flex-col gap-4">
-                {data != null && getDebtorStudents()}
-            </div>
+            {isLoading.value 
+            ? 
+                <div className="py-8 flex justify-center items-center">
+                    <Loader size={16}/>
+                </div>
+            :
+                <div className="flex flex-col gap-4">
+                    {data != null && getDebtorStudents()}
+                </div>
+            }
         </Modal>
     );
 }
