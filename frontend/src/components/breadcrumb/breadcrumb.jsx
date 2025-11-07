@@ -12,10 +12,12 @@ const Breadcrumb = ({ className, items }) => {
 								<path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
 							</svg>
 						}
-						{index === (items.length -1) ?
-						<span className='text-gray-400'>{item.name}</span>
-						:
-						<Link to={item.href}>{item.name}</Link>
+						{item.isLoading === true 
+						? <span className="inline-block h-4 w-16 bg-gray-200 rounded" />
+						: index === (items.length -1) ?
+								<span className='text-gray-400'>{item.name}</span>
+							:
+								<Link to={item.href}>{item.name}</Link>
 						}
 					</li>
 				)}
