@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import Table from '../table';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import { Link } from "react-router-dom";
 import useModal from '../../hooks/useModal';
 import Modal from '../modal';
@@ -11,6 +12,7 @@ import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
 import { COLORS } from '../../constants';
+import NoDataComponent from '../table/noDataComponent';
 
 const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
@@ -176,7 +178,7 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
     <Table
       columns={coursesColumns}
       data={coursesWithTasks}
-      noDataComponent="Este alumno no esta asociado a ningun curso"
+      noDataComponent={<NoDataComponent Icon={AssignmentIcon} title="No hay tareas" subtitle='Este alumno no tiene ninguna tarea asignada'/>}
       pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
     />
   </>

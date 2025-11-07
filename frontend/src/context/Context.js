@@ -371,7 +371,8 @@ export const Provider = ({ children }) => {
     const editClazz = async (clazzId, clazz) => {
         await clazzesService.editclazz(clazzId, clazz);
         changeAlertStatusAndMessage(true, 'success', 'La clase fue editada exitosamente!')
-        setClazzes(current => current.map(s => s.id === clazzId ? merge(s, clazz) : s));
+        //Comentado porque despues hace un fetch con force
+        //setClazzes(current => current.map(s => s.id === clazzId ? merge(s, clazz) : s));
     }
 
     const newStudent = async student => {

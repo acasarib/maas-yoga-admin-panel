@@ -20,6 +20,7 @@ import { formatDateDDMMYY, toMonthsNames, betweenZeroAnd100 } from '../utils';
 import StudentCalendar from '../components/calendar/studentCalendar';
 import { Box, Collapse, List, ListItemButton, ListItemIcon, ListItemText, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import SchoolIcon from '@mui/icons-material/School';
 import Spinner from '../components/spinner/spinner';
 import PaymentsTable from '../components/paymentsTable';
 import DeletePaymentModal from '../components/modal/deletePaymentModal';
@@ -42,6 +43,7 @@ import DateInput from '../components/calendar/dateInput';
 import Label from '../components/label/label';
 import ButtonPrimary from '../components/button/primary';
 import { COLORS } from '../constants';
+import NoDataComponent from '../components/table/noDataComponent';
 
 function Course({ course, student, onOpenQRModal }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -768,9 +770,12 @@ const CourseDetail = () => {
                                 </Modal>
 							</TabPanel>
 							<TabPanel className="pt-4" value="3">
-								{courses.map((course, i) => <List key={i} component="div" disablePadding>
-									<Course student={student} course={course} onOpenQRModal={handleOpenQRModal} />
-								</List>)}
+                                {courses.length === 0 
+                                ? <NoDataComponent Icon={SchoolIcon} title="No hay cursos" subtitle='No se encontraron cursos para este alumno'/>
+                                : courses.map((course, i) => <List key={i} component="div" disablePadding>
+									    <Course student={student} course={course} onOpenQRModal={handleOpenQRModal} />
+								    </List>)
+                                }
 							</TabPanel>
 							<TabPanel className="pt-4" value="4">
 								{student?.courseTasks && <TaskList tasks={student.courseTasks} studentId={student.id} courses={courses} getStudent={() => getData()} />}

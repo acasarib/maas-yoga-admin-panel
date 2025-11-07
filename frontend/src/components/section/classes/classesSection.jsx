@@ -9,7 +9,6 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DateTimeInput from '../../calendar/dateTimeInput';
 import ClassesTable from "../../classesTable";
 import WeekdayPicker from "../../weekdayPicker";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ViewSlider from 'react-view-slider';
 import ClassStepper from '../../stepper/classStepper';
 import PlusButton from "../../button/plus";
@@ -30,6 +29,8 @@ export default function ClassesSection(props) {
     const [btnText, setBtnText] = useState("Siguiente");
     const [clazzToEdit, setClazzToEdit] = useState({});
     const [selectedCollege, setSelectedCollege] = useState(null);
+    const [title, setTitle] = useState('');
+    const [professor, setProfessor] = useState('');
     const daysInitialState = [{
       "key": "mon",
       "label": "Lun",
@@ -114,6 +115,10 @@ export default function ClassesSection(props) {
     const openEditModal = async (clazz) => {
         const colleges = await getColleges()
         setClazzToEdit(clazz);
+        setTitle(clazz.title || '');
+        setProfessor(clazz.professor || '');
+        setStartAt(clazz.startAt ? dayjs(clazz.startAt) : dayjs(new Date()));
+        setEndAt(clazz.endAt ? dayjs(clazz.endAt) : dayjs(new Date()));
         setDays(current => current.map(d => d.key in clazz.days ? ({ ...d, isSelected: true, startAt: clazz.days[d.key].startAt, endAt: clazz.days[d.key].endAt }) : d))
         setSelectedCollege(colleges.find(c => c.id === clazz.headquarterId));
         setEdit(true);
@@ -147,26 +152,27 @@ export default function ClassesSection(props) {
         >
             <CommonInput 
                 label="Título"    
-                onBlur={formik.handleBlur}
-                value={formik.values.title}
+                value={title}
                 name="title"
                 htmlFor="title"
                 id="title" 
                 type="text" 
                 placeholder="Título" 
-                onChange={formik.handleChange}
+                onChange={(event) => setTitle(event.target.value)}
             />
+
+
             <CommonInput 
                 label="Docente"    
-                onBlur={formik.handleBlur}
-                value={formik.values.professor}
+                value={professor}
                 name="professor"
                 htmlFor="professor"
                 id="professor" 
                 type="text" 
                 placeholder="Docente"
-                onChange={formik.handleChange}
+                onChange={(event) => setProfessor(event.target.value)}
             />
+
             <div className="col-span-2">
                 <Label htmlFor="headquarter">Sede</Label>
                 <SelectColleges
@@ -183,7 +189,7 @@ export default function ClassesSection(props) {
         </form>
         }
         {index === 1 && <div className="flex flex-col gap-4">
-            <div className='relative sm:col-span-2'>
+            <div className='relative'>
                 <DateTimeInput
                     className="w-full sm:w-auto"
                     name="startAt"
@@ -192,7 +198,7 @@ export default function ClassesSection(props) {
                     onChange={(newValue) => setStartAt(newValue)}
                 />
             </div>
-            <div className="relative sm:col-span-2">
+            <div className="relative">
                 <DateTimeInput
                     className="w-full sm:w-auto"
                     name="endAt"
@@ -217,13 +223,16 @@ export default function ClassesSection(props) {
     const onCloseModal = () => {
       setActiveView(0);
       setDays(daysInitialState);
+      setTitle('');
+      setProfessor('');
+      setSelectedCollege(null);
+      setStartAt(dayjs(new Date()));
+      setEndAt(dayjs(new Date()));
     }
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            title: edit ? clazzToEdit.title : '',
-            professor: edit ? clazzToEdit.professor : '',
             startAt: edit ? clazzToEdit.startAt : startAt,
             endAt: edit ? clazzToEdit.endAt : endAt,
         },
@@ -234,14 +243,13 @@ export default function ClassesSection(props) {
             return d;
           });
           const body = {
-            title: values.title,
-            professor: values.professor,
+            title,
+            professor,
             startAt: startAt,
             endAt: endAt,
             headquarterId: selectedCollege.id,
             days: daysParam,
           };
-          console.log(body);
           setIsLoading(true);
           try {
             if(edit) {
@@ -266,12 +274,16 @@ export default function ClassesSection(props) {
           setSelectedCollege(null);
           setIsLoading(false);
           setDisplayModal(false);
+          setTitle('');
+          setProfessor('');
+          setStartAt(dayjs(new Date()));
+          setEndAt(dayjs(new Date()));
           formik.values = {};
         },
     });
 
     useEffect(() => {
-        if (activeView === 0 || activeView === 1 || activeView === 2)
+        if (activeView === 0 || activeView === 1)
             setBtnText("Siguiente");
         else
             setBtnText(edit ? "Editar" : "Crear");
@@ -296,20 +308,22 @@ export default function ClassesSection(props) {
             <PlusButton onClick={() => setDisplayModal(true)}/>
         </div>
         <Modal onClose={onCloseModal} className="modal-responsive w-full md:w-10/12 lg:w-8/12 xl:w-7-12 2xl:w-6/12" icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar clase' : 'Agregar clase'} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
-            <div className="flex flex-col gap-6" style={{ minHeight: '220px' }}>
-                <div className="flex-shrink-0">
-                    <ClassStepper activeStep={activeView} onStepChange={setActiveView} />
+            <form onSubmit={formik.handleSubmit}>
+                <div className="flex flex-col gap-6" style={{ minHeight: '375px' }}>
+                    <div className="flex-shrink-0">
+                        <ClassStepper activeStep={activeView} onStepChange={setActiveView} />
+                    </div>
+                    <div className="flex-1">
+                        <ViewSlider
+                            renderView={renderView}
+                            numViews={3}
+                            activeView={activeView}
+                            animateHeight
+                            style={{ overflow: 'auto' }}
+                        />
+                    </div>
                 </div>
-                <div className="flex-1">
-                    <ViewSlider
-                        renderView={renderView}
-                        numViews={3}
-                        activeView={activeView}
-                        animateHeight
-                        style={{ overflow: 'auto' }}
-                    />
-                </div>
-            </div>
+            </form>
         </>
         } />
         <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar clase" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteClazz} children={<><div>Esta a punto de elimnar esta clase. ¿Desea continuar?</div></>} />

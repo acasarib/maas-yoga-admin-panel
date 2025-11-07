@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./weekday.module.css";
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { getPrettyClassDaysString, twoDigits } from '../../utils';
 import * as dayjs from 'dayjs'
 import Label from '../label/label';
@@ -10,7 +9,8 @@ export default function WeekdayPicker({ days, setDays }) {
   const [lastSelectedDay, setLastSelectedDay] = useState(null);
   const [selectedDays, setSelectedDays] = useState([]);
   
-  const handleClick = (day) => {
+  const handleClick = (day, e) => {
+    e.preventDefault()
     setDays(current => current.map(d => {
       if (d.key === day.key) {
         d.isSelected = !d.isSelected;
@@ -41,6 +41,7 @@ export default function WeekdayPicker({ days, setDays }) {
   }
 
   const parseTimeToString = date => {
+    console.log(date);
     if (date === null )
       return null
     else 
@@ -58,7 +59,7 @@ export default function WeekdayPicker({ days, setDays }) {
     <div>
       <div className='flex justify-between w-full'>
         {days.map(day => 
-          <button key={day.key} onClick={() => handleClick(day)} className={`${styles.button}`}>
+          <button key={day.key} onClick={(e) => handleClick(day, e)} className={`${styles.button}`}>
             <div className={`${styles.textContainer} ${day.isSelected && styles.buttonSelected}`}>
               <span className='font-bold'>{day.label}</span>
               {(day.startAt !== null && day.endAt !== null) && (<div className='hidden sm:flex flex-col text-xs hidden'><span>{day.startAt}</span><span>{day.endAt}</span></div>)}
