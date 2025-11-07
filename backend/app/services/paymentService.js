@@ -475,14 +475,19 @@ const sendReceiptByEmail = async (paymentId) => {
     const studentLastName = utils.capitalizeString(paymentData.student.lastName);
 
     // Enviar el email con el PDF adjunto
-    emailService.sendPaymentReceipt(
-      paymentData.student.email,
-      `${studentFirstName} ${studentLastName}`,
-      pdfBuffer,
-      paymentId
-    );
-    
-    console.log(`Recibo enviado por email exitosamente para pago ${paymentId}`);
+    try {
+      await emailService.sendPaymentReceipt(
+        paymentData.student.email,
+        `${studentFirstName} ${studentLastName}`,
+        pdfBuffer,
+        paymentId
+      );
+
+      console.log(`Recibo enviado por email exitosamente para pago ${paymentId}`);
+    } catch (emailError) {
+      console.error(`Error enviando recibo por email para pago ${paymentId}:`, emailError);
+      throw emailError;
+    }
   } catch (error) {
     console.error(`Error enviando recibo por email para pago ${paymentId}:`, error);
     throw error;

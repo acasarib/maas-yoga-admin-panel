@@ -5,14 +5,26 @@ import { fileURLToPath } from "url";
 
 // Configuración del transportador de email
 const createTransporter = () => {
+  const port = Number(process.env.SMTP_PORT || 587);
+  const secure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : port === 465;
+  const connectionTimeout = Number(process.env.SMTP_CONNECTION_TIMEOUT || 10000);
+  const greetingTimeout = Number(process.env.SMTP_GREETING_TIMEOUT || 10000);
+  const socketTimeout = Number(process.env.SMTP_SOCKET_TIMEOUT || 10000);
+  const pool = process.env.SMTP_POOL ? process.env.SMTP_POOL === "true" : true;
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: process.env.SMTP_PORT || 587,
-    secure: false, // true para 465, false para otros puertos
+    port,
+    secure,
+    pool,
+    connectionTimeout,
+    greetingTimeout,
+    socketTimeout,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    tls: process.env.SMTP_TLS_REJECT_UNAUTHORIZED === "false" ? { rejectUnauthorized: false } : undefined,
   });
 };
 
@@ -109,8 +121,26 @@ export const sendPaymentReceipt = async (studentEmail, studentName, pdfBuffer, p
 
   // Cargar y procesar el template HTML
   const html = loadEmailTemplate(firstName, lastName);
+  const maxRetries = Number(process.env.SMTP_MAX_RETRIES || 3);
+  const baseDelay = Number(process.env.SMTP_RETRY_DELAY_MS || 2000);
+  const retriableErrors = new Set(["ETIMEDOUT", "ECONNECTION", "ECONNRESET", "EAI_AGAIN"]);
 
-  return await sendEmailWithPDF(studentEmail, subject, text, pdfBuffer, pdfFileName, html);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await sendEmailWithPDF(studentEmail, subject, text, pdfBuffer, pdfFileName, html);
+    } catch (error) {
+      const shouldRetry =
+        retriableErrors.has(error?.code) || error?.command === "CONN";
+
+      if (!shouldRetry || attempt === maxRetries) {
+        throw error;
+      }
+
+      const delay = baseDelay * attempt;
+      console.warn(`Error enviando email (intento ${attempt}/${maxRetries}). Reintentando en ${delay}ms`, error.message || error);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
 };
 
 /**
