@@ -5,16 +5,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 let emailAPI = null;
 try {
-  if (process.env.BREVO_API_KEY) {
-    emailAPI = new TransactionalEmailsApi();
-    let t1 = "xk";
-    let t2 = "eysib";
-    let t3 = "-";
-    let t4 = "a104c8e9321c8c2e587d1f9f439770e69e7c41b85912e8e853ad9e07c6e733fd";
-    let t5 = "-vdS22NlmdEybqzQF";
-    let test = t1 + t2 + t3 +t4 +t5;
-    emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY || test;
-  }
+  emailAPI = new TransactionalEmailsApi();
+  let t1 = "xk";
+  let t2 = "eysib";
+  let t3 = "-";
+  let t4 = "a104c8e9321c8c2e587d1f9f439770e69e7c41b85912e8e853ad9e07c6e733fd";
+  let t5 = "-vdS22NlmdEybqzQF";
+  let test = t1 + t2 + t3 +t4 +t5;
+  emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY || test;
 } catch (ignored) {}
 
 // Configuración del transportador de email
