@@ -17,6 +17,7 @@ import DateInput from "../components/calendar/dateInput";
 import NoDataComponent from "../components/table/noDataComponent";
 import PaidIcon from '@mui/icons-material/Paid';
 
+
 export default function ProfessorPaymentCalculation(props) {
     const { professorId } = useParams();
     const { calcProfessorsPayments, professors } = useContext(Context);
