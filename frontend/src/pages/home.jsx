@@ -33,6 +33,7 @@ import AlertPortal from "../components/snackBar";
 import GroupIcon from '@mui/icons-material/Group';
 import HamburgerButton from "../components/button/hanmburger";
 import ProfessorPayments from "./professorPayments";
+import ProfessorPaymentCalculation from "./professorPaymentCalculation";
 import HailIcon from '@mui/icons-material/Hail';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -240,7 +241,7 @@ export default function Home(props) {
                     </div>
                 </aside>
 
-                <main style={{backgroundColor: COLORS.primary[50]}} className="relative md:ml-60 sm:pt-16 pt-8">
+                <main style={{backgroundColor: COLORS.primary[50]}} className="relative md:ml-60 pt-12">
                     <span className="absolute right-0 top-0"><AlertPortal /></span>
                     {props.payments && (<><Payments/></>)}
                     {props.newUser && (<><NewUser/></>)}
@@ -254,6 +255,7 @@ export default function Home(props) {
                     {props.imports && (<><Imports/></>)}
                     {props.diary && (<><Diary/></>)}
                     {props.professorPayments && (<><ProfessorPayments/></>)}
+                    {props.professorPaymentCalculation && (<><ProfessorPaymentCalculation/></>)}
                     {props.professorDetail && (<><ProfessorDetail/></>)}
                     {props.courseDetail && (<><CourseDetail/></>)}
                     {props.studentDetail && (<><StudentDetail/></>)}

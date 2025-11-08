@@ -17,7 +17,7 @@ const Breadcrumb = ({ className, items }) => {
 						: index === (items.length -1) ?
 								<span className='text-gray-400'>{item.name}</span>
 							:
-								<Link to={item.href}>{item.name}</Link>
+								<Link onClick={item.onClick} to={item.href}>{item.name}</Link>
 						}
 					</li>
 				)}

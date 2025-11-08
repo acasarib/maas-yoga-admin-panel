@@ -27,10 +27,22 @@ const ProfessorDetail = () => {
 	const [professorPaymentData, setProfessorPaymentData] = useState(null);
 	const verifyPaymentModal = useModal()
 	const deletePaymentModal = useModal()
+	const [items, setItems] = useState([{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}`, isLoading: professor === null }])
 	const addProfessorPaymentModal = useModal()
 	const { getProfessorDetailsById, calcProfessorsPayments, informPayment } = useContext(Context);
 	const onCancelImport = () => setActiveSection("");
 
+	useEffect(() => {
+		const items = [{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}`, onClick: () => setActiveSection(""), isLoading: professor === null, href: `/home/professors${professor != null ? `/${professor.id}` : ""}` }]
+		if (activeSection === "courses") {
+			items.push({ name: "Cursos" })
+		}
+		if (activeSection === "payments") {
+			items.push({ name: "Pagos" })
+		}
+		
+		setItems(items)
+	}, [professor, activeSection])
 
 	useEffect(() => {
 		setActiveView((activeSection === "") ? 0 : 1);
@@ -122,7 +134,7 @@ const ProfessorDetail = () => {
         informPayment(payment);
 		setProfessorPaymentData(null);
 		onAddPayment();
-    }
+	}
 
 	const getProfessorCriteria = () => {
 		let periodCriteria = professorPaymentData.result.period.criteria;
@@ -134,6 +146,10 @@ const ProfessorDetail = () => {
 		return toMonthsNames(professorPaymentData.result.period.startAt, professorPaymentData.result.period.endAt)
 	}
 
+	const onSeeCourses = () => {
+		setActiveSection("courses")
+	}
+
 	const Menu = () => (<>
 		<div className='sm:flex'>
 			<div className='w-full xl:w-4/12 sm:w-6/12 mb-4 sm:mb-0 sm:mr-2'>
@@ -141,7 +157,7 @@ const ProfessorDetail = () => {
 			</div>
 			<div className="w-full sm:w-8/12 sm:ml-2 flex flex-col">
 				<div className='sm:flex mb-4 sm:mb-8'>
-					<CardItem className="sm:w-6/12 sm:mr-2 mb-4 sm:mb-0" icon={<LocalLibraryIcon/>} onClick={() => setActiveSection("courses")}>Cursos</CardItem>
+					<CardItem className="sm:w-6/12 sm:mr-2 mb-4 sm:mb-0" icon={<LocalLibraryIcon/>} onClick={onSeeCourses}>Cursos</CardItem>
 					<CardItem className="sm:w-6/12" icon={<PaidIcon/>} onClick={() => setActiveSection("payments")}>Pagos</CardItem>
 				</div>
 				<CardProfessorStatus onClickDeletePayment={onClickDeletePayment} onClickVerifyPayment={onClickVerifyPayment} professor={professor}/>
@@ -174,7 +190,7 @@ const ProfessorDetail = () => {
 	}
 
   return (
-    <Container disableTitle className="max-w-full" items={[{ name: "Profesores", href: "/home/professors" }, { name: `${professor?.name} ${professor?.lastName}`, isLoading: professor === null }]}>
+    <Container disableTitle className="max-w-full" items={items}>
 		{professor !== null ?
 		<>
 			<h1 className='text-2xl md:text-3xl text-center mb-12'>{professor?.name} {professor?.lastName}</h1>

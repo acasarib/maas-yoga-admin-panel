@@ -1,0 +1,176 @@
+import React, { useState, useContext, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import Modal from "../components/modal";
+import "react-datepicker/dist/react-datepicker.css";
+import InfoIcon from '@mui/icons-material/Info';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import Container from "../components/container";
+import { Context } from "../context/Context";
+import ButtonPrimary from "../components/button/primary";
+import { dateToYYYYMMDD } from "../utils";
+import PaymentInfo from "../components/paymentInfo";
+import CourseProfessorCard from "../components/courses/CourseProfessorCalculation/courseProfessorCard";
+import useToggle from "../hooks/useToggle";
+import Loader from "../components/spinner/loader";
+import coursesService from "../services/coursesService";
+import DateInput from "../components/calendar/dateInput";
+import NoDataComponent from "../components/table/noDataComponent";
+import PaidIcon from '@mui/icons-material/Paid';
+
+export default function ProfessorPaymentCalculation(props) {
+    const { professorId } = useParams();
+    const { calcProfessorsPayments, professors } = useContext(Context);
+    const isLoading = useToggle()
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [from, setFrom] = useState(null);
+    const [to, setTo] = useState(null);
+    const [data, setData] = useState(null);
+    const [activePaymentsShowing, setActivePaymentsShowing] = useState(null);
+    const [professor, setProfessor] = useState(null);
+
+    useEffect(() => {
+        if (professors && professorId) {
+            const foundProfessor = professors.find(p => p.id === parseInt(professorId));
+            setProfessor(foundProfessor);
+        }
+    }, [professors, professorId]);
+
+    useEffect(() => {
+        if (selectedDate && selectedDate.$d) {
+            const date = new Date(selectedDate.$d);
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            // Primer día del mes
+            const firstDay = new Date(year, month, 1);
+            // Último día del mes
+            const lastDay = new Date(year, month + 1, 0);
+            
+            setFrom({ $d: firstDay });
+            setTo({ $d: lastDay });
+        }
+    }, [selectedDate]);
+
+    const handleCalcProfessorsPayments = async () => {
+        isLoading.enable()
+        const parsedFrom = dateToYYYYMMDD(from.$d);
+        const parsedTo = dateToYYYYMMDD(to.$d);
+        console.log("Selected period: "+ parsedFrom + " - " + parsedTo);
+        const data = await calcProfessorsPayments(parsedFrom, parsedTo, parseInt(professorId));            
+        const sortedData = data.sort((a, b) => a?.title?.localeCompare(b?.title))   
+        console.log("Data: ", sortedData);
+        setData(sortedData);
+        isLoading.disable()
+    }
+
+    const handleExportPayments = async () => {
+        try {
+            const parsedFrom = dateToYYYYMMDD(from.$d);
+            const parsedTo = dateToYYYYMMDD(to.$d);
+            
+            const response = await coursesService.exportProfessorsPayments(parsedFrom, parsedTo, null, parseInt(professorId));
+            
+            // Create blob and download
+            const blob = new Blob([response], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `pagos-profesor-${professor?.name || professorId}-${parsedFrom}-${parsedTo}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al exportar:', error);
+        }
+    }
+
+    const onInformPayment = payment => {
+        setData(current => {
+            current.forEach(course => {
+                if (course.id === payment.courseId) {
+                    course.professors.forEach(professor => {
+                        if (professor.id === payment.professorId) {
+                            professor.payments.push(payment);
+                        }
+                    });
+                }
+            });
+            return current;
+        })
+    }
+
+    return(
+        <>
+            <Container 
+                title={`Calculo de pagos - ${professor?.name || 'Profesor'}`} 
+                items={[
+                    { name: "Profesores", href: "/home/professors" }, 
+                    { name: professor?.name || 'Profesor', href: `/home/professors/${professorId}` },
+                    { name: "Calculo de pagos" }
+                ]}
+            >
+                <h2 className="text-xl mb-2">Seleccionar mes:</h2>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <div>
+                            <DateInput
+                                className="w-full sm:w-auto"
+                                label="Mes y año"
+                                id="selectedDate"
+                                name="selectedDate"
+                                views={['year', 'month']}
+                                value={selectedDate}
+                                onChange={(newValue) => setSelectedDate(newValue)}
+                            />
+                        </div>
+                    </div>
+                    <div className="sm:ml-2 flex items-end my-2 sm:my-0 gap-2">
+                        {isLoading.value ? (<div className="w-full flex justify-center items-center gap-2">
+                            <Loader />
+                        </div>) : (
+                            <>
+                            <ButtonPrimary
+                                disabled={selectedDate == null}
+                                onClick={handleCalcProfessorsPayments}
+                                className="w-1/2 sm:w-auto"
+                            >
+                                Calcular
+                            </ButtonPrimary>
+
+                            <ButtonPrimary
+                                disabled={selectedDate == null || data == null || data?.length === 0}
+                                onClick={handleExportPayments}
+                                className="w-1/2 sm:w-auto flex justify-center items-center"
+                            >
+                                <FileDownloadIcon className="mr-1" fontSize="small" />
+                                Descargar
+                            </ButtonPrimary>
+                            </>
+                        )}
+                        </div>
+                </div>
+                {data !== null &&
+                    data.map((d, i) => <CourseProfessorCard onInformPayment={onInformPayment} from={from} to={to} onShowPayments={setActivePaymentsShowing} key={i} course={d}/>)}
+                {data?.length === 0 && <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No hay pagos para mostrar, intente con otro rango de fechas"/>}
+                <Modal
+                    open={activePaymentsShowing !== null}
+                    setDisplay={() => setActivePaymentsShowing(null)}
+                    size="medium"
+                    footer={false}
+                    icon={<InfoIcon/>}
+                    title={"Pagos"}
+                    onClick={() => setActivePaymentsShowing(null)}
+                >
+                    {activePaymentsShowing !== null && (<>
+                        <h2 className="flex justify-center text-xl mb-4">Periodo {dateToYYYYMMDD(from.$d)} - {dateToYYYYMMDD(to.$d)}</h2>
+                        {activePaymentsShowing.length === 0 && <NoDataComponent Icon={PaidIcon} title="No hay pagos" subtitle="No hay pagos en el periodo seleccionado" />}
+                        {activePaymentsShowing.map(payment => <PaymentInfo key={payment.id} payment={payment} />)}
+                    </>)}
+                </Modal>
+            </Container>
+        </>
+    );
+}
