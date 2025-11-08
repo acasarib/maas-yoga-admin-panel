@@ -25,6 +25,7 @@ export default function App() {
           <Route path="/home/diary" element={<Home diary />} />
           <Route path="/home/professors" element={<Home professors />} />
           <Route path="/home/professors/:professorId" element={<Home professorDetail />} />
+          <Route path="/home/professors/:professorId/cursos/calculo-pagos" element={<Home professorPaymentCalculation />} />
           <Route path="/home/professor-payments" element={<Home professorPayments />} />
           <Route path="/home/consulta-pagos" element={<Home consultaPagos />} />
           <Route path="/home/servicios" element={<Home services />} />
