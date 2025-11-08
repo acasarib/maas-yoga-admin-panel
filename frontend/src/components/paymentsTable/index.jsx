@@ -15,7 +15,7 @@ import VerifyButton from "../button/verifyButton";
 import NoDataComponent from "../table/noDataComponent";
 import DownloadButton from "../button/downloadButton";
 
-export default function PaymentsTable({ summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
+export default function PaymentsTable({ tableFooter, summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
     onClickVerifyPayment, onSwitchDischarges = () => console.log("no implementado"), onSwitchIncomes = () => console.log("no implementado") }) {
     const { user, changeAlertStatusAndMessage, getUserById } = useContext(Context);
@@ -388,6 +388,7 @@ export default function PaymentsTable({ summary = null, pageableProps = null, co
                     className="sm:ml-2"
                     onChange={() => setShowOpResultDate(!showOpResultDate)}
                 /> 
+                {tableFooter}
             </div>
             <TableSummary total={summary != null ? summary.total : tableSummary.total} incomes={summary != null ? summary.incomes : tableSummary.incomes} expenses={summary != null ? summary.expenses : tableSummary.expenses}/>
             <DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
