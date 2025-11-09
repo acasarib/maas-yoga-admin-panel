@@ -2,30 +2,71 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-.scale-up-center {
-	-webkit-animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
-	        animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+.modal-content {
+	animation-duration: 0.3s;
+	animation-fill-mode: forwards;
+	animation-timing-function: cubic-bezier(0.390, 0.575, 0.565, 1.000);
 }
 
- @-webkit-keyframes scale-up-center {
-  0% {
-    -webkit-transform: scale(0.5);
-            transform: scale(0.5);
-  }
-  100% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
+.modal-content--opening {
+	animation-name: modal-fade-in;
 }
-@keyframes scale-up-center {
-  0% {
-    -webkit-transform: scale(0.5);
-            transform: scale(0.5);
-  }
-  100% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
+
+.modal-content--closing {
+	animation-name: modal-fade-out;
+}
+
+@keyframes modal-fade-in {
+	0% {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes modal-fade-out {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+}
+
+.modal-backdrop {
+	animation-duration: 0.3s;
+	animation-fill-mode: forwards;
+}
+
+.modal-backdrop--opening {
+	animation-name: backdrop-fade-in;
+}
+
+.modal-backdrop--closing {
+	animation-name: backdrop-fade-out;
+}
+
+@keyframes backdrop-fade-in {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 0.75;
+	}
+}
+
+@keyframes backdrop-fade-out {
+	0% {
+		opacity: 0.75;
+	}
+	100% {
+		opacity: 0;
+	}
 }
 
 .text-focus-in {

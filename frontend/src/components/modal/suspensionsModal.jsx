@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import Modal from '../modal'
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Context } from '../../context/Context';
@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import CustomCheckbox from '../checkbox/customCheckbox';
 import ButtonPrimary from '../button/primary';
 import Select from '../select/select';
-import DateTimeInput from '../calendar/dateTimeInput';
+import DateInput from '../calendar/dateInput';
 import Label from '../label/label';
 
 const FormattedDate = ({period}) => {
@@ -25,56 +25,74 @@ const DeleteButton = ({ onClick }) => <button className="ml-2 rounded-full p-0.5
 
 const AddSuspensionForm = ({ studentId, courseId, onAddSuspension }) => {
 	const { suspendStudentFromCourse } = useContext(Context)
-	const [from, setFrom] = useState(dayjs(new Date()));
-	const [to, setTo] = useState(dayjs(new Date()));
+	const [from, setFrom] = useState(() => dayjs().startOf('month'));
+	const [to, setTo] = useState(() => dayjs().startOf('month'));
 	const isUndefined = useToggle()
 
-	const handleAddSuspension = async () => {
-		const toString = date => {
-			let month = parseInt(date.$d.getMonth())
-			month++
-			if (month < 10)
-				month = "0" + month
-			return date.$d.getFullYear() + "-" + month
+	const normalizeMonthValue = value => value && value.isValid() ? value.startOf('month') : null
+
+	const handleChangeFrom = value => {
+		const normalized = normalizeMonthValue(value)
+		if (normalized !== null) setFrom(normalized)
+	}
+
+	const handleChangeTo = value => {
+		const normalized = normalizeMonthValue(value)
+		setTo(normalized)
+	}
+
+	const handleToggleUndefined = () => {
+		if (!isUndefined.value) {
+			setTo(null)
+		} else {
+			setTo(dayjs().startOf('month'))
 		}
-		const f = toString(from)
-		const t = isUndefined.value ? null : toString(to)
+		isUndefined.toggle()
+	}
+
+	const handleAddSuspension = async () => {
+		if (!from) return
+		const formatPeriod = date => date.format('YYYY-MM')
+		const f = formatPeriod(from)
+		const t = isUndefined.value || !to ? null : formatPeriod(to)
 		await suspendStudentFromCourse(studentId, courseId, f, t)
-		onAddSuspension()
+		await onAddSuspension?.()
 	}
 
 	return <><div className='mt-4 flex'>
 		<div className='w-6/12'>
 			<div className='mb-1'>Ingrese el mes desde el cual el alumno estara suspendido</div>
 			<div className=''>
-				<DateTimeInput
+				<DateInput
 					views={['year', 'month']}
+					openTo='month'
 					format='YYYY/MM'
 					label="Seleccionar fecha"
 					className='w-6/12'
 					value={from}
-					onChange={setFrom}
+					onChange={handleChangeFrom}
 				/>
 			</div>
 		</div>
 		<div className='ml-4 w-6/12'>
 			<div className='mb-1'>Ingrese el mes desde el cual el alumno dejara de estar suspendido</div>
 			<div className=''>
-				<DateTimeInput
+				<DateInput
 					views={['year', 'month']}
+					openTo='month'
 					format='YYYY/MM'
 					label="Seleccionar fecha"
 					className='w-6/12'
 					disabled={isUndefined.value}
 					value={to}
-					onChange={setTo}
+					onChange={handleChangeTo}
 				/>
 				<CustomCheckbox
 					checked={isUndefined.value}
 					labelOn="Indefinido"
 					labelOff="Indefinido"
 					className="ml-2"
-					onChange={isUndefined.toggle}
+					onChange={handleToggleUndefined}
 				/>
 				<p className={`mt-2 text-sm text-gray-500 dark:text-gray-400 ${!isUndefined.value && "invisible"}`}>Podra definir mas adelante la fecha en que termina la suspension</p>
 			</div>
@@ -84,11 +102,17 @@ const AddSuspensionForm = ({ studentId, courseId, onAddSuspension }) => {
 	</>
 }
 
-const SuspensionsModal = ({ students, isOpen, onClose, courseId }) => {
+const SuspensionsModal = ({ students, isOpen, onClose, courseId, onSuspensionsChange = () => {} }) => {
 	const { deleteSuspension, finishSuspend } = useContext(Context)
-	const [selectedStudent, setSelectedStudent] = useState(null)
+	const [selectedStudentId, setSelectedStudentId] = useState(null)
 	const isAddingSuspension = useToggle()
-	const suspendedStudents = students.filter(st => st.status == STUDENT_STATUS.SUSPEND);
+	const suspendedStudents = students.filter(st => st.status === STUDENT_STATUS.SUSPEND);
+	const selectedStudent = students.find(st => st.id === selectedStudentId) ?? null;
+
+	const handleSelectStudent = student => {
+		setSelectedStudentId(student?.id ?? null)
+		isAddingSuspension.disable()
+	}
 	const columns = [
         {
             name: 'Nombre',
@@ -103,15 +127,17 @@ const SuspensionsModal = ({ students, isOpen, onClose, courseId }) => {
             searchable: true,
         },
 	]
-	const handleDeleteSuspension = period => deleteSuspension(selectedStudent.id, courseId, period.suspendedAt, period.suspendedEndAt);
-	
-	const handleFinishSuspend = period => finishSuspend(selectedStudent.id, courseId, period.suspendedAt);
+	const handleDeleteSuspension = async period => {
+		if (!selectedStudent) return
+		await deleteSuspension(selectedStudent.id, courseId, period.suspendedAt, period.suspendedEndAt)
+		await onSuspensionsChange()
+	};
 
-	useEffect(() => {
-		if (selectedStudent != null) {
-			setSelectedStudent(students.find(st => st.id === selectedStudent.id))
-		}
-	}, [students])
+	const handleFinishSuspend = async period => {
+		if (!selectedStudent) return
+		await finishSuspend(selectedStudent.id, courseId, period.suspendedAt)
+		await onSuspensionsChange()
+	};
 	
 
   return (
@@ -123,32 +149,38 @@ const SuspensionsModal = ({ students, isOpen, onClose, courseId }) => {
 			className='z-50'
 			placeholder="Seleccionar alumno"
 			value={selectedStudent}
-			onChange={setSelectedStudent}
+			onChange={handleSelectStudent}
 			options={students}
 			getOptionLabel={option => option.name + " " + option.lastName}
 			getOptionValue={option => option.id}
 		/>
 
-		{selectedStudent != null && <>
-			<div className='mt-2'>El alumno se encuentra <span className='font-medium'>{selectedStudent.status == STUDENT_STATUS.ACTIVE ? "activo" : "suspendido"}</span> actualmente.</div>
+		{selectedStudent !== null && <>
+			<div className='mt-2'>El alumno se encuentra <span className='font-medium'>{selectedStudent.status === STUDENT_STATUS.ACTIVE ? "activo" : "suspendido"}</span> actualmente.</div>
 			{selectedStudent.suspendedPeriods.length > 0 ?
 			<div className='mt-2'>
 				<h2 className='font-medium text-xl'>Periodos de suspension de {selectedStudent.name} {selectedStudent.lastName}</h2>
 				<ul>
 					{selectedStudent.suspendedPeriods.map(period => <li key={period.suspendedAt}>
 						• Desde: <FormattedDate period={period.suspendedAt}/> 
-						{period.suspendedEndAt != null ? <> hasta <FormattedDate period={period.suspendedEndAt}/></> : <span className='ml-1 underline cursor-pointer' onClick={() => handleFinishSuspend(period)}>finalizar suspension</span>}
+						{period.suspendedEndAt !== null ? <> hasta <FormattedDate period={period.suspendedEndAt}/></> : <span className='ml-1 underline cursor-pointer' onClick={() => handleFinishSuspend(period)}>finalizar suspension</span>}
 						<DeleteButton onClick={() => handleDeleteSuspension(period)}/>
 					</li>)}
 				</ul>
 				{isAddingSuspension.value ? 
-				<AddSuspensionForm courseId={courseId} studentId={selectedStudent.id} onAddSuspension={isAddingSuspension.disable}/>
+				<AddSuspensionForm courseId={courseId} studentId={selectedStudent.id} onAddSuspension={async () => {
+					isAddingSuspension.disable()
+					await onSuspensionsChange()
+				}}/>
 				:
 				<div className='underline cursor-pointer' onClick={isAddingSuspension.toggle}>Agregar</div>
 				}
 			</div>
 			: isAddingSuspension.value ? 
-				<AddSuspensionForm courseId={courseId} studentId={selectedStudent.id} onAddSuspension={isAddingSuspension.disable}/>
+				<AddSuspensionForm courseId={courseId} studentId={selectedStudent.id} onAddSuspension={async () => {
+					isAddingSuspension.disable()
+					await onSuspensionsChange()
+				}}/>
 				:
 				<div>No se encontraron suspensiones previas, <span onClick={isAddingSuspension.toggle} className='underline cursor-pointer'>agregar</span></div>
 			}

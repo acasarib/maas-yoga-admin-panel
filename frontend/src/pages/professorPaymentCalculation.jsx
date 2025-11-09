@@ -20,7 +20,7 @@ import PaidIcon from '@mui/icons-material/Paid';
 
 export default function ProfessorPaymentCalculation(props) {
     const { professorId } = useParams();
-    const { calcProfessorsPayments, professors } = useContext(Context);
+    const { calcProfessorsPayments, professors, getProfessorDetailsById } = useContext(Context);
     const isLoading = useToggle()
     const [selectedDate, setSelectedDate] = useState(null);
     const [from, setFrom] = useState(null);
@@ -30,10 +30,7 @@ export default function ProfessorPaymentCalculation(props) {
     const [professor, setProfessor] = useState(null);
 
     useEffect(() => {
-        if (professors && professorId) {
-            const foundProfessor = professors.find(p => p.id === parseInt(professorId));
-            setProfessor(foundProfessor);
-        }
+        fetchProfessor();
     }, [professors, professorId]);
 
     useEffect(() => {
@@ -51,6 +48,11 @@ export default function ProfessorPaymentCalculation(props) {
             setTo({ $d: lastDay });
         }
     }, [selectedDate]);
+
+    const fetchProfessor = async () => {
+        const professor = await getProfessorDetailsById(professorId)
+        setProfessor(professor)
+    }
 
     const handleCalcProfessorsPayments = async () => {
         isLoading.enable()

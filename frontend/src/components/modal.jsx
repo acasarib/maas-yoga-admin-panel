@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import ButtonPrimary from './button/primary';
 import ButtonSecondary from './button/secondary';
@@ -6,6 +6,26 @@ import { COLORS } from '../constants';
 
 export default function Modal(props) {  
   const cancelButtonRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(props.open);
+  const [isClosing, setIsClosing] = useState(false);
+  const animationDuration = 300;
+
+  useEffect(() => {
+    let timeoutId;
+    if (props.open) {
+      setIsVisible(true);
+      setIsClosing(false);
+    } else if (isVisible) {
+      setIsClosing(true);
+      timeoutId = setTimeout(() => {
+        setIsVisible(false);
+      }, animationDuration);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }, [props.open, isVisible]);
 
   const onClose = () => {
     if (typeof props.onClose === "function")
@@ -30,13 +50,13 @@ export default function Modal(props) {
 
   return (
     <>
-    {(props.open) && (<>
+    {(isVisible) && (<>
       <div as="div" className="relative z-100" initialfocus={cancelButtonRef} onClose={onClose}>
-      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+      <div className={`fixed inset-0 bg-gray-500 transition-opacity modal-backdrop ${isClosing ? 'modal-backdrop--closing' : 'modal-backdrop--opening'}`} />
 
-        <div className="fixed inset-0 overflow-y-auto overflow-x-auto">
+        <div className="fixed inset-0 overflow-y-auto overflow-x-auto" onClick={onClose}>
           <div className="flex min-h-full items-end justify-center p-3 text-center items-center sm:p-0">
-              <div className={`scale-up-center relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-lg ${getModalSize(props.size)} ${props.className}`} style={props.style}>
+              <div className={`relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-lg modal-content ${isClosing ? 'modal-content--closing' : 'modal-content--opening'} ${getModalSize(props.size)} ${props.className}`} style={props.style} onClick={event => event.stopPropagation()}>
                 <div className="rounded-t-md bg-white px-4 pt-6">
                   <div className="flex flex-col">
                     <div className="modal-header w-full flex justify-between">
@@ -57,7 +77,7 @@ export default function Modal(props) {
                     </div>
                   </div>
                 </div>
-                {(props.footer === undefined || props.footer == true) &&
+                {(props.footer === undefined || props.footer === true) &&
                   <div style={{backgroundColor: COLORS.primary[50]}} className={`w-full rounded-b-md flex px-4 py-3 flex-row-reverse sm:px-6 ${props.hiddenFooter ? "hidden" : ""}`}>
                     {!props.hiddingButton && (<ButtonPrimary
                       className="w-full sm:w-auto sm:ml-2 ml-1 sm:mr-0"
