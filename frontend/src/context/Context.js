@@ -199,6 +199,11 @@ export const Provider = ({ children }) => {
         return professor;
     }
 
+    const getPendingProfessorPayments = async () => {
+        const pendingPayments = await professorsService.getPendingPayments();
+        return pendingPayments;
+    }
+
     const getCourseDetailsById = async (courseId) => {
         return coursesService.getCourse(courseId);
     }
@@ -774,6 +779,7 @@ export const Provider = ({ children }) => {
             getProfessors,
             getTasks,
             getPendingPaymentsByCourseFromStudent,
+            getPendingProfessorPayments,
             newProfessorPayment,
             editPayment,
             newProfessor,

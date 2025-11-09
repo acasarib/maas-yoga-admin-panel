@@ -14,9 +14,13 @@ import { useNavigate } from "react-router-dom";
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
 import { COLORS } from "../constants";
+import ButtonPrimary from "../components/button/primary";
+import PendingProfessorPaymentsModal from "../components/modal/pendingProfessorPaymentsModal";
+import useToggle from "../hooks/useToggle";
 
 export default function Professors(props) {
     const { getProfessors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
+    const paymentsModal = useToggle(false);
     const [displayModal, setDisplayModal] = useState(false);
     const [professors, setProfessors] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -163,9 +167,16 @@ export default function Professors(props) {
                     responsive
                     noDataComponent={<NoDataComponent Icon={SchoolIcon} title="No hay profesores" subtitle="No se encontraron profesores registrados"/>}
                 />
-                <div className="flex justify-end mt-6">
+                <div className="flex justify-between mt-6 items-center">
+                    <div>
+                        <ButtonPrimary onClick={paymentsModal.enable}>Ver pagos pendientes</ButtonPrimary>
+                    </div>
                     <PlusButton onClick={() => setDisplayModal(true)}/>
                 </div>
+                <PendingProfessorPaymentsModal 
+                    isOpen={paymentsModal.value} 
+                    onClose={paymentsModal.disable} 
+                />
                 <Modal icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar profesor' : 'Agregar profesor'} buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                     <form className="flex flex-col sm:grid sm:grid-cols-2 gap-6"
                         method="POST"
