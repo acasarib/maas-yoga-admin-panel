@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { COLORS } from "../../constants";
 import Modal from '../modal';
 import PaymentIcon from '@mui/icons-material/Payment';
-import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-import LinkIcon from '@mui/icons-material/Link';
-import QrCodeIcon from '@mui/icons-material/QrCode';
-import EmailIcon from '@mui/icons-material/Email';
 import CommonInput from '../commonInput';
-import CustomRadio from '../radio/customRadio';
 import CustomCheckbox from '../checkbox/customCheckbox';
+import CustomRadio from '../radio/customRadio';
+import MercadoPagoList from '../list/mercadoPagoList';
 
 const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayment }) => {
     const [paymentMethod, setPaymentMethod] = useState('mercadopago');
@@ -44,6 +41,12 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
         }
     }, [monthData]);
 
+    useEffect(() => {
+        if (!studentData?.email && mercadoPagoOption === 'email') {
+            setMercadoPagoOption('link');
+        }
+    }, [studentData, mercadoPagoOption]);
+
     const handleGeneratePayment = async () => {
         setIsGenerating(true);
         try {
@@ -61,32 +64,6 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
         } finally {
             setIsGenerating(false);
             onClose();
-        }
-    };
-
-    const getMercadoPagoOptionIcon = (option) => {
-        switch (option) {
-            case 'link':
-                return <LinkIcon fontSize="small" className="mr-2" />;
-            case 'qr':
-                return <QrCodeIcon fontSize="small" className="mr-2" />;
-            case 'email':
-                return <EmailIcon fontSize="small" className="mr-2" />;
-            default:
-                return null;
-        }
-    };
-
-    const getMercadoPagoOptionDescription = (option) => {
-        switch (option) {
-            case 'link':
-                return 'Generar un enlace de pago que podrás compartir';
-            case 'qr':
-                return 'Generar un código QR para escanear y pagar';
-            case 'email':
-                return 'Enviar enlace de pago por correo electrónico al alumno';
-            default:
-                return '';
         }
     };
 
@@ -149,66 +126,11 @@ const PaymentModal = ({ isOpen, onClose, studentData, monthData, onGeneratePayme
                             <FormLabel component="legend" className="text-gray-900 font-medium">
                                 Opciones de Mercado Pago
                             </FormLabel>
-                            <RadioGroup
-                                value={mercadoPagoOption}
-                                onChange={handleMercadoPagoOptionChange}
-                                className="mt-3 space-y-2"
-                            >
-                                <CustomRadio 
-                                    value="link"
-                                    label={
-                                        <div className="flex items-start w-full">
-                                            <div className="flex-shrink-0 mr-3 mt-2">
-                                                {getMercadoPagoOptionIcon('link')}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="font-medium">Enlace de pago</span>
-                                                <span className="text-sm text-gray-500 mt-1">
-                                                    {getMercadoPagoOptionDescription('link')}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    }
-                                />
-                                <CustomRadio 
-                                    value="qr"
-                                    label={
-                                        <div className="flex items-start w-full">
-                                            <div className="flex-shrink-0 mr-3 mt-2">
-                                                {getMercadoPagoOptionIcon('qr')}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="font-medium">Código QR</span>
-                                                <span className="text-sm text-gray-500 mt-1">
-                                                    {getMercadoPagoOptionDescription('qr')}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    }
-                                />
-                                <CustomRadio 
-                                    value="email"
-                                    disabled={!studentData?.email}
-                                    label={
-                                        <div className="flex items-start w-full">
-                                            <div className="flex-shrink-0 mr-3 mt-2">
-                                                {getMercadoPagoOptionIcon('email')}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className={`font-medium ${!studentData?.email ? 'text-gray-400' : ''}`}>
-                                                    Envío por email
-                                                </span>
-                                                <span className="text-sm text-gray-500 mt-1">
-                                                    {studentData?.email 
-                                                        ? `Enviar a: ${studentData.email}` 
-                                                        : 'El alumno no tiene email asociado'
-                                                    }
-                                                </span>
-                                            </div>
-                                        </div>
-                                    }
-                                />
-                            </RadioGroup>
+                            <MercadoPagoList
+                                studentData={studentData}
+                                mercadoPagoOption={mercadoPagoOption}
+                                handleMercadoPagoOptionChange={handleMercadoPagoOptionChange}
+                            />
                         </FormControl>
                     </div>
                 )}
