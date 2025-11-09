@@ -59,8 +59,8 @@ export const Provider = ({ children }) => {
         return data;
     }
 
-    const getServices = async () => {
-        if (services.length > 0) return services;
+    const getServices = async (force = false) => {
+        if (!force && services.length > 0) return services;
         const data = await templatesService.getServices();
         setServices(data);
         return data

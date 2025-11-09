@@ -38,10 +38,10 @@ export default function Services(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const loadServices = async () => {
+    const loadServices = async (force = false) => {
         setIsLoading(true);
         try {
-            const data = await getServices();
+            const data = await getServices(force);
             setServices(data);
         } catch (error) {
             changeAlertStatusAndMessage(true, 'error', 'Error al cargar servicios');
@@ -81,7 +81,7 @@ export default function Services(props) {
         try {
             await deleteService(selectedService.id);
             deleteServiceModal.close();
-            loadServices();
+            await loadServices(true);
             changeAlertStatusAndMessage(true, 'success', 'Servicio eliminado correctamente');
         } catch {
             changeAlertStatusAndMessage(true, 'error', 'El servicio no pudo ser eliminado');
@@ -131,7 +131,7 @@ export default function Services(props) {
             } else {
                 await newService(body);
             }
-            loadServices();
+            await loadServices(true);
             addServiceModal.close();
             changeAlertStatusAndMessage(true, 'success', `Servicio ${isEditingService.value ? 'editado' : 'creado'} correctamente`);
         } catch (error) {
