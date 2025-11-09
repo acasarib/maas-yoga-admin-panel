@@ -766,19 +766,21 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 />
             </div>
             {(edit && paymentToEdit.file && paymentToEdit.file !== null) && (
-                <>
-                    <Label>Archivo</Label>
-                    <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">
-                        {paymentToEdit.file?.name}
-                        <button
-                            type="button"
-                            className="p-1 rounded-full bg-gray-100 ml-2"
-                            onClick={() => setPaymentToEdit({ ...paymentToEdit, file: null, fileId: null })}
-                        >
-                            <CloseIcon />
-                        </button>
+                <div className="col-span-2">
+                    <div className="sm:w-6/12">
+                        <Label>Archivo</Label>
+                        <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">
+                            {paymentToEdit.file?.name}
+                            <button
+                                type="button"
+                                className="p-1 rounded-full bg-gray-100 ml-2"
+                                onClick={() => setPaymentToEdit({ ...paymentToEdit, file: null, fileId: null })}
+                            >
+                                <CloseIcon />
+                            </button>
+                        </div>
                     </div>
-                </>
+                </div>
             )}
             {!haveFile ? (
                 <div>
