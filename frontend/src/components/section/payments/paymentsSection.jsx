@@ -332,6 +332,11 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             setAmmount(payment.value)
             setSelectedStudent(payment.student);
         }
+        if (payment.headquarter) {
+            setSelectedCollege(payment.headquarter);
+        } else {
+            setSelectedCollege(null);
+        }
         const method = PAYMENT_OPTIONS.filter(type => type.value === payment.type);
         
         setPaymentMethod(method[0]);
@@ -374,7 +379,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         const data = {
             itemId: selectedItem?.id,
             clazzId: (edit && selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
-            headquarterId: (edit && selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
+            headquarterId: selectedCollege?.id ?? selectedCollege?.value ?? null,
             courseId: (edit && selectedCourse !== null) ? selectedCourse?.id : (isDischarge ? null : selectedCourse?.id),
             type: (edit && paymentMethod !== null) ? (paymentMethod.value || paymentMethod) : paymentMethod,
             fileId: edit ? paymentToEdit.fileId : fileId,
@@ -677,109 +682,136 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     options={PAYMENT_OPTIONS}
                 />
             </div>
-            {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && <div className="col-span-2">
-                <div className="flex items-center">
-                    <CustomCheckbox
-                        label="Generar recibo"
-                        name="addReceipt"
-                        checked={addReceipt.value}
-                        onChange={addReceipt.toggle}
-                    />
-                    <Tooltip style={{marginLeft: "-11px"}} className="text-gray-500" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
-                        <InfoIcon fontSize="small" />
-                    </Tooltip>
+            {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && (
+                <div className="col-span-2">
+                    <div className="flex items-center">
+                        <CustomCheckbox
+                            label="Generar recibo"
+                            name="addReceipt"
+                            checked={addReceipt.value}
+                            onChange={addReceipt.toggle}
+                        />
+                        <Tooltip style={{ marginLeft: "-11px" }} className="text-gray-500" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
+                            <InfoIcon fontSize="small" />
+                        </Tooltip>
+                    </div>
+                    {!selectedStudent?.email && (
+                        <YellowBudget className="mt-2 w-full">
+                            <WarningIcon fontSize="small" className="mr-2" />No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.
+                        </YellowBudget>
+                    )}
                 </div>
-                {!selectedStudent?.email && <YellowBudget className="mt-2 w-full"><WarningIcon fontSize="small" className="mr-2"/>No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.</YellowBudget>}
-            </div>}
-                <div className="col-span-2 md:col-span-2">
-                    <Label htmlFor="headquarter">Sede</Label>
-                    <SelectColleges
-                        name="headquarter"
-                        value={selectedCollege}
-                        onChange={setSelectedCollege}
-                        styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
-                    />
-                </div>
-            {isDischarge ?
+            )}
             <div className="col-span-2 md:col-span-2">
-                <Label htmlFor="category">Articulo</Label>
-                <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
+                <Label htmlFor="headquarter">Sede</Label>
+                <SelectColleges
+                    name="headquarter"
+                    value={selectedCollege}
+                    onChange={setSelectedCollege}
+                    styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
+                />
             </div>
-            :
-            <>
-                 {(!selectedClazz && !selectedCourse) && (<div className="col-span-2 md:col-span-2">
+            {isDischarge ? (
+                <div className="col-span-2 md:col-span-2">
                     <Label htmlFor="category">Articulo</Label>
                     <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
-                </div>)}
-                {(!selectedCourse && !selectedItem) && (<div className="col-span-2 md:col-span-2">
-                    <Label htmlFor="clazz">Clase</Label>
-                    <SelectClass
-                        name="clazz"
-                        onChange={setSelectedClazz}
-                        value={selectedClazz}
-                        getOptionValue ={(clazz)=> clazz.id}
-                    />
-                </div>)}
-            </>
-            }
+                </div>
+            ) : (
+                <>
+                    {(!selectedClazz && !selectedCourse) && (
+                        <div className="col-span-2 md:col-span-2">
+                            <Label htmlFor="category">Articulo</Label>
+                            <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
+                        </div>
+                    )}
+                    {(!selectedCourse && !selectedItem) && (
+                        <div className="col-span-2 md:col-span-2">
+                            <Label htmlFor="clazz">Clase</Label>
+                            <SelectClass
+                                name="clazz"
+                                onChange={setSelectedClazz}
+                                value={selectedClazz}
+                                getOptionValue={(clazz) => clazz.id}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
             <div className="col-span-2 md:col-span-2">
-                <CommonTextArea 
+                <CommonTextArea
                     label="Nota"
                     name="note"
-                    type="textarea" 
-                    placeholder="Nota" 
+                    type="textarea"
+                    placeholder="Nota"
                     value={note}
                     onChange={handleChangeNote}
                 />
             </div>
-                <div className="col-span-2">
-                    <DateTimeInput
-                        className="w-full sm:w-auto"
-                        name="paymentAt"
-                        label="Fecha en que se realizo el pago"
-                        value={paymentAt}
-                        onChange={(newValue) => setPaymentAt(newValue)}
-                    />
-                </div>
-                <div className="col-span-2">
-                    <DateTimeInput
-                        className="w-full sm:w-auto"
-                        name="operativeResult"
-                        label="Resultado operativo"
-                        value={operativeResult}
-                        onChange={(newValue) => setOperativeResult(newValue)}
-                    />
-                </div>
-            {(edit && (paymentToEdit.file && (paymentToEdit.file !== null))) && (
-            <>
-                <Label>Archivo</Label>
-                <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">{paymentToEdit.file?.name}<button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({...paymentToEdit, file: null, fileId: null})}><CloseIcon /></button></div>
-            </>
+            <div className="col-span-2">
+                <DateTimeInput
+                    className="w-full sm:w-auto"
+                    name="paymentAt"
+                    label="Fecha en que se realizo el pago"
+                    value={paymentAt}
+                    onChange={(newValue) => setPaymentAt(newValue)}
+                />
+            </div>
+            <div className="col-span-2">
+                <DateTimeInput
+                    className="w-full sm:w-auto"
+                    name="operativeResult"
+                    label="Resultado operativo"
+                    value={operativeResult}
+                    onChange={(newValue) => setOperativeResult(newValue)}
+                />
+            </div>
+            {(edit && paymentToEdit.file && paymentToEdit.file !== null) && (
+                <>
+                    <Label>Archivo</Label>
+                    <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">
+                        {paymentToEdit.file?.name}
+                        <button
+                            type="button"
+                            className="p-1 rounded-full bg-gray-100 ml-2"
+                            onClick={() => setPaymentToEdit({ ...paymentToEdit, file: null, fileId: null })}
+                        >
+                            <CloseIcon />
+                        </button>
+                    </div>
+                </>
             )}
-            {!haveFile 
-            ? <div>
-                <Label>Seleccionar comprobante para respaldar la operación</Label>
-                <div className="flex">
-                    <StorageIconButton onClick={() => inputFileRef.current.click()} className="min-icon-storage" icon="\assets\images\db.png" alt="maas yoga">Maas Yoga</StorageIconButton>
-                    <input ref={inputFileRef} type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange}></input>
-                    {googleDriveEnabled &&
-                        <StorageIconButton onClick={handleOpenPicker} className="ml-2 min-icon-storage" icon="\assets\images\gdrive.png" alt="google drive">Google Drive</StorageIconButton>
-                    }
+            {!haveFile ? (
+                <div>
+                    <Label>Seleccionar comprobante para respaldar la operación</Label>
+                    <div className="flex">
+                        <StorageIconButton onClick={() => inputFileRef.current.click()} className="min-icon-storage" icon="\assets\images\db.png" alt="maas yoga">Maas Yoga</StorageIconButton>
+                        <input ref={inputFileRef} type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange} />
+                        {googleDriveEnabled && (
+                            <StorageIconButton onClick={handleOpenPicker} className="ml-2 min-icon-storage" icon="\assets\images\gdrive.png" alt="google drive">Google Drive</StorageIconButton>
+                        )}
+                    </div>
                 </div>
-            </div>
-            : <div>
-                <Label>Nombre del archivo: {fileName}</Label>
-                <div className="flex flex-rox gap-4">
-                    <ButtonPrimary onClick={() => uploadFile(file)} className={`${driveFile !== null && "none"} mt-4 w-full sm:w-40 h-auto`}>
-                        {isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : <span>Subir archivo</span>}
-                    </ButtonPrimary>
+            ) : (
+                <div>
+                    <Label>Nombre del archivo: {fileName}</Label>
+                    <div className="flex flex-rox gap-4">
+                        <ButtonPrimary onClick={() => uploadFile(file)} className={`${driveFile !== null && "none"} mt-4 w-full sm:w-40 h-auto`}>
+                            {isLoading ? (
+                                <>
+                                    <i className="fa fa-circle-o-notch fa-spin mr-2"></i>
+                                    <span>Subiendo...</span>
+                                </>
+                            ) : (
+                                <span>Subir archivo</span>
+                            )}
+                        </ButtonPrimary>
 
-                    <ButtonPrimary onClick={() => deleteSelection()} className="mt-4 w-full sm:w-40 h-auto">
-                        Eliminar selección
-                    </ButtonPrimary>
+                        <ButtonPrimary onClick={() => deleteSelection()} className="mt-4 w-full sm:w-40 h-auto">
+                            Eliminar selección
+                        </ButtonPrimary>
+                    </div>
                 </div>
-            </div>
-            }
+            )}
         </div>
         </Modal>
 
