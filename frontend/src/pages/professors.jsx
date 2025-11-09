@@ -26,6 +26,7 @@ export default function Professors(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [professorId, setProfessorId] = useState(null);
+    const [professorToDelete, setProfessorToDelete] = useState(null);
     const [edit, setEdit] = useState(false);
     const [professorToEdit, setProfessorToEdit] = useState({});
     const [isPhoneNumberDuplicated, setIsPhoneNumberDuplicated] = useState(false);
@@ -54,9 +55,10 @@ export default function Professors(props) {
         setEdit(false);
     }
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (id, professor) => {
         setDeleteModal(true);
         setProfessorId(id);
+        setProfessorToDelete(professor);
     }
 
     const openEditModal = async (professor) => {
@@ -100,7 +102,7 @@ export default function Professors(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id, row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], [professors]);
@@ -267,7 +269,17 @@ export default function Professors(props) {
                     </form>
                 </>
                 } />
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={() => setDeleteModal(false)} title="Eliminar profesor" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteProfessor} children={<><div>Esta a punto de elimnar este profesor. ¿Desea continuar?</div></>} />
+                <Modal 
+                  danger 
+                  icon={<DeleteIcon />} 
+                  open={deleteModal} 
+                  setDisplay={() => setDeleteModal(false)} 
+                  title="Eliminar profesor" 
+                  buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} 
+                  onClick={handleDeleteProfessor} 
+                >
+                  <div>¿Está seguro que desea eliminar al profesor <strong>{professorToDelete?.name} {professorToDelete?.lastName}</strong>? Esta acción no se puede deshacer.</div>
+                </Modal>
             </Container>
         </>
     );

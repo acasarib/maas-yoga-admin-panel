@@ -61,8 +61,8 @@ export default function Modal(props) {
                   <div className="flex flex-col">
                     <div className="modal-header w-full flex justify-between">
                       <div className="flex items-center">
-                        <div style={{backgroundColor: COLORS.primary[100]}} className="mr-2 mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                          {props.icon}
+                        <div style={{backgroundColor: props.danger ? COLORS.red[100] : COLORS.primary[100]}} className="mr-2 mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                          {props.danger ? React.cloneElement(props.icon, { style: { color: COLORS.red[600] } }) : props.icon}
                         </div>
                         <div className="text-center sm:mt-0 sm:ml-4 sm:text-left">
                           <div as="h3" className="text-lg font-medium leading-6 text-gray-900">
@@ -83,6 +83,7 @@ export default function Modal(props) {
                       className="w-full sm:w-auto sm:ml-2 ml-1 sm:mr-0"
                       disabled={props.buttonDisabled}
                       onClick={handleOnClickPrimaryButton}
+                      danger={props.danger}
                       >
                       {props.buttonText}
                     </ButtonPrimary>)}

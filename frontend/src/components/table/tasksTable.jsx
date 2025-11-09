@@ -208,7 +208,7 @@ const TasksTable = ({ course, onUpdateTask }) => {
             }
         </div>
     </Modal>
-    <Modal icon={<DeleteIcon />} open={deleteTaskModal} setDisplay={handleCloseDeleteTask} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>{`Esta a punto de elimnar la tarea ${taskToDelete.title}. ¿Desea continuar?`}</div></>} />
+    <Modal danger icon={<DeleteIcon />} open={deleteTaskModal} setDisplay={handleCloseDeleteTask} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><span>Esta a punto de elimnar la tarea <strong>{taskToDelete.title}</strong>. ¿Desea continuar?</span></>} />
     <EditTaskModal
         isOpen={editTaskModal.isOpen}
         task={editingTask}

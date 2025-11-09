@@ -4,8 +4,9 @@ import HailIcon from '@mui/icons-material/Hail';
 import { Context } from '../../context/Context';
 import Loader from '../spinner/loader';
 import NoDataComponent from '../table/noDataComponent';
-import SchoolIcon from '@mui/icons-material/School';
 import { formatDateDDMMYY, formatPaymentValue, getMonthNameByMonthNumber } from '../../utils';
+import DangerAlert from '../alert/danger';
+import WarningAlert from '../alert/warning';
 
 const PendingProfessorPaymentsModal = ({ isOpen, onClose }) => {
   const { getPendingProfessorPayments } = useContext(Context);
@@ -68,7 +69,7 @@ const PendingProfessorPaymentsModal = ({ isOpen, onClose }) => {
     if (!professors.length) {
       return (
         <NoDataComponent
-          Icon={SchoolIcon}
+          Icon={HailIcon}
           title="Sin pagos pendientes"
           subtitle="No se encontraron profesores con pagos adeudados o por verificar"
         />
@@ -87,9 +88,9 @@ const PendingProfessorPaymentsModal = ({ isOpen, onClose }) => {
   return (
     <Modal
       open={isOpen}
+      footer={false}
       onClose={onClose}
       title="Pagos pendientes de profesores"
-      buttonText="Cerrar"
       onClick={onClose}
       setDisplay={onClose}
       icon={<HailIcon />}
@@ -123,7 +124,7 @@ const ProfessorCard = ({ professor }) => {
       {owedCount > 0 && (
         <Section title="Meses adeudados">
           {Object.values(owedByCourse).map(({ course, periods }) => (
-            <CourseCard key={course?.id ?? `owed-${course?.title}`} course={course}>
+            <CourseCardDanger key={course?.id ?? `owed-${course?.title}`} course={course}>
               <ul className="list-disc list-inside text-sm text-gray-700">
                 {periods.map((period, index) => (
                   <li key={`owed-${course?.id ?? 'course'}-${period.year}-${period.month}-${index}`}>
@@ -131,7 +132,7 @@ const ProfessorCard = ({ professor }) => {
                   </li>
                 ))}
               </ul>
-            </CourseCard>
+            </CourseCardDanger>
           ))}
         </Section>
       )}
@@ -139,7 +140,7 @@ const ProfessorCard = ({ professor }) => {
       {notVerifiedCount > 0 && (
         <Section title="Pagos pendientes de verificación">
           {Object.values(pendingVerificationByCourse).map(({ course, periods }) => (
-            <CourseCard key={course?.id ?? `not-verified-${course?.title}`} course={course}>
+            <CourseCardWarning key={course?.id ?? `not-verified-${course?.title}`} course={course}>
               <ul className="list-disc list-inside text-sm text-gray-700">
                 {periods.map((period, index) => (
                   <li key={`not-verified-${course?.id ?? 'course'}-${period.payment?.id ?? index}`}>
@@ -150,7 +151,7 @@ const ProfessorCard = ({ professor }) => {
                   </li>
                 ))}
               </ul>
-            </CourseCard>
+            </CourseCardWarning>
           ))}
         </Section>
       )}
@@ -167,13 +168,20 @@ const Section = ({ title, children }) => (
   </div>
 );
 
-const CourseCard = ({ course, children }) => (
-  <div className="rounded border border-gray-200 bg-gray-50 p-3">
-    <p className="text-sm font-medium text-gray-800">{course?.title ?? 'Curso sin título'}</p>
+const CourseCardDanger = ({ course, children }) => (
+  <DangerAlert title={course.title} className="rounded border border-gray-200 bg-gray-50 p-3">
     <div className="mt-2">
       {children}
     </div>
-  </div>
+  </DangerAlert>
+);
+
+const CourseCardWarning = ({ course, children }) => (
+  <WarningAlert title={course.title} className="rounded border border-gray-200 bg-gray-50 p-3">
+    <div className="mt-2">
+      {children}
+    </div>
+  </WarningAlert>
 );
 
 const groupPeriodsByCourse = (periods = []) => {

@@ -24,6 +24,7 @@ export default function Tasks(props) {
     const { getTasks, editTask, deleteTask, createTask, changeAlertStatusAndMessage } = useContext(Context);
     const [taskId, setTaskId] = useState(null);
     const [taskToEdit, setTaskToEdit] = useState({});
+    const [taskToDelete, setTaskToDelete] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [edit, setEdit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -49,9 +50,10 @@ export default function Tasks(props) {
         setTaskToEdit(task);
     }
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (task) => {
         setDeleteModal(true);
-        setTaskId(id);
+        setTaskId(task.id);
+        setTaskToDelete(task);
     }
     
     const resolveTask = async (task) => {
@@ -152,7 +154,7 @@ export default function Tasks(props) {
                             {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
                             (tasks.length > 0) ? 
                             tasks.map((task) =>
-                            <TaskCard greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            <TaskCard greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas" subtitle="No hay tareas que realizar"/>
                         }</TabPanel>
@@ -216,7 +218,7 @@ export default function Tasks(props) {
                         />
                     </form>
                 </Modal>
-                <Modal icon={<Delete />} open={deleteModal} setDisplay={setDisplay} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>Esta a punto de elimnar esta tarea. ¿Desea continuar?</div></>} />
+                <Modal danger icon={<Delete />} open={deleteModal} setDisplay={setDisplay} title="Eliminar tarea" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteTask} children={<><div>Esta a punto de eliminar la tarea <strong>{taskToDelete?.title || 'esta tarea'}</strong>. ¿Desea continuar?</div></>} />
             </Container>
         </>
     );

@@ -11,7 +11,6 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Container from "../components/container";
 import PlusButton from "../components/button/plus";
-import Loader from "../components/spinner/loader";
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
 import CategoryIcon from '@mui/icons-material/Category';
@@ -19,8 +18,7 @@ import NoDataComponent from "../components/table/noDataComponent";
 import CategoryStepper from "../components/stepper/categoryStepper";
 import { Tooltip } from "@mui/material";
 
-//TODO: categorias reactivas, al agregar una nueva, editar una nueva o eliminar, la lista de categorias no se actualiza
-//TODO2: categorias paginadas
+//TODO: categorias paginadas
 export default function Categories(props) {
     const { getCategories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
@@ -242,7 +240,7 @@ export default function Categories(props) {
                         </div>
                     </div>
                 </>} />
-                <Modal onClose={() => setCategory({ title: "" })} icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar rubro" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCategory} children={<><div>Esta a punto de eliminar el rubro <span className="font-bold">{category.title}</span>, el rubro no debe estar asociado a ningun pago. ¿Desea continuar?</div></>} />
+                <Modal danger onClose={() => setCategory({ title: "" })} icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar rubro" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCategory} children={<><div>Esta a punto de eliminar el rubro <span className="font-bold">{category.title}</span>, el rubro no debe estar asociado a ningun pago. ¿Desea continuar?</div></>} />
             </Container>
         </>
     );

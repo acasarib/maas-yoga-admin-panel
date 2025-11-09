@@ -22,6 +22,7 @@ export default function ClassesSection(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [clazzId, setClazzId] = useState(null);
+    const [clazzToDelete, setClazzToDelete] = useState(null);
     const [edit, setEdit] = useState(false);
     const [startAt, setStartAt] = useState(dayjs(new Date()));
     const [endAt, setEndAt] = useState(dayjs(new Date()));
@@ -107,9 +108,10 @@ export default function ClassesSection(props) {
     }, [])
     
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (clazz) => {
         setDeleteModal(true);
-        setClazzId(id);
+        setClazzId(clazz.id);
+        setClazzToDelete(clazz);
     }
 
     const openEditModal = async (clazz) => {
@@ -326,6 +328,6 @@ export default function ClassesSection(props) {
             </form>
         </>
         } />
-        <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar clase" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteClazz} children={<><div>Esta a punto de elimnar esta clase. ¿Desea continuar?</div></>} />
+        <Modal danger icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar clase" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteClazz} children={<><div>Esta a punto de eliminar la clase <strong>{clazzToDelete?.title || 'esta clase'}</strong>. ¿Desea continuar?</div></>} />
     </>);
 } 

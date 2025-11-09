@@ -26,6 +26,7 @@ export default function Students(props) {
     const [deleteModal, setDeleteModal] = useState(false);
     const navigate = useNavigate(); 
     const [studentId, setStudentId] = useState(null);
+    const [studentToDelete, setStudentToDelete] = useState(null);
     const [edit, setEdit] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState({});
     const [isDocumentDuplicated, setIsDocumentDuplicated] = useState(false);
@@ -110,9 +111,10 @@ export default function Students(props) {
         setEdit(false);
     }
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (student) => {
         setDeleteModal(true);
-        setStudentId(id);
+        setStudentId(student.id);
+        setStudentToDelete(student);
     }
 
     const openEditModal = async (student) => {
@@ -184,7 +186,7 @@ export default function Students(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], []);
@@ -338,7 +340,7 @@ export default function Students(props) {
                     </form>
                 </>
                 } />
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteStudent} children={<><div>Esta a punto de elimnar este alumno. ¿Desea continuar?</div></>} />
+                <Modal danger icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar alumno" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteStudent} children={<><div>Esta a punto de eliminar al alumno <strong>{studentToDelete?.name || 'este alumno'}</strong>. ¿Desea continuar?</div></>} />
             </Container>
         </>
     );

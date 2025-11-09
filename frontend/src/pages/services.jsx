@@ -203,6 +203,7 @@ export default function Services(props) {
 
             {/* Modal de eliminar servicio */}
             <Modal
+                danger
                 icon={<DeleteIcon />}
                 open={deleteServiceModal.isOpen}
                 setDisplay={deleteServiceModal.close}
