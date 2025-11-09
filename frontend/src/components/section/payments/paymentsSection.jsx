@@ -436,6 +436,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setFileId(null);
         setSelectedCourse(null);
         setSelectedStudent(null);
+        setRegistration(false);
         setSelectedClazz(null);
         setDiscount("");
         discountCheckbox.disable();
