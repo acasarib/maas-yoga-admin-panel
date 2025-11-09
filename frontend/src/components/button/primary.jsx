@@ -2,11 +2,20 @@ import React, { useState } from "react";
 import { COLORS } from "../../constants";
 import Loader from "../../components/spinner/loader";
 
-export default function ButtonPrimary({ onClick, isLoading = false, className, children, disabled, ref }) {
+export default function ButtonPrimary({ onClick, isLoading = false, className, children, disabled, ref, danger = false }) {
 
     const [hovered, setHovered] = useState(false);
-    const bg = disabled ? undefined : (hovered ? COLORS.primary[550] : COLORS.primary[300]);
-    const color = disabled ? undefined : (hovered ? "white" : COLORS.primary[900]);
+    
+    // Set colors based on danger state
+    const bg = disabled 
+        ? undefined 
+        : danger 
+            ? (hovered ? COLORS.red[700] : COLORS.red[500])
+            : (hovered ? COLORS.primary[550] : COLORS.primary[300]);
+            
+    const color = disabled 
+        ? undefined 
+        : (hovered || danger) ? "white" : COLORS.primary[900];
 
     return (
     <button

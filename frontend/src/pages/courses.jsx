@@ -33,6 +33,7 @@ export default function Courses(props) {
     const { deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
+    const [courseToDelete, setCourseToDelete] = useState(null);
     const [courseToEdit, setCourseToEdit] = useState(null);
     const [displayStudentsModal, setDisplayStudentsModal] = useState(false);
     const [isTaskStudentModal, setIsTaskStudentModal] = useState(false);
@@ -69,9 +70,10 @@ export default function Courses(props) {
         setAddTaskModal(value);
     }
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (course) => {
         setDeleteModal(true);
-        setCourseId(id);
+        setCourseId(course.id);
+        setCourseToDelete(course);
     }
 
     const openAddTaskmodal = (id, name) => {
@@ -196,7 +198,7 @@ export default function Courses(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex flex-nowrap"><AddTaskButton onClick={() => openAddTaskmodal(row.id, row.title)}/><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => (<div className="flex flex-nowrap"><AddTaskButton onClick={() => openAddTaskmodal(row.id, row.title)}/><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], []);
@@ -420,7 +422,7 @@ export default function Courses(props) {
                 />
 
                 {addTaskModal && <TaskModal onUpdateTask={fetchCourses} isModalOpen={addTaskModal} setDisplay={setDisplayTask} courseName={courseName} courseId={courseId} />}
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de elimnar este curso. ¿Desea continuar?</div></>} />
+                <Modal danger icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar curso" buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCourse} children={<><div>Esta a punto de eliminar el curso <strong>{courseToDelete?.title || 'este curso'}</strong>. ¿Desea continuar?</div></>} />
                 <Modal size="large" style={style} footer={false} icon={<SchoolIcon />} open={displayStudentsModal} setDisplay={setDisplay} closeText="Salir" title={'Alumnos del curso ' + '"' + courseName + '"'} children={<><div>   <Table
                     columns={studentsColumns}
                     data={studentsLists}

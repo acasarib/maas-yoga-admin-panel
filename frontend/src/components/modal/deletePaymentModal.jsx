@@ -16,7 +16,7 @@ const DeletePaymentModal = ({ payment, isOpen, onClose, }) => {
 }
 
   return (
-    <Modal onClose={onClose} icon={<DeleteIcon />} open={isOpen} setDisplay={onClose} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
+    <Modal danger onClose={onClose} icon={<DeleteIcon />} open={isOpen} setDisplay={onClose} title="Eliminar pago" buttonText={isDeletingPayment ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeletePayment}>
 			{payment !== null &&
 				<div>Esta a punto de eliminar el pago con el importe de <span className="font-bold">{payment.value}$</span>{payment.fileId !== null && ", este pago tiene asociado un comprobante el cual tambien sera eliminado."}</div>
 			}

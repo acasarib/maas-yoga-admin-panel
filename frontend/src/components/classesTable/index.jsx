@@ -44,7 +44,7 @@ export default function ClassesTable({ clazzes, onDelete, onEdit, onClazzClicked
         columns.push(
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => onDelete(row.id)} /><EditButton onClick={() => onEdit(row)} /></div>),
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => onDelete(row)} /><EditButton onClick={() => onEdit(row)} /></div>),
             sortable: true,
         })
     }

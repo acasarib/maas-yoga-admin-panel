@@ -20,6 +20,7 @@ export default function Colleges(props) {
     const { getColleges, isLoadingColleges, deleteCollege, editCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
+    const [collegeToDelete, setCollegeToDelete] = useState(null);
     const [edit, setEdit] = useState(false);
     const [collegeToEdit, setCollegeToEdit] = useState({});
     const [colleges, setColleges] = useState([]);
@@ -30,9 +31,10 @@ export default function Colleges(props) {
         setEdit(false);
     }
 
-    const openDeleteModal = (id) => {
+    const openDeleteModal = (college) => {
         setDeleteModal(true);
-        setCollegeId(id);
+        setCollegeId(college.id);
+        setCollegeToDelete(college);
     }
 
     const handleDeleteCollege = async () => {
@@ -80,7 +82,7 @@ export default function Colleges(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ];
@@ -172,7 +174,7 @@ export default function Colleges(props) {
                     </form>
                 </>
                 } />
-                <Modal icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCollege} children={<><div>Esta a punto de elimnar esta sede. ¿Desea continuar?</div></>} />
+                <Modal danger icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar sede" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteCollege} children={<><div>Esta a punto de eliminar la sede <strong>{collegeToDelete?.name || 'esta sede'}</strong>. ¿Desea continuar?</div></>} />
             </Container>
         </>
     );

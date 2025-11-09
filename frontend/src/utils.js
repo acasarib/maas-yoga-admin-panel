@@ -340,5 +340,5 @@ export function getMonthNameByMonthNumber(monthNumber) {
     const year = new Date().getFullYear();
     const date = new Date(year, monthNumber - 1); 
     date.setDate(monthNumber);
-    return getMonthName(date)
+    return capitalizeFirstCharacter(getMonthName(date))
 }
