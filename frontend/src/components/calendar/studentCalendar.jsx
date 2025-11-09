@@ -48,7 +48,7 @@ export default function StudentCalendar({ periods, registration, allowAddPayment
     const getMonthDetail = month => {
         const status = periods[currentYear][month].condition;
         if (status == STUDENT_MONTHS_CONDITIONS.PAID) {
-            return (<Tooltip title={(<><div>Fecha que se realizo el pago: {formatDateDDMMYY(periods[currentYear][month].payment.at)}</div><div>Importe ${periods[currentYear][month].payment.value}</div></>)}><span><GreenBudget><CheckIcon fontSize="small"/>Pagado</GreenBudget></span></Tooltip>);
+            return (<Tooltip title={(<><div>Fecha que se realizo el pago: {formatDateDDMMYY(periods[currentYear][month].payment.at)}</div><div>Importe ${periods[currentYear][month].payment.value}</div></>)}><span><GreenBudget><CheckIcon className="mr-1" fontSize="small"/>Pagado</GreenBudget></span></Tooltip>);
         } else if (status == STUDENT_MONTHS_CONDITIONS.PENDING) {
             return (
                 <span 
@@ -64,7 +64,7 @@ export default function StudentCalendar({ periods, registration, allowAddPayment
                     className={allowAddPayment ? "cursor-pointer" : ""} 
                     onClick={() => handlePaymentClick(month)}
                 >
-                    <RedBudget><CloseIcon fontSize="small"/>No pagado</RedBudget>
+                    <RedBudget><CloseIcon className="mr-1" fontSize="small"/>No pagado</RedBudget>
                 </span>
             );
         } else if (status == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN) {
@@ -89,7 +89,7 @@ export default function StudentCalendar({ periods, registration, allowAddPayment
             <ArrowRightIcon className={arrowRightDisabled ? "text-gray-400" : "cursor-pointer"} onClick={() => !arrowRightDisabled && setCurrentYear(parseInt(currentYear)+1)}/>
         </div>
         <div>
-            {registration?.isRegistrationPayment && (<div className="flex flex-wrap items-center justify-center my-2 border border-green-600 w-auto"><CheckIcon color="success" fontSize="small"/><span className="ml-2 text-md">El alumno se encuentra matrículado. Fecha de pago: {formatDateDDMMYY(registration.at)}. Importe: ${registration.value}</span></div>)}
+            {registration?.isRegistrationPayment && (<div className="flex flex-wrap items-center justify-center w-full sm:mt-2"><GreenBudget><CheckIcon color="success" fontSize="small"/><span className="ml-2 text-md">El alumno se encuentra matrículado. Fecha de pago: {formatDateDDMMYY(registration.at)}. Importe: ${registration.value}</span></GreenBudget></div>)}
             {currentYear !== null &&
                 Object.keys(periods[currentYear]).map((month, i) =>
                     <div key={i} className={`${i % 2 == 1 && "bg-gray-100"} px-4 py-1`}>
