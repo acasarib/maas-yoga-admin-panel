@@ -127,7 +127,7 @@ const TasksModule = ({ course, onUpdateTask }) => {
 </>
 }
 
-const StudentsModule = ({ course }) => {
+const StudentsModule = ({ course, onSuspensionsChange }) => {
 	const suspensionsModal = useModal()
 	const [activeStudent, setActiveStudent] = useState(null);
 	const onSeeStudentPayments = student => setActiveStudent(student)
@@ -159,6 +159,7 @@ const StudentsModule = ({ course }) => {
 		isOpen={suspensionsModal.isOpen}
 		onClose={suspensionsModal.close}
 		courseId={course.id}
+		onSuspensionsChange={onSuspensionsChange}
 	/>
 </>
 }
@@ -234,12 +235,14 @@ const CourseDetail = () => {
 			setCourse(course)
 		}
 		getData()
-	}, []);
+	}, [courseId, getCourseDetailsById]);
 
-	const onUpdateTask = async () => {
+	const refreshCourse = async () => {
 		const course = await getCourseDetailsById(courseId)
 		setCourse(course)
 	}
+
+	const onUpdateTask = refreshCourse
 
 	const [tabValue, setTabValue] = useState("1");
 
@@ -293,7 +296,7 @@ const CourseDetail = () => {
 						/>
 					</TabPanel>
 					<TabPanel className="pt-4" value="2">
-						<StudentsModule course={course}/>
+						<StudentsModule course={course} onSuspensionsChange={refreshCourse}/>
 					</TabPanel>
 					<TabPanel className="pt-4" value="3">
 						<TasksModule course={course} onUpdateTask={onUpdateTask}/>
