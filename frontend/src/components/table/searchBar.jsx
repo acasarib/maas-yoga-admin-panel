@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import ButtonPrimary from '../button/primary';
 import SearchIcon from '@mui/icons-material/Search';
-import styles from "./searchBar.module.css";
+import styles from './searchBar.module.css';
 import Loader from "../spinner/loader";
-import ButtonPrimary from "../button/primary";
 
-    export default function SearchBar({ className = "", searchableColumns, searchValue, onChangeSearch, typeValue, onChangeType, isLoading = false }) {
+export default function SearchBar({ className = "", searchableColumns, searchValue, onChangeSearch, typeValue, onChangeType, isLoading = false }) {
     const [valueToSearch, setValueToSearch] = useState('');
 
     const confirmSearch = () => {
@@ -57,10 +57,13 @@ import ButtonPrimary from "../button/primary";
                 
                 <ButtonPrimary
                     onClick={confirmSearch}
-                    className={styles.searchButtonIntegrated}
+                    className={`${styles.searchButtonIntegrated} ${styles.searchButton}`}
                     disabled={isLoading}
                 >
-                    <span className="">Buscar</span>
+                    <span className={styles.searchText}>Buscar</span>
+                    <span className="sm:hidden">
+                        <SearchIcon className={`${styles.searchIcon}`} />
+                    </span>
                 </ButtonPrimary>
             </div>
         </div>

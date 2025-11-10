@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Modal from '../modal';
 import HailIcon from '@mui/icons-material/Hail';
 import { Context } from '../../context/Context';
@@ -111,7 +112,15 @@ const ProfessorCard = ({ professor }) => {
     <div className="border rounded-md bg-white shadow-sm p-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <p className="text-base font-semibold text-gray-800">{`${professor.name} ${professor.lastName}`}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-base font-semibold text-gray-800">{`${professor.name} ${professor.lastName}`}</p>
+            <Link 
+              to={`/home/professors/${professor.id}`}
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              (Ver detalle)
+            </Link>
+          </div>
           <p className="text-sm text-gray-500">
             {owedCount > 0 && `${owedCount} mes${owedCount === 1 ? '' : 'es'} adeudado${owedCount === 1 ? '' : 's'}`}
             {owedCount > 0 && notVerifiedCount > 0 && ' • '}

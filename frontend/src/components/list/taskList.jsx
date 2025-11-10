@@ -13,6 +13,7 @@ import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import { Context } from '../../context/Context';
 import { COLORS } from '../../constants';
 import NoDataComponent from '../table/noDataComponent';
+import { Tooltip } from '@mui/material';
 
 const TaskList = ({ tasks, courses, studentId, getStudent }) => {
   const [filteredTasks, setFilteredTasks] = useState([]);
@@ -55,6 +56,16 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
       return completedTasks.length + '/' + courseTasks.length;
     } else {
       return '0/0';
+    }
+  }
+
+  const getTasksStatusForTable = (crsId) => {
+    if (tasks.length > 0) {
+      const courseTasks = tasks.filter(tk => tk.courseId === crsId);
+      const completedTasks = courseTasks.filter(tk => tk.studentCourseTask.completed === true);
+      return <Tooltip title={completedTasks.length + ' de ' + courseTasks.length + ' tareas completadas'}><span>{completedTasks.length} / {courseTasks.length}</span></Tooltip>;
+    } else {
+      return "Sin tareas";
     }
   }
 
@@ -123,9 +134,15 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
       selector: row => getTasksStatus(row.id),
       cell: row => (
         <div className="flex flex-row justify-center">
-          <span className="my-auto mr-2">{getTasksStatus(row.id)}</span>
+          <span className="my-auto mr-2">{getTasksStatusForTable(row.id)}</span>
           <button onClick={() => openTaskModal(row.id)} style={{ backgroundColor: COLORS.primary[200] }} className="rounded-2xl shadow px-2 py-1 my-2">
-            <span>{((getTasksProgress(row.id) === 0) && (getTasksStatus(row.id) !== '0/0')) && (<><CloseIcon color="error" /></>)}{(getTasksProgress(row.id) === 1) && (<><DoneAllIcon color="success" /></>)}{((getTasksProgress(row.id) < 1) && ((getTasksProgress(row.id) > 0))) && (<><DoneIcon color="success" /></>)}</span>
+            <Tooltip title="Ver tareas">
+              <span>
+                {((getTasksProgress(row.id) === 0) && (getTasksStatus(row.id) !== '0/0')) && (<><CloseIcon color="error" /></>)}
+                {(getTasksProgress(row.id) === 1) && (<><DoneAllIcon color="success" /></>)}
+                {((getTasksProgress(row.id) < 1) && ((getTasksProgress(row.id) > 0))) && (<><DoneIcon color="success" /></>)}
+              </span>
+            </Tooltip>
           </button>
         </div>),
       sortable: true,
@@ -140,9 +157,7 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
     },
     {
       name: 'Estado de la tarea',
-      cell: row => {
-        return (<>{(row.studentCourseTask.completed === false) ? <><span className="my-auto mr-2">No completada</span><CloseIcon color="error" /></> : <><span className="my-auto mr-2">Completada</span><DoneIcon color="success" /></>}</>)
-      },
+      cell: row => (<>{(row.studentCourseTask.completed === false) ? <><span className="my-auto mr-2">No completada</span><CloseIcon color="error" /></> : <><span className="my-auto mr-2">Completada</span><DoneIcon color="success" /></>}</>),
       sortable: true,
     },
     {
@@ -150,10 +165,14 @@ const TaskList = ({ tasks, courses, studentId, getStudent }) => {
       cell: row => (
       <div className="flex flex-nowrap">
           <button className="rounded-full p-1 bg-red-300 hover:bg-red-400 mx-1" onClick={() => handleChangeTaskStatus(row, false)}>
+            <Tooltip title="Marcar como no completada">
               <RemoveDoneIcon />
+            </Tooltip>
           </button>
           <button className="rounded-full p-1 bg-green-300 hover:bg-green-400 mx-1" onClick={() => handleChangeTaskStatus(row, true)}>
+            <Tooltip title="Marcar como completada">
               <DoneOutlineIcon />
+            </Tooltip>
           </button>
       </div>),
       sortable: true,

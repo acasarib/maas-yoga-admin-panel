@@ -102,7 +102,25 @@
     box-shadow: none !important;
 }
 
-/* Responsive adjustments */
+/* Search button responsive styles */
+.searchButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+}
+
+.searchIcon {
+    display: none;
+    width: 20px;
+    height: 20px;
+}
+
+.searchText {
+    display: inline;
+}
+
+/* Mobile styles */
 @media screen and (max-width: 640px) {
     .searchTypeSelect {
         min-width: 100px;
@@ -110,7 +128,26 @@
     }
     
     .searchButtonIntegrated {
-        padding: 10px 12px;
-        font-size: 13px;
+        padding: 10px !important;
+        min-width: 40px;
+    }
+    
+    .searchText {
+        display: none;
+    }
+    
+    .searchIcon {
+        display: block;
+    }
+}
+
+/* Desktop styles */
+@media screen and (min-width: 641px) {
+    .searchText {
+        display: inline;
+    }
+    
+    .searchIcon {
+        display: none;
     }
 }
