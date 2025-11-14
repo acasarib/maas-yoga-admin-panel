@@ -423,7 +423,7 @@ export default function Balance(props) {
                         className="flex justify-center items-center"
                     >
                         <FileDownloadIcon className="mr-1" fontSize="small" />
-                        Exportar por Rubros
+                        Exportar
                     </ButtonPrimary>
                 </div>
                 <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
