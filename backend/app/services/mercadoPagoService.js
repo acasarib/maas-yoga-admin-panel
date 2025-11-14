@@ -8,6 +8,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as emailService from "./emailService.js";
+import { StatusCodes } from "http-status-codes";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,10 +18,8 @@ const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
 if (!accessToken) {
   console.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
-  throw new Error("MercadoPago access token is required");
+  //throw new Error("MercadoPago access token is required");
 }
-
-console.log("MercadoPago Access Token configurado:", accessToken.substring(0, 10) + "...");
 
 const client = new MercadoPagoConfig({
   accessToken: accessToken,
@@ -45,6 +44,10 @@ const payment = new Payment(client);
  * @returns {Object} Preferencia creada con el link de pago
  */
 export const createPaymentPreference = async (paymentData) => {
+  if (!accessToken) {
+    console.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
+    throw  ({ statusCode: StatusCodes.INTERNAL_SERVER_ERROR, message: "Falta configuracion de mercado pago en el servidor" });
+  }
   try {
     const { studentId, courseId, year, month, value, discount, sendNotification, informerId } = paymentData;
 

@@ -574,5 +574,29 @@ export default {
     } catch (e) {
       next(e);
     }
+  },
+
+  /**
+   * /payments/export [GET]
+   * Export payments to Excel grouped by category
+   * @returns Excel file
+   */
+  exportPayments: async (req, res, next) => {
+    try {
+      const querySpecification = req.query.q;
+      const isOrOperation = req.query.isOrOperation === "true";
+      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const excelBuffer = await paymentService.exportPaymentsByCategory(specification);
+      
+      const now = new Date();
+      const filename = `balance-rubros-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.xlsx`;
+      
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+      res.send(excelBuffer);
+    } catch (e) {
+      console.log(e);
+      next(e);
+    }
   }
 };
