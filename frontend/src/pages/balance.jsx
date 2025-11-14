@@ -15,6 +15,7 @@ import paymentsService from "../services/paymentsService";
 import { Context } from "../context/Context";
 import CloseIcon from '@mui/icons-material/Close';
 import PaidIcon from '@mui/icons-material/Paid';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Modal from "../components/modal";
 import SelectItem from "../components/select/selectItem";
 import CommonInput from "../components/commonInput";
@@ -38,6 +39,7 @@ export default function Balance(props) {
     const [chartByCreatedAt, setChartByCreatedAt] = useState(false);
     const [chartByOpResult, setChartByOpResult] = useState(false);
     const [payments, setPayments] = useState([]);
+    const [currentPeriod, setCurrentPeriod] = useState(null);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [selectedCollege, setSelectedCollege] = useState(null);
@@ -314,6 +316,84 @@ export default function Balance(props) {
     }
 
     const handleOnDeletePayment = paymentId => setPayments(current => current.filter(p => p.id !== paymentId));
+
+    const buildQueryForExport = () => {
+        const field = chartByCreatedAt ? "createdAt" : (chartByOpResult ? "operativeResult" : "at");
+        
+        if (currentChartSelected === "custom") {
+            return customChainFilters;
+        } else if (currentPeriod) {
+            // Use the period from the chart (handles year, month, week with navigation)
+            return `${field} between ${currentPeriod.from}:${currentPeriod.to}`;
+        }
+        
+        // Fallback to current period if no period is set yet
+        const now = new Date();
+        now.setSeconds(0);
+        now.setMilliseconds(0);
+        
+        if (currentChartSelected === "year") {
+            const startOfYearDate = new Date(now.getFullYear(), 0, 1);
+            startOfYearDate.setSeconds(0);
+            startOfYearDate.setMilliseconds(0);
+            const startOfYear = startOfYearDate.getTime();
+            const endOfYearDate = new Date(now.getFullYear(), 11, 31);
+            endOfYearDate.setSeconds(59);
+            endOfYearDate.setMilliseconds(999);
+            const endOfYear = endOfYearDate.getTime();
+            return `${field} between ${startOfYear}:${endOfYear}`;
+        } else if (currentChartSelected === "month") {
+            const startOfMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            startOfMonthDate.setSeconds(0);
+            startOfMonthDate.setMilliseconds(0);
+            const endOfMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            endOfMonthDate.setSeconds(59);
+            endOfMonthDate.setMilliseconds(999);
+            const startOfMonth = startOfMonthDate.getTime();
+            const endOfMonth = endOfMonthDate.getTime();
+            return `${field} between ${startOfMonth}:${endOfMonth}`;
+        } else if (currentChartSelected === "week") {
+            let prevMonday = new Date(now);
+            prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() == 1 ? 7 : (prevMonday.getDay() + (7 - 1)) % 7 ));
+            prevMonday.setHours(0);
+            prevMonday.setMinutes(0);
+            prevMonday.setSeconds(0);
+            let until = new Date();
+            until.setDate(prevMonday.getDate() + 6);
+            until.setHours(23);
+            until.setMinutes(59);
+            until.setSeconds(59);
+            until.setMilliseconds(999);
+            return `${field} between ${prevMonday.getTime()}:${until.getTime()}`;
+        }
+        return "";
+    };
+
+    const handleExportPayments = async () => {
+        try {
+            const query = buildQueryForExport();
+            const response = await paymentsService.exportPayments(query);
+            
+            // Create blob and download
+            const blob = new Blob([response], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const now = new Date();
+            const filename = `balance-rubros-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.xlsx`;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            changeAlertStatusAndMessage(true, 'success', 'Archivo exportado exitosamente!');
+        } catch (error) {
+            console.error('Error al exportar:', error);
+            changeAlertStatusAndMessage(true, 'error', 'Error al exportar el archivo');
+        }
+    };
     
     return(
         <>
@@ -331,9 +411,20 @@ export default function Balance(props) {
                             customChainFilters={customChainFilters}
                             currentChartSelected={currentChartSelected}
                             onChangeData={data => setPayments(data)}
+                            onChangePeriod={period => setCurrentPeriod(period)}
                             isLoadingPayments={isLoadingPayments}    
                         />
                     </div>
+                </div>
+                <div className="flex justify-end mb-4">
+                    <ButtonPrimary
+                        disabled={payments.length === 0 || isLoadingPayments.value}
+                        onClick={handleExportPayments}
+                        className="flex justify-center items-center"
+                    >
+                        <FileDownloadIcon className="mr-1" fontSize="small" />
+                        Exportar por Rubros
+                    </ButtonPrimary>
                 </div>
                 <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
 

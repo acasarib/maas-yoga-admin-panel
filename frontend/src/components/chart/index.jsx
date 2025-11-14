@@ -15,7 +15,7 @@ import CustomCheckbox from "../checkbox/customCheckbox";
 import { COLORS } from '../../constants';
 import Loader from "../spinner/loader";
 
-export default function Chart({ isLoadingPayments, currentChartSelected, customChainFilters, onChangeData, chartByCreatedAt, setChartByCreatedAt, chartByOpResult, setChartByOpResult }) {
+export default function Chart({ isLoadingPayments, currentChartSelected, customChainFilters, onChangeData, onChangePeriod, chartByCreatedAt, setChartByCreatedAt, chartByOpResult, setChartByOpResult }) {
 
     const [data, setData] = useState(null);
     const [currentChartBy, setCurrentChartBy] = useState("year")
@@ -35,6 +35,9 @@ export default function Chart({ isLoadingPayments, currentChartSelected, customC
         setChartTitle("anual");
         setCurrentChartBy("year");
         setChartPeriod(new Date(response.period.from).getFullYear());
+        if (onChangePeriod) {
+            onChangePeriod(response.period);
+        }
     };
     
     const onChangeMonthData = response => {
@@ -43,6 +46,9 @@ export default function Chart({ isLoadingPayments, currentChartSelected, customC
         setCurrentChartBy("month");
         const month = getMonthName(new Date(response.period.from));
         setChartPeriod(month);
+        if (onChangePeriod) {
+            onChangePeriod(response.period);
+        }
     };
 
     const onChangeWeekData = response => {
@@ -52,6 +58,9 @@ export default function Chart({ isLoadingPayments, currentChartSelected, customC
         setChartTitle("semanal");
         setCurrentChartBy("week");
         setChartPeriod(`${formatDateDDMMYY(from)} - ${formatDateDDMMYY(to)}`);
+        if (onChangePeriod) {
+            onChangePeriod(response.period);
+        }
     };
 
     const onChangeCustomData = data => {

@@ -21,6 +21,7 @@ router.get("/legacy", verifyToken, controller.legacyGetAll);
 router.get("/", verifyToken, controller.getAll);
 router.get("/verified", verifyToken, controller.getAllVerified);
 router.get("/unverified", verifyToken, controller.getAllUnverified);
+router.get("/export", verifyToken, controller.exportPayments);
 router.get("/:id/receipt", verifyToken, controller.getReceipt);
 router.get("/:id", verifyToken, controller.getById);
 router.post("/mercadopago/preference", verifyToken, controller.createMercadoPagoPreference);

@@ -1,17 +1,30 @@
 import { StatusCodes } from "http-status-codes";
-import { payment, course, student, user, file, professor, secretaryPayment, servicePayment, item, headquarter, clazz } from "../db/index.js";
+import { payment, course, student, user, file, professor, secretaryPayment, servicePayment, item, headquarter, clazz, category } from "../db/index.js";
 import * as logService from "./logService.js";
 import * as notificationService from "./notificationService.js";
 import * as emailService from "./emailService.js";
 import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
 import { fillPaymentReceiptPDF } from "../utils/pdfUtils.js";
+import ExcelJS from "exceljs";
 
-const defaultPaymentInclude = [{ model: professor, attributes: ["name", "lastName"]},user, student, course, file, secretaryPayment, headquarter, item, clazz, student,{
-  model: user,
-  as: "verifiedByUser",
-  attributes: ["firstName", "lastName"]
-}];
+const defaultPaymentInclude = [
+  { model: professor, attributes: ["name", "lastName"]},
+  user, 
+  student, 
+  course, 
+  file, 
+  secretaryPayment, 
+  headquarter, 
+  { model: item, include: [category] }, 
+  clazz, 
+  student,
+  {
+    model: user,
+    as: "verifiedByUser",
+    attributes: ["firstName", "lastName"]
+  }
+];
 /**
  * 
  * @param {Array||Payment} paymentParam 
@@ -487,4 +500,111 @@ const sendReceiptByEmail = async (paymentId) => {
     console.error(`Error enviando recibo por email para pago ${paymentId}:`, error);
     throw error;
   }
+};
+
+export const exportPaymentsByCategory = async (specification) => {
+  // Fetch payments using the same specification as the frontend
+  const payments = await payment.findAll({
+    where: specification.getSequelizeSpecification(),
+    include: specification.getSequelizeSpecificationAssociations(defaultPaymentInclude)
+  });
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Balance por Rubros");
+
+  // Group payments by category
+  const categoryGroups = {};
+  let totalGeneral = 0;
+
+  payments.forEach(payment => {
+    const value = payment.value || 0;
+    totalGeneral += value;
+
+    // Determine category
+    let categoryName = "Sin categoría";
+    if (payment.item && payment.item.category) {
+      categoryName = payment.item.category.title;
+    } else if (payment.course) {
+      categoryName = "Cursos";
+    } else if (payment.clazz) {
+      categoryName = "Clases";
+    }
+
+    if (!categoryGroups[categoryName]) {
+      categoryGroups[categoryName] = {
+        total: 0,
+        count: 0
+      };
+    }
+
+    categoryGroups[categoryName].total += value;
+    categoryGroups[categoryName].count += 1;
+  });
+
+  // Define columns
+  worksheet.columns = [
+    { header: "Rubro", key: "category", width: 40 },
+    { header: "Cantidad de Pagos", key: "count", width: 20 },
+    { header: "Total Recaudado", key: "total", width: 20 },
+  ];
+
+  // Style header row
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, size: 12 };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF4472C4" }
+  };
+  headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  headerRow.alignment = { vertical: "middle", horizontal: "center" };
+  headerRow.height = 25;
+
+  // Add data rows
+  const sortedCategories = Object.keys(categoryGroups).sort();
+  sortedCategories.forEach(categoryName => {
+    const group = categoryGroups[categoryName];
+    const row = worksheet.addRow({
+      category: categoryName,
+      count: group.count,
+      total: group.total,
+    });
+    
+    // Style data rows
+    row.alignment = { vertical: "middle" };
+  });
+
+  // Add total row
+  const totalRow = worksheet.addRow({
+    category: "TOTAL GENERAL",
+    count: payments.length,
+    total: totalGeneral,
+  });
+  
+  totalRow.font = { bold: true, size: 12 };
+  totalRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FFD9E1F2" }
+  };
+
+  // Format total column as currency
+  worksheet.getColumn("total").numFmt = "$#,##0.00";
+  worksheet.getColumn("total").alignment = { horizontal: "right" };
+  worksheet.getColumn("count").alignment = { horizontal: "center" };
+
+  // Add borders to all cells
+  worksheet.eachRow((row, rowNumber) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" }
+      };
+    });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return buffer;
 };
