@@ -547,8 +547,9 @@ export const exportPaymentsByCategory = async (specification) => {
       currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
-    // Group payments by category and month
+    // Group payments by category, item, and month
     const categoryMonthGroups = {};
+    const categoryItemMonthGroups = {};
     
     payments.forEach(payment => {
       const value = payment.value || 0;
@@ -556,16 +557,22 @@ export const exportPaymentsByCategory = async (specification) => {
       const paymentYear = paymentDate.getFullYear();
       const paymentMonth = paymentDate.getMonth();
       
-      // Determine category
+      // Determine category and item
       let categoryName = "Sin categoría";
+      let itemName = null;
+      
       if (payment.item && payment.item.category) {
         categoryName = payment.item.category.title;
+        itemName = payment.item.title || "Sin nombre";
       } else if (payment.course) {
         categoryName = "Cursos";
+        itemName = payment.course.title || "Sin nombre";
       } else if (payment.clazz) {
         categoryName = "Clases";
+        itemName = payment.clazz.title || "Sin nombre";
       }
 
+      // Group by category
       if (!categoryMonthGroups[categoryName]) {
         categoryMonthGroups[categoryName] = {};
       }
@@ -580,6 +587,24 @@ export const exportPaymentsByCategory = async (specification) => {
 
       categoryMonthGroups[categoryName][monthKey].total += value;
       categoryMonthGroups[categoryName][monthKey].count += 1;
+
+      // Group by category and item
+      if (itemName) {
+        if (!categoryItemMonthGroups[categoryName]) {
+          categoryItemMonthGroups[categoryName] = {};
+        }
+        if (!categoryItemMonthGroups[categoryName][itemName]) {
+          categoryItemMonthGroups[categoryName][itemName] = {};
+        }
+        if (!categoryItemMonthGroups[categoryName][itemName][monthKey]) {
+          categoryItemMonthGroups[categoryName][itemName][monthKey] = {
+            total: 0,
+            count: 0
+          };
+        }
+        categoryItemMonthGroups[categoryName][itemName][monthKey].total += value;
+        categoryItemMonthGroups[categoryName][itemName][monthKey].count += 1;
+      }
     });
 
     // Build columns dynamically
@@ -606,12 +631,55 @@ export const exportPaymentsByCategory = async (specification) => {
     headerRow.alignment = { vertical: "middle", horizontal: "center" };
     headerRow.height = 25;
 
-    // Add data rows
+    // Add data rows with grouping
     const sortedCategories = Object.keys(categoryMonthGroups).sort();
     const monthTotals = new Array(months.length).fill(0);
     let grandTotal = 0;
+    let currentRow = 2; // Start after header
 
     sortedCategories.forEach(categoryName => {
+      const categoryStartRow = currentRow;
+      
+      // Add item rows (these will be grouped/collapsed)
+      if (categoryItemMonthGroups[categoryName]) {
+        const sortedItems = Object.keys(categoryItemMonthGroups[categoryName]).sort();
+        
+        sortedItems.forEach(itemName => {
+          const itemRowData = { category: `  ${itemName}` }; // Indent item name
+          
+          months.forEach((month, index) => {
+            const monthKey = `${month.year}-${month.month}`;
+            const monthData = categoryItemMonthGroups[categoryName][itemName][monthKey];
+            const monthValue = monthData ? monthData.total : 0;
+            itemRowData[`month_${index}`] = monthValue;
+          });
+          
+          // Calculate item total
+          let itemTotal = 0;
+          months.forEach((month) => {
+            const monthKey = `${month.year}-${month.month}`;
+            const monthData = categoryItemMonthGroups[categoryName][itemName][monthKey];
+            itemTotal += monthData ? monthData.total : 0;
+          });
+          itemRowData.total = itemTotal;
+          
+          const itemRow = worksheet.addRow(itemRowData);
+          itemRow.alignment = { vertical: "middle" };
+          itemRow.outlineLevel = 1; // Set outline level for grouping
+          
+          // Format month columns as currency
+          months.forEach((_, index) => {
+            itemRow.getCell(index + 2).numFmt = "$#,##0.00";
+            itemRow.getCell(index + 2).alignment = { horizontal: "right" };
+          });
+          itemRow.getCell(months.length + 2).numFmt = "$#,##0.00";
+          itemRow.getCell(months.length + 2).alignment = { horizontal: "right" };
+          
+          currentRow++;
+        });
+      }
+      
+      // Add category summary row
       const rowData = { category: categoryName };
       let categoryTotal = 0;
 
@@ -629,6 +697,12 @@ export const exportPaymentsByCategory = async (specification) => {
       
       const row = worksheet.addRow(rowData);
       row.alignment = { vertical: "middle" };
+      row.font = { bold: true };
+      row.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE8F0FE" }
+      };
       
       // Format month columns as currency
       months.forEach((_, index) => {
@@ -638,6 +712,13 @@ export const exportPaymentsByCategory = async (specification) => {
       row.getCell(months.length + 2).numFmt = "$#,##0.00";
       row.getCell(months.length + 2).alignment = { horizontal: "right" };
       row.getCell(months.length + 2).font = { bold: true };
+      
+      currentRow++;
+      
+      // Group the item rows under the category
+      if (categoryItemMonthGroups[categoryName] && Object.keys(categoryItemMonthGroups[categoryName]).length > 0) {
+        worksheet.getRow(currentRow - 1).outlineLevel = 0; // Category row is not grouped
+      }
     });
 
     // Add total row
@@ -664,24 +745,31 @@ export const exportPaymentsByCategory = async (specification) => {
     totalRow.getCell(months.length + 2).alignment = { horizontal: "right" };
 
   } else {
-    // Single month or less - use original simple format
+    // Single month or less - use format with item grouping
     const categoryGroups = {};
+    const categoryItemGroups = {};
     let totalGeneral = 0;
 
     payments.forEach(payment => {
       const value = payment.value || 0;
       totalGeneral += value;
 
-      // Determine category
+      // Determine category and item
       let categoryName = "Sin categoría";
+      let itemName = null;
+      
       if (payment.item && payment.item.category) {
         categoryName = payment.item.category.title;
+        itemName = payment.item.title || "Sin nombre";
       } else if (payment.course) {
         categoryName = "Cursos";
+        itemName = payment.course.title || "Sin nombre";
       } else if (payment.clazz) {
         categoryName = "Clases";
+        itemName = payment.clazz.title || "Sin nombre";
       }
 
+      // Group by category
       if (!categoryGroups[categoryName]) {
         categoryGroups[categoryName] = {
           total: 0,
@@ -691,6 +779,21 @@ export const exportPaymentsByCategory = async (specification) => {
 
       categoryGroups[categoryName].total += value;
       categoryGroups[categoryName].count += 1;
+
+      // Group by category and item
+      if (itemName) {
+        if (!categoryItemGroups[categoryName]) {
+          categoryItemGroups[categoryName] = {};
+        }
+        if (!categoryItemGroups[categoryName][itemName]) {
+          categoryItemGroups[categoryName][itemName] = {
+            total: 0,
+            count: 0
+          };
+        }
+        categoryItemGroups[categoryName][itemName].total += value;
+        categoryItemGroups[categoryName][itemName].count += 1;
+      }
     });
 
     // Define columns
@@ -712,9 +815,34 @@ export const exportPaymentsByCategory = async (specification) => {
     headerRow.alignment = { vertical: "middle", horizontal: "center" };
     headerRow.height = 25;
 
-    // Add data rows
+    // Add data rows with grouping
     const sortedCategories = Object.keys(categoryGroups).sort();
+    let currentRow = 2; // Start after header
+
     sortedCategories.forEach(categoryName => {
+      // Add item rows (these will be grouped/collapsed)
+      if (categoryItemGroups[categoryName]) {
+        const sortedItems = Object.keys(categoryItemGroups[categoryName]).sort();
+        
+        sortedItems.forEach(itemName => {
+          const itemGroup = categoryItemGroups[categoryName][itemName];
+          const itemRow = worksheet.addRow({
+            category: `  ${itemName}`, // Indent item name
+            count: itemGroup.count,
+            total: itemGroup.total,
+          });
+          
+          itemRow.alignment = { vertical: "middle" };
+          itemRow.outlineLevel = 1; // Set outline level for grouping
+          itemRow.getCell(3).numFmt = "$#,##0.00";
+          itemRow.getCell(3).alignment = { horizontal: "right" };
+          itemRow.getCell(2).alignment = { horizontal: "center" };
+          
+          currentRow++;
+        });
+      }
+      
+      // Add category summary row
       const group = categoryGroups[categoryName];
       const row = worksheet.addRow({
         category: categoryName,
@@ -722,8 +850,19 @@ export const exportPaymentsByCategory = async (specification) => {
         total: group.total,
       });
       
-      // Style data rows
       row.alignment = { vertical: "middle" };
+      row.font = { bold: true };
+      row.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE8F0FE" }
+      };
+      row.getCell(3).numFmt = "$#,##0.00";
+      row.getCell(3).alignment = { horizontal: "right" };
+      row.getCell(2).alignment = { horizontal: "center" };
+      row.outlineLevel = 0; // Category row is not grouped
+      
+      currentRow++;
     });
 
     // Add total row
