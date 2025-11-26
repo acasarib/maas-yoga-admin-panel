@@ -352,13 +352,14 @@ export default {
         from.setSeconds(0)
         from.setMilliseconds(0)
         const startOfMonthDate = new Date(from.getFullYear(), from.getMonth(), 1);
-        startOfMonthDate.setSeconds(0)
-        startOfMonthDate.setMilliseconds(0)
+        startOfMonthDate.setHours(0, 0, 0, 0);
+        
+        // End of month: last day of month at 23:59:59.999
         const endOfMonthDate = new Date(from.getFullYear(), from.getMonth() + 1, 0);
-        endOfMonthDate.setSeconds(59)
-        endOfMonthDate.setMilliseconds(999)
+        endOfMonthDate.setHours(23, 59, 59, 999);
+        
         const startOfMonth = startOfMonthDate.getTime();
-        const endOfMonth =  endOfMonthDate.getTime();
+        const endOfMonth = endOfMonthDate.getTime();
         const field = byCreatedAt ? "createdAt" : (byOpResult ? "operativeResult" : "at");
         return this.getByQuery(`${field} between ${startOfMonth}:${endOfMonth}`)
             .then(data => ({ data, period: { from: startOfMonth, to: endOfMonth } }));

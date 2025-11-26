@@ -517,17 +517,41 @@ export const exportPaymentsByCategory = async (specification) => {
     return buffer;
   }
 
-  // Determine date range and if we need to separate by months
-  const dates = payments.map(p => new Date(p.at || p.operativeResult || p.createdAt).getTime());
-  const minDate = new Date(Math.min(...dates));
-  const maxDate = new Date(Math.max(...dates));
+  // Parse the query specification to get the actual date range requested
+  const sequelizeSpec = specification.getSequelizeSpecification();
+  let minDate, maxDate, spanMultipleMonths = false;
+  
+  // Try to extract date range from the specification
+  // The specification format is like: "operativeResult between 1730426400000:1733104799999"
+  const dateFields = ["operativeResult", "at", "createdAt"];
+  let foundDateRange = false;
+  
+  for (const field of dateFields) {
+    if (sequelizeSpec[field] && sequelizeSpec[field][Op.between]) {
+      const [fromTimestamp, toTimestamp] = sequelizeSpec[field][Op.between];
+      minDate = new Date(parseInt(fromTimestamp));
+      maxDate = new Date(parseInt(toTimestamp));
+      foundDateRange = true;
+      break;
+    }
+  }
+  
+  // Fallback: use payment dates if we couldn't parse the specification
+  if (!foundDateRange) {
+    const dates = payments.map(p => {
+      const dateValue = p.operativeResult || p.at || p.createdAt;
+      return new Date(dateValue).getTime();
+    });
+    minDate = new Date(Math.min(...dates));
+    maxDate = new Date(Math.max(...dates));
+  }
   
   // Check if period spans more than one month
   const minMonth = minDate.getMonth();
   const minYear = minDate.getFullYear();
   const maxMonth = maxDate.getMonth();
   const maxYear = maxDate.getFullYear();
-  const spanMultipleMonths = (maxYear > minYear) || (maxYear === minYear && maxMonth > minMonth);
+  spanMultipleMonths = (maxYear > minYear) || (maxYear === minYear && maxMonth > minMonth);
 
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Balance por Rubros");
@@ -551,9 +575,10 @@ export const exportPaymentsByCategory = async (specification) => {
     const categoryMonthGroups = {};
     const categoryItemMonthGroups = {};
     
-    payments.forEach(payment => {
+    payments.forEach((payment, index) => {
       const value = payment.value || 0;
-      const paymentDate = new Date(payment.at || payment.operativeResult || payment.createdAt);
+      const dateValue = payment.operativeResult || payment.at || payment.createdAt;
+      const paymentDate = new Date(dateValue);
       const paymentYear = paymentDate.getFullYear();
       const paymentMonth = paymentDate.getMonth();
       
@@ -750,7 +775,7 @@ export const exportPaymentsByCategory = async (specification) => {
     const categoryItemGroups = {};
     let totalGeneral = 0;
 
-    payments.forEach(payment => {
+    payments.forEach((payment, index) => {
       const value = payment.value || 0;
       totalGeneral += value;
 
