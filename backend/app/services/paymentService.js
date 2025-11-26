@@ -656,10 +656,22 @@ export const exportPaymentsByCategory = async (specification) => {
     headerRow.alignment = { vertical: "middle", horizontal: "center" };
     headerRow.height = 25;
 
-    // Add data rows with grouping
+    // First pass: calculate month totals for percentage calculation
     const sortedCategories = Object.keys(categoryMonthGroups).sort();
     const monthTotals = new Array(months.length).fill(0);
     let grandTotal = 0;
+    
+    sortedCategories.forEach(categoryName => {
+      months.forEach((month, index) => {
+        const monthKey = `${month.year}-${month.month}`;
+        const monthData = categoryMonthGroups[categoryName][monthKey];
+        const monthValue = monthData ? monthData.total : 0;
+        monthTotals[index] += monthValue;
+        grandTotal += monthValue;
+      });
+    });
+
+    // Add data rows with grouping
     let currentRow = 2; // Start after header
 
     sortedCategories.forEach(categoryName => {
@@ -712,13 +724,17 @@ export const exportPaymentsByCategory = async (specification) => {
         const monthKey = `${month.year}-${month.month}`;
         const monthData = categoryMonthGroups[categoryName][monthKey];
         const monthValue = monthData ? monthData.total : 0;
-        rowData[`month_${index}`] = monthValue;
         categoryTotal += monthValue;
-        monthTotals[index] += monthValue;
+        
+        // Calculate percentage for this month
+        const percentage = monthTotals[index] > 0 ? (monthValue / monthTotals[index] * 100) : 0;
+        const formattedValue = `$${monthValue.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentage.toFixed(1)}%)`;
+        rowData[`month_${index}`] = formattedValue;
       });
 
-      rowData.total = categoryTotal;
-      grandTotal += categoryTotal;
+      // Calculate percentage for total
+      const totalPercentage = grandTotal > 0 ? (categoryTotal / grandTotal * 100) : 0;
+      rowData.total = `$${categoryTotal.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${totalPercentage.toFixed(1)}%)`;
       
       const row = worksheet.addRow(rowData);
       row.alignment = { vertical: "middle" };
@@ -729,12 +745,10 @@ export const exportPaymentsByCategory = async (specification) => {
         fgColor: { argb: "FFE8F0FE" }
       };
       
-      // Format month columns as currency
+      // Format month columns alignment
       months.forEach((_, index) => {
-        row.getCell(index + 2).numFmt = "$#,##0.00";
         row.getCell(index + 2).alignment = { horizontal: "right" };
       });
-      row.getCell(months.length + 2).numFmt = "$#,##0.00";
       row.getCell(months.length + 2).alignment = { horizontal: "right" };
       row.getCell(months.length + 2).font = { bold: true };
       
@@ -869,10 +883,15 @@ export const exportPaymentsByCategory = async (specification) => {
       
       // Add category summary row
       const group = categoryGroups[categoryName];
+      
+      // Calculate percentage
+      const percentage = totalGeneral > 0 ? (group.total / totalGeneral * 100) : 0;
+      const formattedTotal = `$${group.total.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentage.toFixed(1)}%)`;
+      
       const row = worksheet.addRow({
         category: categoryName,
         count: group.count,
-        total: group.total,
+        total: formattedTotal,
       });
       
       row.alignment = { vertical: "middle" };
@@ -882,7 +901,6 @@ export const exportPaymentsByCategory = async (specification) => {
         pattern: "solid",
         fgColor: { argb: "FFE8F0FE" }
       };
-      row.getCell(3).numFmt = "$#,##0.00";
       row.getCell(3).alignment = { horizontal: "right" };
       row.getCell(2).alignment = { horizontal: "center" };
       row.outlineLevel = 0; // Category row is not grouped
