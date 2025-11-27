@@ -657,17 +657,26 @@ export const exportPaymentsByCategory = async (specification) => {
     headerRow.height = 25;
 
     // First pass: calculate month totals for percentage calculation
+    // Separate positive and negative values
     const sortedCategories = Object.keys(categoryMonthGroups).sort();
-    const monthTotals = new Array(months.length).fill(0);
-    let grandTotal = 0;
+    const monthPositiveTotals = new Array(months.length).fill(0);
+    const monthNegativeTotals = new Array(months.length).fill(0);
+    let grandPositiveTotal = 0;
+    let grandNegativeTotal = 0;
     
     sortedCategories.forEach(categoryName => {
       months.forEach((month, index) => {
         const monthKey = `${month.year}-${month.month}`;
         const monthData = categoryMonthGroups[categoryName][monthKey];
         const monthValue = monthData ? monthData.total : 0;
-        monthTotals[index] += monthValue;
-        grandTotal += monthValue;
+        
+        if (monthValue >= 0) {
+          monthPositiveTotals[index] += monthValue;
+          grandPositiveTotal += monthValue;
+        } else {
+          monthNegativeTotals[index] += monthValue;
+          grandNegativeTotal += monthValue;
+        }
       });
     });
 
@@ -726,14 +735,25 @@ export const exportPaymentsByCategory = async (specification) => {
         const monthValue = monthData ? monthData.total : 0;
         categoryTotal += monthValue;
         
-        // Calculate percentage for this month
-        const percentage = monthTotals[index] > 0 ? (monthValue / monthTotals[index] * 100) : 0;
+        // Calculate percentage based on positive or negative group
+        let percentage = 0;
+        if (monthValue >= 0 && monthPositiveTotals[index] > 0) {
+          percentage = (monthValue / monthPositiveTotals[index]) * 100;
+        } else if (monthValue < 0 && monthNegativeTotals[index] < 0) {
+          percentage = (monthValue / monthNegativeTotals[index]) * 100;
+        }
+        
         const formattedValue = `$${monthValue.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentage.toFixed(1)}%)`;
         rowData[`month_${index}`] = formattedValue;
       });
 
-      // Calculate percentage for total
-      const totalPercentage = grandTotal > 0 ? (categoryTotal / grandTotal * 100) : 0;
+      // Calculate percentage for total based on positive or negative group
+      let totalPercentage = 0;
+      if (categoryTotal >= 0 && grandPositiveTotal > 0) {
+        totalPercentage = (categoryTotal / grandPositiveTotal) * 100;
+      } else if (categoryTotal < 0 && grandNegativeTotal < 0) {
+        totalPercentage = (categoryTotal / grandNegativeTotal) * 100;
+      }
       rowData.total = `$${categoryTotal.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${totalPercentage.toFixed(1)}%)`;
       
       const row = worksheet.addRow(rowData);
@@ -760,12 +780,14 @@ export const exportPaymentsByCategory = async (specification) => {
       }
     });
 
-    // Add total row
+    // Add total row (net: positive + negative)
     const totalRowData = { category: "TOTAL GENERAL" };
     months.forEach((_, index) => {
-      totalRowData[`month_${index}`] = monthTotals[index];
+      const netTotal = monthPositiveTotals[index] + monthNegativeTotals[index];
+      totalRowData[`month_${index}`] = netTotal;
     });
-    totalRowData.total = grandTotal;
+    const netGrandTotal = grandPositiveTotal + grandNegativeTotal;
+    totalRowData.total = netGrandTotal;
 
     const totalRow = worksheet.addRow(totalRowData);
     totalRow.font = { bold: true, size: 11 };
@@ -787,11 +809,18 @@ export const exportPaymentsByCategory = async (specification) => {
     // Single month or less - use format with item grouping
     const categoryGroups = {};
     const categoryItemGroups = {};
-    let totalGeneral = 0;
+    let totalPositive = 0;
+    let totalNegative = 0;
 
     payments.forEach((payment, index) => {
       const value = payment.value || 0;
-      totalGeneral += value;
+      
+      // Separate positive and negative
+      if (value >= 0) {
+        totalPositive += value;
+      } else {
+        totalNegative += value;
+      }
 
       // Determine category and item
       let categoryName = "Sin categoría";
@@ -884,8 +913,13 @@ export const exportPaymentsByCategory = async (specification) => {
       // Add category summary row
       const group = categoryGroups[categoryName];
       
-      // Calculate percentage
-      const percentage = totalGeneral > 0 ? (group.total / totalGeneral * 100) : 0;
+      // Calculate percentage based on positive or negative group
+      let percentage = 0;
+      if (group.total >= 0 && totalPositive > 0) {
+        percentage = (group.total / totalPositive) * 100;
+      } else if (group.total < 0 && totalNegative < 0) {
+        percentage = (group.total / totalNegative) * 100;
+      }
       const formattedTotal = `$${group.total.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentage.toFixed(1)}%)`;
       
       const row = worksheet.addRow({
@@ -908,11 +942,12 @@ export const exportPaymentsByCategory = async (specification) => {
       currentRow++;
     });
 
-    // Add total row
+    // Add total row (net: positive + negative)
+    const netTotal = totalPositive + totalNegative;
     const totalRow = worksheet.addRow({
       category: "TOTAL GENERAL",
       count: payments.length,
-      total: totalGeneral,
+      total: netTotal,
     });
     
     totalRow.font = { bold: true, size: 12 };
