@@ -71,7 +71,7 @@ export const PAYMENT_OPTIONS = [
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
 
-export const APP_VERSION = "1.2.7";
+export const APP_VERSION = "1.2.8";
 
 export const COLORS = {
     primary: {
