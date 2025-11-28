@@ -3,7 +3,9 @@ import Chart from "../components/chart";
 import ChartSelector from "../components/chartSelector";
 import ChartFilterModal from "../components/chart/chartFilterModal";
 import PaymentsTable from "../components/paymentsTable";
+import BalancePieChart from "../components/balancePieChart";
 import Container from "../components/container";
+import { Tabs, Tab, Box } from '@mui/material';
 import dayjs from 'dayjs';
 import CustomCheckbox from "../components/checkbox/customCheckbox";
 import StorageIconButton from "../components/button/storageIconButton";
@@ -33,6 +35,7 @@ import { COLORS } from "../constants";
 
 export default function Balance(props) {
 
+    const [currentTab, setCurrentTab] = useState(0); // 0 = Movimientos, 1 = Reportes
     const [currentChartSelected, setCurrentChartSelected] = useState("year");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [customChainFilters, setCustomChainFilters] = useState([]);
@@ -398,35 +401,80 @@ export default function Balance(props) {
     return(
         <>
             <Container title="Balance">
-                <div className="grid grid-cols-1 md:grid-cols-4 md:gap-x-4 mb-14">
-                    <div className="col-span-1">
-                        <ChartSelector allowCustom currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
-                    </div>
-                    <div className="col-span-3">
-                        <Chart
-                            chartByCreatedAt={chartByCreatedAt}
-                            setChartByCreatedAt={setChartByCreatedAt}
-                            chartByOpResult={chartByOpResult}
-                            setChartByOpResult={setChartByOpResult}
-                            customChainFilters={customChainFilters}
-                            currentChartSelected={currentChartSelected}
-                            onChangeData={data => setPayments(data)}
-                            onChangePeriod={period => setCurrentPeriod(period)}
-                            isLoadingPayments={isLoadingPayments}    
-                        />
-                    </div>
-                </div>
-                <div className="flex justify-end mb-4">
-                    <ButtonPrimary
-                        disabled={payments.length === 0 || isLoadingPayments.value}
-                        onClick={handleExportPayments}
-                        className="flex justify-center items-center"
-                    >
-                        <FileDownloadIcon className="mr-1" fontSize="small" />
-                        Exportar
-                    </ButtonPrimary>
-                </div>
-                <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                    <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)}>
+                        <Tab label="Movimientos" />
+                        <Tab label="Reportes" />
+                    </Tabs>
+                </Box>
+
+                {/* Tab 0: Movimientos */}
+                {currentTab === 0 && (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-4 md:gap-x-4 mb-8">
+                            <div className="col-span-1">
+                                <ChartSelector allowCustom currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
+                            </div>
+                            <div className="col-span-3">
+                                <Chart
+                                    chartByCreatedAt={chartByCreatedAt}
+                                    setChartByCreatedAt={setChartByCreatedAt}
+                                    chartByOpResult={chartByOpResult}
+                                    setChartByOpResult={setChartByOpResult}
+                                    customChainFilters={customChainFilters}
+                                    currentChartSelected={currentChartSelected}
+                                    onChangeData={data => setPayments(data)}
+                                    onChangePeriod={period => setCurrentPeriod(period)}
+                                    isLoadingPayments={isLoadingPayments}    
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="flex justify-end mb-4">
+                            <ButtonPrimary
+                                disabled={payments.length === 0 || isLoadingPayments.value}
+                                onClick={handleExportPayments}
+                                className="flex justify-center items-center"
+                            >
+                                <FileDownloadIcon className="mr-1" fontSize="small" />
+                                Exportar
+                            </ButtonPrimary>
+                        </div>
+                        <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
+                    </>
+                )}
+
+                {/* Tab 1: Reportes */}
+                {currentTab === 1 && (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-4 md:gap-x-4 mb-8">
+                            <div className="col-span-1">
+                                <ChartSelector currentChartSelected={currentChartSelected} onChange={handleChangeSelector}/>
+                            </div>
+                            <div className="col-span-3">
+                                <Chart
+                                    chartByCreatedAt={chartByCreatedAt}
+                                    setChartByCreatedAt={setChartByCreatedAt}
+                                    chartByOpResult={chartByOpResult}
+                                    setChartByOpResult={setChartByOpResult}
+                                    customChainFilters={customChainFilters}
+                                    currentChartSelected={currentChartSelected}
+                                    onChangeData={data => setPayments(data)}
+                                    onChangePeriod={period => setCurrentPeriod(period)}
+                                    isLoadingPayments={isLoadingPayments}    
+                                />
+                            </div>
+                        </div>
+                        
+                        {/* Pie Chart for category distribution */}
+                        <div className="mb-8">
+                            <BalancePieChart 
+                                currentPeriod={currentPeriod}
+                                dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")}
+                            />
+                        </div>
+                    </>
+                )}
 
                 {/* TODO: refactorizar este modal en uno solo que esta duplicado y es dificil de mantener. O mejor si hacemos un link y unificamos todo en una vista */}
                 <Modal

@@ -246,6 +246,23 @@ export default {
   },
 
   /**
+   * /payments/chart [GET]
+   * Get payments for chart with category included
+   * @returns HttpStatus ok and array of @Payment with categories
+   */
+  getForChart: async (req, res, next) => {
+    try {
+      const querySpecification = req.query.q;
+      const isOrOperation = req.query.isOrOperation === "true";
+      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const payments = await paymentService.getForChart(specification);
+      res.status(StatusCodes.OK).json(payments);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /payments/{id} [PUT]
    * @returns HttpStatus ok and @Payment updated
    */

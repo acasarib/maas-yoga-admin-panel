@@ -205,6 +205,31 @@ export const legacyGetAll = async (specification) => {
   });
 };
 
+/**
+ * Get payments for chart with category included
+ * @param {Object} specification 
+ * @returns 
+ */
+export const getForChart = async (specification) => {
+  return payment.findAll({
+    where: specification.getSequelizeSpecification(),
+    include: specification.getSequelizeSpecificationAssociations([
+      { model: professor, attributes: ["name", "lastName"]},
+      user, 
+      student, 
+      course, 
+      { model: item, include: [category] }, // Include category for chart grouping
+      file, 
+      clazz,
+      {
+        model: user,
+        as: "verifiedByUser",
+        attributes: ["firstName", "lastName"]
+      }
+    ])
+  });
+};
+
 export const getAll = async (page = 1, size = 10, specification) => {
   const where = specification.getSequelizeSpecification();
   const include = specification.getSequelizeSpecificationAssociations(defaultPaymentInclude);
