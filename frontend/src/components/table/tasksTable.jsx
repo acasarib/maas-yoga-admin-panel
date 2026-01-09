@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import useModal from '../../hooks/useModal';
 import Table from '.';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -15,6 +15,8 @@ import DeleteButton from '../button/deleteButton';
 import EditButton from '../button/editButton';
 import NoDataComponent from './noDataComponent';
 import { COLORS } from '../../constants';
+import useToggle from '../../hooks/useToggle';
+import coursesService from '../../services/coursesService';
 
 const TasksTable = ({ course, onUpdateTask }) => {
     const { changeTaskStatus, changeAlertStatusAndMessage, deleteCourseTask } = useContext(Context)
@@ -23,8 +25,10 @@ const TasksTable = ({ course, onUpdateTask }) => {
     const [isLoading, setIsLoading] = useState(false);
     const studentsTasksModal = useModal()
     const editTaskModal = useModal()
+    const isLoadingSeeStudent = useToggle()
     const [editingTask, setEditingTask] = useState(null)
     const [taskId, setTaskId] = useState(null)
+    const [seeStudentsData, setSeeStudentsData] = useState([])
     const { width } = useResize()
     let style = {};
 
@@ -32,9 +36,19 @@ const TasksTable = ({ course, onUpdateTask }) => {
         style.minWidth = '750px';
     }
 
-    const handleSeeStudents = (taskId) => {
+    const handleSeeStudents = async (taskId) => {
         setTaskId(taskId)
+        isLoadingSeeStudent.enable()
         studentsTasksModal.open()
+        try {
+            const taskData = await coursesService.getCourseTask(course.id, taskId)
+            setSeeStudentsData(taskData.students)
+        } catch (error) {
+            changeAlertStatusAndMessage(true, 'error', 'No se pudieron cargar los alumnos de la tarea.')
+            console.log(error)
+        } finally {
+            isLoadingSeeStudent.disable()
+        }
     }
 
     const handleCloseSeeTaskModal = () => {
@@ -174,13 +188,6 @@ const TasksTable = ({ course, onUpdateTask }) => {
         },
     ];
 
-    useEffect(() => {
-        if (taskId != null) {
-            setTaskId(course.courseTasks.find(ct => ct.id == taskId).id)
-        }
-    }, [course])
-    
-
   return (<>
     <Table
         columns={taskColumn}
@@ -200,8 +207,9 @@ const TasksTable = ({ course, onUpdateTask }) => {
         <div>
             {taskId !== null &&
                 <Table
+                    progressPending={isLoadingSeeStudent.value}
                     columns={taskStudentsColumns}
-                    data={course.courseTasks.find(ct => ct.id === taskId).students}
+                    data={seeStudentsData}
                     noDataComponent="Esta tarea aun no posee alumnos"
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />

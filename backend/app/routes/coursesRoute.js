@@ -16,6 +16,7 @@ router.put("/:id/students/:studentId/update-inscription-date", verifyToken, cont
 router.post("/:courseId/tasks", verifyToken, controller.addCourseTask);
 router.put("/tasks/:id", verifyToken, controller.editCourseTask);
 router.delete("/tasks/:id", verifyToken, controller.deleteCourseTask);
+router.get("/:courseId/tasks/:taskId", verifyToken, controller.getCourseTaskById);
 router.get("/:courseId/tasks", verifyToken, controller.getCourseTasks);
 
 router.put("/tasks/:courseTaskId/students", verifyToken, controller.setStudentsToTask);

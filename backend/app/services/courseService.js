@@ -150,11 +150,7 @@ export const editById = async (courseParam, id) => {
 export const getById = async (id) => {
   const c = await course.findByPk(id, { include: [
     {
-      model: courseTask, include:[{
-        model: student,
-        attributes: ["name", "lastName", "email"],
-        through: { attributes: ["completed"] }
-      }]
+      model: courseTask
     },
     {
       model: payment,
@@ -289,6 +285,18 @@ export const getStudentsByCourseTask = async (courseTaskId) => {
   return studentCourseTask.findAll({
     where: { courseTaskId }
   });
+};
+
+export const getCourseTaskById = async (courseId, taskId) => {
+  const task = await courseTask.findOne({
+    where: { id: taskId, courseId },
+    include: [{
+      model: student,
+      attributes: ["name", "lastName", "email", "id"],
+      through: { attributes: ["completed"] }
+    }]
+  });
+  return task;
 };
 
 export const setCompletedStudentTask = async (studentCourseTaskParam, courseTaskId, studentId) => {
