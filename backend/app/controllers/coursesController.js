@@ -129,6 +129,22 @@ export default {
   },
 
   /**
+   * /courses/{courseId}/tasks/{taskId} [GET]
+   * @returns HttpStatus ok and @CourseTask with students
+   */
+  getCourseTaskById: async (req, res, next) => {
+    try {
+      const task = await courseService.getCourseTaskById(req.params.courseId, req.params.taskId);
+      if (task)
+        res.status(StatusCodes.OK).json(task);
+      else
+        res.status(StatusCodes.NOT_FOUND).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /courses/tasks/{id} [PUT]
    * @returns HttpStatus ok and @CourseTask
    */
