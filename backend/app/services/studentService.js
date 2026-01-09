@@ -247,10 +247,24 @@ export const getStudentsByCourse = async (courseId) => {
     through: { attributes: ["createdAt"] }
   }], where: { id: courseId } })
   let studentsIds = c.students.map(c => c.id)
-  const payments = await payment.findAll({ where: { courseId, studentId: {
-    [Op.in]: studentsIds
-  } } })
-  const getRegistrationPayment = (studentId) => payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
+  const payments = await payment.findAll({ 
+    where: { courseId, studentId: {
+      [Op.in]: studentsIds
+    } },
+    attributes: ["isRegistrationPayment", "id", "at", "operativeResult", "studentId", "value", "discount"]
+  })
+  const getRegistrationPayment = (studentId) => {
+    const regPayment = payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
+    if (regPayment) {
+      return {
+        isRegistrationPayment: regPayment.isRegistrationPayment,
+        id: regPayment.id,
+        at: regPayment.at,
+        operativeResult: regPayment.operativeResult
+      };
+    }
+    return regPayment;
+  };
   if (c.isCircular) {
     const getCircularPayment = (studentId) => payments.find(p => !p.isRegistrationPayment && p.studentId == studentId);
     for (const s of c.dataValues.students) {
