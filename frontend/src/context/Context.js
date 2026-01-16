@@ -514,8 +514,6 @@ export const Provider = ({ children }) => {
     };
 
     const getPendingPaymentsByCourseFromStudent = student => {
-        console.log(student);
-        
         const courses = [];
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth()+1;
