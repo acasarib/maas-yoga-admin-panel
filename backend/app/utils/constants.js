@@ -1,7 +1,7 @@
 const PERMISSIONS = {
   CREATE_USER: "PERMISSION_CREATE_USER"
 };
-const APP_VERSION = "1.2.9";
+const APP_VERSION = "1.3.0";
 const PAYMENT_TYPES = {
   MERCADO_PAGO: "Mercado pago",
   PAYPAL: "Paypal",
