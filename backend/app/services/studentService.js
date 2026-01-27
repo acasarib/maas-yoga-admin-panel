@@ -1,5 +1,5 @@
 import { Op, where, literal } from "sequelize";
-import { student, course, courseTask, payment, sequelize, courseStudent, courseStudentSuspend, studentCourseTask } from "../db/index.js";
+import { student, course, courseTask,studentCourseTask, payment, sequelize, courseStudent, courseStudentSuspend, studentCourseTask } from "../db/index.js";
 import { STUDENT_MONTHS_CONDITIONS, STUDENT_STATUS } from "../utils/constants.js";
 import utils from "../utils/functions.js";
 
@@ -25,7 +25,7 @@ export const editById = async (studentParam, id) => {
 };
 
 export const getById = async (id) => {
-  const st = await student.findByPk(id, { include: [course, payment] });
+  const st = await student.findByPk(id, { include: [course, payment, courseTask, studentCourseTask] });
   for (const c of st.dataValues.courses) {
     if (c.needsRegistration) {
       const registrationPayment = await getRegistrationPaymentId(id, c.id);
