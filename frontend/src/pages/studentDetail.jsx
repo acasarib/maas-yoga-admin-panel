@@ -778,7 +778,7 @@ const CourseDetail = () => {
                                 }
 							</TabPanel>
 							<TabPanel className="pt-4" value="4">
-								{student?.courseTasks && <TaskList tasks={student.courseTasks} studentId={student.id} courses={courses} getStudent={() => getData()} />}
+								{student?.courseTasks ? <TaskList tasks={student.courseTasks} studentId={student.id} courses={courses} getStudent={() => getData()} /> : <NoDataComponent Icon={SchoolIcon} title="No hay tareas" subtitle='El alumno no posee tareas'/>}
 							</TabPanel>
 						</TabContext>
 					</Box>
