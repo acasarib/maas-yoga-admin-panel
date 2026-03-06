@@ -10,8 +10,8 @@ const paymentBelongToProfessor = (payment, professor) => {
   try {
     const paymentDate = payment.operativeResult;
     return professor.dataValues.periods.find(period => {
-      const from = new Date(period.startAt);
-      const to = new Date(period.endAt);
+      const from = utils.parseDateFromStringYYYYMMDD(period.startAt);
+      const to = utils.parseDateFromStringYYYYMMDD(period.endAt);
       to.setHours(23, 59, 59, 999);
       return from <= paymentDate && to >= paymentDate;
     }); 
