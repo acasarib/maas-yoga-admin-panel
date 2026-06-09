@@ -19,6 +19,9 @@ const student = (sequelize) => {
     address: Sequelize.STRING,
     occupation: Sequelize.STRING,
     coverage: Sequelize.STRING,
+    country: Sequelize.STRING,
+    province: Sequelize.STRING,
+    neighborhood: Sequelize.STRING,
   }, {});
   student.associate = function (models) {
     // associations can be defined here

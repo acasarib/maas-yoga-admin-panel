@@ -24,6 +24,7 @@ import CopyTaskModal from '../components/courses/copyTaskModal';
 import CourseDetailModal from '../components/modal/courseDetailModal';
 import Link from '../components/link/link';
 import CourseDetailSkeleton from '../components/skeleton/courseDetailSkeleton';
+import coursesService from '../services/coursesService';
 
 const ProfessorCalendar = ({ coursePeriods }) => Object.keys(coursePeriods).map(year => <div className='mb-2' key={year}>
 	<div className='font-medium text-xl mb-1'>{year}</div>
@@ -132,11 +133,42 @@ const StudentsModule = ({ course, onSuspensionsChange }) => {
 	const [activeStudent, setActiveStudent] = useState(null);
 	const onSeeStudentPayments = student => setActiveStudent(student)
 
+	const activeCount = course.students.filter(s => s.status === STUDENT_STATUS.ACTIVE).length;
+	const suspendedCount = course.students.filter(s => s.status === STUDENT_STATUS.SUSPEND).length;
+	const totalCount = course.students.length;
+
+	const handleExportStudents = async () => {
+		try {
+			const response = await coursesService.exportStudents(course.id);
+			const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			const disposition = response.headers['content-disposition'] || '';
+			const match = disposition.match(/filename=(.+\.xlsx)/);
+			link.href = url;
+			link.download = match ? match[1] : `inscriptos-${course.id}.xlsx`;
+			link.click();
+			window.URL.revokeObjectURL(url);
+		} catch (e) {
+			console.error('Error al exportar inscriptos', e);
+		}
+	};
+
 	return <>
 	<div>
 		<div className='flex justify-between'>
 			<h2 className='text-2xl font-bold mb-4'>Alumnos</h2>
-			<ButtonPrimary className={"mb-6"} onClick={suspensionsModal.open}>Ver suspenciones</ButtonPrimary>
+			<div className='flex gap-2 mb-6'>
+				<ButtonPrimary onClick={handleExportStudents}>Exportar Excel</ButtonPrimary>
+				<ButtonPrimary onClick={suspensionsModal.open}>Ver suspenciones</ButtonPrimary>
+			</div>
+		</div>
+		<div className='mb-4 text-sm text-gray-600 font-medium'>
+			Activos: <span className='text-green-600 font-bold'>{activeCount}</span>
+			<span className='mx-2'>·</span>
+			Suspendidos: <span className='text-yellow-600 font-bold'>{suspendedCount}</span>
+			<span className='mx-2'>·</span>
+			Total: <span className='font-bold'>{totalCount}</span>
 		</div>
 		<StudentsTable onSeePayments={onSeeStudentPayments} students={course.students}/>
 	</div>

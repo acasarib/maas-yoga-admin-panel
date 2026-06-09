@@ -61,6 +61,36 @@ const StudentCard = ({ student }) => {
               {new Date(student.createdAt).toLocaleDateString('es-ES')}
             </dd>
           </div>
+          {student.country && (
+          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">
+              País
+            </dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {student.country}
+            </dd>
+          </div>
+          )}
+          {student.province && (
+          <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">
+              Provincia
+            </dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {student.province}
+            </dd>
+          </div>
+          )}
+          {student.neighborhood && (
+          <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">
+              Barrio
+            </dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {student.neighborhood}
+            </dd>
+          </div>
+          )}
         </dl>
       </div>
     </div>

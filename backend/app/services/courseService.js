@@ -591,3 +591,50 @@ export const exportProfessorsPayments = async (from, to, professorId, courseId) 
   const buffer = await workbook.xlsx.writeBuffer();
   return buffer;
 };
+
+export const exportStudentsByCourse = async (courseId) => {
+  const courseDb = await course.findByPk(courseId);
+  const students = await getStudentsByCourse(courseId);
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Inscriptos");
+
+  worksheet.columns = [
+    { header: "N°", key: "index", width: 6 },
+    { header: "Nombre", key: "name", width: 20 },
+    { header: "Apellido", key: "lastName", width: 20 },
+    { header: "Email", key: "email", width: 30 },
+    { header: "Teléfono", key: "phoneNumber", width: 18 },
+    { header: "Documento", key: "document", width: 15 },
+    { header: "Fecha de inscripción", key: "inscriptionDate", width: 22 },
+    { header: "Estado", key: "status", width: 14 },
+  ];
+
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FFFDE7" },
+  };
+
+  students.forEach((s, i) => {
+    const date = s.inscriptionDate ? new Date(s.inscriptionDate) : null;
+    const formattedDate = date
+      ? utils.dateToDDMMYYYY(date)
+      : "";
+    worksheet.addRow({
+      index: i + 1,
+      name: s.name,
+      lastName: s.lastName,
+      email: s.email,
+      phoneNumber: s.phoneNumber || "",
+      document: s.document || "",
+      inscriptionDate: formattedDate,
+      status: s.status === "ACTIVE" ? "Activo" : "Suspendido",
+    });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return { buffer, courseTitle: courseDb?.title || `curso-${courseId}` };
+};

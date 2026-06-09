@@ -274,6 +274,22 @@ export default {
   },
 
   /**
+   * /courses/:courseId/export-students [GET]
+   * @returns Excel file with all enrolled students
+   */
+  exportStudentsByCourse: async (req, res, next) => {
+    try {
+      const { buffer, courseTitle } = await courseService.exportStudentsByCourse(req.params.courseId);
+      const safeTitle = courseTitle.replace(/[^a-zA-Z0-9-_\s]/g, "").replace(/\s+/g, "-");
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename=inscriptos-${safeTitle}.xlsx`);
+      res.send(buffer);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /add-professor-payment [POST]
    * @returns HttpStatus ok
    */

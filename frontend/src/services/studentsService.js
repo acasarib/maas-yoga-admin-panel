@@ -25,7 +25,10 @@ export default {
                 "lastName": student.lastName,
                 "document": student.document,
                 "email": student.email,
-                "phoneNumber": student.phoneNumber                
+                "phoneNumber": student.phoneNumber,
+                "country": student.country,
+                "province": student.province,
+                "neighborhood": student.neighborhood
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
@@ -181,7 +184,10 @@ export default {
                 "lastName": student.lastName,
                 "document": student.document,
                 "email": student.email,
-                "phoneNumber": student.phoneNumber                
+                "phoneNumber": student.phoneNumber,
+                "country": student.country,
+                "province": student.province,
+                "neighborhood": student.neighborhood
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios

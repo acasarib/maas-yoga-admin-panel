@@ -39,9 +39,21 @@ const StudentCoursesInfo = ({ student, onSeePayments }) => {
 			}
 		}
 		return false;
-	}	
+	}
+
+	function checkHasAnyNotPaidMonth() {
+		if ('circular' in student.pendingPayments) return false;
+		const data = student.pendingPayments;
+		for (const year in data) {
+			for (const month in data[year]) {
+				if (data[year][month].condition === "NOT_PAID") return true;
+			}
+		}
+		return false;
+	}
 	
 	const hasAnyPendingPayment = checkNotPaidCondition();
+	const hasFutureUnpaidCourse = student.currentMonth === STUDENT_MONTHS_CONDITIONS.NOT_TAKEN && checkHasAnyNotPaidMonth();
 
 	const pendingPayment = <><Tooltip title="Pago pendiente"><DangerousIcon style={{ color: '#FF676D' }}/></Tooltip></>
 	const upToDate = <><Tooltip title="Al dia"><CheckIcon style={{ color: '#72EA8D' }}/></Tooltip></>
@@ -52,9 +64,9 @@ const StudentCoursesInfo = ({ student, onSeePayments }) => {
 				{hasAnyPendingPayment ? pendingPayment : <>{upToDate}<Tooltip style={{ color: COLORS.primary[900] }} title={`${formatPaymentValue(student.circularPayment.value)}`} className='underline mx-1 cursor-pointer'><Link target='_blank' to={`/home/payments?id=${student.circularPayment.id}`}>Ver pago</Link></Tooltip></>}
 			</> : <>
 			<div style={{ color: COLORS.primary[900] }} className='underline mx-1 cursor-pointer' onClick={() => onSeePayments(student)}>Ver pagos</div>
-			{(hasAnyPendingPayment || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_PAID) && pendingPayment}
-			{(!hasAnyPendingPayment && (student.currentMonth == STUDENT_MONTHS_CONDITIONS.PAID || student.currentMonth == STUDENT_MONTHS_CONDITIONS.NOT_TAKEN)) && upToDate}
-			{(!hasAnyPendingPayment && student.currentMonth == STUDENT_MONTHS_CONDITIONS.SUSPEND) && <Tooltip title="Suspendido"><ErrorIcon style={{ color: '#FFCD30' }}/></Tooltip>}
+			{(hasAnyPendingPayment || hasFutureUnpaidCourse || student.currentMonth === STUDENT_MONTHS_CONDITIONS.NOT_PAID) && pendingPayment}
+			{(!hasAnyPendingPayment && !hasFutureUnpaidCourse && (student.currentMonth === STUDENT_MONTHS_CONDITIONS.PAID || student.currentMonth === STUDENT_MONTHS_CONDITIONS.NOT_TAKEN)) && upToDate}
+			{(!hasAnyPendingPayment && !hasFutureUnpaidCourse && student.currentMonth === STUDENT_MONTHS_CONDITIONS.SUSPEND) && <Tooltip title="Suspendido"><ErrorIcon style={{ color: '#FFCD30' }}/></Tooltip>}
 			</>}
 		</div>
 		</>)

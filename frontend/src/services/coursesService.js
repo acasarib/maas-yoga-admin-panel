@@ -249,6 +249,21 @@ export default {
                 })
         });
     },
+    exportStudents(courseId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/courses/${courseId}/export-students`, {
+                    responseType: 'blob'
+                })
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    reject(error.data)
+                })
+        });
+    },
     getCourseTask(courseId, taskId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

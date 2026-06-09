@@ -198,7 +198,10 @@ export default function Students(props) {
             surname: edit ? studentToEdit.lastName : '',
             document: edit ? studentToEdit.document : null,
             email: edit ? studentToEdit.email : '',
-            phoneNumber: edit ? studentToEdit.phoneNumber : null
+            phoneNumber: edit ? studentToEdit.phoneNumber : null,
+            country: edit ? studentToEdit.country : '',
+            province: edit ? studentToEdit.province : '',
+            neighborhood: edit ? studentToEdit.neighborhood : ''
         },
         onSubmit: async (values,  { resetForm }) => {
           const body = {
@@ -206,7 +209,10 @@ export default function Students(props) {
             lastName: values.surname,
             document: (values.document !== '') ? values.document : null,
             email: values.email,
-            phoneNumber: values.phoneNumber
+            phoneNumber: values.phoneNumber,
+            country: values.country || null,
+            province: values.province || null,
+            neighborhood: values.neighborhood || null
           };
           isLoading.enable()
           try {
@@ -335,6 +341,39 @@ export default function Students(props) {
                             id="phoneNumber" 
                             type="number" 
                             placeholder="Numero de telefono"
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput
+                            label="País"
+                            onBlur={formik.handleBlur}
+                            value={formik.values.country}
+                            name="country"
+                            htmlFor="country"
+                            id="country"
+                            type="text"
+                            placeholder="País"
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput
+                            label="Provincia"
+                            onBlur={formik.handleBlur}
+                            value={formik.values.province}
+                            name="province"
+                            htmlFor="province"
+                            id="province"
+                            type="text"
+                            placeholder="Provincia"
+                            onChange={formik.handleChange}
+                        />
+                        <CommonInput
+                            label="Barrio"
+                            onBlur={formik.handleBlur}
+                            value={formik.values.neighborhood}
+                            name="neighborhood"
+                            htmlFor="neighborhood"
+                            id="neighborhood"
+                            type="text"
+                            placeholder="Barrio"
                             onChange={formik.handleChange}
                         />
                     </form>
