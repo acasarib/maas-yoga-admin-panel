@@ -18,6 +18,42 @@ import Loader from "../components/spinner/loader";
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
 import { COLORS } from "../constants";
+import Select from 'react-select';
+import Label from '../components/label/label';
+
+const COUNTRIES = [
+    { label: '🇦🇷 Argentina', value: 'Argentina' },
+    { label: '🇧🇴 Bolivia', value: 'Bolivia' },
+    { label: '🇧🇷 Brasil', value: 'Brasil' },
+    { label: '🇨🇱 Chile', value: 'Chile' },
+    { label: '🇨🇴 Colombia', value: 'Colombia' },
+    { label: '🇨🇷 Costa Rica', value: 'Costa Rica' },
+    { label: '🇨🇺 Cuba', value: 'Cuba' },
+    { label: '🇪🇨 Ecuador', value: 'Ecuador' },
+    { label: '🇸🇻 El Salvador', value: 'El Salvador' },
+    { label: '🇬🇹 Guatemala', value: 'Guatemala' },
+    { label: '🇭🇳 Honduras', value: 'Honduras' },
+    { label: '🇲🇽 México', value: 'México' },
+    { label: '🇳🇮 Nicaragua', value: 'Nicaragua' },
+    { label: '🇵🇦 Panamá', value: 'Panamá' },
+    { label: '🇵🇾 Paraguay', value: 'Paraguay' },
+    { label: '🇵🇪 Perú', value: 'Perú' },
+    { label: '🇩🇴 República Dominicana', value: 'República Dominicana' },
+    { label: '🇺🇾 Uruguay', value: 'Uruguay' },
+    { label: '🇻🇪 Venezuela', value: 'Venezuela' },
+    { label: '🇺🇸 Estados Unidos', value: 'Estados Unidos' },
+    { label: '🇪🇸 España', value: 'España' },
+    { label: '🇮🇹 Italia', value: 'Italia' },
+    { label: '🇫🇷 Francia', value: 'Francia' },
+    { label: '🇩🇪 Alemania', value: 'Alemania' },
+    { label: '🇬🇧 Reino Unido', value: 'Reino Unido' },
+    { label: '🇵🇹 Portugal', value: 'Portugal' },
+    { label: '🇯🇵 Japón', value: 'Japón' },
+    { label: '🇨🇳 China', value: 'China' },
+    { label: '🇮🇳 India', value: 'India' },
+    { label: '🇦🇺 Australia', value: 'Australia' },
+    { label: '🇨🇦 Canadá', value: 'Canadá' },
+];
 
 export default function Students(props) {
     const { deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
@@ -199,8 +235,8 @@ export default function Students(props) {
             document: edit ? studentToEdit.document : null,
             email: edit ? studentToEdit.email : '',
             phoneNumber: edit ? studentToEdit.phoneNumber : null,
-            country: edit ? studentToEdit.country : '',
-            province: edit ? studentToEdit.province : '',
+            country: edit ? (studentToEdit.country || 'Argentina') : 'Argentina',
+            province: edit ? (studentToEdit.province || 'Buenos Aires') : 'Buenos Aires',
             neighborhood: edit ? studentToEdit.neighborhood : ''
         },
         onSubmit: async (values,  { resetForm }) => {
@@ -343,17 +379,19 @@ export default function Students(props) {
                             placeholder="Numero de telefono"
                             onChange={formik.handleChange}
                         />
-                        <CommonInput
-                            label="País"
-                            onBlur={formik.handleBlur}
-                            value={formik.values.country}
-                            name="country"
-                            htmlFor="country"
-                            id="country"
-                            type="text"
-                            placeholder="País"
-                            onChange={formik.handleChange}
-                        />
+                        <div>
+                            <Label htmlFor="country">País</Label>
+                            <Select
+                                inputId="country"
+                                name="country"
+                                options={COUNTRIES}
+                                value={COUNTRIES.find(c => c.value === formik.values.country) || null}
+                                onChange={(option) => formik.setFieldValue('country', option ? option.value : '')}
+                                placeholder="Seleccionar país"
+                                noOptionsMessage={() => 'No encontrado'}
+                                styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
+                            />
+                        </div>
                         <CommonInput
                             label="Provincia"
                             onBlur={formik.handleBlur}
