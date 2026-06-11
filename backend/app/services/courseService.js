@@ -608,6 +608,9 @@ export const exportStudentsByCourse = async (courseId) => {
     { header: "Documento", key: "document", width: 15 },
     { header: "Fecha de inscripción", key: "inscriptionDate", width: 22 },
     { header: "Estado", key: "status", width: 14 },
+    { header: "País", key: "country", width: 18 },
+    { header: "Provincia", key: "province", width: 20 },
+    { header: "Barrio", key: "neighborhood", width: 20 },
   ];
 
   const headerRow = worksheet.getRow(1);
@@ -632,6 +635,9 @@ export const exportStudentsByCourse = async (courseId) => {
       document: s.document || "",
       inscriptionDate: formattedDate,
       status: s.status === "ACTIVE" ? "Activo" : "Suspendido",
+      country: s.country || "",
+      province: s.province || "",
+      neighborhood: s.neighborhood || "",
     });
   });
 
