@@ -255,7 +255,7 @@ export const getAll = async (page = 1, size = 10, specification) => {
 export const getStudentsByCourse = async (courseId) => {
   const c = await course.findOne({ include: [{
     model: student,
-    attributes: ["name", "lastName", "document", "email", "phoneNumber", "id"],
+    attributes: ["name", "lastName", "document", "email", "phoneNumber", "id", "country", "province", "neighborhood"],
     through: { attributes: ["createdAt"] }
   }], where: { id: courseId } })
   let studentsIds = c.students.map(c => c.id)
