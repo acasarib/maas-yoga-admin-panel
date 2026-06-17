@@ -16,7 +16,13 @@ import fs from "fs";
 import { student, payment } from "../db/index.js";
 
 const require = createRequire(import.meta.url);
-const Afip = require("afip");
+
+let Afip = null;
+try {
+  Afip = require("afip");
+} catch {
+  console.warn("⚠️  Paquete 'afip' no disponible en este entorno (solo Linux). La emisión de facturas AFIP está deshabilitada.");
+}
 
 const INVOICE_TYPES = {
   CONSUMIDOR_FINAL: { cbte: 6, label: "Factura B", docTipo: 99 },
@@ -26,6 +32,7 @@ const INVOICE_TYPES = {
 let _afip = null;
 
 const getAfip = () => {
+  if (!Afip) return null;
   if (_afip) return _afip;
 
   const certPath = process.env.AFIP_CERT_PATH;
@@ -33,11 +40,14 @@ const getAfip = () => {
   const cuit = process.env.AFIP_CUIT;
 
   if (!certPath || !keyPath || !cuit) {
-    throw new Error("AFIP no configurado: faltan AFIP_CUIT, AFIP_CERT_PATH o AFIP_KEY_PATH en .env");
+    console.warn("AFIP no configurado: faltan AFIP_CUIT, AFIP_CERT_PATH o AFIP_KEY_PATH en .env");
+    return null;
   }
 
-  if (!fs.existsSync(certPath)) throw new Error(`Certificado AFIP no encontrado: ${certPath}`);
-  if (!fs.existsSync(keyPath)) throw new Error(`Clave privada AFIP no encontrada: ${keyPath}`);
+  if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
+    console.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
+    return null;
+  }
 
   _afip = new Afip({
     CUIT: parseInt(cuit),
@@ -69,6 +79,7 @@ const getInvoiceConfig = (ivaCondition, cuit) => {
  */
 export const emitirFactura = async (paymentId) => {
   const afip = getAfip();
+  if (!afip) return null;
   const puntoVenta = parseInt(process.env.AFIP_PUNTO_VENTA || "1");
 
   const paymentDb = await payment.findByPk(paymentId, {
