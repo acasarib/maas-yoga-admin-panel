@@ -7,6 +7,7 @@ import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
 import { fillPaymentReceiptPDF } from "../utils/pdfUtils.js";
 import ExcelJS from "exceljs";
+import { emitirFactura, requiresInvoice } from "./afipService.js";
 
 const defaultPaymentInclude = [
   { model: professor, attributes: ["name", "lastName"]},
@@ -66,19 +67,20 @@ export const create = async (paymentParam, informerId, sendEmail = false) => {
   };
   const createdPayments = await payment.bulkCreate(paymentParam);
   logService.logCreatedPayments(createdPayments);
-  if (sendEmail) {
-    // Enviar recibo por email para cada pago creado
-    try {
-      for (const createdPayment of createdPayments) {
-        try {
-          await sendReceiptByEmail(createdPayment.id);
-        } catch (error) {
-          console.error(`Error enviando recibo por email para pago ${createdPayment.id}:`, error);
-          // No lanzamos el error para no interrumpir el flujo principal
-        }
+  for (const createdPayment of createdPayments) {
+    if (sendEmail) {
+      try {
+        await sendReceiptByEmail(createdPayment.id);
+      } catch (error) {
+        console.error(`Error enviando recibo por email para pago ${createdPayment.id}:`, error);
       }
-    } catch (error) {
-      console.error(`Error enviando recibos por email:`, error);
+    }
+    if (requiresInvoice(createdPayment.type)) {
+      try {
+        await emitirFactura(createdPayment.id);
+      } catch (error) {
+        console.error(`Error emitiendo factura AFIP para pago ${createdPayment.id}:`, error);
+      }
     }
   }
   return (createdPayments.length === 1) ? getById(createdPayments[0].id) : createdPayments;

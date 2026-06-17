@@ -28,7 +28,9 @@ export default {
                 "phoneNumber": student.phoneNumber,
                 "country": student.country,
                 "province": student.province,
-                "neighborhood": student.neighborhood
+                "neighborhood": student.neighborhood,
+                "ivaCondition": student.ivaCondition,
+                "cuit": student.cuit
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
@@ -187,7 +189,9 @@ export default {
                 "phoneNumber": student.phoneNumber,
                 "country": student.country,
                 "province": student.province,
-                "neighborhood": student.neighborhood
+                "neighborhood": student.neighborhood,
+                "ivaCondition": student.ivaCondition,
+                "cuit": student.cuit
             }
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios

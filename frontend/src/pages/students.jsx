@@ -242,7 +242,9 @@ export default function Students(props) {
             country: edit ? (studentToEdit.country || 'Argentina') : 'Argentina',
             customCountry: '',
             province: edit ? (studentToEdit.province || 'Buenos Aires') : 'Buenos Aires',
-            neighborhood: edit ? studentToEdit.neighborhood : ''
+            neighborhood: edit ? studentToEdit.neighborhood : '',
+            ivaCondition: edit ? (studentToEdit.ivaCondition || 'CONSUMIDOR_FINAL') : 'CONSUMIDOR_FINAL',
+            cuit: edit ? (studentToEdit.cuit || '') : ''
         },
         onSubmit: async (values,  { resetForm }) => {
           const body = {
@@ -253,7 +255,9 @@ export default function Students(props) {
             phoneNumber: values.phoneNumber,
             country: (isCustomCountry ? values.customCountry : values.country) || null,
             province: values.province || null,
-            neighborhood: values.neighborhood || null
+            neighborhood: values.neighborhood || null,
+            ivaCondition: values.ivaCondition,
+            cuit: values.cuit || null
           };
           isLoading.enable()
           try {
@@ -449,6 +453,32 @@ export default function Students(props) {
                             placeholder="Barrio"
                             onChange={formik.handleChange}
                         />
+                        <div>
+                            <Label htmlFor="ivaCondition">Condición IVA</Label>
+                            <select
+                                id="ivaCondition"
+                                name="ivaCondition"
+                                value={formik.values.ivaCondition}
+                                onChange={formik.handleChange}
+                                className="border border-gray-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-orange-400 bg-white"
+                            >
+                                <option value="CONSUMIDOR_FINAL">Consumidor Final (Factura B)</option>
+                                <option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto (Factura A)</option>
+                            </select>
+                        </div>
+                        {formik.values.ivaCondition === 'RESPONSABLE_INSCRIPTO' && (
+                            <CommonInput
+                                label="CUIT"
+                                onBlur={formik.handleBlur}
+                                value={formik.values.cuit}
+                                name="cuit"
+                                htmlFor="cuit"
+                                id="cuit"
+                                type="text"
+                                placeholder="20-XXXXXXXX-X"
+                                onChange={formik.handleChange}
+                            />
+                        )}
                     </form>
                 </>
                 } />

@@ -55,6 +55,22 @@ const payment = (sequelize) => {
       allowNull: true,
       defaultValue: "",
     },
+    cae: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    caeVencimiento: {
+      type: Sequelize.DATEONLY,
+      allowNull: true,
+    },
+    invoiceNumber: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
+    invoiceType: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   }, {});
   payment.associate = function (models) {
     // associations can be defined here

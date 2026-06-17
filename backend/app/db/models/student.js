@@ -22,6 +22,11 @@ const student = (sequelize) => {
     country: Sequelize.STRING,
     province: Sequelize.STRING,
     neighborhood: Sequelize.STRING,
+    ivaCondition: {
+      type: Sequelize.STRING,
+      defaultValue: "CONSUMIDOR_FINAL"
+    },
+    cuit: Sequelize.STRING,
   }, {});
   student.associate = function (models) {
     // associations can be defined here
