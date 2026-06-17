@@ -37,7 +37,7 @@ const csr = forge.pki.createCertificationRequest();
 csr.publicKey = keypair.publicKey;
 csr.setSubject([
   { name: "commonName", value: `AFIP - CUIT ${CUIT}` },
-  { shortName: "serialNumber", value: `CUIT ${CUIT}` },
+  { type: "2.5.4.5", value: `CUIT ${CUIT}` },
   { name: "countryName", value: "AR" },
   { name: "organizationName", value: RAZON_SOCIAL },
 ]);
