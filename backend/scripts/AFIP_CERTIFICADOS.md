@@ -38,10 +38,11 @@ Esto genera:
 
 | Ambiente | URL |
 |---|---|
-| **Producción** | https://auth.afip.gov.ar |
-| **Homologación** | https://homo.afip.gov.ar |
+| **Producción y Homologación** | https://auth.afip.gob.ar |
 
-1. Ingresar con el CUIT y clave fiscal correspondiente
+> El certificado se registra siempre en el mismo portal. La distinción entre homologación y producción la maneja la variable `AFIP_ENV` en el `.env` — no hay portal separado.
+
+1. Ingresar con el CUIT y clave fiscal de quien va a usar el certificado
 2. Ir a **"Administración de Certificados Digitales"**
 3. Seleccionar **"Agregar alias"** o **"Nuevo certificado"**
 4. Ingresar un alias (ej: `maasyoga-backend`)
