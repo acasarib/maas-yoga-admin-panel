@@ -102,6 +102,10 @@ export default {
             subscriber.complete();
         }).pipe(share());
     },
+    downloadInvoicePDF(paymentId) {
+        const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+        window.open(baseUrl + `api/v1/payments/${paymentId}/invoice/pdf`, '_blank');
+    },
     emitirFactura(paymentId, data) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

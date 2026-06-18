@@ -176,6 +176,7 @@ export const emitirFactura = async (paymentId) => {
 
   const paymentDb = await payment.findByPk(paymentId, { include: [{ model: student }] });
   if (!paymentDb) throw new Error(`Pago ${paymentId} no encontrado`);
+  if (paymentDb.cae) throw new Error(`Este pago ya tiene una factura emitida (CAE: ${paymentDb.cae})`);
 
   const alumno = paymentDb.student;
   const ivaCondition = alumno?.ivaCondition || "CONSUMIDOR_FINAL";

@@ -6,6 +6,7 @@ import Label from '../label/label';
 import studentsService from '../../services/studentsService';
 import paymentsService from '../../services/paymentsService';
 import { Context } from '../../context/Context';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const IVA_OPTIONS = [
   { value: 'CONSUMIDOR_FINAL', label: 'Consumidor Final (Factura B)' },
@@ -102,6 +103,7 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
     }
   };
 
+  const alreadyHasInvoice = !!payment?.cae;
   const missingFiscalData = selectedStudent && (!selectedStudent.ivaCondition || !selectedStudent.cuit);
 
   return (
@@ -111,16 +113,28 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
       icon={<ReceiptIcon />}
       open={isOpen}
       setDisplay={onClose}
-      title="Emitir Factura AFIP"
+      title={alreadyHasInvoice ? 'Factura AFIP emitida' : 'Emitir Factura AFIP'}
       buttonText={
-        isLoading
-          ? (<><i className="fa fa-circle-o-notch fa-spin" /><span className="ml-2">Emitiendo...</span></>)
-          : 'Emitir factura'
+        alreadyHasInvoice
+          ? (<><DownloadIcon fontSize="small" style={{ marginRight: 4 }} />Descargar PDF</>)
+          : isLoading
+            ? (<><i className="fa fa-circle-o-notch fa-spin" /><span className="ml-2">Emitiendo...</span></>)
+            : 'Emitir factura'
       }
-      onClick={handleSubmit}
-      buttonDisabled={isLoading}
+      onClick={alreadyHasInvoice ? () => paymentsService.downloadInvoicePDF(payment.id) : handleSubmit}
+      buttonDisabled={!alreadyHasInvoice && isLoading}
     >
-      {payment && (
+      {payment && alreadyHasInvoice && (
+        <div className="flex flex-col gap-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p className="font-semibold text-green-800 mb-1">{payment.invoiceType} N° {payment.invoiceNumber}</p>
+            <p className="text-sm text-green-700">CAE: <span className="font-mono">{payment.cae}</span></p>
+            {payment.caeVencimiento && <p className="text-xs text-gray-500 mt-1">Vto. CAE: {payment.caeVencimiento}</p>}
+          </div>
+          <p className="text-sm text-gray-500">Este pago ya tiene una factura emitida. Podés descargar el PDF.</p>
+        </div>
+      )}
+      {payment && !alreadyHasInvoice && (
         <div className="flex flex-col gap-4">
           <div className="bg-gray-50 rounded-lg p-3 text-sm flex items-center gap-2">
             <span className="text-gray-500">Pago #{payment.id}</span>
