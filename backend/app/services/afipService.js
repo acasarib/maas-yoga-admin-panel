@@ -1,67 +1,130 @@
 /**
  * Servicio de integración con AFIP para facturación electrónica.
- * Usa la librería `afip` (https://www.npmjs.com/package/afip).
+ * Implementación directa usando node-forge (PKCS7) + https nativo.
+ * No requiere librerías externas con restricciones de plataforma.
  *
- * Tipos de comprobante soportados:
+ * Tipos de comprobante:
  *   1 → Factura A (Responsable Inscripto)
  *   6 → Factura B (Consumidor Final)
- *
- * Condiciones IVA del alumno:
- *   CONSUMIDOR_FINAL      → Factura B, DocTipo 99, DocNro 0
- *   RESPONSABLE_INSCRIPTO → Factura A, DocTipo 80, DocNro = CUIT del alumno
  */
 
-import { createRequire } from "module";
+import forge from "node-forge";
+import https from "https";
 import fs from "fs";
 import { student, payment } from "../db/index.js";
 
-const require = createRequire(import.meta.url);
+const WSAA_URL = {
+  homologation: "https://wsaahomo.afip.gov.ar/ws/services/LoginCms",
+  production: "https://wsaa.afip.gov.ar/ws/services/LoginCms",
+};
 
-let Afip = null;
-try {
-  Afip = require("afip");
-} catch {
-  console.warn("⚠️  Paquete 'afip' no disponible en este entorno (solo Linux). La emisión de facturas AFIP está deshabilitada.");
-}
+const WSFE_URL = {
+  homologation: "https://wswhomo.afip.gov.ar/wsfev1/service.asmx",
+  production: "https://servicios1.afip.gov.ar/wsfev1/service.asmx",
+};
 
 const INVOICE_TYPES = {
   CONSUMIDOR_FINAL: { cbte: 6, label: "Factura B", docTipo: 99 },
   RESPONSABLE_INSCRIPTO: { cbte: 1, label: "Factura A", docTipo: 80 },
 };
 
-let _afip = null;
+const getEnv = () => process.env.AFIP_ENV === "production" ? "production" : "homologation";
 
-const getAfip = () => {
-  if (!Afip) return null;
-  if (_afip) return _afip;
+let tokenCache = { token: null, sign: null, expiresAt: null };
 
-  const certPath = process.env.AFIP_CERT_PATH;
-  const keyPath = process.env.AFIP_KEY_PATH;
-  const cuit = process.env.AFIP_CUIT;
-
-  if (!certPath || !keyPath || !cuit) {
-    console.warn("AFIP no configurado: faltan AFIP_CUIT, AFIP_CERT_PATH o AFIP_KEY_PATH en .env");
-    return null;
-  }
-
-  if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
-    console.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
-    return null;
-  }
-
-  _afip = new Afip({
-    CUIT: parseInt(cuit),
-    cert: fs.readFileSync(certPath).toString(),
-    privateKey: fs.readFileSync(keyPath).toString(),
-    production: process.env.AFIP_ENV === "production",
-  });
-
-  return _afip;
+const buildTRA = (service) => {
+  const now = new Date();
+  const gen = new Date(now.getTime() - 10 * 60 * 1000);
+  const exp = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+  const fmt = (d) => d.toISOString().replace("Z", "-03:00");
+  const uniqueId = Math.floor(Math.random() * 2147483647);
+  return `<?xml version="1.0" encoding="UTF-8"?><loginTicketRequest version="1.0"><header><uniqueId>${uniqueId}</uniqueId><generationTime>${fmt(gen)}</generationTime><expirationTime>${fmt(exp)}</expirationTime></header><service>${service}</service></loginTicketRequest>`;
 };
 
-/**
- * Determina el tipo de factura a emitir en base a la condición IVA del alumno.
- */
+const signTRA = (tra, certPem, keyPem) => {
+  const cert = forge.pki.certificateFromPem(certPem);
+  const privateKey = forge.pki.privateKeyFromPem(keyPem);
+  const p7 = forge.pkcs7.createSignedData();
+  p7.content = forge.util.createBuffer(tra, "utf8");
+  p7.addCertificate(cert);
+  p7.addSigner({
+    key: privateKey,
+    certificate: cert,
+    digestAlgorithm: forge.pki.oids.sha256,
+    authenticatedAttributes: [
+      { type: forge.pki.oids.contentType, value: forge.pki.oids.data },
+      { type: forge.pki.oids.messageDigest },
+      { type: forge.pki.oids.signingTime, value: new Date() },
+    ],
+  });
+  p7.sign();
+  const der = forge.asn1.toDer(p7.toAsn1()).getBytes();
+  return forge.util.encode64(der);
+};
+
+const soapRequest = (url, soapAction, body) => {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const options = {
+      hostname: parsed.hostname,
+      path: parsed.pathname,
+      method: "POST",
+      headers: {
+        "Content-Type": "text/xml; charset=utf-8",
+        "SOAPAction": soapAction,
+        "Content-Length": Buffer.byteLength(body),
+      },
+    };
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => data += chunk);
+      res.on("end", () => resolve(data));
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+};
+
+const getToken = async () => {
+  if (tokenCache.token && tokenCache.expiresAt > new Date()) return tokenCache;
+
+  const certPem = fs.readFileSync(process.env.AFIP_CERT_PATH).toString();
+  const keyPem = fs.readFileSync(process.env.AFIP_KEY_PATH).toString();
+  const tra = buildTRA("wsfe");
+  const cms = signTRA(tra, certPem, keyPem);
+  const env = getEnv();
+
+  const wsaaBody = `<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><loginCms xmlns="http://wsaa.view.sua.dvadac.desein.afip.gov"><in0>${cms}</in0></loginCms></soap:Body></soap:Envelope>`;
+  const response = await soapRequest(WSAA_URL[env], "", wsaaBody);
+
+  const tokenMatch = response.match(/<token>([\s\S]*?)<\/token>/);
+  const signMatch = response.match(/<sign>([\s\S]*?)<\/sign>/);
+  if (!tokenMatch || !signMatch) throw new Error("WSAA fallo: " + response);
+
+  tokenCache = {
+    token: tokenMatch[1].trim(),
+    sign: signMatch[1].trim(),
+    expiresAt: new Date(Date.now() + 11 * 60 * 60 * 1000),
+  };
+  return tokenCache;
+};
+
+const getLastVoucher = async (puntoVenta, cbteTipo, cuit, token, sign) => {
+  const env = getEnv();
+  const body = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ar="http://ar.gov.afip.dif.FEV1/">
+  <soap:Body><ar:FECompUltimoAutorizado>
+    <ar:Auth><ar:Token>${token}</ar:Token><ar:Sign>${sign}</ar:Sign><ar:Cuit>${cuit}</ar:Cuit></ar:Auth>
+    <ar:PtoVta>${puntoVenta}</ar:PtoVta>
+    <ar:CbteTipo>${cbteTipo}</ar:CbteTipo>
+  </ar:FECompUltimoAutorizado></soap:Body>
+</soap:Envelope>`;
+  const response = await soapRequest(WSFE_URL[env], "http://ar.gov.afip.dif.FEV1/FECompUltimoAutorizado", body);
+  const match = response.match(/<CbteNro>(\d+)<\/CbteNro>/);
+  return match ? parseInt(match[1]) : 0;
+};
+
 const getInvoiceConfig = (ivaCondition, cuit) => {
   const config = INVOICE_TYPES[ivaCondition] || INVOICE_TYPES.CONSUMIDOR_FINAL;
   return {
@@ -72,20 +135,19 @@ const getInvoiceConfig = (ivaCondition, cuit) => {
   };
 };
 
-/**
- * Emite una factura electrónica en AFIP para un pago de alumno.
- * @param {number} paymentId - ID del pago en la DB
- * @returns {object} { cae, caeVencimiento, invoiceNumber, invoiceType }
- */
 export const emitirFactura = async (paymentId) => {
-  const afip = getAfip();
-  if (!afip) return null;
+  const certPath = process.env.AFIP_CERT_PATH;
+  const keyPath = process.env.AFIP_KEY_PATH;
+  const cuit = process.env.AFIP_CUIT;
   const puntoVenta = parseInt(process.env.AFIP_PUNTO_VENTA || "1");
 
-  const paymentDb = await payment.findByPk(paymentId, {
-    include: [{ model: student }],
-  });
+  if (!certPath || !keyPath || !cuit) return null;
+  if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
+    console.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
+    return null;
+  }
 
+  const paymentDb = await payment.findByPk(paymentId, { include: [{ model: student }] });
   if (!paymentDb) throw new Error(`Pago ${paymentId} no encontrado`);
 
   const alumno = paymentDb.student;
@@ -96,59 +158,53 @@ export const emitirFactura = async (paymentId) => {
   const descuento = parseFloat(paymentDb.discount) || 0;
   const total = parseFloat((valor - (valor * descuento) / 100).toFixed(2));
 
-  const ultimoComprobante = await afip.ElectronicBilling.getLastVoucher(puntoVenta, cbteTipo);
-  const nroComprobante = ultimoComprobante + 1;
+  const { token, sign } = await getToken();
+  const nroComprobante = (await getLastVoucher(puntoVenta, cbteTipo, cuit, token, sign)) + 1;
 
   const hoy = new Date();
   const fechaCbte = `${hoy.getFullYear()}${String(hoy.getMonth() + 1).padStart(2, "0")}${String(hoy.getDate()).padStart(2, "0")}`;
 
-  const data = {
-    CantReg: 1,
-    PtoVta: puntoVenta,
-    CbteTipo: cbteTipo,
-    Concepto: 2,
-    DocTipo: docTipo,
-    DocNro: docNro,
-    CbteDesde: nroComprobante,
-    CbteHasta: nroComprobante,
-    CbteFch: parseInt(fechaCbte),
-    ImpTotal: total,
-    ImpTotConc: 0,
-    ImpNeto: total,
-    ImpOpEx: 0,
-    ImpIVA: 0,
-    ImpTrib: 0,
-    MonId: "PES",
-    MonCotiz: 1,
-  };
+  const wsfeBody = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ar="http://ar.gov.afip.dif.FEV1/">
+  <soap:Body><ar:FECAESolicitar>
+    <ar:Auth><ar:Token>${token}</ar:Token><ar:Sign>${sign}</ar:Sign><ar:Cuit>${cuit}</ar:Cuit></ar:Auth>
+    <ar:FeCAEReq>
+      <ar:FeCabReq><ar:CantReg>1</ar:CantReg><ar:PtoVta>${puntoVenta}</ar:PtoVta><ar:CbteTipo>${cbteTipo}</ar:CbteTipo></ar:FeCabReq>
+      <ar:FeDetReq><ar:FECAEDetRequest>
+        <ar:Concepto>2</ar:Concepto>
+        <ar:DocTipo>${docTipo}</ar:DocTipo><ar:DocNro>${docNro}</ar:DocNro>
+        <ar:CbteDesde>${nroComprobante}</ar:CbteDesde><ar:CbteHasta>${nroComprobante}</ar:CbteHasta>
+        <ar:CbteFch>${fechaCbte}</ar:CbteFch>
+        <ar:ImpTotal>${total}</ar:ImpTotal><ar:ImpTotConc>0</ar:ImpTotConc>
+        <ar:ImpNeto>${total}</ar:ImpNeto><ar:ImpOpEx>0</ar:ImpOpEx>
+        <ar:ImpIVA>0</ar:ImpIVA><ar:ImpTrib>0</ar:ImpTrib>
+        <ar:MonId>PES</ar:MonId><ar:MonCotiz>1</ar:MonCotiz>
+      </ar:FECAEDetRequest></ar:FeDetReq>
+    </ar:FeCAEReq>
+  </ar:FECAESolicitar></soap:Body>
+</soap:Envelope>`;
 
-  const result = await afip.ElectronicBilling.createVoucher(data);
+  const response = await soapRequest(WSFE_URL[getEnv()], "http://ar.gov.afip.dif.FEV1/FECAESolicitar", wsfeBody);
 
-  const caeVencimiento = result.CAEFchVto
-    ? `${result.CAEFchVto.substring(0, 4)}-${result.CAEFchVto.substring(4, 6)}-${result.CAEFchVto.substring(6, 8)}`
-    : null;
+  const errMatch = response.match(/<Msg>([\s\S]*?)<\/Msg>/);
+  const caeMatch = response.match(/<CAE>([\s\S]*?)<\/CAE>/);
+  const caeFchMatch = response.match(/<CAEFchVto>([\s\S]*?)<\/CAEFchVto>/);
 
-  await paymentDb.update({
-    cae: result.CAE,
-    caeVencimiento,
-    invoiceNumber: nroComprobante,
-    invoiceType: label,
-  });
+  if (!caeMatch) {
+    const msg = errMatch ? errMatch[1].trim() : response;
+    throw new Error(`AFIP no devolvió CAE: ${msg}`);
+  }
 
-  console.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${result.CAE} | Pago: ${paymentId}`);
+  const cae = caeMatch[1].trim();
+  const raw = caeFchMatch ? caeFchMatch[1].trim() : null;
+  const caeVencimiento = raw ? `${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 8)}` : null;
 
-  return {
-    cae: result.CAE,
-    caeVencimiento,
-    invoiceNumber: nroComprobante,
-    invoiceType: label,
-  };
+  await paymentDb.update({ cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label });
+  console.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${cae} | Pago: ${paymentId}`);
+
+  return { cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label };
 };
 
-/**
- * Indica si un tipo de pago debe generar factura electrónica.
- * Efectivo y PayPal quedan excluidos.
- */
 export const requiresInvoice = (paymentType) => {
   const INVOICEABLE = ["Mercado pago", "Transferencia", "Tarjeta de credito", "Débito de cuenta", "Débito de tarjeta"];
   return INVOICEABLE.includes(paymentType);
