@@ -31,11 +31,13 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
   const [cuit, setCuit] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [emittedData, setEmittedData] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const searchTimeout = useRef(null);
 
   useEffect(() => {
     if (isOpen && payment) {
+      setEmittedData(null);
       const student = payment.student;
       if (student) {
         setSelectedStudent(student);
@@ -87,14 +89,14 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
     setError(null);
     setIsLoading(true);
     try {
-      await paymentsService.emitirFactura(payment.id, {
+      const result = await paymentsService.emitirFactura(payment.id, {
         studentId: selectedStudent.id,
         ivaCondition: ivaCondition || null,
         cuit: cuit || null,
       });
-      changeAlertStatusAndMessage(true, 'success', '✅ Factura AFIP emitida correctamente.');
+      changeAlertStatusAndMessage(true, 'success', 'Factura AFIP emitida correctamente.');
+      setEmittedData(result);
       if (typeof onSuccess === 'function') onSuccess();
-      onClose();
     } catch (e) {
       const msg = e?.response?.data?.message || e?.message || 'Error al emitir la factura.';
       setError(msg);
@@ -103,7 +105,8 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const alreadyHasInvoice = !!payment?.cae;
+  const alreadyHasInvoice = !!emittedData || !!payment?.cae;
+  const invoiceDisplay = emittedData || payment;
   const missingFiscalData = selectedStudent && (!selectedStudent.ivaCondition || !selectedStudent.cuit);
 
   return (
@@ -124,14 +127,14 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
       onClick={alreadyHasInvoice ? () => paymentsService.downloadInvoicePDF(payment.id) : handleSubmit}
       buttonDisabled={!alreadyHasInvoice && isLoading}
     >
-      {payment && alreadyHasInvoice && (
+      {alreadyHasInvoice && (
         <div className="flex flex-col gap-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="font-semibold text-green-800 mb-1">{payment.invoiceType} N° {payment.invoiceNumber}</p>
-            <p className="text-sm text-green-700">CAE: <span className="font-mono">{payment.cae}</span></p>
-            {payment.caeVencimiento && <p className="text-xs text-gray-500 mt-1">Vto. CAE: {payment.caeVencimiento}</p>}
+            <p className="font-semibold text-green-800 mb-1">{invoiceDisplay.invoiceType} N° {invoiceDisplay.invoiceNumber}</p>
+            <p className="text-sm text-green-700">CAE: <span className="font-mono">{invoiceDisplay.cae}</span></p>
+            {invoiceDisplay.caeVencimiento && <p className="text-xs text-gray-500 mt-1">Vto. CAE: {invoiceDisplay.caeVencimiento}</p>}
           </div>
-          <p className="text-sm text-gray-500">Este pago ya tiene una factura emitida. Podés descargar el PDF.</p>
+          <p className="text-sm text-gray-500">Podés descargar el PDF del comprobante.</p>
         </div>
       )}
       {payment && !alreadyHasInvoice && (

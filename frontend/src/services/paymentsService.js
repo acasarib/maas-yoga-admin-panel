@@ -103,8 +103,23 @@ export default {
         }).pipe(share());
     },
     downloadInvoicePDF(paymentId) {
-        const baseUrl = process.env.REACT_APP_BACKEND_HOST;
-        window.open(baseUrl + `api/v1/payments/${paymentId}/invoice/pdf`, '_blank');
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/payments/${paymentId}/invoice/pdf`, { responseType: 'blob' })
+                .then((response) => {
+                    const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `factura-${paymentId}.pdf`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    URL.revokeObjectURL(url);
+                    resolve();
+                })
+                .catch((error) => reject(error));
+        });
     },
     emitirFactura(paymentId, data) {
         return new Promise((resolve, reject) => {

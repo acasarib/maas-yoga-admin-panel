@@ -17,6 +17,8 @@ import DownloadButton from "../button/downloadButton";
 import InvoiceButton from "../button/invoiceButton";
 import EmitirFacturaModal from "../modal/emitirFacturaModal";
 
+const INVOICEABLE_TYPES = ["Mercado pago", "Transferencia", "Tarjeta de credito", "Débito de cuenta", "Débito de tarjeta"];
+
 export default function PaymentsTable({ tableFooter, summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, showInvoiceButton = false,
     onClickVerifyPayment, onSwitchDischarges = () => console.log("no implementado"), onSwitchIncomes = () => console.log("no implementado") }) {
@@ -285,7 +287,10 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
                         {editMode && (<EditButton onClick={() => openEditModal(row)}/>)
                         }
                         {showInvoiceButton && (
-                            <InvoiceButton onClick={() => { setPayment(row); invoiceModal.open(); }} />
+                            <InvoiceButton
+                                className={INVOICEABLE_TYPES.includes(row.type) && (row.studentId || row.student?.id) ? '' : 'invisible pointer-events-none'}
+                                onClick={() => { setPayment(row); invoiceModal.open(); }}
+                            />
                         )}
                     </div></>),
                 sortable: true,

@@ -81,10 +81,17 @@ export default {
       const impNeto = esResponsable ? parseFloat((total / 1.21).toFixed(2)) : 0;
       const impIVA = esResponsable ? parseFloat((total - impNeto).toFixed(2)) : 0;
 
+      const IVA_TO_TIPO_CMP = { RESPONSABLE_INSCRIPTO: 1 };
+      const IVA_TO_DOC_TIPO = { CONSUMIDOR_FINAL: 99 };
+      const ivaKey = alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
+      const tipoCmp = IVA_TO_TIPO_CMP[ivaKey] || 6;
+      const tipoDocRec = IVA_TO_DOC_TIPO[ivaKey] || 80;
+
       const itemDesc = paymentDb.item?.category?.name || paymentDb.item?.name || paymentDb.note || 'Servicio';
       const pad = (n) => String(n).padStart(2, '0');
       const d = new Date(paymentDb.at);
       const fechaCbte = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const fechaIso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
       const caeVenc = paymentDb.caeVencimiento
         ? (() => { const p = paymentDb.caeVencimiento.toString().split('-'); return `${p[2]}/${p[1]}/${p[0]}`; })()
         : '';
@@ -93,16 +100,18 @@ export default {
         invoiceType: paymentDb.invoiceType,
         invoiceNumber: paymentDb.invoiceNumber,
         puntoVenta: parseInt(process.env.AFIP_PUNTO_VENTA || '1'),
-        fechaCbte,
+        fechaCbte, fechaIso,
         emisorCuit: process.env.AFIP_CUIT,
         emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
         receptorNombre: alumno ? `${alumno.name} ${alumno.lastName}` : '',
         receptorCuit: alumno?.cuit || '',
-        receptorIva: alumno?.ivaCondition || 'CONSUMIDOR FINAL',
+        receptorIva: ivaKey,
         descripcion: itemDesc,
         total, impNeto, impIVA, esResponsable,
         cae: paymentDb.cae,
         caeVencimiento: caeVenc,
+        tipoCmp, tipoDocRec,
+        nroDocRec: (alumno?.cuit || '').replace(/-/g, ''),
       });
 
       res.setHeader('Content-Type', 'application/pdf');
@@ -255,7 +264,7 @@ export default {
       const { q, page, size } = req.query;
       const querySpecification = q;
       const isOrOperation = req.query.isOrOperation === "true";
-      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const specification = new Specification(querySpecification, paymentModel, isOrOperation);
       const payments = await paymentService.getAll(page, size, specification);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
@@ -272,7 +281,7 @@ export default {
       const { q, page, size, all } = req.query;
       const querySpecification = q;
       const isOrOperation = req.query.isOrOperation === "true";
-      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const specification = new Specification(querySpecification, paymentModel, isOrOperation);
       const payments = await paymentService.getAllVerified(page, size, specification, all);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
@@ -289,7 +298,7 @@ export default {
       const { q, page, size, all } = req.query;
       const querySpecification = q;
       const isOrOperation = req.query.isOrOperation === "true";
-      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const specification = new Specification(querySpecification, paymentModel, isOrOperation);
       const payments = await paymentService.getAllUnverified(page, size, specification, all);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
@@ -306,7 +315,7 @@ export default {
     try {
       const querySpecification = req.query.q;
       const isOrOperation = req.query.isOrOperation === "true";
-      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const specification = new Specification(querySpecification, paymentModel, isOrOperation);
       const payments = await paymentService.legacyGetAll(specification);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
@@ -323,7 +332,7 @@ export default {
     try {
       const querySpecification = req.query.q;
       const isOrOperation = req.query.isOrOperation === "true";
-      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const specification = new Specification(querySpecification, paymentModel, isOrOperation);
       const payments = await paymentService.getForChart(specification);
       res.status(StatusCodes.OK).json(payments);
     } catch (e) {
@@ -671,7 +680,7 @@ export default {
     try {
       const querySpecification = req.query.q;
       const isOrOperation = req.query.isOrOperation === "true";
-      const specification = new Specification(querySpecification, payment, isOrOperation);
+      const specification = new Specification(querySpecification, paymentModel, isOrOperation);
       const excelBuffer = await paymentService.exportPaymentsByCategory(specification);
       
       const now = new Date();

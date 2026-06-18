@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -101,107 +102,170 @@ export async function fillPaymentReceiptPDF(fields) {
 }
 
 /**
- * Genera un PDF de factura AFIP desde cero con los datos del pago.
+ * Genera un PDF de factura AFIP con layout oficial (RG 4291/2018) + QR reglamentario.
  * @param {Object} data
  * @returns {Promise<Buffer>}
  */
 export async function generateAfipInvoicePDF(data) {
   const {
-    invoiceType, invoiceNumber, puntoVenta, fechaCbte,
+    invoiceType, invoiceNumber, puntoVenta, fechaCbte, fechaIso,
     emisorCuit, emisorNombre,
     receptorNombre, receptorCuit, receptorIva,
-    descripcion, total, impNeto, impIVA, impOpEx,
-    cae, caeVencimiento, esResponsable,
+    descripcion, total, impNeto, impIVA, esResponsable,
+    cae, caeVencimiento,
+    tipoCmp, tipoDocRec, nroDocRec,
   } = data;
 
+  // --- QR AFIP (RG 4291) ---
+  const cuitNum = parseInt((emisorCuit || '').replace(/-/g, '')) || 0;
+  const docRecNum = parseInt((receptorCuit || '').replace(/-/g, '')) || 0;
+  const qrPayload = {
+    ver: 1, fecha: fechaIso || '', cuit: cuitNum,
+    ptoVta: puntoVenta || 1, tipoCmp: tipoCmp || 6,
+    nroCmp: invoiceNumber || 0, importe: total || 0,
+    moneda: 'PES', ctz: 1,
+    tipoDocRec: tipoDocRec || 99, nroDocRec: docRecNum,
+    tipoCodAut: 'E', codAut: parseInt(cae) || 0,
+  };
+  const qrUrl = `https://www.afip.gob.ar/fe/qr/?p=${Buffer.from(JSON.stringify(qrPayload)).toString('base64')}`;
+  const qrPngBuffer = await QRCode.toBuffer(qrUrl, { type: 'png', width: 130, margin: 1 });
+
+  // --- PDF setup ---
   const pdfDoc = await PDFDocument.create();
   const fontReg = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const page = pdfDoc.addPage([595, 842]); // A4
+  const page = pdfDoc.addPage([595, 842]);
+  const qrImage = await pdfDoc.embedPng(qrPngBuffer);
 
-  const W = 595;
-  const gray = rgb(0.85, 0.85, 0.85);
-  const dark = rgb(0.15, 0.15, 0.15);
   const black = rgb(0, 0, 0);
   const white = rgb(1, 1, 1);
-  const green = rgb(0.1, 0.55, 0.1);
+  const gray = rgb(0.85, 0.85, 0.85);
+  const lightGray = rgb(0.96, 0.96, 0.96);
+  const dark = rgb(0.1, 0.1, 0.1);
 
-  const fmt = (n) => {
-    if (n == null) return '';
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(n);
-  };
+  const L = 30;  // left margin
+  const R = 565; // right edge
+  const W = 535; // content width
 
-  const invoiceLetter = invoiceType?.includes('A') ? 'A' : 'B';
-  const nroFormatted = `${String(puntoVenta || 1).padStart(4, '0')}-${String(invoiceNumber || 0).padStart(8, '0')}`;
+  const fmt = (n) => n != null
+    ? new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(n)
+    : '';
 
-  // === HEADER ===
-  // Left box (emisor)
-  page.drawRectangle({ x: 30, y: 760, width: 220, height: 70, color: gray });
-  page.drawText(emisorNombre || 'Emisor', { x: 38, y: 805, size: 11, font: fontBold, color: dark });
-  page.drawText(`CUIT: ${emisorCuit || ''}`, { x: 38, y: 788, size: 9, font: fontReg, color: dark });
-  page.drawText(`Pto. Venta: ${String(puntoVenta || 1).padStart(4, '0')}`, { x: 38, y: 773, size: 9, font: fontReg, color: dark });
+  const invoiceLetter = (invoiceType || '').includes('A') ? 'A' : 'B';
+  const nroFmt = `${String(puntoVenta || 1).padStart(4, '0')}-${String(invoiceNumber || 0).padStart(8, '0')}`;
+  const tipoCmpFmt = String(tipoCmp || 6).padStart(2, '0');
 
-  // Center box (invoice letter)
-  page.drawRectangle({ x: 250, y: 760, width: 95, height: 70, borderColor: black, borderWidth: 2, color: white });
-  page.drawText(invoiceLetter, { x: 280, y: 780, size: 36, font: fontBold, color: dark });
-  page.drawText('FACTURA', { x: 256, y: 765, size: 8, font: fontBold, color: dark });
+  // ================================================================
+  // HEADER – 3 columns
+  // ================================================================
+  const hY = 755;  // bottom of header box
+  const hH = 90;   // header height
+  const lW = 220;  // left col width
+  const cW = 55;   // center col width
+  const rW = W - lW - cW; // right col width = 260
 
-  // Right box (invoice data)
-  page.drawRectangle({ x: 345, y: 760, width: 220, height: 70, color: gray });
-  page.drawText(`FACTURA ${invoiceLetter}`, { x: 353, y: 813, size: 11, font: fontBold, color: dark });
-  page.drawText(`N°: ${nroFormatted}`, { x: 353, y: 797, size: 9, font: fontReg, color: dark });
-  page.drawText(`Fecha: ${fechaCbte || ''}`, { x: 353, y: 782, size: 9, font: fontReg, color: dark });
-  page.drawText(`ORIGINAL`, { x: 353, y: 767, size: 8, font: fontBold, color: dark });
+  // Left column (emitter)
+  page.drawRectangle({ x: L, y: hY, width: lW, height: hH, borderColor: black, borderWidth: 0.5, color: white });
+  page.drawText('Razon Social:', { x: L+5, y: hY+hH-14, size: 8, font: fontBold, color: dark });
+  const nombre = (emisorNombre || 'Emisor').substring(0, 30);
+  page.drawText(nombre, { x: L+5, y: hY+hH-26, size: 9, font: fontBold, color: dark });
+  page.drawText('Condicion IVA Emisor:', { x: L+5, y: hY+hH-40, size: 7, font: fontReg, color: dark });
+  page.drawText(esResponsable ? 'Responsable Inscripto' : 'Monotributista', { x: L+5, y: hY+hH-51, size: 8, font: fontReg, color: dark });
+  page.drawText(`CUIT: ${emisorCuit || ''}`, { x: L+5, y: hY+hH-65, size: 8, font: fontReg, color: dark });
+  page.drawText(`Pto. Venta: ${String(puntoVenta||1).padStart(4,'0')}`, { x: L+5, y: hY+hH-77, size: 8, font: fontReg, color: dark });
 
-  // === RECEPTOR ===
-  page.drawRectangle({ x: 30, y: 700, width: 535, height: 50, color: rgb(0.97, 0.97, 0.97) });
-  page.drawText('DATOS DEL RECEPTOR', { x: 38, y: 736, size: 9, font: fontBold, color: dark });
-  page.drawText(`Nombre / Razón Social: ${receptorNombre || ''}`, { x: 38, y: 722, size: 9, font: fontReg, color: dark });
-  page.drawText(`CUIL / CUIT: ${receptorCuit || 'Sin datos'}`, { x: 38, y: 710, size: 9, font: fontReg, color: dark });
-  page.drawText(`Condición IVA: ${(receptorIva || '').replace(/_/g, ' ')}`, { x: 290, y: 710, size: 9, font: fontReg, color: dark });
+  // Center column (letter)
+  const cX = L + lW;
+  page.drawRectangle({ x: cX, y: hY, width: cW, height: hH, borderColor: black, borderWidth: 1.5, color: white });
+  page.drawText(`COD. ${tipoCmpFmt}`, { x: cX+5, y: hY+hH-12, size: 7, font: fontBold, color: dark });
+  page.drawText(invoiceLetter, { x: cX+13, y: hY+28, size: 38, font: fontBold, color: black });
 
-  // === ITEMS TABLE HEADER ===
-  page.drawRectangle({ x: 30, y: 665, width: 535, height: 22, color: dark });
-  page.drawText('DESCRIPCIÓN', { x: 38, y: 671, size: 9, font: fontBold, color: white });
-  page.drawText('IMPORTE', { x: 490, y: 671, size: 9, font: fontBold, color: white });
+  // Right column (invoice data)
+  const rX = cX + cW;
+  page.drawRectangle({ x: rX, y: hY, width: rW, height: hH, borderColor: black, borderWidth: 0.5, color: white });
+  page.drawText('ORIGINAL', { x: rX + rW/2 - 22, y: hY+hH-14, size: 9, font: fontBold, color: dark });
+  page.drawText(`FACTURA`, { x: rX+5, y: hY+hH-30, size: 9, font: fontBold, color: dark });
+  page.drawText(`Nro: ${nroFmt}`, { x: rX+5, y: hY+hH-44, size: 9, font: fontReg, color: dark });
+  page.drawText(`Fecha de emision: ${fechaCbte || ''}`, { x: rX+5, y: hY+hH-58, size: 8, font: fontReg, color: dark });
+  page.drawText(`CUIT: ${emisorCuit || ''}`, { x: rX+5, y: hY+hH-72, size: 8, font: fontReg, color: dark });
 
-  // === ITEM ROW ===
-  page.drawRectangle({ x: 30, y: 620, width: 535, height: 44, borderColor: gray, borderWidth: 1, color: white });
-  const descText = (descripcion || 'Servicio').substring(0, 65);
-  page.drawText(descText, { x: 38, y: 644, size: 9, font: fontReg, color: dark });
-  page.drawText(fmt(total), { x: 480, y: 644, size: 9, font: fontReg, color: dark });
+  // ================================================================
+  // RECEPTOR
+  // ================================================================
+  const recY = hY - 55;
+  page.drawRectangle({ x: L, y: recY, width: W, height: 52, borderColor: black, borderWidth: 0.5, color: lightGray });
+  page.drawText('Apellido y Nombre / Razon Social:', { x: L+5, y: recY+38, size: 8, font: fontBold, color: dark });
+  page.drawText((receptorNombre || '').substring(0, 50), { x: L+5, y: recY+26, size: 9, font: fontReg, color: dark });
+  page.drawText(`CUIL/CUIT: ${receptorCuit || 'Sin datos'}`, { x: L+5, y: recY+13, size: 8, font: fontReg, color: dark });
+  page.drawText(`Condicion IVA: ${(receptorIva || '').replace(/_/g, ' ')}`, { x: L+195, y: recY+13, size: 8, font: fontReg, color: dark });
 
-  // === TOTALS ===
-  let yTotals = 600;
+  // ================================================================
+  // ITEMS TABLE
+  // ================================================================
+  const tblHdrY = recY - 24;
+  page.drawRectangle({ x: L, y: tblHdrY, width: W, height: 20, color: dark });
+  page.drawText('Cant.', { x: L+5, y: tblHdrY+6, size: 8, font: fontBold, color: white });
+  page.drawText('Descripcion / Concepto', { x: L+45, y: tblHdrY+6, size: 8, font: fontBold, color: white });
+  page.drawText('Precio Unit.', { x: L+355, y: tblHdrY+6, size: 8, font: fontBold, color: white });
+  page.drawText('Importe', { x: L+460, y: tblHdrY+6, size: 8, font: fontBold, color: white });
+
+  // Item row
+  const itemY = tblHdrY - 24;
+  page.drawRectangle({ x: L, y: itemY, width: W, height: 22, borderColor: gray, borderWidth: 0.5, color: white });
+  page.drawText('1', { x: L+10, y: itemY+7, size: 9, font: fontReg, color: dark });
+  const descTxt = (descripcion || 'Servicio').substring(0, 48);
+  page.drawText(descTxt, { x: L+45, y: itemY+7, size: 9, font: fontReg, color: dark });
+  page.drawText(fmt(esResponsable ? impNeto : total), { x: L+355, y: itemY+7, size: 9, font: fontReg, color: dark });
+  page.drawText(fmt(esResponsable ? impNeto : total), { x: L+460, y: itemY+7, size: 9, font: fontReg, color: dark });
+
+  // ================================================================
+  // TOTALS
+  // ================================================================
+  let yT = itemY - 10;
 
   if (esResponsable) {
-    page.drawLine({ start: { x: 380, y: yTotals }, end: { x: 565, y: yTotals }, thickness: 0.5, color: gray });
-    yTotals -= 16;
-    page.drawText('Neto gravado:', { x: 390, y: yTotals, size: 9, font: fontReg, color: dark });
-    page.drawText(fmt(impNeto), { x: 490, y: yTotals, size: 9, font: fontReg, color: dark });
-    yTotals -= 16;
-    page.drawText('IVA 21%:', { x: 390, y: yTotals, size: 9, font: fontReg, color: dark });
-    page.drawText(fmt(impIVA), { x: 490, y: yTotals, size: 9, font: fontReg, color: dark });
-    yTotals -= 4;
-    page.drawLine({ start: { x: 380, y: yTotals }, end: { x: 565, y: yTotals }, thickness: 0.5, color: gray });
-    yTotals -= 4;
+    page.drawLine({ start: {x: L+330, y: yT}, end: {x: R, y: yT}, thickness: 0.3, color: gray });
+    yT -= 16;
+    page.drawText('Importe neto gravado:', { x: L+330, y: yT, size: 8, font: fontReg, color: dark });
+    page.drawText(fmt(impNeto), { x: L+460, y: yT, size: 8, font: fontReg, color: dark });
+    yT -= 14;
+    page.drawText('IVA 21%:', { x: L+330, y: yT, size: 8, font: fontReg, color: dark });
+    page.drawText(fmt(impIVA), { x: L+460, y: yT, size: 8, font: fontReg, color: dark });
+    yT -= 4;
+    page.drawLine({ start: {x: L+330, y: yT}, end: {x: R, y: yT}, thickness: 0.3, color: gray });
+    yT -= 4;
   }
 
-  // Total box
-  page.drawRectangle({ x: 380, y: yTotals - 24, width: 185, height: 24, color: dark });
-  page.drawText('TOTAL:', { x: 390, y: yTotals - 16, size: 10, font: fontBold, color: white });
-  page.drawText(fmt(total), { x: 480, y: yTotals - 16, size: 10, font: fontBold, color: white });
+  // Total row
+  page.drawRectangle({ x: L+330, y: yT-22, width: W-330, height: 22, color: dark });
+  page.drawText('IMPORTE TOTAL:', { x: L+338, y: yT-14, size: 9, font: fontBold, color: white });
+  page.drawText(fmt(total), { x: L+460, y: yT-14, size: 9, font: fontBold, color: white });
 
-  // === CAE BOX ===
-  page.drawRectangle({ x: 30, y: 480, width: 535, height: 60, borderColor: green, borderWidth: 1.5, color: rgb(0.94, 0.99, 0.94) });
-  page.drawText('DATOS DE VALIDACIÓN AFIP', { x: 38, y: 526, size: 9, font: fontBold, color: green });
-  page.drawText(`CAE: ${cae || ''}`, { x: 38, y: 510, size: 11, font: fontBold, color: dark });
-  page.drawText(`Vencimiento CAE: ${caeVencimiento || ''}`, { x: 38, y: 494, size: 9, font: fontReg, color: dark });
+  // ================================================================
+  // QR + CAE (bottom section)
+  // ================================================================
+  const qrSecY = 55;
+  const qrSecH = 110;
+  page.drawRectangle({ x: L, y: qrSecY, width: W, height: qrSecH, borderColor: black, borderWidth: 0.5, color: white });
 
-  // === FOOTER ===
-  page.drawLine({ start: { x: 30, y: 460 }, end: { x: 565, y: 460 }, thickness: 0.5, color: gray });
-  page.drawText('Comprobante generado electrónicamente. Válido como factura ante AFIP.', {
-    x: 100, y: 445, size: 8, font: fontReg, color: rgb(0.5, 0.5, 0.5)
+  // QR image (left side)
+  const qrSize = 90;
+  page.drawImage(qrImage, { x: L+8, y: qrSecY+10, width: qrSize, height: qrSize });
+
+  // Vertical separator
+  page.drawLine({ start: {x: L+108, y: qrSecY+5}, end: {x: L+108, y: qrSecY+qrSecH-5}, thickness: 0.5, color: gray });
+
+  // CAE data (right of QR)
+  const caeX = L+116;
+  page.drawText('Comprobante Electronico - Resolucion General N 4291/2018', { x: caeX, y: qrSecY+qrSecH-16, size: 7, font: fontReg, color: dark });
+  page.drawText(`CAE N: ${cae || ''}`, { x: caeX, y: qrSecY+78, size: 10, font: fontBold, color: dark });
+  page.drawText(`Fecha de Vto. del CAE: ${caeVencimiento || ''}`, { x: caeX, y: qrSecY+60, size: 9, font: fontReg, color: dark });
+  page.drawLine({ start: {x: caeX, y: qrSecY+52}, end: {x: R-5, y: qrSecY+52}, thickness: 0.3, color: gray });
+  page.drawText('Verifique este comprobante en www.afip.gob.ar/fe/qr', { x: caeX, y: qrSecY+38, size: 8, font: fontReg, color: rgb(0.3,0.3,0.3) });
+
+  // Footer
+  page.drawText('Comprobante generado electronicamente. Valido ante AFIP.', {
+    x: L + W/2 - 130, y: 42, size: 7, font: fontReg, color: rgb(0.5, 0.5, 0.5)
   });
 
   return await pdfDoc.save();
