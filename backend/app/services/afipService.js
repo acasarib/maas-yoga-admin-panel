@@ -8,9 +8,11 @@
  *   6 → Factura B (Consumidor Final)
  */
 
-import forge from "node-forge";
+import { execSync } from "child_process";
 import https from "https";
 import fs from "fs";
+import os from "os";
+import path from "path";
 import { student, payment } from "../db/index.js";
 
 const WSAA_URL = {
@@ -41,25 +43,18 @@ const buildTRA = (service) => {
   return `<?xml version="1.0" encoding="UTF-8"?><loginTicketRequest version="1.0"><header><uniqueId>${uniqueId}</uniqueId><generationTime>${fmt(gen)}</generationTime><expirationTime>${fmt(exp)}</expirationTime></header><service>${service}</service></loginTicketRequest>`;
 };
 
-const signTRA = (tra, certPem, keyPem) => {
-  const cert = forge.pki.certificateFromPem(certPem);
-  const privateKey = forge.pki.privateKeyFromPem(keyPem);
-  const p7 = forge.pkcs7.createSignedData();
-  p7.content = forge.util.createBuffer(tra, "utf8");
-  p7.addCertificate(cert);
-  p7.addSigner({
-    key: privateKey,
-    certificate: cert,
-    digestAlgorithm: forge.pki.oids.sha256,
-    authenticatedAttributes: [
-      { type: forge.pki.oids.contentType, value: forge.pki.oids.data },
-      { type: forge.pki.oids.messageDigest },
-      { type: forge.pki.oids.signingTime, value: new Date() },
-    ],
-  });
-  p7.sign();
-  const der = forge.asn1.toDer(p7.toAsn1()).getBytes();
-  return forge.util.encode64(der);
+const signTRA = (tra, certPath, keyPath) => {
+  const tmpFile = path.join(os.tmpdir(), `afip_tra_${Date.now()}.xml`);
+  try {
+    fs.writeFileSync(tmpFile, tra);
+    const cms = execSync(
+      `openssl cms -sign -in "${tmpFile}" -signer "${certPath}" -inkey "${keyPath}" -nodetach -outform DER | openssl base64 -A`,
+      { timeout: 10000 }
+    ).toString().trim();
+    return cms;
+  } finally {
+    try { fs.unlinkSync(tmpFile); } catch {}
+  }
 };
 
 const soapRequest = (url, soapAction, body) => {
@@ -89,10 +84,8 @@ const soapRequest = (url, soapAction, body) => {
 const getToken = async () => {
   if (tokenCache.token && tokenCache.expiresAt > new Date()) return tokenCache;
 
-  const certPem = fs.readFileSync(process.env.AFIP_CERT_PATH).toString();
-  const keyPem = fs.readFileSync(process.env.AFIP_KEY_PATH).toString();
   const tra = buildTRA("wsfe");
-  const cms = signTRA(tra, certPem, keyPem);
+  const cms = signTRA(tra, process.env.AFIP_CERT_PATH, process.env.AFIP_KEY_PATH);
   const env = getEnv();
 
   const wsaaBody = `<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><loginCms xmlns="http://wsaa.view.sua.dvadac.desein.afip.gov"><in0>${cms}</in0></loginCms></soap:Body></soap:Envelope>`;
