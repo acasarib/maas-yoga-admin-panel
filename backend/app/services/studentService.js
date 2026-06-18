@@ -214,6 +214,19 @@ export const getAllLegacy = async () => {
   return student.findAll();
 };
 
+export const searchByName = async (q = '') => {
+  return student.findAll({
+    where: {
+      [Op.or]: [
+        { name: { [Op.iLike]: `%${q}%` } },
+        { lastName: { [Op.iLike]: `%${q}%` } },
+      ],
+    },
+    limit: 10,
+    attributes: ['id', 'name', 'lastName', 'ivaCondition', 'cuit', 'email'],
+  });
+};
+
 export const getAll = async (page = 1, size = 10, specification) => {
   const whereSpec = specification.getSequelizeSpecification();
   if (whereSpec[Op.or] != undefined && whereSpec[Op.or].name != undefined && whereSpec[Op.or].lastName != undefined) {

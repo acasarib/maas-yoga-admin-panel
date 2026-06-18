@@ -17,6 +17,7 @@ router.get("/courses/:courseId", verifyToken, controller.getAllByCourseId);
 router.put("/:id", verifyToken, controller.updatePayment);
 router.put("/:id/verified", verifyToken, controller.changeVerified);
 router.post("/:id/split", verifyToken, controller.splitPayment);
+router.post("/:id/invoice", verifyToken, controller.emitirFactura);
 router.get("/chart", verifyToken, controller.getForChart);
 router.get("/legacy", verifyToken, controller.legacyGetAll);
 router.get("/", verifyToken, controller.getAll);

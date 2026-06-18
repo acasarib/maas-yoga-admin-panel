@@ -130,6 +130,15 @@ export default {
    * /students/courses/{courseId} [GET]
    * @returns HttpStatus ok and array of @Student
    */
+  search: async (req, res, next) => {
+    try {
+      const students = await studentService.searchByName(req.query.q || '');
+      res.status(StatusCodes.OK).json(students);
+    } catch (e) {
+      next(e);
+    }
+  },
+
   getStudentsByCourse: async (req, res, next) => {
     try {
       const students = await studentService.getStudentsByCourse(req.params.courseId);

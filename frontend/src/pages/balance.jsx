@@ -440,7 +440,7 @@ export default function Balance(props) {
                                 Exportar
                             </ButtonPrimary>
                         </div>
-                        <PaymentsTable editMode={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
+                        <PaymentsTable editMode={true} showInvoiceButton={true} dateField={chartByCreatedAt ? "createdAt" : (chartByOpResult ? 'operativeResult' : "at")} className="mt-4" onDelete={handleOnDeletePayment} editPayment={(payment) => openEditPayment(payment)} payments={payments} isLoading={isLoadingPayments.value}/>
                     </>
                 )}
 

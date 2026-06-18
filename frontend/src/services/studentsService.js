@@ -204,6 +204,15 @@ export default {
                 })
         });
     },
+    searchStudents(q) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/students/search?q=${encodeURIComponent(q || '')}`)
+                .then((response) => resolve(response.data))
+                .catch((error) => reject(error));
+        });
+    },
     deleteStudent(studentId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

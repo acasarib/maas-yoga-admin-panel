@@ -14,14 +14,17 @@ import EditButton from "../button/editButton";
 import VerifyButton from "../button/verifyButton";
 import NoDataComponent from "../table/noDataComponent";
 import DownloadButton from "../button/downloadButton";
+import InvoiceButton from "../button/invoiceButton";
+import EmitirFacturaModal from "../modal/emitirFacturaModal";
 
 export default function PaymentsTable({ tableFooter, summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
-    payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, 
+    payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, showInvoiceButton = false,
     onClickVerifyPayment, onSwitchDischarges = () => console.log("no implementado"), onSwitchIncomes = () => console.log("no implementado") }) {
     const { user, changeAlertStatusAndMessage, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const verifyPaymentModal = useModal()
     const deletePaymentModal = useModal()
+    const invoiceModal = useModal()
     const [showDischarges, setShowDischarges] = useState(false);
     const [showIncomes, setShowIncomes] = useState(false);
     const [filteredPayments, setFilteredPayments] = useState([]);
@@ -281,6 +284,9 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
                         }
                         {editMode && (<EditButton onClick={() => openEditModal(row)}/>)
                         }
+                        {showInvoiceButton && (
+                            <InvoiceButton onClick={() => { setPayment(row); invoiceModal.open(); }} />
+                        )}
                     </div></>),
                 sortable: true,
             },
@@ -393,6 +399,7 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
             <TableSummary total={summary != null ? summary.total : tableSummary.total} incomes={summary != null ? summary.incomes : tableSummary.incomes} expenses={summary != null ? summary.expenses : tableSummary.expenses}/>
             <DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
             <VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
+            <EmitirFacturaModal payment={payment} isOpen={invoiceModal.isOpen} onClose={invoiceModal.close} />
         </>
     );
 } 

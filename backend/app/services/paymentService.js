@@ -7,7 +7,6 @@ import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
 import { fillPaymentReceiptPDF } from "../utils/pdfUtils.js";
 import ExcelJS from "exceljs";
-import { emitirFactura, requiresInvoice } from "./afipService.js";
 
 const defaultPaymentInclude = [
   { model: professor, attributes: ["name", "lastName"]},
@@ -73,13 +72,6 @@ export const create = async (paymentParam, informerId, sendEmail = false) => {
         await sendReceiptByEmail(createdPayment.id);
       } catch (error) {
         console.error(`Error enviando recibo por email para pago ${createdPayment.id}:`, error);
-      }
-    }
-    if (requiresInvoice(createdPayment.type)) {
-      try {
-        await emitirFactura(createdPayment.id);
-      } catch (error) {
-        console.error(`Error emitiendo factura AFIP para pago ${createdPayment.id}:`, error);
       }
     }
   }

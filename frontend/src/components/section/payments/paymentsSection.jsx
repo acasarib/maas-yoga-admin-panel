@@ -516,6 +516,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 }}
                 summary={tableSummary}
                 editMode={true}
+                showInvoiceButton={true}
                 editPayment={(payment) => openEditPayment(payment)}
                 payments={pageablePayments}
                 isLoading={isLoading}

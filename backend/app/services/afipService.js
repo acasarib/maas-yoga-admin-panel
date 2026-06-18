@@ -26,8 +26,10 @@ const WSFE_URL = {
 };
 
 const INVOICE_TYPES = {
-  CONSUMIDOR_FINAL: { cbte: 6, label: "Factura B", docTipo: 99 },
-  RESPONSABLE_INSCRIPTO: { cbte: 1, label: "Factura A", docTipo: 80 },
+  CONSUMIDOR_FINAL:     { cbte: 6, label: "Factura B", docTipo: 99, condIvaReceptor: 5 },
+  RESPONSABLE_INSCRIPTO:{ cbte: 1, label: "Factura A", docTipo: 80, condIvaReceptor: 1 },
+  MONOTRIBUTO:          { cbte: 6, label: "Factura B", docTipo: 80, condIvaReceptor: 6 },
+  EXENTO:               { cbte: 6, label: "Factura B", docTipo: 80, condIvaReceptor: 4 },
 };
 
 const getEnv = () => process.env.AFIP_ENV === "production" ? "production" : "homologation";
@@ -155,6 +157,7 @@ const getInvoiceConfig = (ivaCondition, cuit) => {
     cbteTipo: config.cbte,
     label: config.label,
     docTipo: config.docTipo,
+    condIvaReceptor: config.condIvaReceptor,
     docNro: ivaCondition === "RESPONSABLE_INSCRIPTO" && cuit ? parseInt(cuit.replace(/\D/g, "")) : 0,
   };
 };
@@ -176,17 +179,28 @@ export const emitirFactura = async (paymentId) => {
 
   const alumno = paymentDb.student;
   const ivaCondition = alumno?.ivaCondition || "CONSUMIDOR_FINAL";
-  const { cbteTipo, label, docTipo, docNro } = getInvoiceConfig(ivaCondition, alumno?.cuit);
+  const { cbteTipo, label, docTipo, docNro, condIvaReceptor } = getInvoiceConfig(ivaCondition, alumno?.cuit);
 
   const valor = parseFloat(paymentDb.value) || 0;
   const descuento = parseFloat(paymentDb.discount) || 0;
   const total = parseFloat((valor - (valor * descuento) / 100).toFixed(2));
 
+  const esResponsable = process.env.AFIP_REGIMEN === "responsable";
+  const impNeto   = esResponsable ? parseFloat((total / 1.21).toFixed(2)) : 0;
+  const impIVA    = esResponsable ? parseFloat((total - impNeto).toFixed(2)) : 0;
+  const impOpEx   = esResponsable ? 0 : total;
+  const ivaDetalle = esResponsable
+    ? `<ar:Iva><ar:AlicIva><ar:Id>5</ar:Id><ar:BaseImp>${impNeto}</ar:BaseImp><ar:Importe>${impIVA}</ar:Importe></ar:AlicIva></ar:Iva>`
+    : "";
+
   const { token, sign } = await getToken();
   const nroComprobante = (await getLastVoucher(puntoVenta, cbteTipo, cuit, token, sign)) + 1;
 
   const hoy = new Date();
-  const fechaCbte = `${hoy.getFullYear()}${String(hoy.getMonth() + 1).padStart(2, "0")}${String(hoy.getDate()).padStart(2, "0")}`;
+  const pad = (n) => String(n).padStart(2, "0");
+  const fechaCbte = `${hoy.getFullYear()}${pad(hoy.getMonth() + 1)}${pad(hoy.getDate())}`;
+  const primerDia = `${hoy.getFullYear()}${pad(hoy.getMonth() + 1)}01`;
+  const ultimoDia = `${hoy.getFullYear()}${pad(hoy.getMonth() + 1)}${pad(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate())}`;
 
   const wsfeBody = `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ar="http://ar.gov.afip.dif.FEV1/">
@@ -199,10 +213,15 @@ export const emitirFactura = async (paymentId) => {
         <ar:DocTipo>${docTipo}</ar:DocTipo><ar:DocNro>${docNro}</ar:DocNro>
         <ar:CbteDesde>${nroComprobante}</ar:CbteDesde><ar:CbteHasta>${nroComprobante}</ar:CbteHasta>
         <ar:CbteFch>${fechaCbte}</ar:CbteFch>
+        <ar:FchServDesde>${primerDia}</ar:FchServDesde>
+        <ar:FchServHasta>${ultimoDia}</ar:FchServHasta>
+        <ar:FchVtoPago>${fechaCbte}</ar:FchVtoPago>
         <ar:ImpTotal>${total}</ar:ImpTotal><ar:ImpTotConc>0</ar:ImpTotConc>
-        <ar:ImpNeto>${total}</ar:ImpNeto><ar:ImpOpEx>0</ar:ImpOpEx>
-        <ar:ImpIVA>0</ar:ImpIVA><ar:ImpTrib>0</ar:ImpTrib>
+        <ar:ImpNeto>${impNeto}</ar:ImpNeto><ar:ImpOpEx>${impOpEx}</ar:ImpOpEx>
+        <ar:ImpIVA>${impIVA}</ar:ImpIVA><ar:ImpTrib>0</ar:ImpTrib>
         <ar:MonId>PES</ar:MonId><ar:MonCotiz>1</ar:MonCotiz>
+        ${ivaDetalle}
+        <ar:CondicionIVAReceptorId>${condIvaReceptor}</ar:CondicionIVAReceptorId>
       </ar:FECAEDetRequest></ar:FeDetReq>
     </ar:FeCAEReq>
   </ar:FECAESolicitar></soap:Body>

@@ -3,7 +3,8 @@ import * as mercadoPagoService from "../services/mercadoPagoService.js";
 import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { payment } from "../db/index.js";
-import { getById } from "../services/studentService.js";
+import { getById, editById as editStudentById } from "../services/studentService.js";
+import { emitirFactura as afipEmitirFactura } from "../services/afipService.js";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 
 export default {
@@ -55,6 +56,22 @@ export default {
     try {
       const newPayment = await paymentService.splitPayment(req.params.id, req.body);
       res.status(StatusCodes.CREATED).json(newPayment);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  emitirFactura: async (req, res, next) => {
+    try {
+      const { studentId, ivaCondition, cuit } = req.body;
+      if (studentId) {
+        const updateData = {};
+        if (ivaCondition !== undefined) updateData.ivaCondition = ivaCondition || null;
+        if (cuit !== undefined) updateData.cuit = cuit || null;
+        if (Object.keys(updateData).length > 0) await editStudentById(updateData, studentId);
+      }
+      const result = await afipEmitirFactura(req.params.id);
+      res.status(StatusCodes.OK).json(result);
     } catch (e) {
       next(e);
     }
