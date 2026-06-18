@@ -32,13 +32,32 @@ const INVOICE_TYPES = {
 
 const getEnv = () => process.env.AFIP_ENV === "production" ? "production" : "homologation";
 
-let tokenCache = { token: null, sign: null, expiresAt: null };
+const TOKEN_CACHE_FILE = path.join(process.cwd(), "certs", ".token_cache.json");
+
+const loadTokenFromFile = () => {
+  try {
+    if (fs.existsSync(TOKEN_CACHE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(TOKEN_CACHE_FILE, "utf8"));
+      if (new Date(data.expiresAt) > new Date()) return data;
+    }
+  } catch {}
+  return { token: null, sign: null, expiresAt: null };
+};
+
+const saveTokenToFile = (cache) => {
+  try { fs.writeFileSync(TOKEN_CACHE_FILE, JSON.stringify(cache)); } catch {}
+};
+
+let tokenCache = loadTokenFromFile();
 
 const buildTRA = (service) => {
   const now = new Date();
   const gen = new Date(now.getTime() - 10 * 60 * 1000);
   const exp = new Date(now.getTime() + 12 * 60 * 60 * 1000);
-  const fmt = (d) => d.toISOString().replace("Z", "-03:00");
+  const fmt = (d) => {
+    const ar = new Date(d.getTime() - 3 * 60 * 60 * 1000);
+    return ar.toISOString().slice(0, 19) + "-03:00";
+  };
   const uniqueId = Math.floor(Math.random() * 2147483647);
   return `<?xml version="1.0" encoding="UTF-8"?><loginTicketRequest version="1.0"><header><uniqueId>${uniqueId}</uniqueId><generationTime>${fmt(gen)}</generationTime><expirationTime>${fmt(exp)}</expirationTime></header><service>${service}</service></loginTicketRequest>`;
 };
@@ -91,15 +110,27 @@ const getToken = async () => {
   const wsaaBody = `<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><loginCms xmlns="http://wsaa.view.sua.dvadac.desein.afip.gov"><in0>${cms}</in0></loginCms></soap:Body></soap:Envelope>`;
   const response = await soapRequest(WSAA_URL[env], "", wsaaBody);
 
-  const tokenMatch = response.match(/<token>([\s\S]*?)<\/token>/);
-  const signMatch = response.match(/<sign>([\s\S]*?)<\/sign>/);
-  if (!tokenMatch || !signMatch) throw new Error("WSAA fallo: " + response);
+  const decoded = response
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&");
+  const tokenMatch = decoded.match(/<token>([\s\S]*?)<\/token>/);
+  const signMatch = decoded.match(/<sign>([\s\S]*?)<\/sign>/);
+  if (!tokenMatch || !signMatch) {
+    if (response.includes("alreadyAuthenticated") && tokenCache.token) {
+      console.warn("WSAA: alreadyAuthenticated — usando token en caché");
+      return tokenCache;
+    }
+    throw new Error("WSAA fallo: " + response);
+  }
 
   tokenCache = {
     token: tokenMatch[1].trim(),
     sign: signMatch[1].trim(),
     expiresAt: new Date(Date.now() + 11 * 60 * 60 * 1000),
   };
+  saveTokenToFile(tokenCache);
   return tokenCache;
 };
 
