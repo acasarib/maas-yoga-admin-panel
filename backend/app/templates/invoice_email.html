@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        background-color: #FDF7D2;
+        border: 4px solid #621A94;
+        padding: 24px;
+        max-width: 600px;
+        margin: auto;
+      }
+      img.logo {
+        display: block;
+        max-width: 120px;
+        margin: 0 auto 16px auto;
+      }
+      h1 {
+        font-size: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #444;
+        border-bottom: 1px solid #621A94;
+        padding-bottom: 10px;
+        margin-top: 0;
+        text-align: center;
+      }
+      p {
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 12px 0;
+      }
+      .invoice-box {
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        border-left: 4px solid #621A94;
+        border-radius: 6px;
+        padding: 16px 20px;
+        margin: 20px 0;
+      }
+      .invoice-box table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .invoice-box td {
+        padding: 6px 0;
+        font-size: 14px;
+        vertical-align: top;
+      }
+      .invoice-box td:first-child {
+        color: #666;
+        width: 180px;
+      }
+      .invoice-box td:last-child {
+        font-weight: bold;
+        color: #111;
+      }
+      .cae-badge {
+        background-color: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 6px;
+        padding: 10px 16px;
+        margin: 16px 0;
+        font-size: 13px;
+        color: #166534;
+        text-align: center;
+      }
+      .cae-badge span {
+        display: block;
+        font-size: 15px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-top: 4px;
+      }
+      .attachment-note {
+        background-color: #ede9fe;
+        border: 1px solid #c4b5fd;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-size: 13px;
+        color: #5b21b6;
+        text-align: center;
+        margin: 16px 0;
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 13px;
+        color: #777;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img class="logo" src="https://i.imgur.com/M9bzBt5l.png" alt="MAAS Yoga logo" />
+      <h1>Factura Electrónica AFIP</h1>
+
+      <p>Hola <strong>{firstName} {lastName}</strong>,</p>
+      <p>
+        Te enviamos tu comprobante fiscal emitido ante AFIP. 
+        Encontrarás el PDF adjunto a este correo.
+      </p>
+
+      <div class="invoice-box">
+        <table>
+          <tr>
+            <td>Tipo de comprobante:</td>
+            <td>{invoiceType}</td>
+          </tr>
+          <tr>
+            <td>Número:</td>
+            <td>{invoiceNumber}</td>
+          </tr>
+          <tr>
+            <td>Fecha de emisión:</td>
+            <td>{fechaCbte}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="cae-badge">
+        Código de Autorización Electrónico (CAE)
+        <span>{cae}</span>
+        Vencimiento CAE: {caeVencimiento}
+      </div>
+
+      <div class="attachment-note">
+        📎 El PDF de la factura está adjunto a este correo.
+      </div>
+
+      <p>
+        Podés verificar la validez de este comprobante en
+        <a href="https://www.afip.gob.ar/fe/qr/" style="color: #621A94;">www.afip.gob.ar/fe/qr</a>.
+      </p>
+
+      <p class="footer">
+        Saludos cordiales,<br />
+        <strong>{emisorNombre}</strong><br />
+        <em>3 de Febrero 1165 · maasyoga@gmail.com</em>
+      </p>
+    </div>
+  </body>
+</html>

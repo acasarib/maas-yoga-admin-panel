@@ -6,7 +6,12 @@ import { payment as paymentModel, student as studentModel, item as itemModel, ca
 import { getById, editById as editStudentById } from "../services/studentService.js";
 import { emitirFactura as afipEmitirFactura } from "../services/afipService.js";
 import { generateAfipInvoicePDF } from "../utils/pdfUtils.js";
+import { sendEmailWithPDF } from "../services/emailService.js";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
 import { PAYMENT_TYPES } from "../utils/constants.js";
+
+const __invoiceTemplatePath = new URL('../templates/invoice_email.html', import.meta.url);
 
 export default {
   /**
@@ -117,6 +122,82 @@ export default {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="factura-${paymentDb.invoiceType?.replace(/ /g, '-')}-${paymentDb.invoiceNumber}.pdf"`);
       res.send(Buffer.from(pdfBytes));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  sendInvoiceByEmail: async (req, res, next) => {
+    try {
+      const paymentDb = await paymentModel.findByPk(req.params.id, {
+        include: [
+          { model: studentModel },
+          { model: itemModel, include: [categoryModel] },
+        ],
+      });
+      if (!paymentDb) return res.status(404).json({ message: 'Pago no encontrado' });
+      if (!paymentDb.cae) return res.status(400).json({ message: 'Este pago no tiene factura emitida' });
+      const alumno = paymentDb.student;
+      if (!alumno?.email) return res.status(400).json({ message: 'El alumno no tiene correo registrado' });
+
+      const valor = parseFloat(paymentDb.value) || 0;
+      const descuento = parseFloat(paymentDb.discount) || 0;
+      const total = parseFloat((valor - (valor * descuento) / 100).toFixed(2));
+      const esResponsable = process.env.AFIP_REGIMEN === 'responsable';
+      const impNeto = esResponsable ? parseFloat((total / 1.21).toFixed(2)) : 0;
+      const impIVA = esResponsable ? parseFloat((total - impNeto).toFixed(2)) : 0;
+      const ivaKey = alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
+      const IVA_TO_TIPO_CMP = { RESPONSABLE_INSCRIPTO: 1 };
+      const IVA_TO_DOC_TIPO = { CONSUMIDOR_FINAL: 99 };
+      const tipoCmp = IVA_TO_TIPO_CMP[ivaKey] || 6;
+      const tipoDocRec = IVA_TO_DOC_TIPO[ivaKey] || 80;
+      const pad = (n) => String(n).padStart(2, '0');
+      const d = new Date(paymentDb.at);
+      const fechaCbte = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const fechaIso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const caeVenc = paymentDb.caeVencimiento
+        ? (() => { const p = paymentDb.caeVencimiento.toString().split('-'); return `${p[2]}/${p[1]}/${p[0]}`; })()
+        : '';
+      const itemDesc = paymentDb.item?.category?.name || paymentDb.item?.name || paymentDb.note || 'Servicio';
+
+      const pdfBytes = await generateAfipInvoicePDF({
+        invoiceType: paymentDb.invoiceType, invoiceNumber: paymentDb.invoiceNumber,
+        puntoVenta: parseInt(process.env.AFIP_PUNTO_VENTA || '1'),
+        fechaCbte, fechaIso,
+        emisorCuit: process.env.AFIP_CUIT, emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
+        receptorNombre: `${alumno.name} ${alumno.lastName}`,
+        receptorCuit: alumno?.cuit || '', receptorIva: ivaKey,
+        descripcion: itemDesc, total, impNeto, impIVA, esResponsable,
+        cae: paymentDb.cae, caeVencimiento: caeVenc,
+        tipoCmp, tipoDocRec, nroDocRec: (alumno?.cuit || '').replace(/-/g, ''),
+      });
+
+      const fileName = `factura-${paymentDb.invoiceType?.replace(/ /g, '-')}-${paymentDb.invoiceNumber}.pdf`;
+      const studentName = `${alumno.name} ${alumno.lastName}`;
+      const nroPadded = `${String(parseInt(process.env.AFIP_PUNTO_VENTA||'1')).padStart(4,'0')}-${String(paymentDb.invoiceNumber||0).padStart(8,'0')}`;
+
+      let htmlBody = '';
+      try {
+        htmlBody = readFileSync(fileURLToPath(__invoiceTemplatePath), 'utf8')
+          .replace(/{firstName}/g, alumno.name)
+          .replace(/{lastName}/g, alumno.lastName)
+          .replace(/{invoiceType}/g, paymentDb.invoiceType || '')
+          .replace(/{invoiceNumber}/g, nroPadded)
+          .replace(/{fechaCbte}/g, fechaCbte)
+          .replace(/{cae}/g, paymentDb.cae || '')
+          .replace(/{caeVencimiento}/g, caeVenc)
+          .replace(/{emisorNombre}/g, process.env.AFIP_NOMBRE || 'Emisor');
+      } catch (_) {}
+
+      await sendEmailWithPDF(
+        alumno.email,
+        `Factura AFIP - ${paymentDb.invoiceType} N\u00b0 ${nroPadded}`,
+        `Hola ${studentName},\n\nAdjunto encontras tu factura AFIP.\n\nSaludos,\n${process.env.AFIP_NOMBRE || 'Emisor'}`,
+        Buffer.from(pdfBytes),
+        fileName,
+        htmlBody,
+      );
+      res.status(200).json({ message: `Factura enviada a ${alumno.email}` });
     } catch (e) {
       next(e);
     }

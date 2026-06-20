@@ -121,6 +121,15 @@ export default {
                 .catch((error) => reject(error));
         });
     },
+    sendInvoiceByEmail(paymentId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + `api/v1/payments/${paymentId}/invoice/email`)
+                .then((response) => resolve(response.data))
+                .catch((error) => reject(error));
+        });
+    },
     emitirFactura(paymentId, data) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

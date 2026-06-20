@@ -7,6 +7,8 @@ import studentsService from '../../services/studentsService';
 import paymentsService from '../../services/paymentsService';
 import { Context } from '../../context/Context';
 import DownloadIcon from '@mui/icons-material/Download';
+import EmailIcon from '@mui/icons-material/Email';
+import { Tooltip } from '@mui/material';
 
 const IVA_OPTIONS = [
   { value: 'CONSUMIDOR_FINAL', label: 'Consumidor Final (Factura B)' },
@@ -30,6 +32,7 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
   const [ivaCondition, setIvaCondition] = useState('CONSUMIDOR_FINAL');
   const [cuit, setCuit] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [error, setError] = useState(null);
   const [emittedData, setEmittedData] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -107,6 +110,21 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
 
   const alreadyHasInvoice = !!emittedData || !!payment?.cae;
   const invoiceDisplay = emittedData || payment;
+  const invoiceStudent = selectedStudent || payment?.student;
+  const studentEmail = invoiceStudent?.email || null;
+
+  const handleSendEmail = async () => {
+    setIsSendingEmail(true);
+    try {
+      await paymentsService.sendInvoiceByEmail(payment.id);
+      changeAlertStatusAndMessage(true, 'success', `Factura enviada a ${studentEmail}`);
+    } catch (e) {
+      const msg = e?.response?.data?.message || e?.message || 'Error al enviar el email.';
+      changeAlertStatusAndMessage(true, 'error', msg);
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
   const missingFiscalData = selectedStudent && (!selectedStudent.ivaCondition || !selectedStudent.cuit);
 
   return (
@@ -134,7 +152,22 @@ const EmitirFacturaModal = ({ payment, isOpen, onClose, onSuccess }) => {
             <p className="text-sm text-green-700">CAE: <span className="font-mono">{invoiceDisplay.cae}</span></p>
             {invoiceDisplay.caeVencimiento && <p className="text-xs text-gray-500 mt-1">Vto. CAE: {invoiceDisplay.caeVencimiento}</p>}
           </div>
-          <p className="text-sm text-gray-500">Podés descargar el PDF del comprobante.</p>
+          <div className="flex gap-2 mt-1">
+            <Tooltip title={studentEmail ? '' : 'El alumno no tiene correo registrado'} placement="top">
+              <span className="flex-1">
+                <button
+                  onClick={handleSendEmail}
+                  disabled={!studentEmail || isSendingEmail}
+                  className="w-full flex items-center justify-center gap-2 border border-blue-400 text-blue-600 rounded px-3 py-2 text-sm hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSendingEmail
+                    ? <><i className="fa fa-circle-o-notch fa-spin" /><span>Enviando...</span></>
+                    : <><EmailIcon fontSize="small" />Enviar por email{studentEmail ? ` (${studentEmail})` : ''}</>
+                  }
+                </button>
+              </span>
+            </Tooltip>
+          </div>
         </div>
       )}
       {payment && !alreadyHasInvoice && (
