@@ -276,7 +276,7 @@ export const getStudentsByCourse = async (courseId) => {
     where: { courseId, studentId: {
       [Op.in]: studentsIds
     } },
-    attributes: ["isRegistrationPayment", "id", "at", "operativeResult", "studentId", "value", "discount"]
+    attributes: ["isRegistrationPayment", "id", "at", "operativeResult", "studentId", "value", "discount", "periodFrom", "periodTo"]
   })
   const getRegistrationPayment = (studentId) => {
     const regPayment = payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
@@ -320,15 +320,9 @@ export const getStudentsByCourse = async (courseId) => {
   const dateSeries = utils.getMonthlyDateSeries(courseStartAt, courseEndAt)
   const getPaymentByYearAndMonthAndStudentId = (year, month, studentId) => {
     return payments.find(p => {
-      if (p.isRegistrationPayment) {
-        return false
-      }
-      if (p.studentId == studentId) {
-        const date = p.operativeResult
-        return year == date.getFullYear() && (date.getMonth()+1) == month
-      } else {
-        return false
-      }
+      if (p.isRegistrationPayment) return false;
+      if (p.studentId != studentId) return false;
+      return paymentCoversMonth(p, year, month, courseId);
     })
   }
   const now = new Date()
@@ -519,13 +513,23 @@ const getSuspendedPeriods = async (suspendPeriods) => {
   return monthsSuspended;
 }
 
+const paymentCoversMonth = (p, year, month, courseId) => {
+  if (p.courseId != courseId) return false;
+  if (p.periodFrom && p.periodTo) {
+    const [fromYear, fromMonth] = p.periodFrom.slice(0, 7).split('-').map(Number);
+    const [toYear, toMonth] = p.periodTo.slice(0, 7).split('-').map(Number);
+    return (year > fromYear || (year === fromYear && month >= fromMonth)) &&
+           (year < toYear || (year === toYear && month <= toMonth));
+  }
+  return p.operativeResult.getFullYear() == year && ((p.operativeResult.getMonth() + 1) == month);
+};
+
 const findFirstPaymentAt = (year, month, courseId, payments, studentId = null) => {
-  const matchYearAndMonth = (p) => p.courseId == courseId && p.operativeResult.getFullYear() == year && ((p.operativeResult.getMonth() + 1) == month);
   const byStudentId = studentId != null;
   if (byStudentId)
-    return payments.find(p => matchYearAndMonth(p) && p.studentId == studentId);
+    return payments.find(p => paymentCoversMonth(p, year, month, courseId) && p.studentId == studentId);
   else
-    return payments.find(matchYearAndMonth);
+    return payments.find(p => paymentCoversMonth(p, year, month, courseId));
 }
 
 /**

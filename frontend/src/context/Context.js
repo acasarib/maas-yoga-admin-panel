@@ -566,14 +566,30 @@ export const Provider = ({ children }) => {
             student.payments.forEach(payment => {
                 if (payment.courseId != course.id)
                     return
-                const operativeResult = new Date(payment.operativeResult);
-                const year = operativeResult.getFullYear();
-                const month = operativeResult.getMonth() +1;
-                if (year in periods && month in periods[year]) {
-                    periods[year][month] = {
-                        condition: STUDENT_MONTHS_CONDITIONS.PAID,
-                        payment,
-                    };
+                if (payment.periodFrom && payment.periodTo) {
+                    const from = new Date(payment.periodFrom + 'T00:00:00');
+                    const to = new Date(payment.periodTo + 'T00:00:00');
+                    let yr = from.getFullYear();
+                    let mo = from.getMonth() + 1;
+                    const toYr = to.getFullYear();
+                    const toMo = to.getMonth() + 1;
+                    while (yr < toYr || (yr === toYr && mo <= toMo)) {
+                        if (yr in periods && mo in periods[yr]) {
+                            periods[yr][mo] = { condition: STUDENT_MONTHS_CONDITIONS.PAID, payment };
+                        }
+                        mo++;
+                        if (mo > 12) { mo = 1; yr++; }
+                    }
+                } else {
+                    const operativeResult = new Date(payment.operativeResult);
+                    const year = operativeResult.getFullYear();
+                    const month = operativeResult.getMonth() + 1;
+                    if (year in periods && month in periods[year]) {
+                        periods[year][month] = {
+                            condition: STUDENT_MONTHS_CONDITIONS.PAID,
+                            payment,
+                        };
+                    }
                 }
             });
             let years = Object.keys(periods);
