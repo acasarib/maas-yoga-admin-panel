@@ -525,11 +525,23 @@ const paymentCoversMonth = (p, year, month, courseId) => {
 };
 
 const findFirstPaymentAt = (year, month, courseId, payments, studentId = null) => {
-  const byStudentId = studentId != null;
-  if (byStudentId)
-    return payments.find(p => paymentCoversMonth(p, year, month, courseId) && p.studentId == studentId);
+  const coversMonth = (p) => {
+    if (p.courseId != null && p.courseId != courseId) return false;
+    if (p.periodFrom && p.periodTo) {
+      const fromStr = typeof p.periodFrom === 'string' ? p.periodFrom : p.periodFrom.toISOString().slice(0, 10);
+      const toStr = typeof p.periodTo === 'string' ? p.periodTo : p.periodTo.toISOString().slice(0, 10);
+      const [fy, fm] = fromStr.slice(0, 7).split('-').map(Number);
+      const [ty, tm] = toStr.slice(0, 7).split('-').map(Number);
+      const ym = year * 12 + month;
+      return ym >= fy * 12 + fm && ym <= ty * 12 + tm;
+    }
+    if (!p.operativeResult) return false;
+    return p.operativeResult.getFullYear() == year && (p.operativeResult.getMonth() + 1) == month;
+  };
+  if (studentId != null)
+    return payments.find(p => coversMonth(p) && p.studentId == studentId && p.courseId == courseId);
   else
-    return payments.find(p => paymentCoversMonth(p, year, month, courseId));
+    return payments.find(p => coversMonth(p) && p.courseId == courseId);
 }
 
 /**
