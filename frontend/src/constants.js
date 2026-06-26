@@ -69,6 +69,14 @@ export const PAYMENT_OPTIONS = [
     },
 ];
 
+export const INVOICEABLE_PAYMENT_TYPES = [
+    "Mercado pago",
+    "Transferencia",
+    "Tarjeta de credito",
+    "Débito de cuenta",
+    "Débito de tarjeta",
+];
+
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
 
 export const APP_VERSION = "1.3.2";

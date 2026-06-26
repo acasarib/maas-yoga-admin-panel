@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useMemo } from "react";
 import Table from "../table";
 import { Context } from "../../context/Context";
 import { dateToString, formatPaymentValue } from "../../utils";
-import { TABLE_SEARCH_CRITERIA } from "../../constants";
+import { TABLE_SEARCH_CRITERIA, INVOICEABLE_PAYMENT_TYPES } from "../../constants";
 import CustomCheckbox from "../checkbox/customCheckbox";
 import PaidIcon from '@mui/icons-material/Paid';
 import TableSummary from '../table/summary'
@@ -17,7 +17,6 @@ import DownloadButton from "../button/downloadButton";
 import InvoiceButton from "../button/invoiceButton";
 import EmitirFacturaModal from "../modal/emitirFacturaModal";
 
-const INVOICEABLE_TYPES = ["Mercado pago", "Transferencia", "Tarjeta de credito", "Débito de cuenta", "Débito de tarjeta"];
 
 export default function PaymentsTable({ tableFooter, summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, showInvoiceButton = false,
@@ -288,7 +287,7 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
                         }
                         {showInvoiceButton && (
                             <InvoiceButton
-                                className={INVOICEABLE_TYPES.includes(row.type) && (row.studentId || row.student?.id) ? '' : 'invisible pointer-events-none'}
+                                className={INVOICEABLE_PAYMENT_TYPES.includes(row.type) && (row.studentId || row.student?.id) ? '' : 'invisible pointer-events-none'}
                                 onClick={() => { setPayment(row); invoiceModal.open(); }}
                             />
                         )}
