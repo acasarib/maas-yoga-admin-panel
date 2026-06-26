@@ -276,7 +276,7 @@ export const getStudentsByCourse = async (courseId) => {
     where: { courseId, studentId: {
       [Op.in]: studentsIds
     } },
-    attributes: ["isRegistrationPayment", "id", "at", "operativeResult", "studentId", "value", "discount", "periodFrom", "periodTo"]
+    attributes: ["isRegistrationPayment", "id", "at", "operativeResult", "studentId", "courseId", "value", "discount", "periodFrom", "periodTo"]
   })
   const getRegistrationPayment = (studentId) => {
     const regPayment = payments.find(p => p.isRegistrationPayment && p.studentId == studentId);
