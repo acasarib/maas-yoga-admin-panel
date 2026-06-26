@@ -5,8 +5,7 @@ import CommonTextArea from "../../../components/commonTextArea";
 import Modal from "../../../components/modal";
 import PaidIcon from '@mui/icons-material/Paid';
 import "react-datepicker/dist/react-datepicker.css";
-import { CASH_PAYMENT_TYPE, PAYMENT_OPTIONS, INVOICEABLE_PAYMENT_TYPES } from "../../../constants";
-import EmitirFacturaModal from "../../modal/emitirFacturaModal";
+import { CASH_PAYMENT_TYPE, PAYMENT_OPTIONS } from "../../../constants";
 import dayjs from 'dayjs';
 import DateTimeInput from '../../calendar/dateTimeInput';
 import PaymentsTable from "../../../components/paymentsTable";
@@ -34,19 +33,6 @@ import Label from "../../label/label";
 import { COLORS } from "../../../constants";
 import { Tooltip } from "@mui/material";
 
-const IVA_OPTIONS = [
-    { value: 'CONSUMIDOR_FINAL', label: 'Consumidor Final (Factura B)' },
-    { value: 'RESPONSABLE_INSCRIPTO', label: 'Responsable Inscripto (Factura A)' },
-    { value: 'MONOTRIBUTO', label: 'Monotributo (Factura B)' },
-    { value: 'EXENTO', label: 'IVA Exento (Factura B)' },
-];
-
-const formatCuit = (value) => {
-    const digits = value.replace(/\D/g, '').substring(0, 11);
-    if (digits.length <= 2) return digits;
-    if (digits.length <= 10) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
-    return `${digits.slice(0, 2)}-${digits.slice(2, 10)}-${digits.slice(10)}`;
-};
 
 export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }) {
     const [file, setFile] = useState([]);
@@ -83,12 +69,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [edit, setEdit] = useState(false);
     const [registration, setRegistration] = useState(false);
     const [paymentToEdit, setPaymentToEdit] = useState({});
-    const [emitirFacturaAfip, setEmitirFacturaAfip] = useState(false);
-    const [ivaConditionFactura, setIvaConditionFactura] = useState('CONSUMIDOR_FINAL');
-    const [cuitFactura, setCuitFactura] = useState('');
-    const [invoiceResultPayment, setInvoiceResultPayment] = useState(null);
-    const [invoiceResultOpen, setInvoiceResultOpen] = useState(false);
-    const [months, setMonths] = useState(1);
+    const [months, setMonths] = useState('');
     const [openPicker] = useDrivePicker();
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
@@ -278,10 +259,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setIsDischarge(true);
     }
 
-    const shouldShowInvoiceCheckbox = !isDischarge
-        && INVOICEABLE_PAYMENT_TYPES.includes(paymentMethod?.value || paymentMethod)
-        && selectedStudent !== null;
-
     const setDisplay = (value) => {
         setOpenModal(value);
         setIsLoadingPayment(false);
@@ -302,10 +279,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setSelectedItem(null);
         setHaveFile(false);
         setPaymentToEdit({});
-        setEmitirFacturaAfip(false);
-        setIvaConditionFactura('CONSUMIDOR_FINAL');
-        setCuitFactura('');
-        setMonths(1);
+        setMonths('');
     }
 
     const deleteSelection = () => {
@@ -371,6 +345,14 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setPaymentMethod(method[0]);
         setPaymentAt(dayjs(new Date(payment.at)));
         setOperativeResult(dayjs(new Date(payment.operativeResult)));
+        if (payment.periodFrom && payment.periodTo) {
+            const from = new Date(payment.periodFrom + 'T00:00:00');
+            const to = new Date(payment.periodTo + 'T00:00:00');
+            const diffMonths = (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth()) + 1;
+            setMonths(diffMonths > 1 ? String(diffMonths) : '');
+        } else {
+            setMonths('');
+        }
         setPaymentToEdit(payment);
     }
 
@@ -405,10 +387,17 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
 
     const handleInformPayment = async () => {        
         setIsLoadingPayment(true);
+        const effectiveMonths = months === '' || parseInt(months) <= 1 ? 1 : parseInt(months);
         const baseDate = paymentAt.$d || new Date(paymentAt);
-        const periodFromDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-        const endDate = new Date(periodFromDate.getFullYear(), periodFromDate.getMonth() + (months - 1) + 1, 0);
         const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const getPeriod = () => {
+            if (!isDischarge && effectiveMonths > 1) {
+                const from = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+                const to = new Date(from.getFullYear(), from.getMonth() + effectiveMonths, 0);
+                return { periodFrom: toISO(from), periodTo: toISO(to) };
+            }
+            return { periodFrom: null, periodTo: null };
+        };
 
         const data = {
             itemId: selectedItem?.id,
@@ -427,7 +416,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             discount: discountCheckbox.value ? discount : null,
             isRegistrationPayment: registration,
             secretaryPayment: (isDischarge && isSecretaryPayment) ? secretaryPaymentValues : null,
-            ...(!edit && !isDischarge && months > 1 ? { periodFrom: toISO(periodFromDate), periodTo: toISO(endDate) } : {}),
+            ...getPeriod(),
         }  
         if (data.itemId != null && data.itemId != undefined) {
             delete data.courseId;
@@ -445,20 +434,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 const savedPayment = await informPayment(data, sendReceipt);
                 if(addReceipt.value) {
                     await downloadReceipt(savedPayment.id);
-                }
-                if (!isDischarge && emitirFacturaAfip && savedPayment?.id) {
-                    try {
-                        const facturaResult = await paymentsService.emitirFactura(savedPayment.id, {
-                            studentId: selectedStudent?.id,
-                            ivaCondition: ivaConditionFactura,
-                            cuit: cuitFactura,
-                        });
-                        setInvoiceResultPayment({ ...savedPayment, ...facturaResult });
-                        setInvoiceResultOpen(true);
-                    } catch (facturaError) {
-                        const msg = facturaError?.response?.data?.message || 'El movimiento fue informado pero no se pudo emitir la factura AFIP. Podés intentarlo desde la tabla de pagos.';
-                        changeAlertStatusAndMessage(true, 'error', msg);
-                    }
                 }
             }
             setIsLoadingPayment(false);
@@ -496,10 +471,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setPaymentAt(dayjs(new Date()));
         setOpenModal(false);
         setIsDischarge(false);
-        setEmitirFacturaAfip(false);
-        setIvaConditionFactura('CONSUMIDOR_FINAL');
-        setCuitFactura('');
-        setMonths(1);
+        setMonths('');
     }
 
     const handleChangeDiscount = newValue => {
@@ -624,7 +596,15 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                         type="number"
                         placeholder="1"
                         value={months}
-                        onChange={(e) => setMonths(Math.max(1, parseInt(e.target.value) || 1))}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '') {
+                                setMonths('');
+                            } else {
+                                const n = parseInt(val);
+                                setMonths(isNaN(n) || n < 1 ? '' : String(n));
+                            }
+                        }}
                     />
                 </div>
             )}
@@ -769,57 +749,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                     )}
                 </div>
             )}
-            {shouldShowInvoiceCheckbox && (
-                <div className="col-span-2">
-                    <div className="flex items-center">
-                        <CustomCheckbox
-                            label="Emitir factura AFIP"
-                            name="emitirFacturaAfip"
-                            checked={emitirFacturaAfip}
-                            onChange={() => {
-                                const next = !emitirFacturaAfip;
-                                setEmitirFacturaAfip(next);
-                                if (next) {
-                                    setIvaConditionFactura(selectedStudent?.ivaCondition || 'CONSUMIDOR_FINAL');
-                                    setCuitFactura(selectedStudent?.cuit || '');
-                                }
-                            }}
-                        />
-                        <Tooltip style={{ marginLeft: "-11px" }} className="text-gray-500" title="Se emitirá la factura electrónica AFIP al guardar el movimiento">
-                            <InfoIcon fontSize="small" />
-                        </Tooltip>
-                    </div>
-                    {emitirFacturaAfip && (
-                        <div className="mt-3 flex flex-col sm:grid sm:grid-cols-2 gap-3">
-                            <div>
-                                <Label htmlFor="ivaConditionFactura">Condición IVA</Label>
-                                <Select
-                                    name="ivaConditionFactura"
-                                    value={IVA_OPTIONS.find(o => o.value === ivaConditionFactura) || IVA_OPTIONS[0]}
-                                    onChange={(opt) => setIvaConditionFactura(opt.value)}
-                                    options={IVA_OPTIONS}
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="cuitFactura">CUIT del receptor</Label>
-                                <CommonInput
-                                    name="cuitFactura"
-                                    placeholder="XX-XXXXXXXX-X"
-                                    value={cuitFactura}
-                                    onChange={(e) => setCuitFactura(formatCuit(e.target.value))}
-                                />
-                            </div>
-                            {!selectedStudent?.cuit && (
-                                <div className="col-span-2">
-                                    <YellowBudget className="w-full">
-                                        <WarningIcon fontSize="small" className="mr-2" />El alumno no tiene CUIT registrado. Podés ingresarlo arriba y se guardará al emitir.
-                                    </YellowBudget>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
             <div className="col-span-2 md:col-span-2">
                 <Label htmlFor="headquarter">Sede</Label>
                 <SelectColleges
@@ -936,13 +865,6 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         </Modal>
 
 
-        {invoiceResultPayment && (
-            <EmitirFacturaModal
-                payment={invoiceResultPayment}
-                isOpen={invoiceResultOpen}
-                onClose={() => { setInvoiceResultOpen(false); setInvoiceResultPayment(null); }}
-            />
-        )}
         <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-4">
             <Link to="/home/professor-payments">
                 <ButtonPrimary className={"w-full sm:w-auto"}>Calcular pagos</ButtonPrimary>
