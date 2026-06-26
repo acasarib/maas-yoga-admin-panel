@@ -532,7 +532,7 @@ const findFirstPaymentAt = (year, month, courseId, payments, studentId = null) =
       const toStr = typeof p.periodTo === 'string' ? p.periodTo : p.periodTo.toISOString().slice(0, 10);
       const [fy, fm] = fromStr.slice(0, 7).split('-').map(Number);
       const [ty, tm] = toStr.slice(0, 7).split('-').map(Number);
-      const ym = year * 12 + month;
+      const ym = Number(year) * 12 + Number(month);
       return ym >= fy * 12 + fm && ym <= ty * 12 + tm;
     }
     if (!p.operativeResult) return false;
