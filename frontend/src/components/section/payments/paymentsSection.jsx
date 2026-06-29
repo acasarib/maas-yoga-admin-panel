@@ -20,7 +20,6 @@ import useToggle from "../../../hooks/useToggle";
 import { betweenZeroAnd100, fromDDMMYYYYStringToDate, getTimestampsFromMonthYear } from "../../../utils";
 import CustomCheckbox from "../../../components/checkbox/customCheckbox";
 import Select from "../../select/select";
-import SelectClass from "../../select/selectClass";
 import SelectColleges from "../../select/selectColleges";
 import SelectProfessors from "../../select/selectProfessors";
 import WarningIcon from '@mui/icons-material/Warning';
@@ -70,6 +69,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [registration, setRegistration] = useState(false);
     const [paymentToEdit, setPaymentToEdit] = useState({});
     const [months, setMonths] = useState('');
+    const [ingresoTab, setIngresoTab] = useState('cuota');
+    const [egresoTab, setEgresoTab] = useState('general');
     const [openPicker] = useDrivePicker();
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
@@ -280,6 +281,12 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setHaveFile(false);
         setPaymentToEdit({});
         setMonths('');
+        setIngresoTab('cuota');
+        setEgresoTab('general');
+        setIsSecretaryPayment(false);
+        setIsClassPayment(false);
+        setSelectedProfessor(null);
+        setRegistration(false);
     }
 
     const deleteSelection = () => {
@@ -331,9 +338,19 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         if(payment.value < 0) {
             setIsDischarge(true);
             setAmmount(payment.value * -1)
+            if (payment.secretaryPaymentId) {
+                setEgresoTab('secretaria');
+                setIsSecretaryPayment(true);
+            } else if (payment.professorId) {
+                setEgresoTab('profesor');
+                setIsClassPayment(true);
+            } else {
+                setEgresoTab('general');
+            }
         } else {
             setAmmount(payment.value)
             setSelectedStudent(payment.student);
+            setIngresoTab(payment.course ? 'cuota' : payment.itemId ? 'articulo' : 'cuota');
         }
         if (payment.headquarter) {
             setSelectedCollege(payment.headquarter);
@@ -525,6 +542,27 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
         setAmmount(salary + monotributo + sac + extraHours + extraTasks)
     }, [secretaryPaymentValues])
 
+    const handleIngresoTab = (tab) => {
+        setIngresoTab(tab);
+        setSelectedCourse(null);
+        setSelectedItem(null);
+        setSelectedClazz(null);
+        setRegistration(false);
+        setMonths('');
+        discountCheckbox.disable();
+        setDiscount('');
+        setStudentCourses([]);
+    }
+
+    const handleEgresoTab = (tab) => {
+        setEgresoTab(tab);
+        setIsSecretaryPayment(tab === 'secretaria');
+        setIsClassPayment(tab === 'profesor');
+        setSelectedItem(null);
+        setSelectedProfessor(null);
+        setSelectedCourse(null);
+    }
+
     return (
         <>
         <div>
@@ -558,309 +596,188 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
             onClick={handleInformPayment}
             title={isDischarge ? 'Informar egreso' : 'Informar ingreso'}
         >
-        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6">
-        {!isDischarge && (<>
-            <div>
-                <Label htmlFor="student">Seleccione la persona que realizó el pago</Label>
-                <SelectStudent
-                    name="student"
-                    onChange={handleChangeStudent}
-                    options={getOnlyStudentsOfSameCourse()}
-                    value={selectedStudent}
-                />
-            </div>
-            {(!selectedClazz && !selectedItem) && (<div>
-                <Label htmlFor="course">Seleccione el curso que fue abonado</Label>
-                <SelectCourses
-                    name="course"
-                    onChange={setSelectedCourse}
-                    value={selectedCourse}
-                    options={(studentCourses.length > 0) ? studentCourses : null}
-                    defaultValue={selectedCourse}
-                />
-            </div>)}
-            <div className="col-span-2">
-                <CustomCheckbox
-                    checked={registration}
-                    labelOn="Corresponde a un pago de matrícula"
-                    labelOff="Corresponde a un pago de matrícula"
-                    className=""
-                    onChange={() => setRegistration(!registration)}
-                />
-            </div>
-            {selectedStudent !== null && (
-                <div className="col-span-2 md:col-span-1">
-                    <CommonInput
-                        label="Meses que abarca"
-                        name="months"
-                        type="number"
-                        placeholder="1"
-                        value={months}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === '') {
-                                setMonths('');
-                            } else {
-                                const n = parseInt(val);
-                                setMonths(isNaN(n) || n < 1 ? '' : String(n));
-                            }
-                        }}
-                    />
-                </div>
-            )}
-        </>)}
-            {(selectedCourse !== null && selectedStudent !== null) && 
-                <div className="col-span-2 md:col-span-2">
-                    <CustomCheckbox
-                        checked={discountCheckbox.value}
-                        label="Aplicar descuento"
-                        onChange={discountCheckbox.toggle}
-                    />
+        <div className="flex flex-col gap-6">
+
+          {/* ── INGRESO TABS ─────────────────────────────────────── */}
+          {!isDischarge && (
+            <div className="flex flex-col gap-5">
+              <div className="flex border-b border-gray-200">
+                {[['cuota','Cuota de curso'],['articulo','Artículo']].map(([key,label]) => (
+                  <button key={key} type="button" onClick={() => handleIngresoTab(key)}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px mr-1 transition-colors ${ingresoTab===key ? '' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                    style={ingresoTab===key ? {borderBottomColor:COLORS.primary[600],color:COLORS.primary[600]} : {}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {ingresoTab === 'cuota' && (
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <CommonInput 
-                            disabled={!discountCheckbox.value}
-                            label="Descuento"
-                            name="discount"
-                            type="number" 
-                            symbol='%'
-                            placeholder="0" 
-                            value={discount}
-                            onChange={(e) => handleChangeDiscount(e.target.value)}
-                        />
+                      <Label htmlFor="student">Alumno</Label>
+                      <SelectStudent name="student" onChange={handleChangeStudent} options={getOnlyStudentsOfSameCourse()} value={selectedStudent} />
                     </div>
+                    <div>
+                      <Label htmlFor="course">Curso</Label>
+                      <SelectCourses name="course" onChange={setSelectedCourse} value={selectedCourse} options={studentCourses.length > 0 ? studentCourses : null} defaultValue={selectedCourse} />
+                    </div>
+                  </div>
+                  <CustomCheckbox checked={registration} labelOn="Corresponde a un pago de matrícula" labelOff="Corresponde a un pago de matrícula" onChange={() => setRegistration(!registration)} />
+                  {selectedStudent !== null && (
+                    <div className="w-44">
+                      <CommonInput label="Meses que abarca" name="months" type="number" placeholder="1" value={months}
+                        onChange={(e) => { const val=e.target.value; if(val===''){setMonths('')}else{const n=parseInt(val);setMonths(isNaN(n)||n<1?'':String(n))} }} />
+                    </div>
+                  )}
+                  {(selectedCourse !== null && selectedStudent !== null) && (
+                    <div className="flex items-end gap-3 flex-wrap">
+                      <CustomCheckbox checked={discountCheckbox.value} label="Aplicar descuento" onChange={discountCheckbox.toggle} />
+                      {discountCheckbox.value && (
+                        <div className="w-36">
+                          <CommonInput disabled={!discountCheckbox.value} label="Descuento" name="discount" type="number" symbol='%' placeholder="0" value={discount} onChange={(e) => handleChangeDiscount(e.target.value)} />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-            }
-            {isDischarge &&
-                <div className="col-span-2">
-                    <CustomCheckbox
-                        checked={isSecretaryPayment}
-                        labelOn="Corresponde a un pago de secretaria"
-                        labelOff="Corresponde a un pago de secretaria"
-                        className=""
-                        onChange={() => setIsSecretaryPayment(!isSecretaryPayment)}
-                    />
+              )}
+
+              {ingresoTab === 'articulo' && (
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <Label htmlFor="student">Alumno</Label>
+                    <SelectStudent name="student" onChange={handleChangeStudent} options={null} value={selectedStudent} />
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Artículo</Label>
+                    <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
+                  </div>
                 </div>
-            }
-            <div className="col-span-2">
-                <CustomCheckbox
-                    checked={isClassPayment}
-                    labelOn="Corresponde al pago de una clase"
-                    labelOff="Corresponde al pago de una clase"
-                    className=""
-                    onChange={() => setIsClassPayment(!isClassPayment)}
-                />
+              )}
+
+              <hr className="border-gray-100" />
             </div>
-            {isSecretaryPayment && 
-            <div className="flex flex-col gap-4 sm:grid sm:col-span-2 sm:grid-cols-2">
-                <CommonInput 
-                    label="Sueldo"
-                    name="Sueldo"
-                    type="number" 
-                    currency
-                    placeholder="Sueldo" 
-                    value={secretaryPaymentValues?.salary}
-                    onChange={(e) => handleChangeSecretaryPaymentValue("salary", e.target.value)}
-                />
-                <CommonInput 
-                    label="Monotributo"
-                    name="Monotributo"
-                    type="number" 
-                    currency
-                    placeholder="Monotributo" 
-                    value={secretaryPaymentValues?.monotributo}
-                    onChange={(e) => handleChangeSecretaryPaymentValue("monotributo", e.target.value)}
-                />
-                <CommonInput 
-                    label="Tareas extra"
-                    name="Tareas extra"
-                    type="number" 
-                    currency
-                    placeholder="Tareas extra" 
-                    value={secretaryPaymentValues?.extraTasks}
-                    onChange={(e) => handleChangeSecretaryPaymentValue("extraTasks", e.target.value)}
-                />
-                <CommonInput 
-                    label="Horas extra"
-                    name="Horas extra"
-                    type="number" 
-                    currency
-                    placeholder="Horas extra" 
-                    value={secretaryPaymentValues?.extraHours}
-                    onChange={(e) => handleChangeSecretaryPaymentValue("extraHours", e.target.value)}
-                />
-                <CommonInput 
-                    label="S.A.C."
-                    name="S.A.C."
-                    type="number" 
-                    currency
-                    placeholder="S.A.C." 
-                    value={secretaryPaymentValues?.sac}
-                    onChange={(e) => handleChangeSecretaryPaymentValue("sac", e.target.value)}
-                />
-            </div>}
-            {isClassPayment && 
-                <div className="col-span-2 md:col-span-2">
-                    <Label htmlFor="professor">Profesor</Label>
-                    <SelectProfessors
-                        name="professor"
-                        value={selectedProfessor}
-                        onChange={setSelectedProfessor}
-                        styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
-                    />
+          )}
+
+          {/* ── EGRESO TABS ──────────────────────────────────────── */}
+          {isDischarge && (
+            <div className="flex flex-col gap-5">
+              <div className="flex border-b border-gray-200">
+                {[['general','Gasto general'],['profesor','Pago a profesor'],['secretaria','Secretaria']].map(([key,label]) => (
+                  <button key={key} type="button" onClick={() => handleEgresoTab(key)}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px mr-1 transition-colors ${egresoTab===key ? '' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                    style={egresoTab===key ? {borderBottomColor:COLORS.primary[600],color:COLORS.primary[600]} : {}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {egresoTab === 'general' && (
+                <div>
+                  <Label htmlFor="category">Artículo</Label>
+                  <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
                 </div>
-            }
-            <div className="col-span-2 md:col-span-1">
-                <CommonInput 
-                    label="Importe"
-                    currency
-                    name="title"
-                    type="number" 
-                    placeholder="Importe" 
-                    value={ammount === null ? "": ammount}
-                    onChange={handleChangeAmmount}
-                />
+              )}
+
+              {egresoTab === 'profesor' && (
+                <div>
+                  <Label htmlFor="professor">Profesor</Label>
+                  <SelectProfessors name="professor" value={selectedProfessor} onChange={setSelectedProfessor} styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }} />
+                </div>
+              )}
+
+              {egresoTab === 'secretaria' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <CommonInput label="Sueldo" name="Sueldo" type="number" currency placeholder="Sueldo" value={secretaryPaymentValues?.salary} onChange={(e) => handleChangeSecretaryPaymentValue("salary", e.target.value)} />
+                  <CommonInput label="Monotributo" name="Monotributo" type="number" currency placeholder="Monotributo" value={secretaryPaymentValues?.monotributo} onChange={(e) => handleChangeSecretaryPaymentValue("monotributo", e.target.value)} />
+                  <CommonInput label="Tareas extra" name="Tareas extra" type="number" currency placeholder="Tareas extra" value={secretaryPaymentValues?.extraTasks} onChange={(e) => handleChangeSecretaryPaymentValue("extraTasks", e.target.value)} />
+                  <CommonInput label="Horas extra" name="Horas extra" type="number" currency placeholder="Horas extra" value={secretaryPaymentValues?.extraHours} onChange={(e) => handleChangeSecretaryPaymentValue("extraHours", e.target.value)} />
+                  <CommonInput label="S.A.C." name="S.A.C." type="number" currency placeholder="S.A.C." value={secretaryPaymentValues?.sac} onChange={(e) => handleChangeSecretaryPaymentValue("sac", e.target.value)} />
+                </div>
+              )}
+
+              <hr className="border-gray-100" />
             </div>
-            <div className="col-span-2 md:col-span-1">
+          )}
+
+          {/* ── Importe ──────────────────────────────────────────── */}
+          <div className="flex flex-col gap-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Importe</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CommonInput label="Importe" currency name="title" type="number" placeholder="Importe" value={ammount === null ? "" : ammount} onChange={handleChangeAmmount} />
+              <div>
                 <Label htmlFor="paymentType">Modo de pago</Label>
-                <Select
-                    name="paymentType"
-                    onChange={handleChangePayments}
-                    defaultValue={edit ? paymentMethod : {}}
-                    options={PAYMENT_OPTIONS}
-                />
+                <Select name="paymentType" onChange={handleChangePayments} defaultValue={edit ? paymentMethod : {}} options={PAYMENT_OPTIONS} />
+              </div>
             </div>
             {(paymentMethod === CASH_PAYMENT_TYPE || paymentMethod?.value === CASH_PAYMENT_TYPE) && (
-                <div className="col-span-2">
-                    <div className="flex items-center">
-                        <CustomCheckbox
-                            label="Generar recibo"
-                            name="addReceipt"
-                            checked={addReceipt.value}
-                            onChange={addReceipt.toggle}
-                        />
-                        <Tooltip style={{ marginLeft: "-11px" }} className="text-gray-500" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
-                            <InfoIcon fontSize="small" />
-                        </Tooltip>
-                    </div>
-                    {!selectedStudent?.email && (
-                        <YellowBudget className="mt-2 w-full">
-                            <WarningIcon fontSize="small" className="mr-2" />No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.
-                        </YellowBudget>
-                    )}
+              <div>
+                <div className="flex items-center">
+                  <CustomCheckbox label="Generar recibo" name="addReceipt" checked={addReceipt.value} onChange={addReceipt.toggle} />
+                  <Tooltip style={{ marginLeft: "-11px" }} className="text-gray-500" title="Se generará un comprobante de pago y el mismo será enviado por email al alumno que realizó el pago">
+                    <InfoIcon fontSize="small" />
+                  </Tooltip>
                 </div>
+                {!selectedStudent?.email && (
+                  <YellowBudget className="mt-2 w-full">
+                    <WarningIcon fontSize="small" className="mr-2" />No se encontro email asociado al alumno, por lo que se podrá descargar el recibo pero el mismo no será enviado por correo.
+                  </YellowBudget>
+                )}
+              </div>
             )}
-            <div className="col-span-2 md:col-span-2">
-                <Label htmlFor="headquarter">Sede</Label>
-                <SelectColleges
-                    name="headquarter"
-                    value={selectedCollege}
-                    onChange={setSelectedCollege}
-                    styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }}
-                />
+            <hr className="border-gray-100" />
+          </div>
+
+          {/* ── Detalles ─────────────────────────────────────────── */}
+          <div className="flex flex-col gap-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Detalles</p>
+            <div>
+              <Label htmlFor="headquarter">Sede</Label>
+              <SelectColleges name="headquarter" value={selectedCollege} onChange={setSelectedCollege} styles={{ menu: provided => ({ ...provided, zIndex: 2 }) }} />
             </div>
-            {isDischarge ? (
-                <div className="col-span-2 md:col-span-2">
-                    <Label htmlFor="category">Articulo</Label>
-                    <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
-                </div>
-            ) : (
-                <>
-                    {(!selectedClazz && !selectedCourse) && (
-                        <div className="col-span-2 md:col-span-2">
-                            <Label htmlFor="category">Articulo</Label>
-                            <SelectItem name="category" onChange={setSelectedItem} value={selectedItem} />
-                        </div>
-                    )}
-                    {(!selectedCourse && !selectedItem) && (
-                        <div className="col-span-2 md:col-span-2">
-                            <Label htmlFor="clazz">Clase</Label>
-                            <SelectClass
-                                name="clazz"
-                                onChange={setSelectedClazz}
-                                value={selectedClazz}
-                                getOptionValue={(clazz) => clazz.id}
-                            />
-                        </div>
-                    )}
-                </>
-            )}
-            <div className="col-span-2 md:col-span-2">
-                <CommonTextArea
-                    label="Nota"
-                    name="note"
-                    type="textarea"
-                    placeholder="Nota"
-                    value={note}
-                    onChange={handleChangeNote}
-                />
+            <div>
+              <CommonTextArea label="Nota" name="note" type="textarea" placeholder="Nota" value={note} onChange={handleChangeNote} />
             </div>
-            <div className="col-span-2">
-                <DateTimeInput
-                    className="w-full sm:w-auto"
-                    name="paymentAt"
-                    label="Fecha en que se realizo el pago"
-                    value={paymentAt}
-                    onChange={(newValue) => setPaymentAt(newValue)}
-                />
-            </div>
-            <div className="col-span-2">
-                <DateTimeInput
-                    className="w-full sm:w-auto"
-                    name="operativeResult"
-                    label="Resultado operativo"
-                    value={operativeResult}
-                    onChange={(newValue) => setOperativeResult(newValue)}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DateTimeInput className="w-full" name="paymentAt" label="Fecha del pago" value={paymentAt} onChange={(newValue) => setPaymentAt(newValue)} />
+              <DateTimeInput className="w-full" name="operativeResult" label="Resultado operativo" value={operativeResult} onChange={(newValue) => setOperativeResult(newValue)} />
             </div>
             {(edit && paymentToEdit.file && paymentToEdit.file !== null) && (
-                <div className="col-span-2">
-                    <div className="sm:w-6/12">
-                        <Label>Archivo</Label>
-                        <div style={{ backgroundColor: COLORS.primary[50] }} className="my-2 px-3 py-2 flex justify-between items-center rounded-sm w-auto">
-                            {paymentToEdit.file?.name}
-                            <button
-                                type="button"
-                                className="p-1 rounded-full bg-gray-100 ml-2"
-                                onClick={() => setPaymentToEdit({ ...paymentToEdit, file: null, fileId: null })}
-                            >
-                                <CloseIcon />
-                            </button>
-                        </div>
-                    </div>
+              <div>
+                <Label>Archivo actual</Label>
+                <div style={{ backgroundColor: COLORS.primary[50] }} className="my-1 px-3 py-2 flex justify-between items-center rounded-sm w-full md:w-72">
+                  {paymentToEdit.file?.name}
+                  <button type="button" className="p-1 rounded-full bg-gray-100 ml-2" onClick={() => setPaymentToEdit({ ...paymentToEdit, file: null, fileId: null })}>
+                    <CloseIcon />
+                  </button>
                 </div>
+              </div>
             )}
             {!haveFile ? (
-                <div>
-                    <Label>Seleccionar comprobante para respaldar la operación</Label>
-                    <div className="flex">
-                        <StorageIconButton onClick={() => inputFileRef.current.click()} className="min-icon-storage" icon="\assets\images\db.png" alt="maas yoga">Maas Yoga</StorageIconButton>
-                        <input ref={inputFileRef} type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange} />
-                        {googleDriveEnabled && (
-                            <StorageIconButton onClick={handleOpenPicker} className="ml-2 min-icon-storage" icon="\assets\images\gdrive.png" alt="google drive">Google Drive</StorageIconButton>
-                        )}
-                    </div>
+              <div>
+                <Label>Comprobante</Label>
+                <div className="flex gap-2 mt-1">
+                  <StorageIconButton onClick={() => inputFileRef.current.click()} className="min-icon-storage" icon="\assets\images\db.png" alt="maas yoga">Maas Yoga</StorageIconButton>
+                  <input ref={inputFileRef} type="file" id="fileUpload" style={{ display: 'none' }} onChange={handleFileChange} />
+                  {googleDriveEnabled && (
+                    <StorageIconButton onClick={handleOpenPicker} className="ml-2 min-icon-storage" icon="\assets\images\gdrive.png" alt="google drive">Google Drive</StorageIconButton>
+                  )}
                 </div>
+              </div>
             ) : (
-                <div>
-                    <Label>Nombre del archivo: {fileName}</Label>
-                    <div className="flex flex-rox gap-4">
-                        <ButtonPrimary onClick={() => uploadFile(file)} className={`${driveFile !== null && "none"} mt-4 w-full sm:w-40 h-auto`}>
-                            {isLoading ? (
-                                <>
-                                    <i className="fa fa-circle-o-notch fa-spin mr-2"></i>
-                                    <span>Subiendo...</span>
-                                </>
-                            ) : (
-                                <span>Subir archivo</span>
-                            )}
-                        </ButtonPrimary>
-
-                        <ButtonPrimary onClick={() => deleteSelection()} className="mt-4 w-full sm:w-40 h-auto">
-                            Eliminar selección
-                        </ButtonPrimary>
-                    </div>
+              <div>
+                <Label>Archivo: {fileName}</Label>
+                <div className="flex gap-3 mt-1">
+                  <ButtonPrimary onClick={() => uploadFile(file)} className={`${driveFile !== null && "none"} w-full sm:w-40 h-auto`}>
+                    {isLoading ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Subiendo...</span></>) : (<span>Subir archivo</span>)}
+                  </ButtonPrimary>
+                  <ButtonPrimary onClick={() => deleteSelection()} className="w-full sm:w-40 h-auto">Eliminar selección</ButtonPrimary>
                 </div>
+              </div>
             )}
+          </div>
+
         </div>
         </Modal>
 
