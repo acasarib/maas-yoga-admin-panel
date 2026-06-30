@@ -1,4 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react'
+import dayjs from 'dayjs';
+import DateInput from '../components/calendar/dateInput';
+import Label from '../components/label/label';
+import SelectStudent from '../components/select/selectStudent';
 import Container from '../components/container'
 import { useParams } from 'react-router-dom';
 import { Context } from '../context/Context';
@@ -128,10 +132,33 @@ const TasksModule = ({ course, onUpdateTask }) => {
 </>
 }
 
-const StudentsModule = ({ course, onSuspensionsChange }) => {
+const StudentsModule = ({ course, onSuspensionsChange, onStudentAdded }) => {
 	const suspensionsModal = useModal()
 	const [activeStudent, setActiveStudent] = useState(null);
 	const onSeeStudentPayments = student => setActiveStudent(student)
+	const { addStudent, updateInscriptionDate, changeAlertStatusAndMessage } = useContext(Context);
+	const [openAddStudentModal, setOpenAddStudentModal] = useState(false);
+	const [addStudentSelected, setAddStudentSelected] = useState(null);
+	const [addStudentInscriptionDate, setAddStudentInscriptionDate] = useState(dayjs(new Date()));
+	const [isLoadingAddStudent, setIsLoadingAddStudent] = useState(false);
+
+	const handleAddStudent = async () => {
+		if (!addStudentSelected) return;
+		setIsLoadingAddStudent(true);
+		try {
+			const existingIds = course.students.map(s => s.id);
+			await addStudent(course.id, [...existingIds, addStudentSelected.id]);
+			await updateInscriptionDate(addStudentSelected.id, course.id, addStudentInscriptionDate.$d);
+			setOpenAddStudentModal(false);
+			setAddStudentSelected(null);
+			setAddStudentInscriptionDate(dayjs(new Date()));
+			if (onStudentAdded) onStudentAdded();
+		} catch (err) {
+			changeAlertStatusAndMessage(true, 'error', 'No se pudo agregar el alumno al curso. Inténtelo nuevamente.');
+			console.log(err);
+		}
+		setIsLoadingAddStudent(false);
+	};
 
 	const activeCount = course.students.filter(s => s.status === STUDENT_STATUS.ACTIVE).length;
 	const suspendedCount = course.students.filter(s => s.status === STUDENT_STATUS.SUSPEND).length;
@@ -159,6 +186,7 @@ const StudentsModule = ({ course, onSuspensionsChange }) => {
 		<div className='flex justify-between'>
 			<h2 className='text-2xl font-bold mb-4'>Alumnos</h2>
 			<div className='flex gap-2 mb-6'>
+				<ButtonPrimary onClick={() => setOpenAddStudentModal(true)}>Agregar alumno</ButtonPrimary>
 				<ButtonPrimary onClick={handleExportStudents}>Exportar Excel</ButtonPrimary>
 				<ButtonPrimary onClick={suspensionsModal.open}>Ver suspenciones</ButtonPrimary>
 			</div>
@@ -193,6 +221,30 @@ const StudentsModule = ({ course, onSuspensionsChange }) => {
 		courseId={course.id}
 		onSuspensionsChange={onSuspensionsChange}
 	/>
+	<Modal
+		icon={<PaidIcon />}
+		open={openAddStudentModal}
+		setDisplay={(v) => { setOpenAddStudentModal(v); setAddStudentSelected(null); setAddStudentInscriptionDate(dayjs(new Date())); }}
+		buttonText={isLoadingAddStudent ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>}
+		onClick={handleAddStudent}
+		title="Agregar alumno al curso"
+	>
+		<div className="flex flex-col gap-4">
+			<div>
+				<Label htmlFor="addStudent">Alumno</Label>
+				<SelectStudent
+					name="addStudent"
+					onChange={setAddStudentSelected}
+					value={addStudentSelected}
+				/>
+			</div>
+			<DateInput
+				label="Fecha de inscripción"
+				value={addStudentInscriptionDate}
+				onChange={(val) => setAddStudentInscriptionDate(val)}
+			/>
+		</div>
+	</Modal>
 </>
 }
 
@@ -328,7 +380,7 @@ const CourseDetail = () => {
 						/>
 					</TabPanel>
 					<TabPanel className="pt-4" value="2">
-						<StudentsModule course={course} onSuspensionsChange={refreshCourse}/>
+						<StudentsModule course={course} onSuspensionsChange={refreshCourse} onStudentAdded={refreshCourse}/>
 					</TabPanel>
 					<TabPanel className="pt-4" value="3">
 						<TasksModule course={course} onUpdateTask={onUpdateTask}/>

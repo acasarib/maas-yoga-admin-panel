@@ -198,7 +198,7 @@ function Course({ course, student, onOpenQRModal }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment, editStudent, addStudent, updateInscriptionDate } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment, editStudent, addStudent, updateInscriptionDate, getCourseDetailsById } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -499,7 +499,9 @@ const CourseDetail = () => {
         if (!addCourseSelected) return;
         setIsLoadingAddCourse(true);
         try {
-            await addStudent(addCourseSelected.id, [student.id]);
+            const courseDetails = await getCourseDetailsById(addCourseSelected.id);
+            const existingIds = courseDetails.students ? courseDetails.students.map(s => s.id) : [];
+            await addStudent(addCourseSelected.id, [...existingIds, student.id]);
             await updateInscriptionDate(student.id, addCourseSelected.id, addCourseInscriptionDate.$d);
             await getData();
             setOpenAddCourseModal(false);
