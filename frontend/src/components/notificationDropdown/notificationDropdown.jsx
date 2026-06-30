@@ -112,7 +112,7 @@ export default function NotificationDropdown({ className, isOpen, onClose, butto
                         <div className="space-y-2">
                             {notifications.map(notification => (
                                 <div key={notification.id} onClick={() => onClickNotification(notification)} className="cursor-pointer hover:bg-slate-100 py-3 px-4">
-                                    <p><span className="font-semibold">{getUserFullName(notification.payment.user)}</span> agrego un pago</p>
+                                    <p><span className="font-semibold">{getUserFullName(notification?.payment?.user)}</span> agrego un pago</p>
                                     <p className="text-gray-500 flex justify-between w-full"><span>{formatDateMonthDayHourMinutes(notification.createdAt)}</span><span>{elapsedTime(notification.createdAt)}</span></p>
                                 </div>
                             ))}
