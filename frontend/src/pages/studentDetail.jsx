@@ -45,6 +45,41 @@ import ButtonPrimary from '../components/button/primary';
 import { COLORS } from '../constants';
 import NoDataComponent from '../components/table/noDataComponent';
 
+const COUNTRIES = [
+    { label: '🇦🇷 Argentina', value: 'Argentina' },
+    { label: '🇧🇴 Bolivia', value: 'Bolivia' },
+    { label: '🇧🇷 Brasil', value: 'Brasil' },
+    { label: '🇨🇱 Chile', value: 'Chile' },
+    { label: '🇨🇴 Colombia', value: 'Colombia' },
+    { label: '🇨🇷 Costa Rica', value: 'Costa Rica' },
+    { label: '🇨🇺 Cuba', value: 'Cuba' },
+    { label: '🇪🇨 Ecuador', value: 'Ecuador' },
+    { label: '🇸🇻 El Salvador', value: 'El Salvador' },
+    { label: '🇬🇹 Guatemala', value: 'Guatemala' },
+    { label: '🇭🇳 Honduras', value: 'Honduras' },
+    { label: '🇲🇽 México', value: 'México' },
+    { label: '🇳🇮 Nicaragua', value: 'Nicaragua' },
+    { label: '🇵🇦 Panamá', value: 'Panamá' },
+    { label: '🇵🇾 Paraguay', value: 'Paraguay' },
+    { label: '🇵🇪 Perú', value: 'Perú' },
+    { label: '🇩🇴 República Dominicana', value: 'República Dominicana' },
+    { label: '🇺🇾 Uruguay', value: 'Uruguay' },
+    { label: '🇻🇪 Venezuela', value: 'Venezuela' },
+    { label: '🇺🇸 Estados Unidos', value: 'Estados Unidos' },
+    { label: '🇪🇸 España', value: 'España' },
+    { label: '🇮🇹 Italia', value: 'Italia' },
+    { label: '🇫🇷 Francia', value: 'Francia' },
+    { label: '🇩🇪 Alemania', value: 'Alemania' },
+    { label: '🇬🇧 Reino Unido', value: 'Reino Unido' },
+    { label: '🇵🇹 Portugal', value: 'Portugal' },
+    { label: '🇯🇵 Japón', value: 'Japón' },
+    { label: '🇨🇳 China', value: 'China' },
+    { label: '🇮🇳 India', value: 'India' },
+    { label: '🇦🇺 Australia', value: 'Australia' },
+    { label: '🇨🇦 Canadá', value: 'Canadá' },
+    { label: '🌍 Otro', value: '__OTRO__' },
+];
+
 function Course({ course, student, onOpenQRModal }) {
 	const [isOpen, setIsOpen] = useState(false);
     const { updateInscriptionDate, changeAlertStatusAndMessage } = useContext(Context);
@@ -163,7 +198,7 @@ function Course({ course, student, onOpenQRModal }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment, editStudent } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -202,6 +237,10 @@ const CourseDetail = () => {
     const [openPicker] = useDrivePicker();
     const [driveFile, setDriveFile] = useState(null);
     const [studentCourses, setStudentCourses] = useState([]);
+    const [isNewPayment, setIsNewPayment] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [profileForm, setProfileForm] = useState({});
+    const [isCustomCountry, setIsCustomCountry] = useState(false);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
 	const getData = async () => {
@@ -294,7 +333,7 @@ const CourseDetail = () => {
         const data = {
             itemId: selectedItem?.id,
             clazzId: (selectedClazz !== null) ? selectedClazz.value : selectedClazz?.id,
-            headquarterId: (selectedCollege !== null) ? selectedCollege.value :  selectedCollege?.value,
+            headquarterId: selectedCollege?.id ?? selectedCollege?.value ?? null,
             courseId: (selectedCourse !== null) ? selectedCourse?.id : (isDischarge ? null : selectedCourse?.id),
             type: (paymentMethod !== null) ? (paymentMethod.value || paymentMethod) : paymentMethod,
             fileId: paymentToEdit.fileId,
@@ -312,9 +351,14 @@ const CourseDetail = () => {
             delete data.courseId;
         }
         try{
-            data.id = paymentToEdit.id;
-            await editPayment(data);
+            if (isNewPayment) {
+                await paymentsService.informPayment(data);
+            } else {
+                data.id = paymentToEdit.id;
+                await editPayment(data);
+            }
 			await updatePayments();
+            setIsNewPayment(false);
             setIsLoadingPayment(false);
             setIsDischarge(false);
             setOpenModal(false);
@@ -325,6 +369,7 @@ const CourseDetail = () => {
         }catch(err) {
             changeAlertStatusAndMessage(true, 'error', 'El movimiento no pudo ser informado... Por favor inténtelo nuevamente.')
             console.log(err);
+            setIsNewPayment(false);
             setIsDischarge(false);
             setIsLoadingPayment(false);
             setPaymentAt(dayjs(new Date()));
@@ -411,7 +456,43 @@ const CourseDetail = () => {
 		setCourses(getPendingPaymentsByCourseFromStudent(student))
 	}
 
+	const openAddPayment = () => {
+        setIsNewPayment(true);
+        setOpenModal(true);
+        setEdit(false);
+        setIsDischarge(false);
+        setNote('');
+        setAmmount(null);
+        setPaymentMethod(null);
+        setSelectedCourse(null);
+        setSelectedClazz(null);
+        setSelectedItem(null);
+        setSelectedCollege(null);
+        setRegistration(false);
+        discountCheckbox.disable();
+        setDiscount('');
+        setHaveFile(false);
+        setDriveFile(null);
+        setFilename('');
+        setPaymentAt(dayjs(new Date()));
+        setOperativeResult(dayjs(new Date()));
+        setPaymentToEdit({});
+        setSelectedStudent(student);
+        setStudentCourses(student?.courses || []);
+    }
+
+	const handleSaveProfile = async () => {
+        try {
+            await editStudent(studentId, profileForm);
+            setIsEditingProfile(false);
+            await getData();
+        } catch {
+            changeAlertStatusAndMessage(true, 'error', 'No se pudo guardar el perfil. Inténtelo nuevamente.');
+        }
+    }
+
 	const setDisplay = (value) => {
+        setIsNewPayment(false);
         setOpenModal(value);
         setIsLoadingPayment(false);
         setIsDischarge(value);
@@ -512,10 +593,103 @@ const CourseDetail = () => {
 								</TabList>
 							</Box>
 							<TabPanel className="pt-4" value="1">
-								<StudentCard student={student} />
-
+								{!isEditingProfile ? (
+									<>
+										<StudentCard student={student} />
+										<ButtonPrimary className="mt-4" onClick={() => {
+											setProfileForm({
+												name: student.name || '',
+												lastName: student.lastName || '',
+												email: student.email || '',
+												phoneNumber: student.phoneNumber || '',
+												document: student.document || '',
+												country: student.country || '',
+												province: student.province || '',
+												neighborhood: student.neighborhood || '',
+												ivaCondition: student.ivaCondition || '',
+												cuit: student.cuit || '',
+											});
+											setIsCustomCountry(!(!student.country || COUNTRIES.some(c => c.value === student.country)));
+								setIsEditingProfile(true);
+										}}>Editar perfil</ButtonPrimary>
+									</>
+								) : (
+									<div className="bg-white max-w-2xl shadow sm:rounded-lg p-6 flex flex-col gap-4">
+										<h3 className="text-lg font-medium text-gray-900">Editar perfil</h3>
+										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+											<CommonInput label="Nombre" value={profileForm.name} onChange={e => setProfileForm(p => ({...p, name: e.target.value}))} />
+											<CommonInput label="Apellido" value={profileForm.lastName} onChange={e => setProfileForm(p => ({...p, lastName: e.target.value}))} />
+											<CommonInput label="Email" value={profileForm.email} onChange={e => setProfileForm(p => ({...p, email: e.target.value}))} />
+											<CommonInput label="Teléfono" value={profileForm.phoneNumber} onChange={e => setProfileForm(p => ({...p, phoneNumber: e.target.value}))} />
+											<CommonInput label="Documento" value={profileForm.document} onChange={e => setProfileForm(p => ({...p, document: e.target.value}))} />
+											<div>
+											<Label htmlFor="country">País</Label>
+											{isCustomCountry ? (
+												<div className="flex gap-2 items-center">
+													<input
+														id="customCountry"
+														type="text"
+														className="border border-gray-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-orange-400"
+														placeholder="Escribir país"
+														value={profileForm.country === '__OTRO__' ? '' : profileForm.country}
+														onChange={e => setProfileForm(p => ({...p, country: e.target.value}))}
+														autoFocus
+													/>
+													<button
+														type="button"
+														className="text-xs text-blue-500 underline whitespace-nowrap"
+														onClick={() => { setIsCustomCountry(false); setProfileForm(p => ({...p, country: 'Argentina'})); }}
+													>Volver al listado</button>
+												</div>
+											) : (
+												<Select
+													inputId="country"
+													options={COUNTRIES}
+													value={COUNTRIES.find(c => c.value === profileForm.country) || null}
+													onChange={option => {
+														if (option && option.value === '__OTRO__') {
+															setIsCustomCountry(true);
+															setProfileForm(p => ({...p, country: '__OTRO__'}));
+														} else {
+															setProfileForm(p => ({...p, country: option ? option.value : ''}));
+														}
+													}}
+													placeholder="Seleccionar país"
+													noOptionsMessage={() => 'No encontrado'}
+													styles={{ menu: provided => ({ ...provided, zIndex: 9999 }) }}
+												/>
+											)}
+										</div>
+											<CommonInput label="Provincia" value={profileForm.province} onChange={e => setProfileForm(p => ({...p, province: e.target.value}))} />
+											<CommonInput label="Barrio" value={profileForm.neighborhood} onChange={e => setProfileForm(p => ({...p, neighborhood: e.target.value}))} />
+											<div>
+											<Label htmlFor="ivaCondition">Condición IVA</Label>
+											<select
+												id="ivaCondition"
+												value={profileForm.ivaCondition}
+												onChange={e => setProfileForm(p => ({...p, ivaCondition: e.target.value}))}
+												className="border border-gray-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-orange-400 bg-white"
+											>
+												<option value="">Sin especificar</option>
+												<option value="CONSUMIDOR_FINAL">Consumidor Final (Factura B)</option>
+												<option value="RESPONSABLE_INSCRIPTO">Responsable Inscripto (Factura A)</option>
+												<option value="MONOTRIBUTO">Monotributo (Factura B)</option>
+												<option value="EXENTO">IVA Exento (Factura B)</option>
+											</select>
+										</div>
+											<CommonInput label="CUIL / CUIT" value={profileForm.cuit} onChange={e => setProfileForm(p => ({...p, cuit: e.target.value}))} />
+										</div>
+										<div className="flex gap-3 mt-2">
+											<ButtonPrimary onClick={handleSaveProfile}>Guardar</ButtonPrimary>
+											<button onClick={() => setIsEditingProfile(false)} className="px-4 py-2 rounded bg-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-300">Cancelar</button>
+										</div>
+									</div>
+								)}
 							</TabPanel>
 							<TabPanel className="pt-4" value="2">
+								<div className="flex justify-end mb-4">
+									<ButtonPrimary onClick={openAddPayment}>Informar ingreso</ButtonPrimary>
+								</div>
 								<PaymentsTable
 									editMode
 									onClickDeletePayment={onClickDeletePayment}
@@ -542,13 +716,17 @@ const CourseDetail = () => {
                                         <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6">
                                         {!isDischarge && (<>
                                             <div>
-                                                <Label htmlFor="student">Seleccione la persona que realizó el pago</Label>
-                                                <SelectStudent
-                                                    name="student"
-                                                    onChange={handleChangeStudent}
-                                                    options={getOnlyStudentsOfSameCourse()}
-                                                    value={selectedStudent}
-                                                />
+                                                <Label htmlFor="student">Alumno</Label>
+                                                {isNewPayment ? (
+                                                    <p className="mt-1 px-3 py-2 border rounded text-sm text-gray-700 bg-gray-50">{student?.name} {student?.lastName}</p>
+                                                ) : (
+                                                    <SelectStudent
+                                                        name="student"
+                                                        onChange={handleChangeStudent}
+                                                        options={getOnlyStudentsOfSameCourse()}
+                                                        value={selectedStudent}
+                                                    />
+                                                )}
                                             </div>
                                             {(!selectedClazz && !selectedItem) && (<div>
                                                 <Label htmlFor="course">Seleccione el curso que fue abonado</Label>
