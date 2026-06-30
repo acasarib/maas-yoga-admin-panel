@@ -1,2 +1,4 @@
 /node_modules
-/certs
+/certs/*
+!/certs/maasyoga-testing.crt
+!/certs/maasyoga-testing.key
