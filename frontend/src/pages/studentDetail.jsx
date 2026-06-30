@@ -198,7 +198,7 @@ function Course({ course, student, onOpenQRModal }) {
 
 const CourseDetail = () => {
 	let { studentId } = useParams();
-	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment, editStudent } = useContext(Context);
+	const { getStudentDetailsById, user, getStudentPayments, changeAlertStatusAndMessage, getPendingPaymentsByCourseFromStudent, editPayment, editStudent, addStudent, updateInscriptionDate } = useContext(Context);
 	const [student, setStudent] = useState(null)
 	const [studentPayments, setStudentPayments] = useState(null)
 	const [payment, setPayment] = useState(null)
@@ -241,6 +241,10 @@ const CourseDetail = () => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [profileForm, setProfileForm] = useState({});
     const [isCustomCountry, setIsCustomCountry] = useState(false);
+    const [openAddCourseModal, setOpenAddCourseModal] = useState(false);
+    const [addCourseSelected, setAddCourseSelected] = useState(null);
+    const [addCourseInscriptionDate, setAddCourseInscriptionDate] = useState(dayjs(new Date()));
+    const [isLoadingAddCourse, setIsLoadingAddCourse] = useState(false);
     const googleDriveEnabled = user !== null && "googleDriveCredentials" in user;
 
 	const getData = async () => {
@@ -489,6 +493,23 @@ const CourseDetail = () => {
         } catch {
             changeAlertStatusAndMessage(true, 'error', 'No se pudo guardar el perfil. Inténtelo nuevamente.');
         }
+    }
+
+	const handleAddToCourse = async () => {
+        if (!addCourseSelected) return;
+        setIsLoadingAddCourse(true);
+        try {
+            await addStudent(addCourseSelected.id, [student.id]);
+            await updateInscriptionDate(student.id, addCourseSelected.id, addCourseInscriptionDate.$d);
+            await getData();
+            setOpenAddCourseModal(false);
+            setAddCourseSelected(null);
+            setAddCourseInscriptionDate(dayjs(new Date()));
+        } catch (err) {
+            changeAlertStatusAndMessage(true, 'error', 'No se pudo agregar el alumno al curso. Inténtelo nuevamente.');
+            console.log(err);
+        }
+        setIsLoadingAddCourse(false);
     }
 
 	const setDisplay = (value) => {
@@ -948,12 +969,39 @@ const CourseDetail = () => {
                                 </Modal>
 							</TabPanel>
 							<TabPanel className="pt-4" value="3">
+                                <div className="flex justify-end mb-4">
+                                    <ButtonPrimary onClick={() => setOpenAddCourseModal(true)}>Agregar a curso</ButtonPrimary>
+                                </div>
                                 {courses.length === 0 
                                 ? <NoDataComponent Icon={SchoolIcon} title="No hay cursos" subtitle='No se encontraron cursos para este alumno'/>
                                 : courses.map((course, i) => <List key={i} component="div" disablePadding>
 									    <Course student={student} course={course} onOpenQRModal={handleOpenQRModal} />
 								    </List>)
                                 }
+                                <Modal
+                                    icon={<SchoolIcon />}
+                                    open={openAddCourseModal}
+                                    setDisplay={(v) => { setOpenAddCourseModal(v); setAddCourseSelected(null); setAddCourseInscriptionDate(dayjs(new Date())); }}
+                                    buttonText={isLoadingAddCourse ? (<><i className="fa fa-circle-o-notch fa-spin mr-2"></i><span>Agregando...</span></>) : <span>Agregar</span>}
+                                    onClick={handleAddToCourse}
+                                    title="Agregar alumno a curso"
+                                >
+                                    <div className="flex flex-col gap-4">
+                                        <div>
+                                            <Label htmlFor="addCourse">Curso</Label>
+                                            <SelectCourses
+                                                name="addCourse"
+                                                onChange={setAddCourseSelected}
+                                                value={addCourseSelected}
+                                            />
+                                        </div>
+                                        <DateInput
+                                            label="Fecha de inscripción"
+                                            value={addCourseInscriptionDate}
+                                            onChange={(val) => setAddCourseInscriptionDate(val)}
+                                        />
+                                    </div>
+                                </Modal>
 							</TabPanel>
 							<TabPanel className="pt-4" value="4">
 								{student?.courseTasks ? <TaskList tasks={student.courseTasks} studentId={student.id} courses={courses} getStudent={() => getData()} /> : <NoDataComponent Icon={SchoolIcon} title="No hay tareas" subtitle='El alumno no posee tareas'/>}
