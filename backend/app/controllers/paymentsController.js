@@ -128,6 +128,7 @@ export default {
   },
 
   sendInvoiceByEmail: async (req, res, next) => {
+    console.log(`[sendInvoiceByEmail] Starting for payment ID: ${req.params.id}`);
     try {
       const paymentDb = await paymentModel.findByPk(req.params.id, {
         include: [

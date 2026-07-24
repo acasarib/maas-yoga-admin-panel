@@ -9,7 +9,8 @@ const verifyToken = (req, res, next) => {
     req.user = verified;
     next();
   } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({error: "Invalid token"});
+    console.error("[verifyToken] Error:", error.message);
+    res.status(StatusCodes.UNAUTHORIZED).json({ error: "Invalid token" });
   }
 };
 
