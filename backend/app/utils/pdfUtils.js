@@ -111,7 +111,7 @@ export async function generateAfipInvoicePDF(data) {
     invoiceType, invoiceNumber, puntoVenta, fechaCbte, fechaIso,
     emisorCuit, emisorNombre,
     receptorNombre, receptorCuit, receptorIva,
-    descripcion, total, impNeto, impIVA, esResponsable,
+    items, total,
     cae, caeVencimiento,
     tipoCmp, tipoDocRec, nroDocRec,
   } = data;
@@ -170,7 +170,7 @@ export async function generateAfipInvoicePDF(data) {
   const nombre = (emisorNombre || 'Emisor').substring(0, 30);
   page.drawText(nombre, { x: L+5, y: hY+hH-26, size: 9, font: fontBold, color: dark });
   page.drawText('Condicion IVA Emisor:', { x: L+5, y: hY+hH-40, size: 7, font: fontReg, color: dark });
-  page.drawText(esResponsable ? 'Responsable Inscripto' : 'Monotributista', { x: L+5, y: hY+hH-51, size: 8, font: fontReg, color: dark });
+  page.drawText('Responsable Inscripto', { x: L+5, y: hY+hH-51, size: 8, font: fontReg, color: dark });
   page.drawText(`CUIT: ${emisorCuit || ''}`, { x: L+5, y: hY+hH-65, size: 8, font: fontReg, color: dark });
   page.drawText(`Pto. Venta: ${String(puntoVenta||1).padStart(4,'0')}`, { x: L+5, y: hY+hH-77, size: 8, font: fontReg, color: dark });
 
@@ -209,32 +209,24 @@ export async function generateAfipInvoicePDF(data) {
   page.drawText('Precio Unit.', { x: L+355, y: tblHdrY+6, size: 8, font: fontBold, color: white });
   page.drawText('Importe', { x: L+460, y: tblHdrY+6, size: 8, font: fontBold, color: white });
 
-  // Item row
-  const itemY = tblHdrY - 24;
-  page.drawRectangle({ x: L, y: itemY, width: W, height: 22, borderColor: gray, borderWidth: 0.5, color: white });
-  page.drawText('1', { x: L+10, y: itemY+7, size: 9, font: fontReg, color: dark });
-  const descTxt = (descripcion || 'Servicio').substring(0, 48);
-  page.drawText(descTxt, { x: L+45, y: itemY+7, size: 9, font: fontReg, color: dark });
-  page.drawText(fmt(esResponsable ? impNeto : total), { x: L+355, y: itemY+7, size: 9, font: fontReg, color: dark });
-  page.drawText(fmt(esResponsable ? impNeto : total), { x: L+460, y: itemY+7, size: 9, font: fontReg, color: dark });
+  // Item rows — uno por movimiento incluido en la factura
+  const rowHeight = 22;
+  const invoiceItems = (items && items.length > 0) ? items : [{ concept: 'Servicio', amount: total }];
+  let itemY = tblHdrY - rowHeight;
+  invoiceItems.forEach((it) => {
+    page.drawRectangle({ x: L, y: itemY, width: W, height: rowHeight, borderColor: gray, borderWidth: 0.5, color: white });
+    page.drawText('1', { x: L+10, y: itemY+7, size: 9, font: fontReg, color: dark });
+    const descTxt = (it.concept || 'Servicio').substring(0, 48);
+    page.drawText(descTxt, { x: L+45, y: itemY+7, size: 9, font: fontReg, color: dark });
+    page.drawText(fmt(it.amount), { x: L+355, y: itemY+7, size: 9, font: fontReg, color: dark });
+    page.drawText(fmt(it.amount), { x: L+460, y: itemY+7, size: 9, font: fontReg, color: dark });
+    itemY -= rowHeight;
+  });
 
   // ================================================================
-  // TOTALS
+  // TOTALS — nunca se discrimina IVA (ni Factura A ni B), decisión de contaduría
   // ================================================================
   let yT = itemY - 10;
-
-  if (esResponsable) {
-    page.drawLine({ start: {x: L+330, y: yT}, end: {x: R, y: yT}, thickness: 0.3, color: gray });
-    yT -= 16;
-    page.drawText('Importe neto gravado:', { x: L+330, y: yT, size: 8, font: fontReg, color: dark });
-    page.drawText(fmt(impNeto), { x: L+460, y: yT, size: 8, font: fontReg, color: dark });
-    yT -= 14;
-    page.drawText('IVA 21%:', { x: L+330, y: yT, size: 8, font: fontReg, color: dark });
-    page.drawText(fmt(impIVA), { x: L+460, y: yT, size: 8, font: fontReg, color: dark });
-    yT -= 4;
-    page.drawLine({ start: {x: L+330, y: yT}, end: {x: R, y: yT}, thickness: 0.3, color: gray });
-    yT -= 4;
-  }
 
   // Total row
   page.drawRectangle({ x: L+330, y: yT-22, width: W-330, height: 22, color: dark });

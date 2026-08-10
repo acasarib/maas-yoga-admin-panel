@@ -79,7 +79,7 @@ export const INVOICEABLE_PAYMENT_TYPES = [
 
 export const SPECIFICATION_QUERY_SEPARATOR = ";";
 
-export const APP_VERSION = "1.3.3";
+export const APP_VERSION = "1.3.4";
 
 export const COLORS = {
     primary: {

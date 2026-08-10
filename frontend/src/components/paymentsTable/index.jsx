@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useMemo } from "react";
+import React, { useEffect, useState, useContext, useMemo, useCallback } from "react";
 import Table from "../table";
 import { Context } from "../../context/Context";
 import { dateToString, formatPaymentValue } from "../../utils";
@@ -23,6 +23,12 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     onClickVerifyPayment, onSwitchDischarges = () => console.log("no implementado"), onSwitchIncomes = () => console.log("no implementado") }) {
     const { user, changeAlertStatusAndMessage, getUserById } = useContext(Context);
     const [payment, setPayment] = useState(null);
+    const [invoicePayments, setInvoicePayments] = useState([]);
+    // Selección de facturación indexada por id: persiste entre cambios de página (paginación server-side),
+    // a diferencia del estado interno de selección de react-data-table-component, que se resetea cuando
+    // cambia el array `data` (ver selectableRowSelected más abajo para el patrón de selección controlada).
+    const [selectedPaymentsById, setSelectedPaymentsById] = useState({});
+    const [clearSelectedRowsToggle, setClearSelectedRowsToggle] = useState(false);
     const verifyPaymentModal = useModal()
     const deletePaymentModal = useModal()
     const invoiceModal = useModal()
@@ -31,6 +37,46 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     const [filteredPayments, setFilteredPayments] = useState([]);
     const [showOpResultDate, setShowOpResultDate] = useState(false);
     const [tableSummary, setTableSummary] = useState({ total: 0, incomes: 0, expenses: 0 })
+
+    const isInvoiceable = (row) => INVOICEABLE_PAYMENT_TYPES.includes(row.type) && !!(row.studentId || row.student?.id);
+
+    const openInvoiceModal = (payments) => {
+        setInvoicePayments(payments);
+        invoiceModal.open();
+    }
+
+    const handleInvoiceSuccess = () => {
+        setSelectedPaymentsById({});
+        setClearSelectedRowsToggle((prev) => !prev);
+    }
+
+    const handleSelectedRowsChange = ({ selectedRows }) => {
+        // Debe coincidir exactamente con lo que se le pasa como `data`/`serverPaginationData` a la tabla,
+        // si no, filas ocultas por otro filtro (ej. discharges/incomes) se sacarían de la selección por error.
+        const currentTableData = pageableProps != null ? payments : filteredPayments;
+        const selectedIdsOnPage = new Set(selectedRows.map((row) => row.id));
+        setSelectedPaymentsById((prev) => {
+            const next = { ...prev };
+            // Solo tocamos filas presentes en la página/vista actual: si una fila se destildó, la sacamos;
+            // el resto de la selección (de otras páginas) queda intacta.
+            currentTableData.forEach((row) => {
+                if (!selectedIdsOnPage.has(row.id)) delete next[row.id];
+            });
+            selectedRows.forEach((row) => { next[row.id] = row; });
+            // react-data-table-component vuelve a llamar a onSelectedRowsChange cada vez que
+            // `selectableRowSelected` cambia de referencia, aunque el contenido no haya cambiado.
+            // Si devolvemos un objeto nuevo en esos casos, `selectedPaymentsById` cambia de referencia,
+            // `selectableRowSelected` se recalcula (memoizado más abajo) y la librería dispara el ciclo
+            // de nuevo → loop infinito de selección parpadeando. Cortamos el ciclo devolviendo la MISMA
+            // referencia cuando el conjunto de ids seleccionados no cambió.
+            const prevIds = Object.keys(prev);
+            const nextIds = Object.keys(next);
+            const unchanged = prevIds.length === nextIds.length && nextIds.every((id) => id in prev);
+            return unchanged ? prev : next;
+        });
+    }
+
+    const selectableRowSelected = useCallback((row) => !!selectedPaymentsById[row.id], [selectedPaymentsById]);
 
     const getBalanceForAllPayments = (payments) => {
         return payments.reduce((total, payment) => total + payment.value, 0);
@@ -287,8 +333,8 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
                         }
                         {showInvoiceButton && (
                             <InvoiceButton
-                                className={INVOICEABLE_PAYMENT_TYPES.includes(row.type) && (row.studentId || row.student?.id) ? '' : 'invisible pointer-events-none'}
-                                onClick={() => { setPayment(row); invoiceModal.open(); }}
+                                className={isInvoiceable(row) ? '' : 'invisible pointer-events-none'}
+                                onClick={() => openInvoiceModal([row])}
                             />
                         )}
                     </div></>),
@@ -355,6 +401,22 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
         pagination: true,
     }
 
+    if (showInvoiceButton) {
+        tableProps = {
+            ...tableProps,
+            selectableRows: true,
+            selectableRowDisabled: (row) => !isInvoiceable(row),
+            selectableRowSelected,
+            onSelectedRowsChange: handleSelectedRowsChange,
+            clearSelectedRows: clearSelectedRowsToggle,
+            // Sin esto, react-data-table-component limpia su selección interna apenas se hace click
+            // en "página siguiente" (dispatch CHANGE_PAGE), ANTES de que lleguen los datos de la nueva
+            // página — eso hacía que handleSelectedRowsChange interpretara la limpieza prematura como
+            // "se destildó todo en la página actual" y borrara la selección persistida por error.
+            paginationServerOptions: { persistSelectedOnPageChange: true },
+        }
+    }
+
     if (pageableProps != null) {
         tableProps = {
             ...tableProps,
@@ -372,9 +434,21 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
         }
     }
     
+    const selectedPayments = Object.values(selectedPaymentsById);
+
     return(
         <>
             <Table {...tableProps} />
+            {showInvoiceButton && selectedPayments.length > 0 && (
+                <div className="flex justify-end my-2">
+                    <button
+                        onClick={() => openInvoiceModal(selectedPayments)}
+                        className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded px-3 py-2 text-sm transition-colors"
+                    >
+                        Emitir factura AFIP ({selectedPayments.length})
+                    </button>
+                </div>
+            )}
             <div className="flex flex-col sm:flex-row my-4">
                 <CustomCheckbox
                     checked={showDischarges}
@@ -403,7 +477,7 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
             <TableSummary total={summary != null ? summary.total : tableSummary.total} incomes={summary != null ? summary.incomes : tableSummary.incomes} expenses={summary != null ? summary.expenses : tableSummary.expenses}/>
             <DeletePaymentModal payment={payment} isOpen={deletePaymentModal.isOpen} onClose={handleOnCloseDeletePaymentModal}/>
             <VerifyPaymentModal payment={payment} isOpen={verifyPaymentModal.isOpen} onClose={handleOnCloseVerifyPaymentModal}/>
-            <EmitirFacturaModal payment={payment} isOpen={invoiceModal.isOpen} onClose={invoiceModal.close} />
+            <EmitirFacturaModal payments={invoicePayments} isOpen={invoiceModal.isOpen} onClose={invoiceModal.close} onSuccess={handleInvoiceSuccess} />
         </>
     );
 } 

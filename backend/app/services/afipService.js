@@ -13,7 +13,6 @@ import https from "https";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { student, payment } from "../db/index.js";
 
 const WSAA_URL = {
   homologation: "https://wsaahomo.afip.gov.ar/ws/services/LoginCms",
@@ -162,40 +161,32 @@ const getInvoiceConfig = (ivaCondition, cuit) => {
   };
 };
 
-export const emitirFactura = async (paymentId) => {
+// Los montos ya incluyen el 21% de IVA y nunca se discrimina (ni Factura A ni B): decisión de negocio confirmada por contaduría.
+export const emitirFactura = async ({ items, ivaCondition, cuit }) => {
   const certPath = process.env.AFIP_CERT_PATH;
   const keyPath = process.env.AFIP_KEY_PATH;
-  const cuit = process.env.AFIP_CUIT;
+  const cuitEmisor = process.env.AFIP_CUIT;
   const puntoVenta = parseInt(process.env.AFIP_PUNTO_VENTA || "1");
 
-  if (!certPath || !keyPath || !cuit) return null;
+  if (!certPath || !keyPath || !cuitEmisor) return null;
   if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
     console.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
     return null;
   }
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Se necesita al menos un ítem para emitir la factura");
+  }
 
-  const paymentDb = await payment.findByPk(paymentId, { include: [{ model: student }] });
-  if (!paymentDb) throw new Error(`Pago ${paymentId} no encontrado`);
-  if (paymentDb.cae) throw new Error(`Este pago ya tiene una factura emitida (CAE: ${paymentDb.cae})`);
+  const { cbteTipo, label, docTipo, docNro, condIvaReceptor } = getInvoiceConfig(ivaCondition, cuit);
 
-  const alumno = paymentDb.student;
-  const ivaCondition = alumno?.ivaCondition || "CONSUMIDOR_FINAL";
-  const { cbteTipo, label, docTipo, docNro, condIvaReceptor } = getInvoiceConfig(ivaCondition, alumno?.cuit);
+  const total = parseFloat(items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toFixed(2));
 
-  const valor = parseFloat(paymentDb.value) || 0;
-  const descuento = parseFloat(paymentDb.discount) || 0;
-  const total = parseFloat((valor - (valor * descuento) / 100).toFixed(2));
-
-  const esResponsable = process.env.AFIP_REGIMEN === "responsable";
-  const impNeto   = esResponsable ? parseFloat((total / 1.21).toFixed(2)) : 0;
-  const impIVA    = esResponsable ? parseFloat((total - impNeto).toFixed(2)) : 0;
-  const impOpEx   = esResponsable ? 0 : total;
-  const ivaDetalle = esResponsable
-    ? `<ar:Iva><ar:AlicIva><ar:Id>5</ar:Id><ar:BaseImp>${impNeto}</ar:BaseImp><ar:Importe>${impIVA}</ar:Importe></ar:AlicIva></ar:Iva>`
-    : "";
+  const impNeto = 0;
+  const impIVA = 0;
+  const impOpEx = total;
 
   const { token, sign } = await getToken();
-  const nroComprobante = (await getLastVoucher(puntoVenta, cbteTipo, cuit, token, sign)) + 1;
+  const nroComprobante = (await getLastVoucher(puntoVenta, cbteTipo, cuitEmisor, token, sign)) + 1;
 
   const hoy = new Date();
   const pad = (n) => String(n).padStart(2, "0");
@@ -206,7 +197,7 @@ export const emitirFactura = async (paymentId) => {
   const wsfeBody = `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ar="http://ar.gov.afip.dif.FEV1/">
   <soap:Body><ar:FECAESolicitar>
-    <ar:Auth><ar:Token>${token}</ar:Token><ar:Sign>${sign}</ar:Sign><ar:Cuit>${cuit}</ar:Cuit></ar:Auth>
+    <ar:Auth><ar:Token>${token}</ar:Token><ar:Sign>${sign}</ar:Sign><ar:Cuit>${cuitEmisor}</ar:Cuit></ar:Auth>
     <ar:FeCAEReq>
       <ar:FeCabReq><ar:CantReg>1</ar:CantReg><ar:PtoVta>${puntoVenta}</ar:PtoVta><ar:CbteTipo>${cbteTipo}</ar:CbteTipo></ar:FeCabReq>
       <ar:FeDetReq><ar:FECAEDetRequest>
@@ -221,7 +212,6 @@ export const emitirFactura = async (paymentId) => {
         <ar:ImpNeto>${impNeto}</ar:ImpNeto><ar:ImpOpEx>${impOpEx}</ar:ImpOpEx>
         <ar:ImpIVA>${impIVA}</ar:ImpIVA><ar:ImpTrib>0</ar:ImpTrib>
         <ar:MonId>PES</ar:MonId><ar:MonCotiz>1</ar:MonCotiz>
-        ${ivaDetalle}
         <ar:CondicionIVAReceptorId>${condIvaReceptor}</ar:CondicionIVAReceptorId>
       </ar:FECAEDetRequest></ar:FeDetReq>
     </ar:FeCAEReq>
@@ -243,10 +233,9 @@ export const emitirFactura = async (paymentId) => {
   const raw = caeFchMatch ? caeFchMatch[1].trim() : null;
   const caeVencimiento = raw ? `${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 8)}` : null;
 
-  await paymentDb.update({ cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label });
-  console.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${cae} | Pago: ${paymentId}`);
+  console.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${cae} | Ítems: ${items.map(i => i.paymentId).join(", ")}`);
 
-  return { cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label };
+  return { cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label, total };
 };
 
 export const requiresInvoice = (paymentType) => {

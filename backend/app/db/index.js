@@ -55,7 +55,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse, mercado_pago_payment } = sequelize.models;
+const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse, mercado_pago_payment, invoice, invoiceItem } = sequelize.models;
 
 notificationPayment.belongsTo(payment, { through: "payment_id" });
 notificationPayment.belongsTo(user, { through: "user_id" });
@@ -122,6 +122,15 @@ student.hasMany(mercado_pago_payment, { foreignKey: "studentId" });
 course.hasMany(mercado_pago_payment, { foreignKey: "courseId" });
 payment.hasOne(mercado_pago_payment, { foreignKey: "paymentId" });
 
+// Relaciones para facturación AFIP agrupada (invoice / invoiceItem)
+invoice.belongsTo(student, { foreignKey: { allowNull: false } });
+student.hasMany(invoice, { foreignKey: { allowNull: false } });
+invoice.belongsTo(user, { foreignKey: { name: "createdByUserId", allowNull: true } });
+invoice.hasMany(invoiceItem, { foreignKey: { name: "invoiceId", allowNull: false } });
+invoiceItem.belongsTo(invoice, { foreignKey: { name: "invoiceId", allowNull: false } });
+invoiceItem.belongsTo(payment, { foreignKey: { name: "paymentId", allowNull: false } });
+payment.hasMany(invoiceItem, { foreignKey: { name: "paymentId", allowNull: false } });
+
 export {
   sequelize,
   professor,
@@ -147,4 +156,6 @@ export {
   secretaryPayment,
   notificationPayment,
   mercado_pago_payment,
+  invoice,
+  invoiceItem,
 };

@@ -2,9 +2,9 @@ import * as paymentService from "../services/paymentService.js";
 import * as mercadoPagoService from "../services/mercadoPagoService.js";
 import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
-import { payment as paymentModel, student as studentModel, item as itemModel, category as categoryModel } from "../db/index.js";
-import { getById, editById as editStudentById } from "../services/studentService.js";
-import { emitirFactura as afipEmitirFactura } from "../services/afipService.js";
+import { payment as paymentModel } from "../db/index.js";
+import { getById } from "../services/studentService.js";
+import { emitirFacturaAgrupada, resolveInvoiceForPayment, MixedStudentsError, DuplicateInvoiceError } from "../services/invoiceService.js";
 import { generateAfipInvoicePDF } from "../utils/pdfUtils.js";
 import { sendEmailWithPDF } from "../services/emailService.js";
 import { readFileSync } from "fs";
@@ -69,30 +69,18 @@ export default {
 
   downloadInvoicePDF: async (req, res, next) => {
     try {
-      const paymentDb = await paymentModel.findByPk(req.params.id, {
-        include: [
-          { model: studentModel },
-          { model: itemModel, include: [categoryModel] },
-        ],
-      });
-      if (!paymentDb) return res.status(404).json({ message: 'Pago no encontrado' });
+      const resolved = await resolveInvoiceForPayment(req.params.id);
+      if (!resolved) return res.status(404).json({ message: 'Pago no encontrado' });
+      const { paymentDb, items, total } = resolved;
       if (!paymentDb.cae) return res.status(400).json({ message: 'Este pago no tiene factura emitida' });
 
       const alumno = paymentDb.student;
-      const valor = parseFloat(paymentDb.value) || 0;
-      const descuento = parseFloat(paymentDb.discount) || 0;
-      const total = parseFloat((valor - (valor * descuento) / 100).toFixed(2));
-      const esResponsable = process.env.AFIP_REGIMEN === 'responsable';
-      const impNeto = esResponsable ? parseFloat((total / 1.21).toFixed(2)) : 0;
-      const impIVA = esResponsable ? parseFloat((total - impNeto).toFixed(2)) : 0;
-
       const IVA_TO_TIPO_CMP = { RESPONSABLE_INSCRIPTO: 1 };
       const IVA_TO_DOC_TIPO = { CONSUMIDOR_FINAL: 99 };
       const ivaKey = alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
       const tipoCmp = IVA_TO_TIPO_CMP[ivaKey] || 6;
       const tipoDocRec = IVA_TO_DOC_TIPO[ivaKey] || 80;
 
-      const itemDesc = paymentDb.item?.category?.name || paymentDb.item?.name || paymentDb.note || 'Servicio';
       const pad = (n) => String(n).padStart(2, '0');
       const d = new Date(paymentDb.at);
       const fechaCbte = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -111,8 +99,7 @@ export default {
         receptorNombre: alumno ? `${alumno.name} ${alumno.lastName}` : '',
         receptorCuit: alumno?.cuit || '',
         receptorIva: ivaKey,
-        descripcion: itemDesc,
-        total, impNeto, impIVA, esResponsable,
+        items, total,
         cae: paymentDb.cae,
         caeVencimiento: caeVenc,
         tipoCmp, tipoDocRec,
@@ -130,23 +117,13 @@ export default {
   sendInvoiceByEmail: async (req, res, next) => {
     console.log(`[sendInvoiceByEmail] Starting for payment ID: ${req.params.id}`);
     try {
-      const paymentDb = await paymentModel.findByPk(req.params.id, {
-        include: [
-          { model: studentModel },
-          { model: itemModel, include: [categoryModel] },
-        ],
-      });
-      if (!paymentDb) return res.status(404).json({ message: 'Pago no encontrado' });
+      const resolved = await resolveInvoiceForPayment(req.params.id);
+      if (!resolved) return res.status(404).json({ message: 'Pago no encontrado' });
+      const { paymentDb, items, total } = resolved;
       if (!paymentDb.cae) return res.status(400).json({ message: 'Este pago no tiene factura emitida' });
       const alumno = paymentDb.student;
       if (!alumno?.email) return res.status(400).json({ message: 'El alumno no tiene correo registrado' });
 
-      const valor = parseFloat(paymentDb.value) || 0;
-      const descuento = parseFloat(paymentDb.discount) || 0;
-      const total = parseFloat((valor - (valor * descuento) / 100).toFixed(2));
-      const esResponsable = process.env.AFIP_REGIMEN === 'responsable';
-      const impNeto = esResponsable ? parseFloat((total / 1.21).toFixed(2)) : 0;
-      const impIVA = esResponsable ? parseFloat((total - impNeto).toFixed(2)) : 0;
       const ivaKey = alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
       const IVA_TO_TIPO_CMP = { RESPONSABLE_INSCRIPTO: 1 };
       const IVA_TO_DOC_TIPO = { CONSUMIDOR_FINAL: 99 };
@@ -159,7 +136,6 @@ export default {
       const caeVenc = paymentDb.caeVencimiento
         ? (() => { const p = paymentDb.caeVencimiento.toString().split('-'); return `${p[2]}/${p[1]}/${p[0]}`; })()
         : '';
-      const itemDesc = paymentDb.item?.category?.name || paymentDb.item?.name || paymentDb.note || 'Servicio';
 
       const pdfBytes = await generateAfipInvoicePDF({
         invoiceType: paymentDb.invoiceType, invoiceNumber: paymentDb.invoiceNumber,
@@ -168,7 +144,7 @@ export default {
         emisorCuit: process.env.AFIP_CUIT, emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
         receptorNombre: `${alumno.name} ${alumno.lastName}`,
         receptorCuit: alumno?.cuit || '', receptorIva: ivaKey,
-        descripcion: itemDesc, total, impNeto, impIVA, esResponsable,
+        items, total,
         cae: paymentDb.cae, caeVencimiento: caeVenc,
         tipoCmp, tipoDocRec, nroDocRec: (alumno?.cuit || '').replace(/-/g, ''),
       });
@@ -206,16 +182,16 @@ export default {
 
   emitirFactura: async (req, res, next) => {
     try {
-      const { studentId, ivaCondition, cuit } = req.body;
-      if (studentId) {
-        const updateData = {};
-        if (ivaCondition !== undefined) updateData.ivaCondition = ivaCondition || null;
-        if (cuit !== undefined) updateData.cuit = cuit || null;
-        if (Object.keys(updateData).length > 0) await editStudentById(updateData, studentId);
-      }
-      const result = await afipEmitirFactura(req.params.id);
+      const { items, studentId, ivaCondition, cuit, confirmDuplicates } = req.body;
+      const result = await emitirFacturaAgrupada({ items, studentId, ivaCondition, cuit, confirmDuplicates, userId: req.user.id });
       res.status(StatusCodes.OK).json(result);
     } catch (e) {
+      if (e instanceof MixedStudentsError) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: e.message });
+      }
+      if (e instanceof DuplicateInvoiceError) {
+        return res.status(StatusCodes.CONFLICT).json({ message: e.message, alreadyInvoicedPaymentIds: e.alreadyInvoicedPaymentIds });
+      }
       next(e);
     }
   },
