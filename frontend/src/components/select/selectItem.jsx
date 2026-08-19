@@ -21,7 +21,7 @@ export default function SelectItem({ className, name, onChange, value }) {
 
     const CustomItemOption = (props) => {
         const { children, ...rest } = props;
-        return <components.Option ref={props.innerRef} {...rest}><div className="flex w-full"><span className="w-full">{props.data.title}</span><span className="font-bold">{props.data.category.title}</span></div></components.Option>
+        return <components.Option ref={props.innerRef} {...rest}><div className="flex w-full"><span className="w-full">{props.data.title}</span><span className="font-bold">{props.data.category?.title || ''}</span></div></components.Option>
     }
 
     return(
