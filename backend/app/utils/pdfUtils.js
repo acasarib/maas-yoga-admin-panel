@@ -110,7 +110,7 @@ export async function generateAfipInvoicePDF(data) {
   const {
     invoiceType, invoiceNumber, puntoVenta, fechaCbte, fechaIso,
     emisorCuit, emisorNombre,
-    receptorNombre, receptorCuit, receptorIva,
+    receptorNombre, receptorDoc, receptorDocLabel, receptorIva,
     items, total,
     cae, caeVencimiento,
     tipoCmp, tipoDocRec, nroDocRec,
@@ -118,7 +118,9 @@ export async function generateAfipInvoicePDF(data) {
 
   // --- QR AFIP (RG 4291) ---
   const cuitNum = parseInt((emisorCuit || '').replace(/-/g, '')) || 0;
-  const docRecNum = parseInt((receptorCuit || '').replace(/-/g, '')) || 0;
+  // Usar el mismo número que realmente se envió a AFIP en DocNro (nroDocRec), no re-derivarlo
+  // del texto mostrado en el PDF — evita que ambos queden inconsistentes entre sí.
+  const docRecNum = parseInt(nroDocRec) || 0;
   const qrPayload = {
     ver: 1, fecha: fechaIso || '', cuit: cuitNum,
     ptoVta: puntoVenta || 1, tipoCmp: tipoCmp || 6,
@@ -196,7 +198,7 @@ export async function generateAfipInvoicePDF(data) {
   page.drawRectangle({ x: L, y: recY, width: W, height: 52, borderColor: black, borderWidth: 0.5, color: lightGray });
   page.drawText('Apellido y Nombre / Razon Social:', { x: L+5, y: recY+38, size: 8, font: fontBold, color: dark });
   page.drawText((receptorNombre || '').substring(0, 50), { x: L+5, y: recY+26, size: 9, font: fontReg, color: dark });
-  page.drawText(`CUIL/CUIT: ${receptorCuit || 'Sin datos'}`, { x: L+5, y: recY+13, size: 8, font: fontReg, color: dark });
+  page.drawText(`${receptorDocLabel || 'CUIL/CUIT'}: ${receptorDoc || 'Sin datos'}`, { x: L+5, y: recY+13, size: 8, font: fontReg, color: dark });
   page.drawText(`Condicion IVA: ${(receptorIva || '').replace(/_/g, ' ')}`, { x: L+195, y: recY+13, size: 8, font: fontReg, color: dark });
 
   // ================================================================

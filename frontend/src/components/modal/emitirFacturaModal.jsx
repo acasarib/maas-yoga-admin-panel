@@ -24,7 +24,26 @@ const formatCuit = (value) => {
   return `${digits.slice(0, 2)}-${digits.slice(2, 10)}-${digits.slice(10)}`;
 };
 
+const formatDni = (value) => value.replace(/\D/g, '').substring(0, 8);
+
 const formatMoney = (n) => `$${(parseFloat(n) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// Factura A (Responsable Inscripto) exige CUIT siempre — por definición, ser Responsable
+// Inscripto implica estar registrado con CUIT ante AFIP, no admite DNI ni CUIL (ver afipService.js).
+// Factura B sí acepta identificar al comprador con DNI, CUIT o CUIL, o dejarlo sin identificar.
+const deriveDocState = (student) => {
+  const iva = student?.ivaCondition || 'CONSUMIDOR_FINAL';
+  if (iva === 'RESPONSABLE_INSCRIPTO') {
+    return { docType: 'CUIT', cuit: student?.cuit || '', documentNumber: '' };
+  }
+  if (student?.document) {
+    return { docType: 'DNI', cuit: student?.cuit || '', documentNumber: String(student.document) };
+  }
+  if (student?.cuit) {
+    return { docType: 'CUIT', cuit: student.cuit, documentNumber: '' };
+  }
+  return { docType: '', cuit: '', documentNumber: '' };
+};
 
 const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
   const { changeAlertStatusAndMessage } = useContext(Context);
@@ -33,6 +52,8 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [ivaCondition, setIvaCondition] = useState('CONSUMIDOR_FINAL');
   const [cuit, setCuit] = useState('');
+  const [docType, setDocType] = useState(''); // '' (sin identificar) | 'DNI' | 'CUIT' | 'CUIL' — solo aplica a Factura B
+  const [documentNumber, setDocumentNumber] = useState('');
   const [itemState, setItemState] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -56,12 +77,17 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
         setSelectedStudent(commonStudent);
         setSearchQuery(`${commonStudent.name} ${commonStudent.lastName}`);
         setIvaCondition(commonStudent.ivaCondition || 'CONSUMIDOR_FINAL');
-        setCuit(commonStudent.cuit || '');
+        const doc = deriveDocState(commonStudent);
+        setDocType(doc.docType);
+        setCuit(doc.cuit);
+        setDocumentNumber(doc.documentNumber);
       } else {
         setSelectedStudent(null);
         setSearchQuery('');
         setIvaCondition('CONSUMIDOR_FINAL');
+        setDocType('');
         setCuit('');
+        setDocumentNumber('');
       }
 
       const initialItems = {};
@@ -94,9 +120,17 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
     setSelectedStudent(student);
     setSearchQuery(`${student.name} ${student.lastName}`);
     setIvaCondition(student.ivaCondition || 'CONSUMIDOR_FINAL');
-    setCuit(student.cuit || '');
+    const doc = deriveDocState(student);
+    setDocType(doc.docType);
+    setCuit(doc.cuit);
+    setDocumentNumber(doc.documentNumber);
     setShowDropdown(false);
     setSearchResults([]);
+  };
+
+  const handleIvaConditionChange = (value) => {
+    setIvaCondition(value);
+    if (value === 'RESPONSABLE_INSCRIPTO') setDocType('CUIT');
   };
 
   const updateItemAmount = (paymentId, amount) => {
@@ -128,10 +162,13 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
         concept: (itemState[p.id]?.concept || '').trim(),
         amount: parseFloat(itemState[p.id]?.amount),
       }));
+      const isResponsable = ivaCondition === 'RESPONSABLE_INSCRIPTO';
       const result = await paymentsService.emitirFactura(items, {
         studentId: selectedStudent.id,
         ivaCondition: ivaCondition || null,
-        cuit: cuit || null,
+        docType: isResponsable ? 'CUIT' : (docType || null),
+        cuit: (isResponsable || docType === 'CUIT' || docType === 'CUIL') ? (cuit || null) : undefined,
+        document: (!isResponsable && docType === 'DNI') ? (documentNumber || null) : undefined,
         confirmDuplicates,
       });
       changeAlertStatusAndMessage(true, 'success', 'Factura AFIP emitida correctamente.');
@@ -169,7 +206,7 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const missingFiscalData = selectedStudent && (!selectedStudent.ivaCondition || !selectedStudent.cuit);
+  const missingFiscalData = selectedStudent && (!selectedStudent.ivaCondition || (!selectedStudent.cuit && !selectedStudent.document));
 
   const primaryButtonAction = alreadyHasInvoice
     ? () => paymentsService.downloadInvoicePDF(primaryPaymentId)
@@ -271,7 +308,7 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
                 <select
                   id="iva-condition-invoice"
                   value={ivaCondition}
-                  onChange={(e) => setIvaCondition(e.target.value)}
+                  onChange={(e) => handleIvaConditionChange(e.target.value)}
                   className="border border-gray-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-green-500 bg-white"
                 >
                   {IVA_OPTIONS.map((opt) => (
@@ -280,13 +317,50 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
                 </select>
               </div>
 
-              <CommonInput
-                label="CUIL / CUIT"
-                type="text"
-                placeholder="XX-XXXXXXXX-X"
-                value={cuit}
-                onChange={(e) => setCuit(formatCuit(e.target.value))}
-              />
+              {ivaCondition === 'RESPONSABLE_INSCRIPTO' ? (
+                <CommonInput
+                  label="CUIT"
+                  type="text"
+                  placeholder="XX-XXXXXXXX-X"
+                  value={cuit}
+                  onChange={(e) => setCuit(formatCuit(e.target.value))}
+                />
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="doc-type-invoice">Tipo de documento</Label>
+                    <select
+                      id="doc-type-invoice"
+                      value={docType}
+                      onChange={(e) => setDocType(e.target.value)}
+                      className="border border-gray-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-green-500 bg-white"
+                    >
+                      <option value="">Sin identificar</option>
+                      <option value="DNI">DNI</option>
+                      <option value="CUIT">CUIT</option>
+                      <option value="CUIL">CUIL</option>
+                    </select>
+                  </div>
+                  {docType === 'DNI' && (
+                    <CommonInput
+                      label="DNI"
+                      type="text"
+                      placeholder="12345678"
+                      value={documentNumber}
+                      onChange={(e) => setDocumentNumber(formatDni(e.target.value))}
+                    />
+                  )}
+                  {(docType === 'CUIT' || docType === 'CUIL') && (
+                    <CommonInput
+                      label={docType}
+                      type="text"
+                      placeholder="XX-XXXXXXXX-X"
+                      value={cuit}
+                      onChange={(e) => setCuit(formatCuit(e.target.value))}
+                    />
+                  )}
+                </>
+              )}
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-3">
                 <Label>Movimientos a facturar</Label>

@@ -5,6 +5,7 @@ import Specification from "../models/Specification.js";
 import { payment as paymentModel } from "../db/index.js";
 import { getById } from "../services/studentService.js";
 import { emitirFacturaAgrupada, resolveInvoiceForPayment, MixedStudentsError, DuplicateInvoiceError } from "../services/invoiceService.js";
+import { DOC_TIPO } from "../services/afipService.js";
 import { generateAfipInvoicePDF } from "../utils/pdfUtils.js";
 import { sendEmailWithPDF } from "../services/emailService.js";
 import { readFileSync } from "fs";
@@ -12,6 +13,43 @@ import { fileURLToPath } from "url";
 import { PAYMENT_TYPES } from "../utils/constants.js";
 
 const __invoiceTemplatePath = new URL('../templates/invoice_email.html', import.meta.url);
+
+const DOC_LABEL = { CUIT: 'CUIT', CUIL: 'CUIL', DNI: 'DNI' };
+
+/**
+ * Resuelve qué mostrar en el PDF/QR como documento del receptor. Si la factura tiene
+ * snapshot en `invoiceDb` (docType/docNumber, guardado al momento de emitir), usa
+ * exactamente eso — así el PDF sigue reflejando lo que realmente se envió a AFIP aunque
+ * el alumno cambie sus datos fiscales después. Si no hay snapshot (factura legacy, emitida
+ * antes de esta feature), replica el comportamiento anterior: CUIT solo para Responsable
+ * Inscripto, sin identificar en cualquier otro caso.
+ */
+const resolveInvoicePdfDocInfo = (invoiceDb, alumno) => {
+  const ivaKey = invoiceDb?.ivaCondition || alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
+  const tipoCmp = ivaKey === 'RESPONSABLE_INSCRIPTO' ? 1 : 6;
+
+  if (invoiceDb) {
+    const tipoDocRec = invoiceDb.docType ? DOC_TIPO[invoiceDb.docType] : DOC_TIPO.SIN_IDENTIFICAR;
+    return {
+      ivaKey, tipoCmp, tipoDocRec,
+      nroDocRec: (invoiceDb.docNumber || '').replace(/\D/g, ''),
+      receptorDoc: invoiceDb.docNumber || '',
+      receptorDocLabel: invoiceDb.docType ? DOC_LABEL[invoiceDb.docType] : 'CUIL/CUIT',
+    };
+  }
+
+  // Antes de esta feature, la emisión solo informaba CUIT a AFIP para Responsable Inscripto
+  // (Factura A); cualquier otra condición IVA siempre viajó como "sin identificar" (docNro 0),
+  // sin importar si el alumno tenía un CUIT cargado. Se replica fielmente esa regla acá.
+  const isResponsable = ivaKey === 'RESPONSABLE_INSCRIPTO';
+  return {
+    ivaKey, tipoCmp,
+    tipoDocRec: isResponsable ? DOC_TIPO.CUIT : DOC_TIPO.SIN_IDENTIFICAR,
+    nroDocRec: isResponsable ? (alumno?.cuit || '').replace(/-/g, '') : '',
+    receptorDoc: isResponsable ? (alumno?.cuit || '') : '',
+    receptorDocLabel: 'CUIL/CUIT',
+  };
+};
 
 export default {
   /**
@@ -71,15 +109,11 @@ export default {
     try {
       const resolved = await resolveInvoiceForPayment(req.params.id);
       if (!resolved) return res.status(404).json({ message: 'Pago no encontrado' });
-      const { paymentDb, items, total } = resolved;
+      const { paymentDb, items, total, invoiceDb } = resolved;
       if (!paymentDb.cae) return res.status(400).json({ message: 'Este pago no tiene factura emitida' });
 
       const alumno = paymentDb.student;
-      const IVA_TO_TIPO_CMP = { RESPONSABLE_INSCRIPTO: 1 };
-      const IVA_TO_DOC_TIPO = { CONSUMIDOR_FINAL: 99 };
-      const ivaKey = alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
-      const tipoCmp = IVA_TO_TIPO_CMP[ivaKey] || 6;
-      const tipoDocRec = IVA_TO_DOC_TIPO[ivaKey] || 80;
+      const { ivaKey, tipoCmp, tipoDocRec, nroDocRec, receptorDoc, receptorDocLabel } = resolveInvoicePdfDocInfo(invoiceDb, alumno);
 
       const pad = (n) => String(n).padStart(2, '0');
       const d = new Date(paymentDb.at);
@@ -97,13 +131,12 @@ export default {
         emisorCuit: process.env.AFIP_CUIT,
         emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
         receptorNombre: alumno ? `${alumno.name} ${alumno.lastName}` : '',
-        receptorCuit: alumno?.cuit || '',
+        receptorDoc, receptorDocLabel,
         receptorIva: ivaKey,
         items, total,
         cae: paymentDb.cae,
         caeVencimiento: caeVenc,
-        tipoCmp, tipoDocRec,
-        nroDocRec: (alumno?.cuit || '').replace(/-/g, ''),
+        tipoCmp, tipoDocRec, nroDocRec,
       });
 
       res.setHeader('Content-Type', 'application/pdf');
@@ -119,16 +152,12 @@ export default {
     try {
       const resolved = await resolveInvoiceForPayment(req.params.id);
       if (!resolved) return res.status(404).json({ message: 'Pago no encontrado' });
-      const { paymentDb, items, total } = resolved;
+      const { paymentDb, items, total, invoiceDb } = resolved;
       if (!paymentDb.cae) return res.status(400).json({ message: 'Este pago no tiene factura emitida' });
       const alumno = paymentDb.student;
       if (!alumno?.email) return res.status(400).json({ message: 'El alumno no tiene correo registrado' });
 
-      const ivaKey = alumno?.ivaCondition || 'CONSUMIDOR_FINAL';
-      const IVA_TO_TIPO_CMP = { RESPONSABLE_INSCRIPTO: 1 };
-      const IVA_TO_DOC_TIPO = { CONSUMIDOR_FINAL: 99 };
-      const tipoCmp = IVA_TO_TIPO_CMP[ivaKey] || 6;
-      const tipoDocRec = IVA_TO_DOC_TIPO[ivaKey] || 80;
+      const { ivaKey, tipoCmp, tipoDocRec, nroDocRec, receptorDoc, receptorDocLabel } = resolveInvoicePdfDocInfo(invoiceDb, alumno);
       const pad = (n) => String(n).padStart(2, '0');
       const d = new Date(paymentDb.at);
       const fechaCbte = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
@@ -143,10 +172,10 @@ export default {
         fechaCbte, fechaIso,
         emisorCuit: process.env.AFIP_CUIT, emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
         receptorNombre: `${alumno.name} ${alumno.lastName}`,
-        receptorCuit: alumno?.cuit || '', receptorIva: ivaKey,
+        receptorDoc, receptorDocLabel, receptorIva: ivaKey,
         items, total,
         cae: paymentDb.cae, caeVencimiento: caeVenc,
-        tipoCmp, tipoDocRec, nroDocRec: (alumno?.cuit || '').replace(/-/g, ''),
+        tipoCmp, tipoDocRec, nroDocRec,
       });
 
       const fileName = `factura-${paymentDb.invoiceType?.replace(/ /g, '-')}-${paymentDb.invoiceNumber}.pdf`;
@@ -182,8 +211,8 @@ export default {
 
   emitirFactura: async (req, res, next) => {
     try {
-      const { items, studentId, ivaCondition, cuit, confirmDuplicates } = req.body;
-      const result = await emitirFacturaAgrupada({ items, studentId, ivaCondition, cuit, confirmDuplicates, userId: req.user.id });
+      const { items, studentId, ivaCondition, cuit, docType, document, confirmDuplicates } = req.body;
+      const result = await emitirFacturaAgrupada({ items, studentId, ivaCondition, cuit, docType, document, confirmDuplicates, userId: req.user.id });
       res.status(StatusCodes.OK).json(result);
     } catch (e) {
       if (e instanceof MixedStudentsError) {

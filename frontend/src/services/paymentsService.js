@@ -130,11 +130,11 @@ export default {
                 .catch((error) => reject(error));
         });
     },
-    emitirFactura(items, { studentId, ivaCondition, cuit, confirmDuplicates = false } = {}) {
+    emitirFactura(items, { studentId, ivaCondition, cuit, docType, document, confirmDuplicates = false } = {}) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;
             axios
-                .post(baseUrl + `api/v1/payments/invoice`, { items, studentId, ivaCondition, cuit, confirmDuplicates })
+                .post(baseUrl + `api/v1/payments/invoice`, { items, studentId, ivaCondition, cuit, docType, document, confirmDuplicates })
                 .then((response) => resolve(response.data))
                 .catch((error) => reject(error));
         });

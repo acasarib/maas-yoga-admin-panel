@@ -47,7 +47,7 @@ export const findAlreadyInvoicedIds = (paymentsForValidation) =>
  * cada uno como un ítem con su propio concepto y monto, y persiste el resultado en
  * `invoice` + `invoiceItem`. Ver sdd/wip/001-afip-facturacion-multi-movimiento-monto.
  */
-export const emitirFacturaAgrupada = async ({ items, studentId, ivaCondition, cuit, confirmDuplicates = false, userId }) => {
+export const emitirFacturaAgrupada = async ({ items, studentId, ivaCondition, cuit, docType, document, confirmDuplicates = false, userId }) => {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error("Se necesita al menos un movimiento para emitir la factura");
   }
@@ -76,24 +76,35 @@ export const emitirFacturaAgrupada = async ({ items, studentId, ivaCondition, cu
     throw new DuplicateInvoiceError(alreadyInvoicedPaymentIds);
   }
 
-  if (ivaCondition !== undefined || cuit !== undefined) {
+  if (ivaCondition !== undefined || cuit !== undefined || document !== undefined) {
     const updateData = {};
     if (ivaCondition !== undefined) updateData.ivaCondition = ivaCondition || null;
     if (cuit !== undefined) updateData.cuit = cuit || null;
+    if (document !== undefined) updateData.document = document ? String(document).replace(/\D/g, "") || null : null;
     if (Object.keys(updateData).length > 0) await editStudentById(updateData, resolvedStudentId);
   }
 
   const alumno = await student.findByPk(resolvedStudentId);
 
+  // docType solo aplica a Factura B (ver resolveReceptorDoc en afipService.js) — para Factura A
+  // (Responsable Inscripto) siempre se usa el CUIT del alumno, sin importar lo que llegue acá.
   const afipResult = await afipEmitirFactura({
     items: normalizedItems,
     ivaCondition: alumno?.ivaCondition || "CONSUMIDOR_FINAL",
     cuit: alumno?.cuit,
+    docType,
+    document: alumno?.document,
   });
   if (!afipResult) {
     throw new Error("La facturación AFIP no está disponible (certificados no configurados)");
   }
   const { cae, caeVencimiento, invoiceNumber, invoiceType, total } = afipResult;
+
+  const isResponsableInscripto = alumno?.ivaCondition === "RESPONSABLE_INSCRIPTO";
+  const invoiceDocType = isResponsableInscripto ? "CUIT" : (docType || null);
+  const invoiceDocNumber = isResponsableInscripto
+    ? (alumno?.cuit || null)
+    : (docType === "DNI" ? alumno?.document : docType === "CUIT" || docType === "CUIL" ? alumno?.cuit : null) || null;
 
   const { invoiceDb, invoiceItemsDb } = await sequelize.transaction(async (transaction) => {
     const invoiceDb = await invoice.create({
@@ -106,6 +117,8 @@ export const emitirFacturaAgrupada = async ({ items, studentId, ivaCondition, cu
       studentId: alumno.id,
       ivaCondition: alumno.ivaCondition,
       cuit: alumno.cuit,
+      docType: invoiceDocType,
+      docNumber: invoiceDocNumber ? String(invoiceDocNumber) : null,
       createdByUserId: userId || null,
     }, { transaction });
 
