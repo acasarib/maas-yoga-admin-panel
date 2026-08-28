@@ -89,6 +89,11 @@ const soapRequest = (url, soapAction, body) => {
         "SOAPAction": soapAction,
         "Content-Length": Buffer.byteLength(body),
       },
+      // Los servidores de AFIP (WSAA/WSFE) siguen usando parámetros Diffie-Hellman de
+      // menos de 2048 bits. OpenSSL 3.x (Node 18+) los rechaza por defecto con
+      // "dh key too small". Bajamos el nivel de seguridad TLS solo para esta conexión
+      // puntual (no afecta al resto del proceso ni a otras conexiones salientes).
+      ciphers: "DEFAULT:@SECLEVEL=1",
     };
     const req = https.request(options, (res) => {
       let data = "";
