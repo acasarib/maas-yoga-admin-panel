@@ -251,12 +251,25 @@ export const emitirFactura = async ({ items, ivaCondition, cuit, docType, docume
 
   const response = await soapRequest(WSFE_URL[getEnv()], "http://ar.gov.afip.dif.FEV1/FECAESolicitar", wsfeBody);
 
-  const errMatch = response.match(/<Msg>([\s\S]*?)<\/Msg>/);
   const caeMatch = response.match(/<CAE>([\s\S]*?)<\/CAE>/);
   const caeFchMatch = response.match(/<CAEFchVto>([\s\S]*?)<\/CAEFchVto>/);
 
   if (!caeMatch) {
-    const msg = errMatch ? errMatch[1].trim() : response;
+    // <Errors> = motivo real del rechazo. <Observaciones> = solo informativo (puede venir
+    // incluso cuando SÍ hay CAE). Se distinguen para no confundir una advertencia con el
+    // motivo del rechazo, y se loguea la respuesta cruda completa para poder diagnosticar.
+    const errCodes = [...response.matchAll(/<Err>\s*<Code>(\d+)<\/Code>\s*<Msg>([\s\S]*?)<\/Msg>\s*<\/Err>/g)]
+      .map(([, code, msg]) => `[${code}] ${msg.trim()}`);
+    const obsCodes = [...response.matchAll(/<Obs>\s*<Code>(\d+)<\/Code>\s*<Msg>([\s\S]*?)<\/Msg>\s*<\/Obs>/g)]
+      .map(([, code, msg]) => `[${code}] ${msg.trim()}`);
+    const genericMsg = response.match(/<Msg>([\s\S]*?)<\/Msg>/);
+
+    console.error(`❌ AFIP no devolvió CAE. Request: docTipo=${docTipo} docNro=${docNro} cbteTipo=${cbteTipo} condIvaReceptor=${condIvaReceptor} total=${total}`);
+    console.error(`❌ AFIP respuesta cruda completa:\n${response}`);
+
+    const msg = errCodes.length > 0
+      ? errCodes.join(" | ")
+      : (obsCodes.length > 0 ? `Observación: ${obsCodes.join(" | ")}` : (genericMsg ? genericMsg[1].trim() : response));
     throw new Error(`AFIP no devolvió CAE: ${msg}`);
   }
 
