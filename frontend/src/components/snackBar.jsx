@@ -10,8 +10,10 @@ const DescriptionAlerts = () => {
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
       <Snackbar open={isAlertActive} autoHideDuration={6000} onClose={() => changeAlertStatusAndMessage(false, '', '')}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert severity={alertStatus}>
-          {alertMessage}
+        <Alert severity={alertStatus} onClose={() => changeAlertStatusAndMessage(false, '', '')}>
+          {alertMessage.split('\n').map((line, index) => (
+            <div key={index}>{line}</div>
+          ))}
         </Alert>
       </Snackbar>
     </Stack>
