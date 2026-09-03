@@ -6,7 +6,8 @@ export default {
    * @returns 200 and healthcheck
    */
   getHealthcheck: async (req, res) => {
-    const healthcheck = await healthcheckService.getHealthcheck();
+    const checkCert = req.query.checkCert === 'true';
+    const healthcheck = await healthcheckService.getHealthcheck(checkCert);
     res.status(200).json(healthcheck);
   },
 

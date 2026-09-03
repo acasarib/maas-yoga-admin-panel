@@ -89,15 +89,19 @@ const isExpiringSoon = (notAfter) => {
   return expiryDate < oneMonthFromNow;
 };
 
-export const getHealthcheck = async () => {
-  const certPath = process.env.AFIP_CERT_PATH;
-  const afipCert = getCertInfo(certPath);
-
-  return {
+export const getHealthcheck = async (checkCert = false) => {
+  const result = {
     status: "UP",
     version: APP_VERSION,
-    details: {
-      afipCert
-    }
   };
+
+  if (checkCert) {
+    const certPath = process.env.AFIP_CERT_PATH;
+    const afipCert = getCertInfo(certPath);
+    result.details = {
+      afipCert
+    };
+  }
+
+  return result;
 };

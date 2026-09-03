@@ -120,7 +120,7 @@ export default function Home(props) {
             if (certWarningShown) return;
             
             try {
-                const healthData = await userService.getHealth();
+                const healthData = await userService.getHealth(true);
                 if (healthData.details?.afipCert?.expiresSoon) {
                     const expiryDate = new Date(healthData.details.afipCert.notAfter);
                     const formattedDate = expiryDate.toLocaleDateString('es-AR', { 

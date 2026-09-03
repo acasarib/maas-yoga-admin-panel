@@ -72,7 +72,7 @@ export default function Banner() {
 
       useEffect(() => {
         const healthCheck = async () => {
-          const status = await authUser.getHealth();
+          const status = await authUser.getHealth(true);
           if(!status.status || (status.status !== 'UP')) {
             setHealthAlert(true)
           }

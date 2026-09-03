@@ -86,11 +86,11 @@ export default {
                 })
         });
     },
-    getHealth() {
+    getHealth(checkCert = false) {
         return new Promise((resolve, reject) => {
             const healthUrl = process.env.REACT_APP_BACKEND_HOST + "api/v1/healthcheck";
             axios
-                .get(healthUrl)
+                .get(healthUrl, { params: { checkCert } })
                 .then((response) => {
                     resolve(response.data);
                 })
