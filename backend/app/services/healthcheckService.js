@@ -1,6 +1,7 @@
 import { APP_VERSION } from "../utils/constants.js";
 import { execSync } from "child_process";
 import { join } from "path";
+import logger from "../utils/logger.js";
 
 const getCertInfo = (certPath) => {
   try {
@@ -54,7 +55,7 @@ const getCertInfo = (certPath) => {
       expiresSoon: isExpiringSoon(notAfter)
     };
   } catch (error) {
-    console.error('Error reading certificate:', error);
+    logger.error('Error reading certificate:', error);
     return null;
   }
 };

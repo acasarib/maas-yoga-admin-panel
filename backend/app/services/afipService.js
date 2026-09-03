@@ -13,6 +13,7 @@ import https from "https";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import logger from "../utils/logger.js";
 
 const WSAA_URL = {
   homologation: "https://wsaahomo.afip.gov.ar/ws/services/LoginCms",
@@ -125,7 +126,7 @@ const getToken = async () => {
   const signMatch = decoded.match(/<sign>([\s\S]*?)<\/sign>/);
   if (!tokenMatch || !signMatch) {
     if (response.includes("alreadyAuthenticated") && tokenCache.token) {
-      console.warn("WSAA: alreadyAuthenticated — usando token en caché");
+      logger.warn("WSAA: alreadyAuthenticated — usando token en caché");
       return tokenCache;
     }
     throw new Error("WSAA fallo: " + response);
@@ -200,7 +201,7 @@ export const emitirFactura = async ({ items, ivaCondition, cuit, docType, docume
 
   if (!certPath || !keyPath || !cuitEmisor) return null;
   if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
-    console.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
+    logger.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
     return null;
   }
   if (!Array.isArray(items) || items.length === 0) {
@@ -264,8 +265,8 @@ export const emitirFactura = async ({ items, ivaCondition, cuit, docType, docume
       .map(([, code, msg]) => `[${code}] ${msg.trim()}`);
     const genericMsg = response.match(/<Msg>([\s\S]*?)<\/Msg>/);
 
-    console.error(`❌ AFIP no devolvió CAE. Request: docTipo=${docTipo} docNro=${docNro} cbteTipo=${cbteTipo} condIvaReceptor=${condIvaReceptor} total=${total}`);
-    console.error(`❌ AFIP respuesta cruda completa:\n${response}`);
+    logger.error(`❌ AFIP no devolvió CAE. Request: docTipo=${docTipo} docNro=${docNro} cbteTipo=${cbteTipo} condIvaReceptor=${condIvaReceptor} total=${total}`);
+    logger.error(`❌ AFIP respuesta cruda completa:\n${response}`);
 
     const msg = errCodes.length > 0
       ? errCodes.join(" | ")
@@ -277,7 +278,7 @@ export const emitirFactura = async ({ items, ivaCondition, cuit, docType, docume
   const raw = caeFchMatch ? caeFchMatch[1].trim() : null;
   const caeVencimiento = raw ? `${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 8)}` : null;
 
-  console.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${cae} | Ítems: ${items.map(i => i.paymentId).join(", ")}`);
+  logger.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${cae} | Ítems: ${items.map(i => i.paymentId).join(", ")}`);
 
   return { cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label, total };
 };

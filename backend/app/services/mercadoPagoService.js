@@ -9,6 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as emailService from "./emailService.js";
 import { StatusCodes } from "http-status-codes";
+import logger from "../utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +18,7 @@ const __dirname = path.dirname(__filename);
 const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
 if (!accessToken) {
-  console.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
+  logger.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
   //throw new Error("MercadoPago access token is required");
 }
 
@@ -45,7 +46,7 @@ const payment = new Payment(client);
  */
 export const createPaymentPreference = async (paymentData) => {
   if (!accessToken) {
-    console.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
+    logger.error("MERCADOPAGO_ACCESS_TOKEN no está configurado en las variables de entorno");
     throw  ({ statusCode: StatusCodes.INTERNAL_SERVER_ERROR, message: "Falta configuracion de mercado pago en el servidor" });
   }
   try {
@@ -160,7 +161,7 @@ export const createPaymentPreference = async (paymentData) => {
         monthName: monthName,
       });
     } catch (error) {
-      console.error("Error saving preference to database:", error);
+      logger.error("Error saving preference to database:", error);
       // No fallar si no se puede guardar en DB, pero logear el error
     }
 
@@ -172,7 +173,7 @@ export const createPaymentPreference = async (paymentData) => {
     };
 
   } catch (error) {
-    console.error("Error creating MercadoPago preference:", error);
+    logger.error("Error creating MercadoPago preference:", error);
     throw new Error(`Error al crear preferencia de pago: ${error.message}`);
   }
 };
@@ -191,7 +192,7 @@ export const getAndUpdateMercadoPagoPayment = async (paymentId) => {
     
     if (mpPayment == null || mpPayment == undefined) {
       // No deberia pasar, pero igualmente proceso el pago
-      console.log("Payment not found in database");
+      logger.log("Payment not found in database");
       return paymentDetails;
     }
     // Si existe, actualizar el status
@@ -208,7 +209,7 @@ export const getAndUpdateMercadoPagoPayment = async (paymentId) => {
     paymentDetails.completed = mpPayment.completed;
     paymentDetails.paymentId = mpPayment.paymentId;
   } catch (error) {
-    console.error("Error managing MercadoPago payment in database:", error);
+    logger.error("Error managing MercadoPago payment in database:", error);
     throw error;
   }
   
@@ -227,7 +228,7 @@ export const updateMercadoPagoPayment = async (paymentDetails) => {
       });
     }
   } catch (error) {
-    console.error("Error updating MercadoPago payment:", error);
+    logger.error("Error updating MercadoPago payment:", error);
     throw error;
   }
 };
@@ -249,7 +250,7 @@ export const processWebhookNotification = async (notification) => {
     paymentId = notification.body?.data?.id;
     paymentDetails = await getAndUpdateMercadoPagoPayment(paymentId);
     if (paymentDetails == null) {
-      console.error("Payment details not found, id=" + paymentId);
+      logger.error("Payment details not found, id=" + paymentId);
       return;
     }
     
@@ -290,7 +291,7 @@ export const processWebhookNotification = async (notification) => {
       timestamp 
     };
   } catch (error) {
-    console.error("Error processing webhook notification:", error);
+    logger.error("Error processing webhook notification:", error);
     throw error;
   }
 };
@@ -340,7 +341,7 @@ export const getWebhookHistory = async () => {
       timestamp: new Date().toISOString()
     };
   } catch (error) {
-    console.error("Error getting webhook history:", error);
+    logger.error("Error getting webhook history:", error);
     throw error;
   }
 };
@@ -354,7 +355,7 @@ export const getPaymentInfo = async (paymentId) => {
   try {
     // Implementar lógica para obtener información del pago
     // usando el SDK de MercadoPago
-    console.log('Getting payment info for:', paymentId);
+    logger.log('Getting payment info for:', paymentId);
     
     // TODO: Implementar usando Payment API de MercadoPago
     // const payment = new Payment(client);
@@ -362,7 +363,7 @@ export const getPaymentInfo = async (paymentId) => {
     
     return { paymentId };
   } catch (error) {
-    console.error('Error getting payment info:', error);
+    logger.error('Error getting payment info:', error);
     throw error;
   }
 };
@@ -377,7 +378,7 @@ const getPaymentDetailsFromMercadoPago = async (paymentId) => {
     const paymentData = await payment.get({ id: paymentId });
     return paymentData;
   } catch (error) {
-    console.error("Error getting payment details from MercadoPago:", error);
+    logger.error("Error getting payment details from MercadoPago:", error);
     throw error;
   }
 };
@@ -401,7 +402,7 @@ const getCourseAndStudentDetails = async (referenceData) => {
       month: referenceData.month
     };
   } catch (error) {
-    console.error('Error getting course and student details:', error);
+    logger.error('Error getting course and student details:', error);
     return null;
   }
 };
@@ -460,7 +461,7 @@ const createPaymentInDatabaseFromMetadata = async (paymentDetails, paymentData) 
     const createdPayment = await paymentService.create(dbPaymentData, null, false);    
     return createdPayment;
   } catch (error) {
-    console.error("Error creating payment in database:", error);
+    logger.error("Error creating payment in database:", error);
     throw error;
   }
 };
@@ -498,7 +499,7 @@ export const generateQRWithLogo = async (paymentLink) => {
     try {
       logoImage = await Jimp.read(logoPath);
     } catch (error) {
-      console.warn('Logo no encontrado, generando QR sin logo:', error.message);
+      logger.warn('Logo no encontrado, generando QR sin logo:', error.message);
       return qrBuffer; // Devolver QR sin logo si no se encuentra el archivo
     }
 
@@ -524,7 +525,7 @@ export const generateQRWithLogo = async (paymentLink) => {
     return finalBuffer;
 
   } catch (error) {
-    console.error("Error generating QR with logo:", error);
+    logger.error("Error generating QR with logo:", error);
     throw error;
   }
 };
@@ -554,7 +555,7 @@ export const sendPaymentEmail = async (emailData) => {
       messageId: result.messageId
     };
   } catch (error) {
-    console.error("Error sending payment email:", error);
+    logger.error("Error sending payment email:", error);
     throw error;
   }
 };
@@ -569,7 +570,7 @@ export const getMercadoPagoPaymentById = async (id) => {
     const preference = await mercado_pago_payment.findByPk(id);
     return preference;
   } catch (error) {
-    console.error("Error getting MercadoPago payment by ID:", error);
+    logger.error("Error getting MercadoPago payment by ID:", error);
     throw error;
   }
 };
@@ -578,7 +579,7 @@ const sendNotificationToUser = async (paymentData, paymentId) => {
   try {
     notificationPayment.create({ paymentId, userId: paymentData.informerId });
   } catch (error) {
-    console.error("Error sending notification to user:", error);
+    logger.error("Error sending notification to user:", error);
     throw error;
   }
 };

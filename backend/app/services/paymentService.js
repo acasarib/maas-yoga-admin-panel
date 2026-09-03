@@ -7,6 +7,7 @@ import { Op, col, cast, Sequelize } from "sequelize";
 import utils from "../utils/functions.js";
 import { fillPaymentReceiptPDF } from "../utils/pdfUtils.js";
 import ExcelJS from "exceljs";
+import logger from "../utils/logger.js";
 
 const defaultPaymentInclude = [
   { model: professor, attributes: ["name", "lastName"]},
@@ -71,7 +72,7 @@ export const create = async (paymentParam, informerId, sendEmail = false) => {
       try {
         await sendReceiptByEmail(createdPayment.id);
       } catch (error) {
-        console.error(`Error enviando recibo por email para pago ${createdPayment.id}:`, error);
+        logger.error(`Error enviando recibo por email para pago ${createdPayment.id}:`, error);
       }
     }
   }
@@ -120,7 +121,7 @@ export const addTodayPaymentServices = async () => {
   const month = String(today.getMonth() + 1).padStart(2, '0'); 
   const day = String(today.getDate()).padStart(2, '0');
   const formattedDate = `${year}-${month}-${day}`;
-  console.log("CRON addTodayPaymentServices adding services with date " + formattedDate, { dayOfMonth: today.getDate(), lastTimeAdded: { [Op.not]: formattedDate } });
+  //logger.log("CRON addTodayPaymentServices adding services with date " + formattedDate, { dayOfMonth: today.getDate(), lastTimeAdded: { [Op.not]: formattedDate } });
   const todayServicePayments = await servicePayment.findAll({
     where: {
       [Op.and]: [
@@ -139,7 +140,7 @@ export const addTodayPaymentServices = async () => {
       value = value *-1
     newPayments.push({ type, value, discount, note, itemId, at: today, operativeResult: today, })
   })
-  console.log("Adding " + newPayments.length + " payments");
+  //logger.log("Adding " + newPayments.length + " payments");
   for (const newPayment of newPayments) {
     const dbPayment = await payment.create(newPayment);
     notificationService.notifyAll(dbPayment.id);
@@ -367,7 +368,7 @@ export const updatePayment = async (id, data, userId, sendEmail = false) => {
     try {
       await sendReceiptByEmail(id);
     } catch (error) {
-      console.error(`Error enviando recibo por email para pago ${id}:`, error);
+      logger.error(`Error enviando recibo por email para pago ${id}:`, error);
     }
   }
   return getById(id);
@@ -496,7 +497,7 @@ const sendReceiptByEmail = async (paymentId) => {
     
     // Verificar que el estudiante tenga email
     if (!paymentData.student?.email) {
-      console.log(`Estudiante ${paymentData.student?.id} no tiene email configurado`);
+      logger.log(`Estudiante ${paymentData.student?.id} no tiene email configurado`);
       return;
     }
     
@@ -514,9 +515,9 @@ const sendReceiptByEmail = async (paymentId) => {
       paymentId
     );
     
-    console.log(`Recibo enviado por email exitosamente para pago ${paymentId}`);
+    logger.log(`Recibo enviado por email exitosamente para pago ${paymentId}`);
   } catch (error) {
-    console.error(`Error enviando recibo por email para pago ${paymentId}:`, error);
+    logger.error(`Error enviando recibo por email para pago ${paymentId}:`, error);
     throw error;
   }
 };

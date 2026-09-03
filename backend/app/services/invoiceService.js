@@ -1,6 +1,7 @@
 import { payment, student, invoice, invoiceItem, item, category, sequelize } from "../db/index.js";
 import { editById as editStudentById } from "./studentService.js";
 import { emitirFactura as afipEmitirFactura } from "./afipService.js";
+import logger from "../utils/logger.js";
 
 export class MixedStudentsError extends Error {
   constructor() {
@@ -140,7 +141,7 @@ export const emitirFacturaAgrupada = async ({ items, studentId, ivaCondition, cu
     return { invoiceDb, invoiceItemsDb };
   });
 
-  console.log(`✅ Factura agrupada creada: invoiceId=${invoiceDb.id} | pagos=[${paymentIds.join(", ")}] | total=${total}`);
+  logger.log(`✅ Factura agrupada creada: invoiceId=${invoiceDb.id} | pagos=[${paymentIds.join(", ")}] | total=${total}`);
 
   return {
     invoiceId: invoiceDb.id,

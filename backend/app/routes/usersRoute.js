@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post("/register", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), body("email").isEmail(), controller.register);
 router.delete("/:email", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), controller.deleteByEmail);
+router.put("/:email/restore", verifyToken, withPermissions(PERMISSIONS.CREATE_USER), controller.restoreByEmail);
 router.put("/change-password", verifyToken, controller.changeMyPassword);
 router.post("/login", controller.login);
 router.get("/", verifyToken, controller.getAll);

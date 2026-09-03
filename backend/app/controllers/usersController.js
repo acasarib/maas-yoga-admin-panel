@@ -35,6 +35,19 @@ export default {
   },
 
   /**
+   * /users/{email}/restore [PUT]
+   * @returns HttpStatus no content if was restored
+   */
+  restoreByEmail: async (req, res, next) => {
+    try {
+      await userService.restoreByEmail(req.params.email);
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  /**
    * /users/change-password [PUT]
    * @returns JWT token
    */
@@ -68,7 +81,8 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const users = await userService.getAll();
+      const includeDeleted = req.query.includeDeleted === 'true';
+      const users = await userService.getAll(includeDeleted);
       res.status(StatusCodes.OK).json(users);
     } catch (e) {
       next(e);

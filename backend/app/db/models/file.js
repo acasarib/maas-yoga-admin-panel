@@ -9,7 +9,7 @@ const file = (sequelize) => {
     },
     type: { type: Sequelize.STRING, allowNull: false },
     name: { type: Sequelize.STRING, allowNull: false },
-    blob: { type: DataTypes.BLOB("long"), allowNull: false },
+    blob: { type: DataTypes.BLOB, allowNull: false },
   }, {
     defaultScope: {
       attributes: {

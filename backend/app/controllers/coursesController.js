@@ -3,6 +3,7 @@ import * as studentService from "../services/studentService.js";
 import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { courseTask } from "../db/index.js";
+import logger from "../utils/logger.js";
 
 export default {
   /**
@@ -268,7 +269,7 @@ export default {
       res.setHeader("Content-Disposition", `attachment; filename=pagos-profesores-${from}-${to}.xlsx`);
       res.send(excelBuffer);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       next(e);
     }
   },

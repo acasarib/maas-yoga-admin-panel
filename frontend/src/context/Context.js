@@ -29,6 +29,7 @@ export const Provider = ({ children }) => {
     const [isLoadingTasks, setIsLoadingTasks] = useState(true);
     const [services, setServices] = useState([]);
     const [users, setUsers] = useState([]);
+    const [deletedUsers, setDeletedUsers] = useState([]);
     const [payments, setPayments] = useState([]);
     const [lastSecretaryPayment, setLastSecretaryPayment] = useState(null)
     const [isLoadingPayments, setIsLoadingPayments] = useState(true);
@@ -149,8 +150,12 @@ export const Provider = ({ children }) => {
         if (user === null) return;
         const getUsers = async () => {
             try {
-              const usersList = await userService.getUsers();
-              setUsers(usersList);
+              const [activeUsers, deletedUsersList] = await Promise.all([
+                userService.getUsers(false),
+                userService.getUsers(true)
+              ]);
+              setUsers(activeUsers);
+              setDeletedUsers(deletedUsersList.filter(u => u.status === 'deleted'));
             }catch {
               changeAlertStatusAndMessage(true, 'error', 'No fue posible obtener los usuarios... Por favor recarge la página.');
             }
@@ -290,6 +295,20 @@ export const Provider = ({ children }) => {
     const deleteUser = async (email) => {
         await userService.deleteUser(email);
         setUsers(current => current.filter(p => p.email !== email));
+        const deletedUser = deletedUsers.find(u => u.email === email);
+        if (deletedUser) {
+            setDeletedUsers(current => [...current, deletedUser]);
+        }
+    }
+
+    const restoreUser = async (email) => {
+        await userService.restoreUser(email);
+        setDeletedUsers(current => current.filter(u => u.email !== email));
+        const restoredUser = await userService.getUsers(false).then(users => users.find(u => u.email === email));
+        if (restoredUser) {
+            setUsers(current => [...current, restoredUser]);
+        }
+        changeAlertStatusAndMessage(true, 'success', 'El usuario fue restaurado exitosamente!')
     }
 
     const editUser = async (email, user) => {
@@ -803,6 +822,8 @@ export const Provider = ({ children }) => {
             editProfessor,
             editCollege,
             users,
+            deletedUsers,
+            restoreUser,
             changeAlertStatusAndMessage,
             calcProfessorsPayments,
             updatePayment,

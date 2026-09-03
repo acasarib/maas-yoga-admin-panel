@@ -11,6 +11,7 @@ import { sendEmailWithPDF } from "../services/emailService.js";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { PAYMENT_TYPES } from "../utils/constants.js";
+import logger from "../utils/logger.js";
 
 const __invoiceTemplatePath = new URL('../templates/invoice_email.html', import.meta.url);
 
@@ -148,7 +149,7 @@ export default {
   },
 
   sendInvoiceByEmail: async (req, res, next) => {
-    console.log(`[sendInvoiceByEmail] Starting for payment ID: ${req.params.id}`);
+    logger.log(`[sendInvoiceByEmail] Starting for payment ID: ${req.params.id}`);
     try {
       const resolved = await resolveInvoiceForPayment(req.params.id);
       if (!resolved) return res.status(404).json({ message: 'Pago no encontrado' });
@@ -564,7 +565,7 @@ export default {
       
       res.send(qrBuffer);
     } catch (e) {
-      console.error('Error generating QR:', e);
+      logger.error('Error generating QR:', e);
       next(e);
     }
   },
@@ -612,7 +613,7 @@ export default {
       
       res.send(qrBuffer);
     } catch (e) {
-      console.error("Error generating QR by ID:", e);
+      logger.error("Error generating QR by ID:", e);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         error: "Error interno del servidor al generar el código QR"
       });
@@ -679,7 +680,7 @@ export default {
         email: student.email
       });
     } catch (e) {
-      console.error("Error sending email by ID:", e);
+      logger.error("Error sending email by ID:", e);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         error: "Error interno del servidor al enviar el email"
       });
@@ -715,7 +716,7 @@ export default {
         message: "Email enviado correctamente"
       });
     } catch (e) {
-      console.error('Error sending email:', e);
+      logger.error('Error sending email:', e);
       next(e);
     }
   },
@@ -739,7 +740,7 @@ export default {
         processed: result
       });
     } catch (e) {
-      console.error("Error processing webhook:", e);
+      logger.error("Error processing webhook:", e);
       next(e);
     }
   },
@@ -777,7 +778,7 @@ export default {
       res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
       res.send(excelBuffer);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       next(e);
     }
   }

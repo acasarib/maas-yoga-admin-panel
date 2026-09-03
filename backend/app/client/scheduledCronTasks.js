@@ -1,9 +1,10 @@
 import utils from "../utils/functions.js";
 import * as courseService from "../services/courseService.js";
 import * as paymentService from "../services/paymentService.js";
+import logger from "../utils/logger.js";
 
 const createMonthlyProfessorPayments = async () => {
-  console.log("Executing: createMonthlyProfessorPayments()");
+  logger.log("Executing: createMonthlyProfessorPayments()");
   const now = new Date();
   now.setDate(now.getDate()+1);
   const currentMonth = now.getMonth();
@@ -19,10 +20,10 @@ const createMonthlyProfessorPayments = async () => {
   lastDayPreviousMonth.setHours(23, 59, 59);
   const from = utils.dateToYYYYMMDD(firstDayPreviousMonth);
   const to = utils.dateToYYYYMMDD(lastDayPreviousMonth);
-  console.log("Calc payments for period " + from + " - " + to);
+  logger.log("Calc payments for period " + from + " - " + to);
   const data = await courseService.calcProfessorsPayments(from, to);
   const amount = await courseService.addProfessorPayments(data, from, to);
-  console.log(amount + " Payments added successfull");
+  logger.log(amount + " Payments added successfull");
 }
 
 const addTodayPaymentServices = async () => {

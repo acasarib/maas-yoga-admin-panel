@@ -2,6 +2,17 @@
 
 Todas las versiones notables de este proyecto se documentan en este archivo.
 
+## [1.3.6] - 2026-08-29
+
+### Agregado
+- **Advertencia de vencimiento de certificado AFIP.** El backend ahora incluye información del certificado AFIP (notBefore, notAfter, subject, serialNumber, expiresSoon) en el endpoint de healthcheck. El frontend muestra una notificación dismissible en la esquina superior derecha cuando el certificado expira dentro de un mes, con mensaje multiline instructivo para renovarlo.
+- **Sistema de logging con timestamps en el backend.** Todos los logs del backend ahora incluyen timestamp en formato ISO. Se creó una utilidad `logger` que envuelve `console.log`, `console.error`, `console.warn` y `console.info`. La aplicación muestra su versión al iniciar.
+
+### Cambios técnicos
+- Nueva utilidad `logger` en `backend/app/utils/logger.js` con timestamps ISO.
+- Log de versión al iniciar la aplicación en `backend/index.js`.
+- Reemplazo de todos los `console.log`, `console.error` y `console.warn` por la utilidad `logger` en: `index.js`, `healthcheckService.js`, `paymentService.js`, `scheduledCronTasks.js`, `paymentsController.js`, `firstUserSeed.js`, `emailService.js`, `mercadoPagoService.js`, `coursesController.js`, `afipService.js`, `invoiceService.js`.
+
 ## [1.3.5] - 2026-08-27
 
 ### Agregado

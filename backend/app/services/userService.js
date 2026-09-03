@@ -14,16 +14,26 @@ export const create = async (userParam) => {
 };
 
 export const deleteByEmail = async (email) => {
-  user.destroy({ where: { email } });
+  await user.update(
+    { status: "deleted", deletedAt: new Date() },
+    { where: { email } }
+  );
+};
+
+export const restoreByEmail = async (email) => {
+  await user.update(
+    { status: "active", deletedAt: null },
+    { where: { email } }
+  );
 };
 
 export const login = async (email, password) => {
-  let userDb = await user.scope("withPassword").findOne({ where: { email } });
+  let userDb = await user.scope("withPassword").scope("active").findOne({ where: { email } });
   if (!userDb)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
   if (userDb.password == null) {
     await changePassword(userDb.email, password);
-    userDb = await user.scope("withPassword").findOne({ where: { email } });
+    userDb = await user.scope("withPassword").scope("active").findOne({ where: { email } });
   }
   const result = bcrypt.compareSync(password, userDb.password);
   if (!result)
@@ -35,7 +45,6 @@ export const login = async (email, password) => {
     email: userDb.email,
     permissions: getUserPermissions(userDb.dataValues)
   };
-
   
   if (userDb.permissionGoogleDrive) {
     claims.googleDriveCredentials = await getGoogleDriveCredentials();
@@ -43,6 +52,13 @@ export const login = async (email, password) => {
   return jwt.sign(claims, process.env.BACKEND_TOKEN_SECRET, {
     expiresIn: parseInt(process.env.BACKEND_TOKEN_EXPIRATION_TIME_MILISECONDS)
   });
+};
+
+export const getAll = async (includeDeleted = false) => {
+  if (includeDeleted) {
+    return user.scope(null).findAll();
+  }
+  return user.scope("active").findAll();
 };
 
 /**
@@ -53,10 +69,6 @@ export const login = async (email, password) => {
 export const changePasswordByUserId = async (userId, newPassword) => {
   const newEncryptedPassword = await encryptPassword(newPassword);
   user.update({ password: newEncryptedPassword }, { where: { id: userId } });
-};
-
-export const getAll = async () => {
-  return user.findAll();
 };
 
 export const editByEmail = async (email, userParam) => {

@@ -8,6 +8,10 @@ const app = express();
 import errorHandler from "./app/middleware/errorHandler.js";
 import routes from "./app/routes/index.js";
 import cors from "cors";
+import { APP_VERSION } from "./app/utils/constants.js";
+import logger from "./app/utils/logger.js";
+
+logger.log(`Starting application version ${APP_VERSION}`);
 
 cron.schedule("0 1 * * *", addTodayPaymentServices);
 
@@ -30,10 +34,10 @@ import createFirstUserIfNotExists from "./app/seeders/firstUserSeed.js";
 
 try {
   await sequelize.sync({ alter: true });
-  console.log("Connection to db successful");
+  logger.log("Connection to db successful");
 } catch(e) {
-  console.log("Could not connect db");
-  console.log(e);
+  logger.log("Could not connect db");
+  logger.log(e);
 }
 createFirstUserIfNotExists();
 addTodayPaymentServices();
@@ -43,7 +47,7 @@ app.use(errorHandler);
 
   
 if (useSsl === "true") {
-  console.log("https");
+  logger.log("https");
   try {
     const options = {
       key: fs.readFileSync(process.env.SSL_CERTIFICATE_KEY_PATH),
@@ -51,9 +55,9 @@ if (useSsl === "true") {
     };
     https.createServer(options, app).listen(port);
   } catch(e) {
-    console.log(e);
+    logger.log(e);
   }
 } else {
-  console.log("http");
-  app.listen(port, () => console.log(`listening on port ${port}`));
+  logger.log("http");
+  app.listen(port, () => logger.log(`listening on port ${port}`));
 }

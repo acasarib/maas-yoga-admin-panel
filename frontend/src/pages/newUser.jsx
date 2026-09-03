@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useFormik } from 'formik';
 import CommonInput from "../components/commonInput";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import RestoreIcon from '@mui/icons-material/Restore';
 import Modal from "../components/modal";
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -16,8 +17,12 @@ import PlusButton from "../components/button/plus";
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteButton from "../components/button/deleteButton";
 import EditButton from "../components/button/editButton";
+import RestoreButton from "../components/button/restoreButton";
 import Label from "../components/label/label";
 import { COLORS } from "../constants";
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 
 export default function NewUser(props) {
 
@@ -25,16 +30,21 @@ export default function NewUser(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [canCreateUser, setCanCreateUser] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [restoreModal, setRestoreModal] = useState(false);
     const [edit, setEdit] = useState(false);
     const [userEmail, setUserEmail] = useState(null); 
     const [googleDriveAccess, setGoogleDriveAccess] = useState(false);
     const [userToEdit, setUserToEdit] = useState({});
     const [userToDelete, setUserToDelete] = useState('');
+    const [userToRestore, setUserToRestore] = useState('');
     const [restorePass, setRestorePass] = useState(false);
     const [displayModal, setDisplayModal] = useState(false);
     const [editPass, setEditPass] = useState(false);
-    const { changeAlertStatusAndMessage, deleteUser, editUser, newUser, users } = useContext(Context);
+    const [activeTab, setActiveTab] = useState(0);
+    const { changeAlertStatusAndMessage, deleteUser, editUser, newUser, users, deletedUsers, restoreUser } = useContext(Context);
     const [opResult, setOpResult] = useState('Verificando usuarios...');
+
+    const currentUsers = activeTab === 0 ? users : deletedUsers;
 
     const setDisplay = (value) => {
       setDisplayModal(value);
@@ -49,6 +59,12 @@ export default function NewUser(props) {
     setDeleteModal(true);
     setUserEmail(user.email);
     setUserToDelete(user.firstName + ' ' + user.lastName)
+  }
+
+  const openRestoreModal = (user) => {
+    setRestoreModal(true);
+    setUserEmail(user.email);
+    setUserToRestore(user.firstName + ' ' + user.lastName)
   }
 
 const openEditModal = async (user) => {
@@ -67,6 +83,18 @@ const handleDeleteUser = async (email) => {
   }
   setIsLoading(false);
   setDeleteModal(false);
+}
+
+const handleRestoreUser = async (email) => {
+  setIsLoading(true);
+  try{
+      await restoreUser(userEmail);
+      changeAlertStatusAndMessage(true, 'success', 'Usuario restaurado con éxito!');
+  }catch {
+      changeAlertStatusAndMessage(true, 'error', 'El usuario no pudo ser restaurado... Por favor inténtelo nuevamente.');
+  }
+  setIsLoading(false);
+  setRestoreModal(false);
 }
 
 const validate = (values) => {
@@ -132,7 +160,13 @@ const validate = (values) => {
     },
     {
       name: 'Acciones',
-      cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+      cell: row => {
+        if (activeTab === 0) {
+          return (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>);
+        } else {
+          return (<div className="flex-row"><RestoreButton onClick={() => openRestoreModal(row)}/></div>);
+        }
+      },
       sortable: true,
     },
   ];
@@ -195,18 +229,23 @@ const validate = (values) => {
     return(
         <>
         <Container title="Usuarios">
+            <Tabs value={activeTab} onChange={(e, value) => setActiveTab(value)} className="mb-4">
+              <Tab label="Activos" />
+              <Tab label="Eliminados" />
+            </Tabs>
             <Table
               columns={columns}
-              data={users}
+              data={currentUsers}
               pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
               responsive
-              noDataComponent={<NoDataComponent Icon={GroupIcon} title="No hay usuarios" subtitle="No se encontraron usuarios registrados"/>}
+              noDataComponent={<NoDataComponent Icon={GroupIcon} title={activeTab === 0 ? "No hay usuarios" : "No hay usuarios eliminados"} subtitle={activeTab === 0 ? "No se encontraron usuarios registrados" : "No se encontraron usuarios eliminados"}/>}
             />
             <div className="flex justify-end mt-6">
               <PlusButton onClick={() => setDisplayModal(true)}/>
             </div>
         </Container>
         <Modal danger icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteUser} children={<><div>Esta a punto de elimnar el usuario <span className="font-bold">{userToDelete}</span>. ¿Desea continuar?</div></>} />
+        <Modal icon={<RestoreIcon />} open={restoreModal} setDisplay={(v) => {setRestoreModal(v); setDisplay(v);}} title="Restaurar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Restaurando...</span></>) : <span>Restaurar</span>} onClick={handleRestoreUser} children={<><div>Esta a punto de restaurar el usuario <span className="font-bold">{userToRestore}</span>. ¿Desea continuar?</div></>} />
         <Modal icon={<PersonAddIcon />} buttonDisabled={edit ? false : disabled} open={displayModal} setDisplay={setDisplay} title="Nuevo usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>
                 <form className="flex flex-col gap-6"   
                     method="POST"

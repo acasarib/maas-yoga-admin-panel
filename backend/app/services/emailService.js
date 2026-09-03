@@ -3,11 +3,12 @@ import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import logger from "../utils/logger.js";
 let emailAPI = null;
 try {
   emailAPI = new TransactionalEmailsApi();
   if (!process.env.BREVO_API_KEY) {
-    console.error("[emailService] BREVO_API_KEY not set in environment");
+    logger.error("[emailService] BREVO_API_KEY not set in environment");
   }
   emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 } catch (ignored) {}
@@ -60,10 +61,10 @@ export const sendEmailWithPDF = async (to, subject, text, pdfBuffer, pdfFileName
     } else {
       result = await sendEmailWithBrevo(mailOptions);
     }
-    console.log("Email enviado exitosamente:", result.messageId);
+    logger.log("Email enviado exitosamente:", result.messageId);
     return result;
   } catch (error) {
-    console.error("Error enviando email:", error);
+    logger.error("Error enviando email:", error);
     throw error;
   }
 };
@@ -112,7 +113,7 @@ const loadEmailTemplate = (firstName, lastName) => {
     
     return html;
   } catch (error) {
-    console.error("Error cargando template HTML:", error);
+    logger.error("Error cargando template HTML:", error);
     // Fallback a HTML simple si no se puede cargar el template
     return `
       <html>
@@ -247,10 +248,10 @@ export const sendPaymentLink = async (emailData) => {
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log("Email de pago enviado exitosamente:", result.messageId);
+    logger.log("Email de pago enviado exitosamente:", result.messageId);
     return result;
   } catch (error) {
-    console.error("Error enviando email de pago:", error);
+    logger.error("Error enviando email de pago:", error);
     throw error;
   }
 };
