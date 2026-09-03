@@ -15,6 +15,7 @@ const user = (sequelize) => {
     permissionGoogleDrive: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
     status: { type: Sequelize.STRING, allowNull: false, defaultValue: "active" },
     deletedAt: { type: Sequelize.DATE, allowNull: true },
+    role: { type: Sequelize.STRING, allowNull: false, defaultValue: "operator" },
   }, {
     defaultScope: {
       attributes: {

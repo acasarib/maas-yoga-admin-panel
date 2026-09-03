@@ -8,6 +8,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import CustomCheckbox from "../components/checkbox/customCheckbox";
+import CustomRadio from "../components/radio/customRadio";
 import { Context } from "../context/Context";
 import Table from "../components/table";
 import Container from "../components/container";
@@ -34,6 +35,7 @@ export default function NewUser(props) {
     const [edit, setEdit] = useState(false);
     const [userEmail, setUserEmail] = useState(null); 
     const [googleDriveAccess, setGoogleDriveAccess] = useState(false);
+    const [userRole, setUserRole] = useState('operator');
     const [userToEdit, setUserToEdit] = useState({});
     const [userToDelete, setUserToDelete] = useState('');
     const [userToRestore, setUserToRestore] = useState('');
@@ -174,6 +176,7 @@ const validate = (values) => {
   useEffect(() => {
    if(userToEdit.permissionCreateUser) setCanCreateUser(userToEdit.permissionCreateUser);
    if(userToEdit.permissionGoogleDrive) setGoogleDriveAccess(userToEdit.permissionGoogleDrive);
+   if(userToEdit.role) setUserRole(userToEdit.role);
   }, [userToEdit])
   
 
@@ -193,6 +196,7 @@ const validate = (values) => {
           firstName: values. firstName,
           permissionCreateUser: canCreateUser,
           permissionGoogleDrive: googleDriveAccess,
+          role: userRole,
         };
         setIsLoading(true);
         try {
@@ -345,6 +349,85 @@ const validate = (values) => {
                   <div>
                     <Label>Atributos</Label>
                     <div className="flex flex-col gap-2">
+                      <Label>Rol</Label>
+                      <ul className="mt-3 flex flex-col max-w-md">
+                        {[
+                          {
+                            value: 'operator',
+                            title: 'Operador',
+                            description: 'Gestión completa: crear/editar usuarios, cursos, pagos, reportes',
+                            icon: (
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2" style={{ backgroundColor: userRole === 'operator' ? COLORS.primary[500] : COLORS.primary[100] }}>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: userRole === 'operator' ? 'white' : COLORS.primary[600] }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                              </div>
+                            ),
+                          },
+                          {
+                            value: 'auditor',
+                            title: 'Auditor',
+                            description: 'Solo lectura: visualiza reportes, estudiantes, pagos sin editar',
+                            icon: (
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2" style={{ backgroundColor: userRole === 'auditor' ? COLORS.primary[500] : COLORS.primary[200] }}>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: userRole === 'auditor' ? 'white' : COLORS.primary[700] }}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                              </div>
+                            ),
+                          },
+                        ].map((option, i) => {
+                          const isSelected = userRole === option.value;
+                          const optionId = `role-option-${option.value}`;
+                          const baseClasses = 'inline-flex items-center gap-x-2 py-3 px-4 text-sm font-medium border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg transition-colors';
+                          const selectedClasses = isSelected ? ' border-primary-500 bg-primary-50 text-primary-600 shadow-sm' : '';
+                          const liStyle = {};
+                          if (isSelected) {
+                            liStyle.backgroundColor = COLORS.primary[100];
+                            liStyle.borderColor = COLORS.primary[600];
+                          }
+                          const previousSelected = i > 0 && userRole === option.value;
+                          if (previousSelected) {
+                            liStyle.borderTop = "none";
+                          }
+
+                          return (
+                            <li
+                              key={option.value}
+                              style={liStyle}
+                              className={`${baseClasses}${selectedClasses} cursor-pointer hover:bg-gray-50`}
+                            >
+                              <div className="relative flex items-center w-full">
+                                <div className="flex items-center h-5">
+                                  <CustomRadio
+                                    id={optionId}
+                                    name="role-option"
+                                    value={option.value}
+                                    checked={isSelected}
+                                    onChange={(e) => setUserRole(e.target.value)}
+                                    label={null}
+                                  />
+                                </div>
+                                <label htmlFor={optionId} className="block w-full">
+                                  <div className="flex items-start">
+                                    <div className="flex flex-col">
+                                      <span className="flex items-center font-medium text-gray-900">
+                                        {option.title}
+                                        <div className="flex-shrink-0 ml-2">
+                                          {option.icon}
+                                        </div>
+                                      </span>
+                                      <span className="text-sm text-gray-500 mt-1">
+                                        {option.description}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </label>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
                       <FormGroup>
                         <FormControlLabel control={<Checkbox  checked={canCreateUser} onChange={(e) => setCanCreateUser(e.target.checked)} sx={{
                           color: COLORS.primary[500],
