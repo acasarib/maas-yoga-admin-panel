@@ -21,7 +21,7 @@ import Loader from "../components/spinner/loader";
 export default function Tasks(props) {
 
     const [displayModal, setDisplayModal] = useState(false);
-    const { getTasks, editTask, deleteTask, createTask, changeAlertStatusAndMessage } = useContext(Context);
+    const { getTasks, editTask, deleteTask, createTask, changeAlertStatusAndMessage, isAuditor } = useContext(Context);
     const [taskId, setTaskId] = useState(null);
     const [taskToEdit, setTaskToEdit] = useState({});
     const [taskToDelete, setTaskToDelete] = useState(null);
@@ -44,6 +44,10 @@ export default function Tasks(props) {
     };
 
     const openEditModal = (task) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar tareas');
+          return;
+        }
         setEdit(true);
         setDisplayModal(true);
         setTaskId(task.id);
@@ -51,12 +55,20 @@ export default function Tasks(props) {
     }
 
     const openDeleteModal = (task) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar tareas');
+          return;
+        }
         setDeleteModal(true);
         setTaskId(task.id);
         setTaskToDelete(task);
     }
     
     const resolveTask = async (task) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden modificar tareas');
+          return;
+        }
         setIsLoading(true);
         task.completed = true;
         try{
@@ -72,6 +84,10 @@ export default function Tasks(props) {
     }
 
     const handleDeleteTask = async () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar tareas');
+          return;
+        }
         setIsLoading(true);
         try{
             await deleteTask(taskId);
@@ -92,6 +108,11 @@ export default function Tasks(props) {
             description: edit ? taskToEdit.description : '',
         },
         onSubmit: async (values) => {
+          if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar tareas');
+            setDisplayModal(false);
+            return;
+          }
           const body = {
             title: values.title,
             description: values.description,
@@ -177,7 +198,7 @@ export default function Tasks(props) {
                     </TabContext>
                 </Box>
                 <div className="flex justify-end mt-6">
-                    <PlusButton onClick={() => setDisplayModal(true)}/>
+                    {!isAuditor() && <PlusButton onClick={() => setDisplayModal(true)}/>}
                 </div>
                 <Modal
                     icon={<AssignmentTurnedInIcon />}

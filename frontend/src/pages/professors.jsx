@@ -19,7 +19,7 @@ import PendingProfessorPaymentsModal from "../components/modal/pendingProfessorP
 import useToggle from "../hooks/useToggle";
 
 export default function Professors(props) {
-    const { getProfessors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage } = useContext(Context);
+    const { getProfessors, isLoadingProfessors, deleteProfessor, editProfessor, newProfessor, changeAlertStatusAndMessage, isAuditor } = useContext(Context);
     const paymentsModal = useToggle(false);
     const [displayModal, setDisplayModal] = useState(false);
     const [professors, setProfessors] = useState([]);
@@ -56,12 +56,20 @@ export default function Professors(props) {
     }
 
     const openDeleteModal = (id, professor) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar profesores');
+          return;
+        }
         setDeleteModal(true);
         setProfessorId(id);
         setProfessorToDelete(professor);
     }
 
     const openEditModal = async (professor) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar profesores');
+          return;
+        }
         setProfessorId(professor.id);
         setProfessorToEdit(professor);
         setEdit(true);
@@ -102,7 +110,7 @@ export default function Professors(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id, row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => isAuditor() ? null : (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row.id, row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], [professors]);
@@ -116,6 +124,11 @@ export default function Professors(props) {
             email: edit ? professorToEdit.email : '',
         },
         onSubmit: async (values) => {
+          if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar profesores');
+            setDisplayModal(false);
+            return;
+          }
           const body = {
             name: values.name,
             lastName: values.surname,
@@ -173,7 +186,7 @@ export default function Professors(props) {
                     <div>
                         <ButtonPrimary onClick={paymentsModal.enable}>Ver pagos pendientes</ButtonPrimary>
                     </div>
-                    <PlusButton onClick={() => setDisplayModal(true)}/>
+                    {!isAuditor() && <PlusButton onClick={() => setDisplayModal(true)}/>}
                 </div>
                 <PendingProfessorPaymentsModal 
                     isOpen={paymentsModal.value} 

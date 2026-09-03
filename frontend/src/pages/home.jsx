@@ -49,7 +49,7 @@ import { COLORS } from '../constants';
 import userService from "../services/userService";
  
 export default function Home(props) {
-    const { setUser, notifications, changeAlertStatusAndMessage } = useContext(Context);
+    const { setUserWithRole, notifications, changeAlertStatusAndMessage } = useContext(Context);
     const [isOpenSidebar, setIsOpenSidebar] = useState(false);
     const [date, setDate] = useState('');
     const [day, setDay] = useState('');
@@ -108,7 +108,7 @@ export default function Home(props) {
         }
         if(localStorage.getItem('userInfo')) {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            setUser(userInfo);
+            setUserWithRole(userInfo);
             if(userInfo.permissions[0] === 'PERMISSION_CREATE_USER') {
                 setIsMasterAdmin(true);
             }

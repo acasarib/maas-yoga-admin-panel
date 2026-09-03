@@ -20,7 +20,7 @@ import { Tooltip } from "@mui/material";
 
 //TODO: categorias paginadas
 export default function Categories(props) {
-    const { getCategories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage } = useContext(Context);
+    const { getCategories, isLoadingCategories, deleteCategory, editCategory, newCategory, changeAlertStatusAndMessage, isAuditor } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -141,11 +141,19 @@ export default function Categories(props) {
     }
 
     const openDeleteModal = (category) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar categorías');
+          return;
+        }
         setDeleteModal(true);
         setCategory(category);
     }
 
     const openEditModal = async (category) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar categorías');
+          return;
+        }
         setCategory(category);
         setItems(category.items);
         setEdit(true);
@@ -177,11 +185,16 @@ export default function Categories(props) {
         {
             name: 'Acciones',
             maxWidth: '20%',
-            cell: row => <div className="flex flex-nowrap"><DeleteButton onClick={() => openDeleteModal(row)} /><EditButton onClick={() => openEditModal(row)}/></div>
+            cell: row => isAuditor() ? null : <div className="flex flex-nowrap"><DeleteButton onClick={() => openDeleteModal(row)} /><EditButton onClick={() => openEditModal(row)}/></div>
         },
     ];
 
     const handleOnClickNext = async () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar categorías');
+          closeModal();
+          return;
+        }
         if (activeView === 0) {
             setActiveView(1);
         } else {
@@ -223,7 +236,7 @@ export default function Categories(props) {
                     noDataComponent={<NoDataComponent Icon={CategoryIcon} title="No hay rubros" subtitle="No se encontraron rubros" />}
                 />
                 <div className="flex justify-end mt-6">
-                    <PlusButton onClick={() => setDisplayModal(true)}/>
+                    {!isAuditor() && <PlusButton onClick={() => setDisplayModal(true)}/>}
                 </div>
                 <Modal onClose={closeModal} icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar rubro' : 'Agregar rubro'} buttonDisabled={activeView === 0 ? category.title === "" : (items.length === 0 || category.title === "")} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
                     <div style={{ minHeight: "210px"}} className="flex gap-6 flex-col">

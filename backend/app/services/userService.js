@@ -43,6 +43,7 @@ export const login = async (email, password) => {
     firstName: userDb.firstName,
     lastName: userDb.lastName,
     email: userDb.email,
+    role: userDb.role,
     permissions: getUserPermissions(userDb.dataValues)
   };
   

@@ -39,6 +39,14 @@ export const Provider = ({ children }) => {
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
     const [user, setUser] = useState(null);
+    const [userRole, setUserRole] = useState('operator');
+
+    const setUserWithRole = (userData) => {
+        setUser(userData);
+        if (userData?.role) {
+            setUserRole(userData.role);
+        }
+    };
     const [isAlertActive, setIsAlertActive] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertStatus, setAlertStatus] = useState('');
@@ -515,6 +523,8 @@ export const Provider = ({ children }) => {
         setAlertStatus(status);
     }
 
+    const isAuditor = () => userRole === 'auditor';
+
     const changeTaskStatus = async (taskId, studentId, taskStatus) => {
         setIsLoadingCourses(false)
         await coursesService.changeTaskStatus(taskId, studentId, taskStatus);
@@ -824,7 +834,10 @@ export const Provider = ({ children }) => {
             users,
             deletedUsers,
             restoreUser,
+            userRole,
+            setUserWithRole,
             changeAlertStatusAndMessage,
+            isAuditor,
             calcProfessorsPayments,
             updatePayment,
             getColleges,

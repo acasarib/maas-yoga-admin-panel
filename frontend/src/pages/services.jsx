@@ -20,7 +20,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 import Label from "../components/label/label";
 
 export default function Services(props) {
-    const { getServices, deleteService, changeAlertStatusAndMessage, editService, newService } = useContext(Context);
+    const { getServices, deleteService, changeAlertStatusAndMessage, editService, newService, isAuditor } = useContext(Context);
     const [services, setServices] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const addServiceModal = useModal();
@@ -51,6 +51,10 @@ export default function Services(props) {
     };
 
     const handleEditService = (srv) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar servicios');
+          return;
+        }
         console.log('=== DEBUG handleEditService ===');
         console.log('srv:', srv);
         console.log('srv.item:', srv.item);
@@ -67,6 +71,10 @@ export default function Services(props) {
     };
 
     const handleAddService = () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear servicios');
+          return;
+        }
         setPaymentMethod(null);
         setSelectedItem(null);
         setServiceNote('');
@@ -78,6 +86,10 @@ export default function Services(props) {
     };
 
     const handleDeleteService = async () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar servicios');
+          return;
+        }
         try {
             await deleteService(selectedService.id);
             deleteServiceModal.close();
@@ -90,6 +102,10 @@ export default function Services(props) {
     };
 
     const addService = async () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar servicios');
+          return;
+        }
         console.log('=== DEBUG addService ===');
         console.log('serviceNote:', serviceNote);
         console.log('ammount:', ammount);
@@ -172,7 +188,7 @@ export default function Services(props) {
         },
         {
             name: "Acciones",
-            cell: row => (
+            cell: row => isAuditor() ? null : (
                 <div className="flex gap-2">
                     <EditButton onClick={() => handleEditService(row)} />
                     <DeleteButton onClick={() => {
@@ -198,7 +214,7 @@ export default function Services(props) {
                 paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
             />
             <div className="flex justify-end mt-6">
-                <PlusButton onClick={handleAddService} />
+                {!isAuditor() && <PlusButton onClick={handleAddService} />}
             </div>
 
             {/* Modal de eliminar servicio */}

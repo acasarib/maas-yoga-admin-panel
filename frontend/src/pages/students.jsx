@@ -57,7 +57,7 @@ const COUNTRIES = [
 ];
 
 export default function Students(props) {
-    const { deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage } = useContext(Context);
+    const { deleteStudent, editStudent, newStudent, changeAlertStatusAndMessage, isAuditor } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const isLoading = useToggle();
     const [deleteModal, setDeleteModal] = useState(false);
@@ -150,12 +150,20 @@ export default function Students(props) {
     }
 
     const openDeleteModal = (student) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar estudiantes');
+          return;
+        }
         setDeleteModal(true);
         setStudentId(student.id);
         setStudentToDelete(student);
     }
 
     const openEditModal = async (student) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar estudiantes');
+          return;
+        }
         setStudentToEdit(student);
         setEdit(true);
         setDisplayModal(true);
@@ -226,7 +234,7 @@ export default function Students(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => isAuditor() ? null : (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], []);
@@ -247,6 +255,11 @@ export default function Students(props) {
             cuit: edit ? (studentToEdit.cuit || '') : ''
         },
         onSubmit: async (values,  { resetForm }) => {
+          if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar estudiantes');
+            setDisplayModal(false);
+            return;
+          }
           const body = {
             name: values.name,
             lastName: values.surname,
@@ -315,7 +328,7 @@ export default function Students(props) {
                     <div>
                         <ButtonPrimary onClick={switchPendingPaymentsModal}>Ver alumnos deudores</ButtonPrimary>
                     </div>
-                    <PlusButton onClick={() => setDisplayModal(true)}/>
+                    {!isAuditor() && <PlusButton onClick={() => setDisplayModal(true)}/>}
                 </div>
                 <PendingPaymentsModal isOpen={isOpenPendingPaymentsModal} onClose={switchPendingPaymentsModal}/>
                 <Modal buttonDisabled={isDocumentDuplicated || isEmailDuplicated || isPhoneNumberDuplicated} icon={<SchoolIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar alumno' : 'Agregar alumno'} buttonText={isLoading.value ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">{edit ? 'Editando...' : 'Agregando...'}</span></>) : <span>{edit ? 'Editar' : 'Agregar'}</span>} onClick={formik.handleSubmit} children={<>

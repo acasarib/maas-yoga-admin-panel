@@ -30,7 +30,7 @@ import EditButton from "../components/button/editButton";
 import AddTaskButton from "../components/button/addTaskButton";
 
 export default function Courses(props) {
-    const { deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse } = useContext(Context);
+    const { deleteCourse, changeTaskStatus, changeAlertStatusAndMessage, getStudentsByCourse, isAuditor } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [courseId, setCourseId] = useState(null);
     const [courseToDelete, setCourseToDelete] = useState(null);
@@ -71,6 +71,10 @@ export default function Courses(props) {
     }
 
     const openDeleteModal = (course) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar cursos');
+          return;
+        }
         setDeleteModal(true);
         setCourseId(course.id);
         setCourseToDelete(course);
@@ -96,6 +100,10 @@ export default function Courses(props) {
     }
 
     const openEditModal = (course) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar cursos');
+          return;
+        }
         createUpdateCourseModal.open()
         setCourseToEdit(course); 
     }
@@ -198,7 +206,7 @@ export default function Courses(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex flex-nowrap"><AddTaskButton onClick={() => openAddTaskmodal(row.id, row.title)}/><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => isAuditor() ? null : (<div className="flex flex-nowrap"><AddTaskButton onClick={() => openAddTaskmodal(row.id, row.title)}/><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ], []);
@@ -411,7 +419,7 @@ export default function Courses(props) {
                     pagination paginationRowsPerPageOptions={[5, 10, 25, 50, 100]}
                 />
                 <div className="flex justify-end mt-6">
-                    <PlusButton onClick={() => {setCourseToEdit(null); createUpdateCourseModal.open()}} />
+                    {!isAuditor() && <PlusButton onClick={() => {setCourseToEdit(null); createUpdateCourseModal.open()}} />}
                 </div>
 
                 <CreateUpdateCourseModal

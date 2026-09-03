@@ -17,7 +17,7 @@ import { COLORS } from "../constants";
 export default function Colleges(props) {
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { getColleges, isLoadingColleges, deleteCollege, editCollege, newCollege, changeAlertStatusAndMessage } = useContext(Context);
+    const { getColleges, isLoadingColleges, deleteCollege, editCollege, newCollege, changeAlertStatusAndMessage, isAuditor } = useContext(Context);
     const [deleteModal, setDeleteModal] = useState(false);
     const [collegeId, setCollegeId] = useState(null);
     const [collegeToDelete, setCollegeToDelete] = useState(null);
@@ -32,12 +32,20 @@ export default function Colleges(props) {
     }
 
     const openDeleteModal = (college) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar sedes');
+          return;
+        }
         setDeleteModal(true);
         setCollegeId(college.id);
         setCollegeToDelete(college);
     }
 
     const handleDeleteCollege = async () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar sedes');
+          return;
+        }
         setIsLoading(true);
         try{
             await deleteCollege(collegeId);
@@ -53,6 +61,10 @@ export default function Colleges(props) {
     }
 
     const openEditModal = (college) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar sedes');
+          return;
+        }
         setEdit(true);
         setDisplayModal(true);
         setCollegeId(college.id);
@@ -82,7 +94,7 @@ export default function Colleges(props) {
         },
         {
             name: 'Acciones',
-            cell: row => (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
+            cell: row => isAuditor() ? null : (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>),
             sortable: true,
         },
     ];
@@ -94,6 +106,11 @@ export default function Colleges(props) {
             location: edit ? collegeToEdit.location : '',
         },
             onSubmit: async (values, { resetForm }) => {
+                if (isAuditor()) {
+                  changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar sedes');
+                  setDisplayModal(false);
+                  return;
+                }
                 const body = {
                   name: values.name,
                   location: values.location,

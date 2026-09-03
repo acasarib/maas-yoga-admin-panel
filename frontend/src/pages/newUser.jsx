@@ -43,7 +43,7 @@ export default function NewUser(props) {
     const [displayModal, setDisplayModal] = useState(false);
     const [editPass, setEditPass] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
-    const { changeAlertStatusAndMessage, deleteUser, editUser, newUser, users, deletedUsers, restoreUser } = useContext(Context);
+    const { changeAlertStatusAndMessage, deleteUser, editUser, newUser, users, deletedUsers, restoreUser, isAuditor } = useContext(Context);
     const [opResult, setOpResult] = useState('Verificando usuarios...');
 
     const currentUsers = activeTab === 0 ? users : deletedUsers;
@@ -70,12 +70,20 @@ export default function NewUser(props) {
   }
 
 const openEditModal = async (user) => {
+    if (isAuditor()) {
+      changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar usuarios');
+      return;
+    }
     setUserToEdit(user);
     setEdit(true);
     setDisplayModal(true);
-}
+  }
 
 const handleDeleteUser = async (email) => {
+  if (isAuditor()) {
+    changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar usuarios');
+    return;
+  }
   setIsLoading(true);
   try{
       await deleteUser(userEmail);
@@ -88,6 +96,10 @@ const handleDeleteUser = async (email) => {
 }
 
 const handleRestoreUser = async (email) => {
+  if (isAuditor()) {
+    changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden restaurar usuarios');
+    return;
+  }
   setIsLoading(true);
   try{
       await restoreUser(userEmail);
@@ -163,6 +175,7 @@ const validate = (values) => {
     {
       name: 'Acciones',
       cell: row => {
+        if (isAuditor()) return null;
         if (activeTab === 0) {
           return (<div className="flex-row"><DeleteButton onClick={() => openDeleteModal(row)}/><EditButton onClick={() => openEditModal(row)} /></div>);
         } else {
@@ -190,6 +203,11 @@ const validate = (values) => {
       },
       validate,
       onSubmit: async (values) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar usuarios');
+          setDisplayModal(false);
+          return;
+        }
         const body = {
           email: values.email,
           lastName: values.lastName,
@@ -244,9 +262,11 @@ const validate = (values) => {
               responsive
               noDataComponent={<NoDataComponent Icon={GroupIcon} title={activeTab === 0 ? "No hay usuarios" : "No hay usuarios eliminados"} subtitle={activeTab === 0 ? "No se encontraron usuarios registrados" : "No se encontraron usuarios eliminados"}/>}
             />
-            <div className="flex justify-end mt-6">
-              <PlusButton onClick={() => setDisplayModal(true)}/>
-            </div>
+            {!isAuditor() && (
+              <div className="flex justify-end mt-6">
+                <PlusButton onClick={() => setDisplayModal(true)}/>
+              </div>
+            )}
         </Container>
         <Modal danger icon={<DeleteIcon />} open={deleteModal} setDisplay={setDisplay} title="Eliminar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Eliminando...</span></>) : <span>Eliminar</span>} onClick={handleDeleteUser} children={<><div>Esta a punto de elimnar el usuario <span className="font-bold">{userToDelete}</span>. ¿Desea continuar?</div></>} />
         <Modal icon={<RestoreIcon />} open={restoreModal} setDisplay={(v) => {setRestoreModal(v); setDisplay(v);}} title="Restaurar usuario" buttonText={isLoading ? (<><i className="fa fa-circle-o-notch fa-spin"></i><span className="ml-2">Restaurando...</span></>) : <span>Restaurar</span>} onClick={handleRestoreUser} children={<><div>Esta a punto de restaurar el usuario <span className="font-bold">{userToRestore}</span>. ¿Desea continuar?</div></>} />
