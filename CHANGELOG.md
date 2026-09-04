@@ -2,13 +2,26 @@
 
 Todas las versiones notables de este proyecto se documentan en este archivo.
 
-## [1.3.6] - 2026-08-29
+## [1.3.6] - 2026-09-04
 
 ### Agregado
+- **Sistema de roles auditor con acceso de solo lectura.** Se agregó un nuevo rol "auditor" (además del existente "operator") con permisos restringidos a operaciones de lectura (GET). Los auditores no pueden crear, editar, eliminar ni verificar ningún recurso (usuarios, estudiantes, cursos, profesores, pagos, tareas, categorías, etc.). El rol se almacena en la columna `role` de la tabla `user` y se incluye en el JWT al login.
+  - **Backend:** Middleware `blockAuditors` que rechaza con 403 FORBIDDEN todos los endpoints POST/PUT/PATCH/DELETE para usuarios con rol "auditor". Aplicado a ~60+ endpoints de escritura a través de 10 archivos de rutas.
+  - **Frontend:** Botones de acción (crear, editar, eliminar, verificar, emitir factura) ocultados para auditors. Intentos de acción generan alertas de advertencia que explican la restricción.
+  - Auditor de prueba: `audit@audit.com` / `123`.
+
+- **Borrado suave (soft delete) de usuarios.** Los usuarios ahora se marcan como eliminados en lugar de ser borrados de la base de datos. Se agregó la columna `deletedAt` a la tabla `user`. El endpoint DELETE ahora actualiza `deletedAt` con la fecha/hora actual en lugar de ejecutar un DELETE FROM. Se agregó un endpoint PUT `/:email/restore` para restaurar usuarios eliminados (operadores solamente). Los usuarios eliminados no aparecen en las búsquedas ni listados normales.
+
 - **Advertencia de vencimiento de certificado AFIP.** El backend ahora incluye información del certificado AFIP (notBefore, notAfter, subject, serialNumber, expiresSoon) en el endpoint de healthcheck. El frontend muestra una notificación dismissible en la esquina superior derecha cuando el certificado expira dentro de un mes, con mensaje multiline instructivo para renovarlo.
+
 - **Sistema de logging con timestamps en el backend.** Todos los logs del backend ahora incluyen timestamp en formato ISO. Se creó una utilidad `logger` que envuelve `console.log`, `console.error`, `console.warn` y `console.info`. La aplicación muestra su versión al iniciar.
 
 ### Cambios técnicos
+- Nueva columna `role` en tabla `user` (tipo STRING, default "operator").
+- Nueva columna `deletedAt` en tabla `user` para soft delete (tipo DATE, nullable).
+- Nuevo middleware `backend/app/middleware/withRole.js` con función `blockAuditors`.
+- JWT payload ahora incluye `role` del usuario al login.
+- Context frontend proporciona función `isAuditor()` que retorna boolean según rol del usuario autenticado.
 - Nueva utilidad `logger` en `backend/app/utils/logger.js` con timestamps ISO.
 - Log de versión al iniciar la aplicación en `backend/index.js`.
 - Reemplazo de todos los `console.log`, `console.error` y `console.warn` por la utilidad `logger` en: `index.js`, `healthcheckService.js`, `paymentService.js`, `scheduledCronTasks.js`, `paymentsController.js`, `firstUserSeed.js`, `emailService.js`, `mercadoPagoService.js`, `coursesController.js`, `afipService.js`, `invoiceService.js`.
