@@ -17,7 +17,7 @@ import Label from "../../label/label";
 
 export default function ClassesSection(props) {
 
-    const { getClazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, getColleges } = useContext(Context);
+    const { getClazzes, deleteClazz, editClazz, newClazz, changeAlertStatusAndMessage, getColleges, isAuditor } = useContext(Context);
     const [displayModal, setDisplayModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -109,12 +109,20 @@ export default function ClassesSection(props) {
     
 
     const openDeleteModal = (clazz) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar clases');
+          return;
+        }
         setDeleteModal(true);
         setClazzId(clazz.id);
         setClazzToDelete(clazz);
     }
 
     const openEditModal = async (clazz) => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar clases');
+          return;
+        }
         const colleges = await getColleges()
         setClazzToEdit(clazz);
         setTitle(clazz.title || '');
@@ -129,6 +137,10 @@ export default function ClassesSection(props) {
     }
 
     const handleDeleteClazz = async () => {
+        if (isAuditor()) {
+          changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar clases');
+          return;
+        }
         setIsLoading(true);
         try {
             await deleteClazz(clazzId);
@@ -239,6 +251,11 @@ export default function ClassesSection(props) {
             endAt: edit ? clazzToEdit.endAt : endAt,
         },
         onSubmit: async (values) => {
+          if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden crear ni editar clases');
+            setDisplayModal(false);
+            return;
+          }
           const daysParam = {};
           days.filter(d => d.isSelected && d.startAt && d.endAt).map(d => {
             daysParam[d.key] = { startAt: d.startAt, endAt: d.endAt };
@@ -305,9 +322,10 @@ export default function ClassesSection(props) {
             onDelete={openDeleteModal}
             onEdit={openEditModal}
             isLoading={isLoading}
+            disableActions={isAuditor()}
         />
         <div className="flex justify-end mt-6">
-            <PlusButton onClick={() => setDisplayModal(true)}/>
+            {!isAuditor() && <PlusButton onClick={() => setDisplayModal(true)}/>}
         </div>
         <Modal onClose={onCloseModal} className="modal-responsive w-full md:w-10/12 lg:w-8/12 xl:w-7-12 2xl:w-6/12" icon={<HistoryEduIcon />} open={displayModal} setDisplay={setDisplay} title={edit ? 'Editar clase' : 'Agregar clase'} buttonText={<span>{btnText}</span>} onClick={handleOnClickNext} children={<>
             <form onSubmit={formik.handleSubmit}>

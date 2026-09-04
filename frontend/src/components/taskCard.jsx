@@ -17,11 +17,15 @@ export default function TaskCard(props) {
             </div>
         </div>
         <div className="col-span-2 flex items-center justify-end flex-row">
-            <div className={props.greenCheckEnabled ? "" : "invisible"}>
-                <VerifyButton tooltip="Completar" onClick={props.onCompleteClick}/>
-            </div>
-            <DeleteButton onClick={props.onDeleteClick}/>
-            <EditButton onClick={props.onEditClick}/>
+            {!props.isAuditor && (
+                <>
+                    <div className={props.greenCheckEnabled ? "" : "invisible"}>
+                        <VerifyButton tooltip="Completar" onClick={props.onCompleteClick}/>
+                    </div>
+                    <DeleteButton onClick={props.onDeleteClick}/>
+                    <EditButton onClick={props.onEditClick}/>
+                </>
+            )}
         </div>
     </div>
     );

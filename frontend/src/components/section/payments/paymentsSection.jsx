@@ -37,7 +37,7 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     const [file, setFile] = useState([]);
     const [haveFile, setHaveFile] = useState(false);
     const [fileName, setFilename] = useState("");
-    const { user, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail, generateReceipt } = useContext(Context);
+    const { user, informPayment, changeAlertStatusAndMessage, editPayment, getSecretaryPaymentDetail, generateReceipt, isAuditor } = useContext(Context);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [secretaryPaymentValues, setSecretaryPaymentValues] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -256,6 +256,10 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
     }
 
     const informDischarge = () => {
+        if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden informar egresos');
+            return;
+        }
         setOpenModal(true);
         setIsDischarge(true);
     }
@@ -787,8 +791,8 @@ export default function PaymentsSection({ defaultSearchValue, defaultTypeValue }
                 <ButtonPrimary className={"w-full sm:w-auto"}>Calcular pagos</ButtonPrimary>
             </Link>
             <div className="flex gap-4">
-                <ButtonPrimary className={"sm:mr-4 w-full sm:w-auto"} onClick={informDischarge}>Informar egreso</ButtonPrimary>
-                <ButtonPrimary className={"w-full sm:w-auto"} onClick={() => setOpenModal(true)}>Informar ingreso</ButtonPrimary>
+                {!isAuditor() && <ButtonPrimary className={"sm:mr-4 w-full sm:w-auto"} onClick={informDischarge}>Informar egreso</ButtonPrimary>}
+                {!isAuditor() && <ButtonPrimary className={"w-full sm:w-auto"} onClick={() => setOpenModal(true)}>Informar ingreso</ButtonPrimary>}
             </div>
         </div>
         </>

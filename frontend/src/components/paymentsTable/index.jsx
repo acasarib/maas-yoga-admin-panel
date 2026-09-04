@@ -21,7 +21,7 @@ import EmitirFacturaModal from "../modal/emitirFacturaModal";
 export default function PaymentsTable({ tableFooter, summary = null, pageableProps = null, columnsProps = [], dateField = "at", className = "",
     payments, defaultSearchValue, defaultTypeValue, isLoading, canVerify, editPayment, editMode, onClickDeletePayment, showInvoiceButton = false,
     onClickVerifyPayment, onSwitchDischarges = () => console.log("no implementado"), onSwitchIncomes = () => console.log("no implementado") }) {
-    const { user, changeAlertStatusAndMessage, getUserById } = useContext(Context);
+    const { user, changeAlertStatusAndMessage, getUserById, isAuditor } = useContext(Context);
     const [payment, setPayment] = useState(null);
     const [invoicePayments, setInvoicePayments] = useState([]);
     // Selección de facturación indexada por id: persiste entre cambios de página (paginación server-side),
@@ -41,6 +41,10 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     const isInvoiceable = (row) => INVOICEABLE_PAYMENT_TYPES.includes(row.type) && !!(row.studentId || row.student?.id);
 
     const openInvoiceModal = (payments) => {
+        if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden emitir facturas');
+            return;
+        }
         setInvoicePayments(payments);
         invoiceModal.open();
     }
@@ -83,6 +87,10 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     }
 
     const openEditModal = (payment) => {
+        if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden editar pagos');
+            return;
+        }
         editPayment(payment);
     }
 
@@ -137,6 +145,10 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     }
 
     const openDeleteModal = (payment) => {
+        if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden eliminar pagos');
+            return;
+        }
         if (typeof onClickDeletePayment == 'function') {
             onClickDeletePayment(payment)
         } else {
@@ -146,6 +158,10 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     }
 
     const openVerifyModal = (payment) => {
+        if (isAuditor()) {
+            changeAlertStatusAndMessage(true, 'warning', 'Los auditores no pueden verificar pagos');
+            return;
+        }
         if (typeof onClickVerifyPayment == 'function') {
             onClickVerifyPayment(payment)
         } else {
@@ -326,12 +342,12 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
                 cell: row => (<>
                     <div className="flex w-full justify-center">
                         {(row.fileId !== null || row.driveFileId !== null) &&<a href={row.fileId !== null ? `${process.env.REACT_APP_BACKEND_HOST}api/v1/files/${row.fileId}` : `#`} onClick={() => handleDownloadGoogleDrive(row)}><DownloadButton /></a>}
-                        <DeleteButton onClick={() => openDeleteModal(row)} />
-                        {canVerify && (<VerifyButton invisible={row.verified} onClick={() => openVerifyModal(row)} />)
+                        {!isAuditor() && <DeleteButton onClick={() => openDeleteModal(row)} />}
+                        {canVerify && !isAuditor() && (<VerifyButton invisible={row.verified} onClick={() => openVerifyModal(row)} />)
                         }
-                        {editMode && (<EditButton onClick={() => openEditModal(row)}/>)
+                        {editMode && !isAuditor() && (<EditButton onClick={() => openEditModal(row)}/>)
                         }
-                        {showInvoiceButton && (
+                        {showInvoiceButton && !isAuditor() && (
                             <InvoiceButton
                                 className={isInvoiceable(row) ? '' : 'invisible pointer-events-none'}
                                 onClick={() => openInvoiceModal([row])}
@@ -439,7 +455,7 @@ export default function PaymentsTable({ tableFooter, summary = null, pageablePro
     return(
         <>
             <Table {...tableProps} />
-            {showInvoiceButton && selectedPayments.length > 0 && (
+            {showInvoiceButton && selectedPayments.length > 0 && !isAuditor() && (
                 <div className="flex justify-end my-2">
                     <button
                         onClick={() => openInvoiceModal(selectedPayments)}

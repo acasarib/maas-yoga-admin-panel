@@ -12,7 +12,6 @@ There is also a `CONTEXT.md` at the repo root — a detailed (Spanish-language) 
 
 ### Run everything (Docker — normal workflow)
 ```bash
-cp .env.example .env          # first time only, also frontend/.env and backend/.env
 docker-compose up
 ```
 Test login: `email@email.com` / `123` (seeded by `backend/app/seeders/firstUserSeed.js` on boot).
@@ -115,3 +114,8 @@ headquarter                                    (multi-location, loosely referenc
 - Backend and frontend each read their own `.env` (see `.env.example` at repo root, `backend/.env.example`, `frontend/.env.example`).
 - Google Drive storage integration is optional/toggleable via env (`GOOGLE_DRIVE_ENABLED` and related `GOOGLE_*` vars).
 - SSL certs for AFIP live under `backend/certificates`/`backend/certs`; see `backend/scripts/AFIP_CERTIFICADOS.md` and `backend/scripts/generate-cert-request.js` for generating/renewing them.
+
+## Codegraph
+There is a codegraph generated for the frontend and backend at /backend/.codegraph and /frontend/.codegraph.
+
+Codegraph GitHub: https://github.com/colbymchenry/codegraph

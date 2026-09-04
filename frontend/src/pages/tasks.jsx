@@ -173,17 +173,17 @@ export default function Tasks(props) {
                         </Box>
                         <TabPanel className="pt-4" value="1">
                             {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
-                            (tasks.length > 0) ? 
+                            (tasks.length > 0) ?
                             tasks.map((task) =>
-                            <TaskCard greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            <TaskCard isAuditor={isAuditor()} greenCheckEnabled={!task.completed} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas" subtitle="No hay tareas que realizar"/>
                         }</TabPanel>
                         <TabPanel className="pt-4" value="2">
                             {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
-                            (pendingTasks.length > 0) ? 
+                            (pendingTasks.length > 0) ?
                             pendingTasks.map((task) =>
-                            <TaskCard greenCheckEnabled title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            <TaskCard isAuditor={isAuditor()} greenCheckEnabled title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas pendientes" subtitle="No hay tareas que se deben realizar apareceran aqui"/>
                         }</TabPanel>
@@ -191,7 +191,7 @@ export default function Tasks(props) {
                             {isLoading ? <div className="flex justify-center"><Loader className="my-16" size={16}/></div> :
                             (completedTasks.length > 0) ?
                             completedTasks.map((task) =>
-                            <TaskCard title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
+                            <TaskCard isAuditor={isAuditor()} title={task.title} description={task.description} key={task.id} onDeleteClick={() => openDeleteModal(task.id)} onEditClick={() => openEditModal(task)} onCompleteClick={() => resolveTask(task)}/>
                         ) :
                             <NoDataComponent Icon={AssignmentTurnedInIcon} title="No hay tareas completadas" subtitle="Las tareas que se completen se veran aqui"/>
                         }</TabPanel>

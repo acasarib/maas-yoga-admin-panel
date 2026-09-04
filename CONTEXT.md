@@ -15,15 +15,6 @@ Las solicitudes de los usuarios (Nora y equipo) se encuentran en:
 
 > **Nota:** Esta carpeta está en `.gitignore`, por lo que no se puede leer con herramientas de archivo estándar desde el IDE. Usar `cat` o un script Python para leerlo si es necesario.
 
-Historial de cambios pedidos relevantes (en orden):
-1. Agregar País, Provincia y Barrio al alta de alumnos ✅ implementado
-2. Exportar Excel con inscriptos por curso ✅ implementado
-3. Corregir ícono de estado en grilla de cursos futuros sin pago ✅ implementado
-4. Contador de alumnos activos/suspendidos en la vista del curso ✅ implementado
-5. **Pago adelantado / curso completo** — ⏸️ pendiente, implementar cuando el usuario lo pida
-
----
-
 ## Stack tecnológico
 
 | Capa | Tecnología |
@@ -42,10 +33,7 @@ Historial de cambios pedidos relevantes (en orden):
 ## Cómo correr el proyecto
 
 ```bash
-# 1. Copiar variables de entorno
-cp .env.example .env
-
-# 2. Levantar todo con Docker
+# Levantar todo con Docker
 docker-compose up
 ```
 
@@ -273,36 +261,7 @@ course ──────< courseTask >──────── student (via stu
 
 ---
 
-## Cambios implementados (commit `e4196da`)
-
-### 1. País / Provincia / Barrio en alumnos
-- **Modelo:** `backend/app/db/models/student.js` → campos `country`, `province`, `neighborhood`
-- **Service frontend:** `frontend/src/services/studentsService.js` → `newStudent` y `editStudent`
-- **Formulario:** `frontend/src/pages/students.jsx` → 3 nuevos inputs + formik initialValues
-- **Perfil:** `frontend/src/components/card/studentCard.jsx` → muestra los campos si tienen valor
-
-### 2. Exportar Excel de inscriptos por curso
-- **Service backend:** `backend/app/services/courseService.js` → `exportStudentsByCourse(courseId)`
-- **Controller:** `backend/app/controllers/coursesController.js` → `exportStudentsByCourse`
-- **Ruta:** `backend/app/routes/coursesRoute.js` → `GET /:courseId/export-students`
-- **Service frontend:** `frontend/src/services/coursesService.js` → `exportStudents(courseId)`
-- **UI:** `frontend/src/pages/courseDetail.jsx` → botón "Exportar Excel" en tab Alumnos
-
-### 3. Fix ícono rojo para cursos futuros sin pago
-- **Archivo:** `frontend/src/components/section/courses/studentCoursesInfo.js`
-- **Lógica:** Si `currentMonth === NOT_TAKEN` Y existe algún mes `NOT_PAID` → muestra rojo
-- **Nueva función:** `checkHasAnyNotPaidMonth()`
-
-### 4. Contador activos/suspendidos en vista de curso
-- **Archivo:** `frontend/src/pages/courseDetail.jsx` → `StudentsModule`
-- **UI:** "Activos: X · Suspendidos: Y · Total: Z" sobre la tabla de alumnos
-
----
-
 ## Pendiente para futuras sesiones
-
-### Punto 5 — Pago adelantado / Curso completo ⏸️
-Solicitud original: permitir que un alumno pague por adelantado varios meses o el curso completo de una vez. Aún no diseñado ni implementado. Esperar indicación del usuario.
 
 ---
 
