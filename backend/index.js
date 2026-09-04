@@ -10,6 +10,8 @@ import routes from "./app/routes/index.js";
 import cors from "cors";
 import { APP_VERSION } from "./app/utils/constants.js";
 import logger from "./app/utils/logger.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./app/config/swaggerConfig.js";
 
 logger.log(`Starting application version ${APP_VERSION}`);
 
@@ -26,6 +28,17 @@ app.use(
 );
 
 app.use(json());
+
+if (process.env.SWAGGER_ENABLED !== "false") {
+  app.use("/api-docs", swaggerUi.serve);
+  app.get("/api-docs", swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tryItOutEnabled: true,
+    },
+  }));
+  logger.log("Swagger documentation available at /api-docs");
+}
 
 app.use("/api/v1", routes);
 
