@@ -8,7 +8,6 @@ Todas las versiones notables de este proyecto se documentan en este archivo.
 - **Sistema de roles auditor con acceso de solo lectura.** Se agregó un nuevo rol "auditor" (además del existente "operator") con permisos restringidos a operaciones de lectura (GET). Los auditores no pueden crear, editar, eliminar ni verificar ningún recurso (usuarios, estudiantes, cursos, profesores, pagos, tareas, categorías, etc.). El rol se almacena en la columna `role` de la tabla `user` y se incluye en el JWT al login.
   - **Backend:** Middleware `blockAuditors` que rechaza con 403 FORBIDDEN todos los endpoints POST/PUT/PATCH/DELETE para usuarios con rol "auditor". Aplicado a ~60+ endpoints de escritura a través de 10 archivos de rutas.
   - **Frontend:** Botones de acción (crear, editar, eliminar, verificar, emitir factura) ocultados para auditors. Intentos de acción generan alertas de advertencia que explican la restricción.
-  - Auditor de prueba: `audit@audit.com` / `123`.
 
 - **Borrado suave (soft delete) de usuarios.** Los usuarios ahora se marcan como eliminados en lugar de ser borrados de la base de datos. Se agregó la columna `deletedAt` a la tabla `user`. El endpoint DELETE ahora actualiza `deletedAt` con la fecha/hora actual en lugar de ejecutar un DELETE FROM. Se agregó un endpoint PUT `/:email/restore` para restaurar usuarios eliminados (operadores solamente). Los usuarios eliminados no aparecen en las búsquedas ni listados normales.
 
