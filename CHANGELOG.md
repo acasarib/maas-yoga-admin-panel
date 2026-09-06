@@ -5,6 +5,14 @@ Todas las versiones notables de este proyecto se documentan en este archivo.
 ## [1.3.6] - 2026-09-04
 
 ### Agregado
+- **Documentación Swagger pública (`/api-docs`) para integraciones externas.** Se expone únicamente los endpoints de solo lectura de Estudiantes, Cursos y Profesores (listar y obtener por ID), autenticados con header `X-Api-Key` en vez de JWT. El resto de los controllers (Usuarios, Pagos, Categorías, Sedes, Clases, Tareas, Plantillas, Archivos, Logs, Notificaciones) no aparecen en esta documentación.
+  - Los ejemplos de respuesta se corrigieron para reflejar el formato real de la API (paginación `totalItems`/`totalPages`/`currentPage`/`data` en vez de un wrapper `{success, data}` inexistente) y se corrigieron campos desactualizados del schema de Profesor.
+- **Parámetro `search` en `GET /api/v1/students`.** Permite buscar por coincidencia parcial en nombre, apellido o email con un único parámetro (`?search=texto`), sin necesidad de conocer la sintaxis interna de filtros (`q`/`isOrOperation`).
+
+### Corregido
+- **Endpoints de pagos inalcanzables por orden de rutas.** `GET /api/v1/payments/verified`, `/unverified`, `/services`, `/secretary`, `/chart`, `/legacy` y `/export` quedaban ocultos detrás de la ruta `GET /:id` (registrada antes), por lo que Express los interpretaba como un ID de pago y la consulta fallaba con un error 500 de Postgres.
+- **Crash al pedir un curso inexistente (`GET /api/v1/courses/:id`).** Devolvía un error 500 no controlado en vez de un 404 cuando el ID no correspondía a ningún curso.
+
 - **Sistema de roles auditor con acceso de solo lectura.** Se agregó un nuevo rol "auditor" (además del existente "operator") con permisos restringidos a operaciones de lectura (GET). Los auditores no pueden crear, editar, eliminar ni verificar ningún recurso (usuarios, estudiantes, cursos, profesores, pagos, tareas, categorías, etc.). El rol se almacena en la columna `role` de la tabla `user` y se incluye en el JWT al login.
   - **Backend:** Middleware `blockAuditors` que rechaza con 403 FORBIDDEN todos los endpoints POST/PUT/PATCH/DELETE para usuarios con rol "auditor". Aplicado a ~60+ endpoints de escritura a través de 10 archivos de rutas.
   - **Frontend:** Botones de acción (crear, editar, eliminar, verificar, emitir factura) ocultados para auditors. Intentos de acción generan alertas de advertencia que explican la restricción.
