@@ -15,7 +15,7 @@
  *           type: string
  *           description: Apellido del estudiante
  *         document:
- *           type: integer
+ *           type: string
  *           description: Número de documento del estudiante
  *         email:
  *           type: string
@@ -67,6 +67,11 @@
  *         updatedAt:
  *           type: string
  *           format: date-time
+ *         courses:
+ *           type: array
+ *           description: Cursos en los que está inscripto el estudiante
+ *           items:
+ *             $ref: '#/components/schemas/Course'
  *       required:
  *         - name
  *         - lastName

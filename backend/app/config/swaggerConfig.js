@@ -25,24 +25,20 @@ const swaggerOptions = {
     ],
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-          description: "JWT token obtenido desde el endpoint /api/v1/users/login",
+        apiKeyAuth: {
+          type: "apiKey",
+          in: "header",
+          name: "X-Api-Key",
+          description: "API Key para autenticación de integraciones externas",
         },
       },
     },
     security: [
       {
-        bearerAuth: [],
+        apiKeyAuth: [],
       },
     ],
     tags: [
-      {
-        name: "Users",
-        description: "Endpoints para autenticación y gestión de usuarios",
-      },
       {
         name: "Students",
         description: "Endpoints para gestión de estudiantes",
@@ -52,50 +48,19 @@ const swaggerOptions = {
         description: "Endpoints para gestión de cursos",
       },
       {
-        name: "Payments",
-        description: "Endpoints para gestión de pagos",
-      },
-      {
         name: "Professors",
         description: "Endpoints para gestión de profesores",
-      },
-      {
-        name: "Categories",
-        description: "Endpoints para gestión de categorías",
-      },
-      {
-        name: "Headquarters",
-        description: "Endpoints para gestión de sedes",
-      },
-      {
-        name: "Classes",
-        description: "Endpoints para gestión de clases",
-      },
-      {
-        name: "Tasks",
-        description: "Endpoints para gestión de tareas de cursos",
-      },
-      {
-        name: "Templates",
-        description: "Endpoints para gestión de plantillas de email",
-      },
-      {
-        name: "Files",
-        description: "Endpoints para gestión de archivos",
-      },
-      {
-        name: "Logs",
-        description: "Endpoints para consulta de logs",
-      },
-      {
-        name: "Notifications",
-        description: "Endpoints para gestión de notificaciones",
       },
     ],
   },
   apis: [
-    "./app/docs/schemas/*.js",
-    "./app/routes/*.js",
+    "./app/docs/schemas/common.js",
+    "./app/docs/schemas/student.js",
+    "./app/docs/schemas/course.js",
+    "./app/docs/schemas/professor.js",
+    "./app/routes/studentsRoute.js",
+    "./app/routes/coursesRoute.js",
+    "./app/routes/professorsRoute.js",
   ],
 };
 

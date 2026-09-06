@@ -14,51 +14,27 @@ const router = express.Router();
  *     summary: Obtener todos los profesores
  *     tags: [Professors]
  *     security:
- *       - bearerAuth: []
+ *       - apiKeyAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Filtro de búsqueda (nombre, apellido, email, etc.)
  *     responses:
  *       200:
  *         description: Lista de profesores
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Professor'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Professor'
+ *       401:
+ *         description: No autorizado. Proporciona un X-Api-Key válido
  */
 router.get("/", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.PROFESSOR_READ), controller.getAll);
 
-/**
- * @swagger
- * /api/v1/professors:
- *   post:
- *     summary: Crear un nuevo profesor
- *     tags: [Professors]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ProfessorCreateRequest'
- *     responses:
- *       201:
- *         description: Profesor creado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Professor'
- */
 router.post("/", verifyToken, blockAuditors, controller.create);
 
 /**
@@ -68,54 +44,30 @@ router.post("/", verifyToken, blockAuditors, controller.create);
  *     summary: Obtener profesor por ID
  *     tags: [Professors]
  *     security:
- *       - bearerAuth: []
+ *       - apiKeyAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID del profesor
+ *     responses:
+ *       200:
+ *         description: Datos del profesor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Professor'
+ *       401:
+ *         description: No autorizado. Proporciona un X-Api-Key válido
+ *       404:
+ *         description: Profesor no encontrado
  */
 router.get("/:id", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.PROFESSOR_READ), controller.getById);
 
-/**
- * @swagger
- * /api/v1/professors/{id}:
- *   put:
- *     summary: Actualizar profesor por ID
- *     tags: [Professors]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ProfessorUpdateRequest'
- */
 router.put("/:id", verifyToken, blockAuditors, controller.editById);
 
-/**
- * @swagger
- * /api/v1/professors/{id}:
- *   delete:
- *     summary: Eliminar profesor por ID
- *     tags: [Professors]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- */
 router.delete("/:id", verifyToken, blockAuditors, controller.deleteById);
 
 router.get("/pending-payments", verifyToken, controller.getPendingPayments);
