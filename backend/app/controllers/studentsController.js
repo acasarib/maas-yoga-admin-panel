@@ -102,9 +102,14 @@ export default {
    */
   getAll: async (req, res, next) => {
     try {
-      const { q, page, size } = req.query;
-      const querySpecification = q;
-      const isOrOperation = req.query.isOrOperation === "true";
+      const { q, page, size, search } = req.query;
+      let querySpecification = q;
+      let isOrOperation = req.query.isOrOperation === "true";
+      if (search) {
+        const sanitizedSearch = search.replace(/;/g, "");
+        querySpecification = `name iLike %${sanitizedSearch}%;lastName iLike %${sanitizedSearch}%;email iLike %${sanitizedSearch}%`;
+        isOrOperation = true;
+      }
       const specification = new Specification(querySpecification, student, isOrOperation);
       const students = await studentService.getAll(page, size, specification);
       res.status(StatusCodes.OK).json(students);
