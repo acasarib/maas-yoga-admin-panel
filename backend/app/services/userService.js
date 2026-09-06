@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import request from "request";
+import { SERVICE_ACCOUNT_ROLE } from "../utils/constants.js";
 
 export const create = async (userParam) => {
   const encryptedPassword = await encryptPassword(userParam.password);
@@ -30,6 +31,8 @@ export const restoreByEmail = async (email) => {
 export const login = async (email, password) => {
   let userDb = await user.scope("withPassword").scope("active").findOne({ where: { email } });
   if (!userDb)
+    throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
+  if (userDb.role === SERVICE_ACCOUNT_ROLE)
     throw ({ statusCode: StatusCodes.BAD_REQUEST, message: "invalid email or password" });
   if (userDb.password == null) {
     await changePassword(userDb.email, password);

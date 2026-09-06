@@ -1,7 +1,10 @@
 import express from "express";
 import controller from "../controllers/professorsController.js";
 import verifyToken from "../middleware/validateToken.js";
+import verifyTokenOrApiKey from "../middleware/verifyTokenOrApiKey.js";
 import blockAuditors from "../middleware/withRole.js";
+import withApiKeyPermission from "../middleware/withApiKeyPermission.js";
+import { API_KEY_PERMISSIONS } from "../utils/constants.js";
 const router = express.Router();
 
 /**
@@ -27,7 +30,7 @@ const router = express.Router();
  *                   items:
  *                     $ref: '#/components/schemas/Professor'
  */
-router.get("/", verifyToken, controller.getAll);
+router.get("/", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.PROFESSOR_READ), controller.getAll);
 
 /**
  * @swagger
@@ -73,7 +76,7 @@ router.post("/", verifyToken, blockAuditors, controller.create);
  *         schema:
  *           type: integer
  */
-router.get("/:id", verifyToken, controller.getById);
+router.get("/:id", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.PROFESSOR_READ), controller.getById);
 
 /**
  * @swagger

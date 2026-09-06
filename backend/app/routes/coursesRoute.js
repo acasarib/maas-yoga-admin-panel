@@ -1,7 +1,10 @@
 import express from "express";
 import controller from "../controllers/coursesController.js";
 import verifyToken from "../middleware/validateToken.js";
+import verifyTokenOrApiKey from "../middleware/verifyTokenOrApiKey.js";
 import blockAuditors from "../middleware/withRole.js";
+import withApiKeyPermission from "../middleware/withApiKeyPermission.js";
+import { API_KEY_PERMISSIONS } from "../utils/constants.js";
 const router = express.Router();
 
 /**
@@ -29,7 +32,7 @@ const router = express.Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/", verifyToken, controller.getAll);
+router.get("/", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.COURSE_READ), controller.getAll);
 
 /**
  * @swagger
@@ -94,7 +97,7 @@ router.post("/", verifyToken, blockAuditors, controller.create);
  *       404:
  *         description: Curso no encontrado
  */
-router.get("/:id", verifyToken, controller.getById);
+router.get("/:id", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.COURSE_READ), controller.getById);
 
 /**
  * @swagger

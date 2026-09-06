@@ -1,6 +1,12 @@
 const PERMISSIONS = {
   CREATE_USER: "PERMISSION_CREATE_USER"
 };
+const SERVICE_ACCOUNT_ROLE = "service";
+const API_KEY_PERMISSIONS = {
+  STUDENT_READ: "student:read",
+  COURSE_READ: "course:read",
+  PROFESSOR_READ: "professor:read",
+};
 const APP_VERSION = "1.3.6";
 const PAYMENT_TYPES = {
   MERCADO_PAGO: "Mercado pago",
@@ -81,4 +87,6 @@ export {
   LOG_PAYMENT_ACTIONS,
   STUDENT_MONTHS_CONDITIONS,
   APP_VERSION,
+  SERVICE_ACCOUNT_ROLE,
+  API_KEY_PERMISSIONS,
 };
