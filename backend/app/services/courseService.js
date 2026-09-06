@@ -155,8 +155,10 @@ export const getById = async (id) => {
     {
       model: payment,
       attributes: ["id", "operativeResult", "value", "periodFrom"]
-    }] 
+    }]
   });
+  if (!c)
+    return null;
   const professorsWithPeriods = await getProfessorPeriodsInCourse(c.id);
   c.dataValues.students = await getStudentsByCourse(c.id);
   c.dataValues.periods = [];

@@ -64,6 +64,28 @@ router.get("/", verifyToken, controller.getAll);
  */
 router.post("/", verifyToken, blockAuditors, controller.create);
 
+router.post("/secretary", verifyToken, blockAuditors, controller.createSecretaryPayment);
+router.post("/services", verifyToken, blockAuditors, controller.createServicePayment);
+router.get("/services", verifyToken, controller.getServicesPayments);
+router.put("/services/:id", verifyToken, blockAuditors, controller.updateServicePayment);
+router.delete("/services/:id", verifyToken, blockAuditors, controller.deleteServicePayment);
+router.get("/secretary", verifyToken, controller.getSecretaryPayments);
+router.get("/secretary/lastest", verifyToken, controller.getLatestSecretaryPayment);
+router.get("/students/:studentId", verifyToken, controller.getAllByStudentId);
+router.get("/courses/:courseId", verifyToken, controller.getAllByCourseId);
+router.post("/invoice", verifyToken, blockAuditors, controller.emitirFactura);
+router.get("/chart", verifyToken, controller.getForChart);
+router.get("/legacy", verifyToken, controller.legacyGetAll);
+router.get("/verified", verifyToken, controller.getAllVerified);
+router.get("/unverified", verifyToken, controller.getAllUnverified);
+router.get("/export", verifyToken, controller.exportPayments);
+router.post("/mercadopago/preference", verifyToken, blockAuditors, controller.createMercadoPagoPreference);
+router.get("/mercadopago/preference/:id/qr", controller.generateMercadoPagoQRById);
+router.get("/mercadopago/preference/:id/email", controller.sendMercadoPagoEmailById);
+router.post("/mercadopago/email", verifyToken, blockAuditors, controller.sendMercadoPagoEmail);
+router.post("/mercadopago/webhook", controller.mercadoPagoWebhook);
+router.get("/mercadopago/webhook-info", verifyToken, controller.getWebhookInfo);
+
 /**
  * @swagger
  * /api/v1/payments/{id}:
@@ -194,29 +216,9 @@ router.delete("/:id", verifyToken, blockAuditors, controller.deleteById);
  */
 router.put("/:id/verified", verifyToken, blockAuditors, controller.changeVerified);
 
-router.post("/secretary", verifyToken, blockAuditors, controller.createSecretaryPayment);
-router.post("/services", verifyToken, blockAuditors, controller.createServicePayment);
-router.get("/services", verifyToken, controller.getServicesPayments);
-router.put("/services/:id", verifyToken, blockAuditors, controller.updateServicePayment);
-router.delete("/services/:id", verifyToken, blockAuditors, controller.deleteServicePayment);
-router.get("/secretary", verifyToken, controller.getSecretaryPayments);
-router.get("/secretary/lastest", verifyToken, controller.getLatestSecretaryPayment);
-router.get("/students/:studentId", verifyToken, controller.getAllByStudentId);
-router.get("/courses/:courseId", verifyToken, controller.getAllByCourseId);
 router.post("/:id/split", verifyToken, blockAuditors, controller.splitPayment);
-router.post("/invoice", verifyToken, blockAuditors, controller.emitirFactura);
 router.get("/:id/invoice/pdf", verifyToken, controller.downloadInvoicePDF);
 router.post("/:id/invoice/email", verifyToken, blockAuditors, controller.sendInvoiceByEmail);
-router.get("/chart", verifyToken, controller.getForChart);
-router.get("/legacy", verifyToken, controller.legacyGetAll);
-router.get("/verified", verifyToken, controller.getAllVerified);
-router.get("/unverified", verifyToken, controller.getAllUnverified);
-router.get("/export", verifyToken, controller.exportPayments);
 router.get("/:id/receipt", verifyToken, controller.getReceipt);
-router.post("/mercadopago/preference", verifyToken, blockAuditors, controller.createMercadoPagoPreference);
-router.get("/mercadopago/preference/:id/qr", controller.generateMercadoPagoQRById);
-router.get("/mercadopago/preference/:id/email", controller.sendMercadoPagoEmailById);
-router.post("/mercadopago/email", verifyToken, blockAuditors, controller.sendMercadoPagoEmail);
-router.post("/mercadopago/webhook", controller.mercadoPagoWebhook);
-router.get("/mercadopago/webhook-info", verifyToken, controller.getWebhookInfo);
+
 export default router;
