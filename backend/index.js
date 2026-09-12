@@ -5,6 +5,7 @@ import cron from "node-cron";
 import { addTodayPaymentServices } from "./app/client/scheduledCronTasks.js";
 import express, { json } from "express";
 const app = express();
+app.set("trust proxy", 1);
 import errorHandler from "./app/middleware/errorHandler.js";
 import routes from "./app/routes/index.js";
 import cors from "cors";

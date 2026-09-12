@@ -5,6 +5,7 @@ import verifyToken from "../middleware/validateToken.js";
 import withPermissions from "../middleware/withPermissions.js";
 import blockAuditors from "../middleware/withRole.js";
 import { PERMISSIONS } from "../utils/constants.js";
+import { loginRateLimiterByAccount, loginRateLimiterByIp } from "../middleware/loginRateLimiter.js";
 const router = express.Router();
 
 /**
@@ -39,7 +40,7 @@ const router = express.Router();
  *       400:
  *         description: Credenciales inválidas
  */
-router.post("/login", controller.login);
+router.post("/login", loginRateLimiterByIp, loginRateLimiterByAccount, controller.login);
 
 /**
  * @swagger
