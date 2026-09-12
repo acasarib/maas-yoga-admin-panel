@@ -37,6 +37,8 @@ router.get("/", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.PR
 
 router.post("/", verifyToken, blockAuditors, controller.create);
 
+router.get("/pending-payments", verifyToken, controller.getPendingPayments);
+
 /**
  * @swagger
  * /api/v1/professors/{id}:
@@ -69,7 +71,5 @@ router.get("/:id", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS
 router.put("/:id", verifyToken, blockAuditors, controller.editById);
 
 router.delete("/:id", verifyToken, blockAuditors, controller.deleteById);
-
-router.get("/pending-payments", verifyToken, controller.getPendingPayments);
 
 export default router;

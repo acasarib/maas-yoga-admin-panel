@@ -48,6 +48,17 @@ router.post("/", verifyToken, blockAuditors, controller.create);
 
 /**
  * @swagger
+ * /api/v1/categories/items:
+ *   get:
+ *     summary: Obtener todos los items de todas las categorías
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/items", verifyToken, controller.getAllItems);
+
+/**
+ * @swagger
  * /api/v1/categories/{id}:
  *   get:
  *     summary: Obtener categoría por ID
@@ -102,7 +113,5 @@ router.put("/:id/", verifyToken, blockAuditors, controller.editById);
  *           type: integer
  */
 router.delete("/:id/", verifyToken, blockAuditors, controller.deleteById);
-
-router.get("/items", verifyToken, controller.getAllItems);
 
 export default router;

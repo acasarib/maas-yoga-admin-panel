@@ -58,6 +58,11 @@ router.get("/", verifyTokenOrApiKey, withApiKeyPermission(API_KEY_PERMISSIONS.CO
 
 router.post("/", verifyToken, blockAuditors, controller.create);
 
+router.get("/tasks", verifyToken, controller.getCoursesTasksByTitle);
+router.post("/tasks/copy", verifyToken, blockAuditors, controller.copyTasksFromCourse);
+router.put("/tasks/:id", verifyToken, blockAuditors, controller.editCourseTask);
+router.delete("/tasks/:id", verifyToken, blockAuditors, controller.deleteCourseTask);
+
 /**
  * @swagger
  * /api/v1/courses/{id}:
@@ -91,14 +96,10 @@ router.put("/:id", verifyToken, blockAuditors, controller.editById);
 
 router.delete("/:id", verifyToken, blockAuditors, controller.deleteById);
 
-router.get("/tasks", verifyToken, controller.getCoursesTasksByTitle);
-router.post("/tasks/copy", verifyToken, blockAuditors, controller.copyTasksFromCourse);
 router.put("/:id/students", verifyToken, blockAuditors, controller.setStudentsToCourse);
 router.put("/:id/students/:studentId/update-inscription-date", verifyToken, blockAuditors, controller.updateInscriptionDate);
 
 router.post("/:courseId/tasks", verifyToken, blockAuditors, controller.addCourseTask);
-router.put("/tasks/:id", verifyToken, blockAuditors, controller.editCourseTask);
-router.delete("/tasks/:id", verifyToken, blockAuditors, controller.deleteCourseTask);
 router.get("/:courseId/tasks/:taskId", verifyToken, controller.getCourseTaskById);
 router.get("/:courseId/tasks", verifyToken, controller.getCourseTasks);
 
