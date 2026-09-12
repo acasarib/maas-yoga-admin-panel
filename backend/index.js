@@ -30,14 +30,14 @@ app.use(
 app.use(json());
 
 if (process.env.SWAGGER_ENABLED !== "false") {
-  app.use("/api-docs", swaggerUi.serve);
-  app.get("/api-docs", swaggerUi.setup(swaggerSpec, {
+  app.use("/api/v1/api-docs", swaggerUi.serve);
+  app.get("/api/v1/api-docs", swaggerUi.setup(swaggerSpec, {
     swaggerOptions: {
       persistAuthorization: true,
       tryItOutEnabled: true,
     },
   }));
-  logger.log("Swagger documentation available at /api-docs");
+  logger.log("Swagger documentation available at /api/v1/api-docs");
 }
 
 app.use("/api/v1", routes);

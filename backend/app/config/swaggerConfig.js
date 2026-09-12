@@ -40,6 +40,10 @@ const swaggerOptions = {
     ],
     tags: [
       {
+        name: "Health",
+        description: "Endpoint de estado del servicio",
+      },
+      {
         name: "Students",
         description: "Endpoints para gestión de estudiantes",
       },
@@ -58,6 +62,7 @@ const swaggerOptions = {
     "./app/docs/schemas/student.js",
     "./app/docs/schemas/course.js",
     "./app/docs/schemas/professor.js",
+    "./app/routes/healthcheckRoute.js",
     "./app/routes/studentsRoute.js",
     "./app/routes/coursesRoute.js",
     "./app/routes/professorsRoute.js",
