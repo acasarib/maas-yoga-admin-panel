@@ -7,7 +7,7 @@ const API_KEY_PERMISSIONS = {
   COURSE_READ: "course:read",
   PROFESSOR_READ: "professor:read",
 };
-const APP_VERSION = "1.3.7";
+const APP_VERSION = "1.3.8";
 const PAYMENT_TYPES = {
   MERCADO_PAGO: "Mercado pago",
   PAYPAL: "Paypal",
