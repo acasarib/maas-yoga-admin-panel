@@ -391,6 +391,7 @@ export default function Courses(props) {
         clearTimeout(searchTimeout);
         setSearchTimeout(setTimeout(async () => {      
             if (searchParams.field == 'Identificador') {
+                if (!/^\d+$/.test(searchParams.searchValue)) return;
                 const course = await coursesService.getCourse(searchParams.searchValue)
                 setPageableCourses([course])
             } else {

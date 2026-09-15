@@ -51,6 +51,9 @@ export default {
    */
   getById: async (req, res, next) => {
     try {
+      if (!/^\d+$/.test(req.params.id)) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: "ID inválido" });
+      }
       const course = await courseService.getById(req.params.id);
       if (course)
         res.status(StatusCodes.OK).json(course);

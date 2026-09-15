@@ -173,7 +173,6 @@ export const getById = async (id) => {
 export const getAll = async (title, page = 1, size = 10) => {
   const findAllParams = { include: [
     student,
-    { model: courseTask, include:[student] },
   ],
   distinct: true,
   };
@@ -188,8 +187,10 @@ export const getAll = async (title, page = 1, size = 10) => {
   let courses = rows;
   let coursesIds = courses.map(c => c.id);
   let professorCourses = await professorCourse.findAll({ include: [professor], where: { courseId: {[Op.in]:coursesIds}}});
+  let courseTasks = await courseTask.findAll({ include: [student], where: { courseId: {[Op.in]:coursesIds}}});
   courses.forEach(course => {
     course.dataValues.periods = professorCourses.filter(pc => pc.courseId == course.id);
+    course.dataValues.courseTasks = courseTasks.filter(ct => ct.courseId == course.id);
   });
   return {
     totalItems: count,
