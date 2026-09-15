@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { StatusCodes } from "http-status-codes";
 
 const tooManyRequests = (req, res) => {
@@ -13,7 +13,7 @@ export const loginRateLimiterByAccount = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => (req.body?.email || "").toLowerCase() || req.ip,
+  keyGenerator: (req) => (req.body?.email || "").toLowerCase() || ipKeyGenerator(req.ip),
   handler: tooManyRequests,
 });
 
