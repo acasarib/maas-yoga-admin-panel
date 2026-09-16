@@ -20,7 +20,7 @@ const swaggerOptions = {
       },
       {
         url: process.env.SWAGGER_SERVER_URL || "http://localhost:3000",
-        description: process.env.NODE_ENV === "production" ? "Production Server" : "Development Server",
+        description: "Production Server",
       },
     ],
     components: {
