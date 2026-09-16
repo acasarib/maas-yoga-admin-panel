@@ -27,7 +27,11 @@ const createMonthlyProfessorPayments = async () => {
 }
 
 const addTodayPaymentServices = async () => {
-  paymentService.addTodayPaymentServices()
+  try {
+    await paymentService.addTodayPaymentServices();
+  } catch (e) {
+    logger.error("Error running addTodayPaymentServices:", e);
+  }
 }
 
 export {

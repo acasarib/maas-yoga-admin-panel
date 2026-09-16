@@ -53,8 +53,8 @@ try {
   logger.log("Could not connect db");
   logger.log(e);
 }
-createFirstUserIfNotExists();
-addTodayPaymentServices();
+createFirstUserIfNotExists().catch(e => logger.error("Error running createFirstUserIfNotExists:", e));
+addTodayPaymentServices().catch(e => logger.error("Error running addTodayPaymentServices:", e));
 
 
 app.use(errorHandler);
