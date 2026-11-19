@@ -114,6 +114,7 @@ export async function generateAfipInvoicePDF(data) {
     items, total,
     cae, caeVencimiento,
     tipoCmp, tipoDocRec, nroDocRec,
+    docLabel, associatedRef,
   } = data;
 
   // --- QR AFIP (RG 4291) ---
@@ -186,7 +187,7 @@ export async function generateAfipInvoicePDF(data) {
   const rX = cX + cW;
   page.drawRectangle({ x: rX, y: hY, width: rW, height: hH, borderColor: black, borderWidth: 0.5, color: white });
   page.drawText('ORIGINAL', { x: rX + rW/2 - 22, y: hY+hH-14, size: 9, font: fontBold, color: dark });
-  page.drawText(`FACTURA`, { x: rX+5, y: hY+hH-30, size: 9, font: fontBold, color: dark });
+  page.drawText(docLabel || 'FACTURA', { x: rX+5, y: hY+hH-30, size: 9, font: fontBold, color: dark });
   page.drawText(`Nro: ${nroFmt}`, { x: rX+5, y: hY+hH-44, size: 9, font: fontReg, color: dark });
   page.drawText(`Fecha de emision: ${fechaCbte || ''}`, { x: rX+5, y: hY+hH-58, size: 8, font: fontReg, color: dark });
   page.drawText(`CUIT: ${emisorCuit || ''}`, { x: rX+5, y: hY+hH-72, size: 8, font: fontReg, color: dark });
@@ -256,6 +257,9 @@ export async function generateAfipInvoicePDF(data) {
   page.drawText(`Fecha de Vto. del CAE: ${caeVencimiento || ''}`, { x: caeX, y: qrSecY+60, size: 9, font: fontReg, color: dark });
   page.drawLine({ start: {x: caeX, y: qrSecY+52}, end: {x: R-5, y: qrSecY+52}, thickness: 0.3, color: gray });
   page.drawText('Verifique este comprobante en www.afip.gob.ar/fe/qr', { x: caeX, y: qrSecY+38, size: 8, font: fontReg, color: rgb(0.3,0.3,0.3) });
+  if (associatedRef) {
+    page.drawText(`Comprobante asociado: ${associatedRef}`, { x: caeX, y: qrSecY+22, size: 7, font: fontReg, color: rgb(0.3,0.3,0.3) });
+  }
 
   // Footer
   page.drawText('Comprobante generado electronicamente. Valido ante AFIP.', {

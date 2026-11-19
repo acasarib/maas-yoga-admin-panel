@@ -4,8 +4,8 @@
  * No requiere librerías externas con restricciones de plataforma.
  *
  * Tipos de comprobante:
- *   1 → Factura A (Responsable Inscripto)
- *   6 → Factura B (Consumidor Final)
+ *   1 → Factura A (Responsable Inscripto)      3 → Nota de Crédito A
+ *   6 → Factura B (Consumidor Final)           8 → Nota de Crédito B
  */
 
 import { execSync } from "child_process";
@@ -192,30 +192,38 @@ const getInvoiceConfig = (ivaCondition, receptorDoc) => {
   };
 };
 
-// Los montos ya incluyen el 21% de IVA y nunca se discrimina (ni Factura A ni B): decisión de negocio confirmada por contaduría.
-export const emitirFactura = async ({ items, ivaCondition, cuit, docType, document }) => {
+// Expone cbteTipo/condIvaReceptor/label de un tipo de comprobante sin necesitar un docReceptor
+// (a diferencia de getInvoiceConfig) — lo usa emitirNotaCredito, que ya tiene el doc snapshoteado.
+export const getCbteTipoAndCondIva = (ivaCondition) => {
+  const config = INVOICE_TYPES[ivaCondition] || INVOICE_TYPES.CONSUMIDOR_FINAL;
+  return { cbteTipo: config.cbte, condIvaReceptor: config.condIvaReceptor, label: config.label };
+};
+
+const isAfipConfigured = () => {
   const certPath = process.env.AFIP_CERT_PATH;
   const keyPath = process.env.AFIP_KEY_PATH;
   const cuitEmisor = process.env.AFIP_CUIT;
-  const puntoVenta = parseInt(process.env.AFIP_PUNTO_VENTA || "1");
-
-  if (!certPath || !keyPath || !cuitEmisor) return null;
+  if (!certPath || !keyPath || !cuitEmisor) return false;
   if (!fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
     logger.warn("AFIP: archivos de certificado no encontrados. Facturación deshabilitada.");
-    return null;
+    return false;
   }
-  if (!Array.isArray(items) || items.length === 0) {
-    throw new Error("Se necesita al menos un ítem para emitir la factura");
-  }
+  return true;
+};
 
-  const receptorDoc = resolveReceptorDoc(ivaCondition, { docType, cuit, document });
-  const { cbteTipo, label, docTipo, docNro, condIvaReceptor } = getInvoiceConfig(ivaCondition, receptorDoc);
+const buildCbtesAsocXml = (cbtesAsoc) => {
+  if (!cbtesAsoc) return "";
+  return `<ar:CbtesAsoc><ar:CbteAsoc><ar:Tipo>${cbtesAsoc.tipo}</ar:Tipo><ar:PtoVta>${cbtesAsoc.ptoVta}</ar:PtoVta><ar:Nro>${cbtesAsoc.nro}</ar:Nro></ar:CbteAsoc></ar:CbtesAsoc>`;
+};
 
-  const total = parseFloat(items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toFixed(2));
-
-  const impNeto = 0;
-  const impIVA = 0;
-  const impOpEx = total;
+/**
+ * Núcleo compartido de emisión (FECAESolicitar) entre facturas y notas de crédito — mismo
+ * flujo WSAA/WSFE, difiere solo en CbteTipo y en si lleva CbtesAsoc (obligatorio en notas de
+ * crédito/débito, para asociar el comprobante que se está corrigiendo).
+ */
+const solicitarCAE = async ({ cbteTipo, docTipo, docNro, condIvaReceptor, total, cbtesAsoc }) => {
+  const cuitEmisor = process.env.AFIP_CUIT;
+  const puntoVenta = parseInt(process.env.AFIP_PUNTO_VENTA || "1");
 
   const { token, sign } = await getToken();
   const nroComprobante = (await getLastVoucher(puntoVenta, cbteTipo, cuitEmisor, token, sign)) + 1;
@@ -241,10 +249,11 @@ export const emitirFactura = async ({ items, ivaCondition, cuit, docType, docume
         <ar:FchServHasta>${ultimoDia}</ar:FchServHasta>
         <ar:FchVtoPago>${fechaCbte}</ar:FchVtoPago>
         <ar:ImpTotal>${total}</ar:ImpTotal><ar:ImpTotConc>0</ar:ImpTotConc>
-        <ar:ImpNeto>${impNeto}</ar:ImpNeto><ar:ImpOpEx>${impOpEx}</ar:ImpOpEx>
-        <ar:ImpIVA>${impIVA}</ar:ImpIVA><ar:ImpTrib>0</ar:ImpTrib>
+        <ar:ImpNeto>0</ar:ImpNeto><ar:ImpOpEx>${total}</ar:ImpOpEx>
+        <ar:ImpIVA>0</ar:ImpIVA><ar:ImpTrib>0</ar:ImpTrib>
         <ar:MonId>PES</ar:MonId><ar:MonCotiz>1</ar:MonCotiz>
         <ar:CondicionIVAReceptorId>${condIvaReceptor}</ar:CondicionIVAReceptorId>
+        ${buildCbtesAsocXml(cbtesAsoc)}
       </ar:FECAEDetRequest></ar:FeDetReq>
     </ar:FeCAEReq>
   </ar:FECAESolicitar></soap:Body>
@@ -278,9 +287,56 @@ export const emitirFactura = async ({ items, ivaCondition, cuit, docType, docume
   const raw = caeFchMatch ? caeFchMatch[1].trim() : null;
   const caeVencimiento = raw ? `${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 8)}` : null;
 
-  logger.log(`✅ Factura emitida: ${label} N° ${nroComprobante} | CAE: ${cae} | Ítems: ${items.map(i => i.paymentId).join(", ")}`);
+  return { cae, caeVencimiento, cbteNro: nroComprobante, puntoVenta };
+};
 
-  return { cae, caeVencimiento, invoiceNumber: nroComprobante, invoiceType: label, total };
+// Los montos ya incluyen el 21% de IVA y nunca se discrimina (ni Factura A ni B): decisión de negocio confirmada por contaduría.
+export const emitirFactura = async ({ items, ivaCondition, cuit, docType, document }) => {
+  if (!isAfipConfigured()) return null;
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Se necesita al menos un ítem para emitir la factura");
+  }
+
+  const receptorDoc = resolveReceptorDoc(ivaCondition, { docType, cuit, document });
+  const { cbteTipo, label, docTipo, docNro, condIvaReceptor } = getInvoiceConfig(ivaCondition, receptorDoc);
+
+  const total = parseFloat(items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toFixed(2));
+
+  const { cae, caeVencimiento, cbteNro } = await solicitarCAE({ cbteTipo, docTipo, docNro, condIvaReceptor, total });
+
+  logger.log(`✅ Factura emitida: ${label} N° ${cbteNro} | CAE: ${cae} | Ítems: ${items.map(i => i.paymentId).join(", ")}`);
+
+  return { cae, caeVencimiento, invoiceNumber: cbteNro, invoiceType: label, total };
+};
+
+/**
+ * Emite una Nota de Crédito AFIP asociada a una factura ya emitida (anulación total o
+ * parcial). El `CbteTipo` de la NC no es el mismo que el de la factura: la numeración
+ * oficial de AFIP es Factura=N, Nota de Débito=N+1, Nota de Crédito=N+2 (1/2/3 para
+ * comprobantes A, 6/7/8 para B). `CbtesAsoc` (obligatorio) referencia la factura original.
+ */
+export const emitirNotaCredito = async ({ items, ivaCondition, puntoVenta: origPuntoVenta, invoiceNumber: origInvoiceNumber, docTipo, docNro }) => {
+  if (!isAfipConfigured()) return null;
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Se necesita al menos un ítem para emitir la nota de crédito");
+  }
+
+  const { cbteTipo: facturaCbteTipo, condIvaReceptor, label: facturaLabel } = getCbteTipoAndCondIva(ivaCondition);
+  const cbteTipo = facturaCbteTipo + 2;
+  const label = facturaLabel.replace("Factura", "Nota de Crédito");
+
+  const total = parseFloat(items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0).toFixed(2));
+  if (total <= 0) {
+    throw new Error("El monto total de la nota de crédito debe ser mayor a 0");
+  }
+
+  const cbtesAsoc = { tipo: facturaCbteTipo, ptoVta: origPuntoVenta, nro: origInvoiceNumber };
+
+  const { cae, caeVencimiento, cbteNro, puntoVenta } = await solicitarCAE({ cbteTipo, docTipo, docNro, condIvaReceptor, total, cbtesAsoc });
+
+  logger.log(`✅ Nota de crédito emitida: ${label} N° ${cbteNro} | CAE: ${cae} | Asociada a factura Pto.Vta ${origPuntoVenta} N° ${origInvoiceNumber}`);
+
+  return { cae, caeVencimiento, creditNoteNumber: cbteNro, creditNoteType: label, puntoVenta, total };
 };
 
 export const requiresInvoice = (paymentType) => {

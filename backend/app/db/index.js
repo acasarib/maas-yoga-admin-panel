@@ -55,7 +55,7 @@ modelDefiners.forEach((model) => model(sequelize));
 
 //Relaciones
 
-const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse, mercado_pago_payment, invoice, invoiceItem, apiKey } = sequelize.models;
+const { notificationPayment, secretaryPayment, servicePayment, courseStudentSuspend, courseStudent, user, logPayment, course, student, payment, file, task, headquarter, courseTask, studentCourseTask, template, clazz, item, category, clazzDayDetail, professor, professorCourse, mercado_pago_payment, invoice, invoiceItem, apiKey, creditNote, creditNoteItem } = sequelize.models;
 
 notificationPayment.belongsTo(payment, { through: "payment_id" });
 notificationPayment.belongsTo(user, { through: "user_id" });
@@ -134,6 +134,16 @@ invoiceItem.belongsTo(invoice, { foreignKey: { name: "invoiceId", allowNull: fal
 invoiceItem.belongsTo(payment, { foreignKey: { name: "paymentId", allowNull: false } });
 payment.hasMany(invoiceItem, { foreignKey: { name: "paymentId", allowNull: false } });
 
+// Relaciones para notas de crédito AFIP (creditNote / creditNoteItem) — corrección fiscal
+// de una factura ya emitida, sin tocar los `payment` originales.
+invoice.hasMany(creditNote, { foreignKey: { name: "invoiceId", allowNull: false } });
+creditNote.belongsTo(invoice, { foreignKey: { name: "invoiceId", allowNull: false } });
+creditNote.belongsTo(user, { foreignKey: { name: "createdByUserId", allowNull: true } });
+creditNote.hasMany(creditNoteItem, { foreignKey: { name: "creditNoteId", allowNull: false } });
+creditNoteItem.belongsTo(creditNote, { foreignKey: { name: "creditNoteId", allowNull: false } });
+invoiceItem.hasMany(creditNoteItem, { foreignKey: { name: "invoiceItemId", allowNull: false } });
+creditNoteItem.belongsTo(invoiceItem, { foreignKey: { name: "invoiceItemId", allowNull: false } });
+
 export {
   sequelize,
   professor,
@@ -162,4 +172,6 @@ export {
   invoice,
   invoiceItem,
   apiKey,
+  creditNote,
+  creditNoteItem,
 };
