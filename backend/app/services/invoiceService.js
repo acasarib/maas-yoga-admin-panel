@@ -345,7 +345,10 @@ export const resolveCreditNoteById = async (creditNoteId) => {
   return {
     creditNoteDb,
     invoiceDb: creditNoteDb.invoice,
-    items: creditNoteDb.creditNoteItems.map((i) => ({ concept: i.concept, amount: i.amount })),
+    // El motivo (texto libre que ingresa el usuario al emitir la NC) es lo que se espera ver
+    // en la columna "Descripcion / Concepto" del PDF — no el concepto original del item de la
+    // factura, que es intercambiable (ej. "Hatha presencial") y no explica por que se anula.
+    items: creditNoteDb.creditNoteItems.map((i) => ({ concept: creditNoteDb.reason || i.concept, amount: i.amount })),
     total: creditNoteDb.totalAmount,
   };
 };
