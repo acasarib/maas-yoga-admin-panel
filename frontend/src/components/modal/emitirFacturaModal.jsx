@@ -9,6 +9,7 @@ import { Context } from '../../context/Context';
 import DownloadIcon from '@mui/icons-material/Download';
 import EmailIcon from '@mui/icons-material/Email';
 import { Tooltip } from '@mui/material';
+import NotaCreditoModal from './notaCreditoModal';
 
 const IVA_OPTIONS = [
   { value: 'CONSUMIDOR_FINAL', label: 'Consumidor Final (Factura B)' },
@@ -61,6 +62,7 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
   const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [emittedData, setEmittedData] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [notaCreditoOpen, setNotaCreditoOpen] = useState(false);
   const searchTimeout = useRef(null);
 
   const studentIds = [...new Set(payments.map((p) => p.studentId || p.student?.id).filter(Boolean))];
@@ -221,6 +223,7 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
         : 'Emitir factura';
 
   return (
+    <>
     <Modal
       size="small"
       onClose={onClose}
@@ -262,6 +265,12 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
               </span>
             </Tooltip>
           </div>
+          <button
+            onClick={() => setNotaCreditoOpen(true)}
+            className="w-full flex items-center justify-center gap-2 border border-red-300 text-red-600 rounded px-3 py-2 text-sm hover:bg-red-50 transition-colors"
+          >
+            Anular / Nota de Crédito
+          </button>
         </div>
       )}
 
@@ -408,6 +417,13 @@ const EmitirFacturaModal = ({ payments = [], isOpen, onClose, onSuccess }) => {
         </div>
       )}
     </Modal>
+    <NotaCreditoModal
+      paymentId={primaryPaymentId}
+      isOpen={notaCreditoOpen}
+      onClose={() => setNotaCreditoOpen(false)}
+      onSuccess={() => { if (typeof onSuccess === 'function') onSuccess(); }}
+    />
+    </>
   );
 };
 

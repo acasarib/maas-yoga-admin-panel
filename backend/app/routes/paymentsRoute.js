@@ -217,8 +217,12 @@ router.delete("/:id", verifyToken, blockAuditors, controller.deleteById);
 router.put("/:id/verified", verifyToken, blockAuditors, controller.changeVerified);
 
 router.post("/:id/split", verifyToken, blockAuditors, controller.splitPayment);
+router.get("/:id/invoice", verifyToken, controller.getInvoiceForPayment);
 router.get("/:id/invoice/pdf", verifyToken, controller.downloadInvoicePDF);
 router.post("/:id/invoice/email", verifyToken, blockAuditors, controller.sendInvoiceByEmail);
+router.post("/:id/invoice/credit-note", verifyToken, blockAuditors, controller.emitirNotaCredito);
+router.get("/:id/invoice/credit-note/:creditNoteId/pdf", verifyToken, controller.downloadCreditNotePDF);
+router.post("/:id/invoice/credit-note/:creditNoteId/email", verifyToken, blockAuditors, controller.sendCreditNoteByEmail);
 router.get("/:id/receipt", verifyToken, controller.getReceipt);
 
 export default router;

@@ -4,7 +4,10 @@ import { StatusCodes } from "http-status-codes";
 import Specification from "../models/Specification.js";
 import { payment as paymentModel } from "../db/index.js";
 import { getById } from "../services/studentService.js";
-import { emitirFacturaAgrupada, resolveInvoiceForPayment, MixedStudentsError, DuplicateInvoiceError } from "../services/invoiceService.js";
+import {
+  emitirFacturaAgrupada, resolveInvoiceForPayment, MixedStudentsError, DuplicateInvoiceError,
+  getInvoiceDetailForPayment, emitirNotaCreditoParaFactura, resolveCreditNoteById, InvalidCreditNoteItemError,
+} from "../services/invoiceService.js";
 import { DOC_TIPO } from "../services/afipService.js";
 import { generateAfipInvoicePDF } from "../utils/pdfUtils.js";
 import { sendEmailWithPDF } from "../services/emailService.js";
@@ -16,6 +19,14 @@ import logger from "../utils/logger.js";
 const __invoiceTemplatePath = new URL('../templates/invoice_email.html', import.meta.url);
 
 const DOC_LABEL = { CUIT: 'CUIT', CUIL: 'CUIL', DNI: 'DNI' };
+
+// CbteTipo (código AFIP para el QR) de una nota de crédito según su tipo — no coincide con
+// el de la factura (ver comentario en afipService.js: Factura=N, NC=N+2).
+const CREDIT_NOTE_TIPO_CMP = { 'Nota de Crédito A': 3, 'Nota de Crédito B': 8 };
+
+const formatAssociatedRef = (invoiceDb) => invoiceDb
+  ? `${invoiceDb.invoiceType} ${String(invoiceDb.puntoVenta).padStart(4, '0')}-${String(invoiceDb.invoiceNumber).padStart(8, '0')}`
+  : '';
 
 /**
  * Resuelve qué mostrar en el PDF/QR como documento del receptor. Si la factura tiene
@@ -186,6 +197,7 @@ export default {
       let htmlBody = '';
       try {
         htmlBody = readFileSync(fileURLToPath(__invoiceTemplatePath), 'utf8')
+          .replace(/{docTitle}/g, 'Factura Electrónica AFIP')
           .replace(/{firstName}/g, alumno.name)
           .replace(/{lastName}/g, alumno.lastName)
           .replace(/{invoiceType}/g, paymentDb.invoiceType || '')
@@ -222,6 +234,140 @@ export default {
       if (e instanceof DuplicateInvoiceError) {
         return res.status(StatusCodes.CONFLICT).json({ message: e.message, alreadyInvoicedPaymentIds: e.alreadyInvoicedPaymentIds });
       }
+      next(e);
+    }
+  },
+
+  getInvoiceForPayment: async (req, res, next) => {
+    try {
+      const detail = await getInvoiceDetailForPayment(req.params.id);
+      if (!detail) return res.status(404).json({ message: 'Este pago no tiene factura emitida' });
+      res.status(StatusCodes.OK).json(detail);
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  emitirNotaCredito: async (req, res, next) => {
+    try {
+      const detail = await getInvoiceDetailForPayment(req.params.id);
+      if (!detail) return res.status(404).json({ message: 'Este pago no tiene factura emitida' });
+      const { items, reason } = req.body;
+      const result = await emitirNotaCreditoParaFactura({ invoiceId: detail.invoiceId, items, reason, userId: req.user.id });
+      res.status(StatusCodes.OK).json(result);
+    } catch (e) {
+      if (e instanceof InvalidCreditNoteItemError) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: e.message });
+      }
+      next(e);
+    }
+  },
+
+  downloadCreditNotePDF: async (req, res, next) => {
+    try {
+      const resolved = await resolveCreditNoteById(req.params.creditNoteId);
+      if (!resolved) return res.status(404).json({ message: 'Nota de crédito no encontrada' });
+      const { creditNoteDb, items, total, invoiceDb } = resolved;
+      const alumno = invoiceDb?.student;
+
+      const { ivaKey, tipoDocRec, nroDocRec, receptorDoc, receptorDocLabel } = resolveInvoicePdfDocInfo(invoiceDb, alumno);
+      const tipoCmp = CREDIT_NOTE_TIPO_CMP[creditNoteDb.creditNoteType] || 8;
+
+      const pad = (n) => String(n).padStart(2, '0');
+      const d = new Date(creditNoteDb.createdAt);
+      const fechaCbte = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const fechaIso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const caeVenc = creditNoteDb.caeVencimiento
+        ? (() => { const p = creditNoteDb.caeVencimiento.toString().split('-'); return `${p[2]}/${p[1]}/${p[0]}`; })()
+        : '';
+
+      const pdfBytes = await generateAfipInvoicePDF({
+        invoiceType: creditNoteDb.creditNoteType,
+        invoiceNumber: creditNoteDb.creditNoteNumber,
+        puntoVenta: creditNoteDb.puntoVenta,
+        fechaCbte, fechaIso,
+        emisorCuit: process.env.AFIP_CUIT,
+        emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
+        receptorNombre: alumno ? `${alumno.name} ${alumno.lastName}` : '',
+        receptorDoc, receptorDocLabel,
+        receptorIva: ivaKey,
+        items, total,
+        cae: creditNoteDb.cae,
+        caeVencimiento: caeVenc,
+        tipoCmp, tipoDocRec, nroDocRec,
+        docLabel: 'NOTA DE CREDITO',
+        associatedRef: formatAssociatedRef(invoiceDb),
+      });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="nota-de-credito-${creditNoteDb.creditNoteType?.replace(/ /g, '-')}-${creditNoteDb.creditNoteNumber}.pdf"`);
+      res.send(Buffer.from(pdfBytes));
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  sendCreditNoteByEmail: async (req, res, next) => {
+    try {
+      const resolved = await resolveCreditNoteById(req.params.creditNoteId);
+      if (!resolved) return res.status(404).json({ message: 'Nota de crédito no encontrada' });
+      const { creditNoteDb, items, total, invoiceDb } = resolved;
+      const alumno = invoiceDb?.student;
+      if (!alumno?.email) return res.status(400).json({ message: 'El alumno no tiene correo registrado' });
+
+      const { ivaKey, tipoDocRec, nroDocRec, receptorDoc, receptorDocLabel } = resolveInvoicePdfDocInfo(invoiceDb, alumno);
+      const tipoCmp = CREDIT_NOTE_TIPO_CMP[creditNoteDb.creditNoteType] || 8;
+
+      const pad = (n) => String(n).padStart(2, '0');
+      const d = new Date(creditNoteDb.createdAt);
+      const fechaCbte = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const fechaIso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const caeVenc = creditNoteDb.caeVencimiento
+        ? (() => { const p = creditNoteDb.caeVencimiento.toString().split('-'); return `${p[2]}/${p[1]}/${p[0]}`; })()
+        : '';
+
+      const pdfBytes = await generateAfipInvoicePDF({
+        invoiceType: creditNoteDb.creditNoteType, invoiceNumber: creditNoteDb.creditNoteNumber,
+        puntoVenta: creditNoteDb.puntoVenta,
+        fechaCbte, fechaIso,
+        emisorCuit: process.env.AFIP_CUIT, emisorNombre: process.env.AFIP_NOMBRE || 'Emisor',
+        receptorNombre: `${alumno.name} ${alumno.lastName}`,
+        receptorDoc, receptorDocLabel, receptorIva: ivaKey,
+        items, total,
+        cae: creditNoteDb.cae, caeVencimiento: caeVenc,
+        tipoCmp, tipoDocRec, nroDocRec,
+        docLabel: 'NOTA DE CREDITO',
+        associatedRef: formatAssociatedRef(invoiceDb),
+      });
+
+      const fileName = `nota-de-credito-${creditNoteDb.creditNoteType?.replace(/ /g, '-')}-${creditNoteDb.creditNoteNumber}.pdf`;
+      const studentName = `${alumno.name} ${alumno.lastName}`;
+      const nroPadded = `${String(creditNoteDb.puntoVenta || 1).padStart(4,'0')}-${String(creditNoteDb.creditNoteNumber||0).padStart(8,'0')}`;
+
+      let htmlBody = '';
+      try {
+        htmlBody = readFileSync(fileURLToPath(__invoiceTemplatePath), 'utf8')
+          .replace(/{docTitle}/g, 'Nota de Crédito Electrónica AFIP')
+          .replace(/{firstName}/g, alumno.name)
+          .replace(/{lastName}/g, alumno.lastName)
+          .replace(/{invoiceType}/g, creditNoteDb.creditNoteType || '')
+          .replace(/{invoiceNumber}/g, nroPadded)
+          .replace(/{fechaCbte}/g, fechaCbte)
+          .replace(/{cae}/g, creditNoteDb.cae || '')
+          .replace(/{caeVencimiento}/g, caeVenc)
+          .replace(/{emisorNombre}/g, process.env.AFIP_NOMBRE || 'Emisor');
+      } catch (_) {}
+
+      await sendEmailWithPDF(
+        alumno.email,
+        `Nota de Crédito AFIP - ${creditNoteDb.creditNoteType} N° ${nroPadded}`,
+        `Hola ${studentName},\n\nAdjunto encontras tu nota de credito AFIP.\n\nSaludos,\n${process.env.AFIP_NOMBRE || 'Emisor'}`,
+        Buffer.from(pdfBytes),
+        fileName,
+        htmlBody,
+      );
+      res.status(200).json({ message: `Nota de crédito enviada a ${alumno.email}` });
+    } catch (e) {
       next(e);
     }
   },

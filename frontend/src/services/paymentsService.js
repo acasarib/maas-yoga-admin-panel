@@ -139,6 +139,52 @@ export default {
                 .catch((error) => reject(error));
         });
     },
+    getInvoiceForPayment(paymentId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/payments/${paymentId}/invoice`)
+                .then((response) => resolve(response.data))
+                .catch((error) => reject(error));
+        });
+    },
+    emitirNotaCredito(paymentId, { items, reason } = {}) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + `api/v1/payments/${paymentId}/invoice/credit-note`, { items, reason })
+                .then((response) => resolve(response.data))
+                .catch((error) => reject(error));
+        });
+    },
+    downloadCreditNotePDF(paymentId, creditNoteId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .get(baseUrl + `api/v1/payments/${paymentId}/invoice/credit-note/${creditNoteId}/pdf`, { responseType: 'blob' })
+                .then((response) => {
+                    const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `nota-de-credito-${creditNoteId}.pdf`);
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    URL.revokeObjectURL(url);
+                    resolve();
+                })
+                .catch((error) => reject(error));
+        });
+    },
+    sendCreditNoteByEmail(paymentId, creditNoteId) {
+        return new Promise((resolve, reject) => {
+            const baseUrl = process.env.REACT_APP_BACKEND_HOST;
+            axios
+                .post(baseUrl + `api/v1/payments/${paymentId}/invoice/credit-note/${creditNoteId}/email`)
+                .then((response) => resolve(response.data))
+                .catch((error) => reject(error));
+        });
+    },
     deletePayment(paymentId) {
         return new Promise((resolve, reject) => {
             const baseUrl = process.env.REACT_APP_BACKEND_HOST;

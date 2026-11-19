@@ -1,6 +1,6 @@
-import { payment, student, invoice, invoiceItem, item, category, sequelize } from "../db/index.js";
+import { payment, student, invoice, invoiceItem, item, category, sequelize, creditNote, creditNoteItem } from "../db/index.js";
 import { editById as editStudentById } from "./studentService.js";
-import { emitirFactura as afipEmitirFactura } from "./afipService.js";
+import { emitirFactura as afipEmitirFactura, emitirNotaCredito as afipEmitirNotaCredito, DOC_TIPO } from "./afipService.js";
 import logger from "../utils/logger.js";
 
 export class MixedStudentsError extends Error {
@@ -15,6 +15,13 @@ export class DuplicateInvoiceError extends Error {
     super("Algunos movimientos ya tienen una factura emitida");
     this.name = "DuplicateInvoiceError";
     this.alreadyInvoicedPaymentIds = alreadyInvoicedPaymentIds;
+  }
+}
+
+export class InvalidCreditNoteItemError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "InvalidCreditNoteItemError";
   }
 }
 
@@ -180,5 +187,165 @@ export const resolveInvoiceForPayment = async (paymentId) => {
     invoiceDb,
     items: invoiceDb.invoiceItems.map((i) => ({ concept: i.concept, amount: i.amount })),
     total: invoiceDb.totalAmount,
+  };
+};
+
+/**
+ * Suma, por invoiceItem, cuánto ya se acreditó en notas de crédito previas. Se usa tanto
+ * para mostrar el saldo acreditable en el modal como para validar al emitir una NC nueva.
+ */
+const getCreditedAmountsByInvoiceItem = async (invoiceItemIds) => {
+  if (invoiceItemIds.length === 0) return new Map();
+  const rows = await creditNoteItem.findAll({
+    where: { invoiceItemId: invoiceItemIds },
+    attributes: ["invoiceItemId", [sequelize.fn("SUM", sequelize.col("amount")), "credited"]],
+    group: ["invoiceItemId"],
+    raw: true,
+  });
+  return new Map(rows.map((r) => [r.invoiceItemId, parseFloat(r.credited) || 0]));
+};
+
+/**
+ * Resuelve la factura asociada a un pago junto con el saldo acreditable de cada ítem y las
+ * notas de crédito ya emitidas — lo que necesita el modal de "Anular / Nota de Crédito".
+ */
+export const getInvoiceDetailForPayment = async (paymentId) => {
+  const resolved = await resolveInvoiceForPayment(paymentId);
+  if (!resolved || !resolved.invoiceDb) return null;
+  const { invoiceDb } = resolved;
+
+  const invoiceItemIds = invoiceDb.invoiceItems.map((i) => i.id);
+  const creditedMap = await getCreditedAmountsByInvoiceItem(invoiceItemIds);
+
+  const creditNotesDb = await creditNote.findAll({ where: { invoiceId: invoiceDb.id }, order: [["id", "DESC"]] });
+
+  return {
+    invoiceId: invoiceDb.id,
+    invoiceType: invoiceDb.invoiceType,
+    invoiceNumber: invoiceDb.invoiceNumber,
+    puntoVenta: invoiceDb.puntoVenta,
+    items: invoiceDb.invoiceItems.map((i) => {
+      const credited = creditedMap.get(i.id) || 0;
+      return { id: i.id, concept: i.concept, amount: i.amount, credited, remaining: parseFloat((i.amount - credited).toFixed(2)) };
+    }),
+    creditNotes: creditNotesDb.map((c) => ({
+      id: c.id, creditNoteType: c.creditNoteType, creditNoteNumber: c.creditNoteNumber,
+      cae: c.cae, totalAmount: c.totalAmount, reason: c.reason, createdAt: c.createdAt,
+    })),
+  };
+};
+
+/**
+ * Emite una Nota de Crédito AFIP asociada a una factura ya emitida, para anular total o
+ * parcialmente sus ítems. No modifica los `payment` originales — es una corrección fiscal;
+ * la plata ya recibida sigue contando en balance / ingresos de profesores (decisión de
+ * producto confirmada con el usuario).
+ */
+export const emitirNotaCreditoParaFactura = async ({ invoiceId, items, reason, userId }) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new InvalidCreditNoteItemError("Se necesita al menos un ítem para emitir la nota de crédito");
+  }
+
+  const invoiceDb = await invoice.findByPk(invoiceId, { include: [{ model: invoiceItem }] });
+  if (!invoiceDb) throw new Error("Factura no encontrada");
+
+  const normalizedItems = items.map((it) => ({
+    invoiceItemId: parseInt(it.invoiceItemId),
+    concept: (it.concept || "").trim() || "Servicio",
+    amount: parseFloat(it.amount),
+  }));
+
+  const invalidItem = normalizedItems.find((it) => !it.invoiceItemId || !it.amount || it.amount <= 0);
+  if (invalidItem) {
+    throw new InvalidCreditNoteItemError(`El monto del ítem ${invalidItem.invoiceItemId || "?"} debe ser un número mayor a 0`);
+  }
+
+  const invoiceItemsById = new Map(invoiceDb.invoiceItems.map((i) => [i.id, i]));
+  const unknownItem = normalizedItems.find((it) => !invoiceItemsById.has(it.invoiceItemId));
+  if (unknownItem) {
+    throw new InvalidCreditNoteItemError(`El ítem ${unknownItem.invoiceItemId} no pertenece a esta factura`);
+  }
+
+  const creditedMap = await getCreditedAmountsByInvoiceItem([...invoiceItemsById.keys()]);
+  for (const it of normalizedItems) {
+    const original = invoiceItemsById.get(it.invoiceItemId);
+    const alreadyCredited = creditedMap.get(it.invoiceItemId) || 0;
+    const remaining = parseFloat((original.amount - alreadyCredited).toFixed(2));
+    if (it.amount > remaining + 0.01) {
+      throw new InvalidCreditNoteItemError(
+        `El ítem "${original.concept}" solo tiene $${remaining.toFixed(2)} disponibles para acreditar`
+      );
+    }
+  }
+
+  const docTipo = invoiceDb.docType ? DOC_TIPO[invoiceDb.docType] : DOC_TIPO.SIN_IDENTIFICAR;
+  const docNro = invoiceDb.docNumber ? parseInt(invoiceDb.docNumber) : 0;
+
+  const afipResult = await afipEmitirNotaCredito({
+    items: normalizedItems,
+    ivaCondition: invoiceDb.ivaCondition || "CONSUMIDOR_FINAL",
+    puntoVenta: invoiceDb.puntoVenta,
+    invoiceNumber: invoiceDb.invoiceNumber,
+    docTipo,
+    docNro,
+  });
+  if (!afipResult) {
+    throw new Error("La facturación AFIP no está disponible (certificados no configurados)");
+  }
+  const { cae, caeVencimiento, creditNoteNumber, creditNoteType, total } = afipResult;
+
+  const { creditNoteDb, creditNoteItemsDb } = await sequelize.transaction(async (transaction) => {
+    const creditNoteDb = await creditNote.create({
+      invoiceId: invoiceDb.id,
+      creditNoteType,
+      creditNoteNumber,
+      puntoVenta: invoiceDb.puntoVenta,
+      cae,
+      caeVencimiento,
+      totalAmount: total,
+      reason: (reason || "").trim() || null,
+      createdByUserId: userId || null,
+    }, { transaction });
+
+    const creditNoteItemsDb = await creditNoteItem.bulkCreate(
+      normalizedItems.map((it) => ({
+        creditNoteId: creditNoteDb.id,
+        invoiceItemId: it.invoiceItemId,
+        concept: it.concept,
+        amount: it.amount,
+      })),
+      { transaction }
+    );
+
+    return { creditNoteDb, creditNoteItemsDb };
+  });
+
+  logger.log(`✅ Nota de crédito creada: creditNoteId=${creditNoteDb.id} | invoiceId=${invoiceDb.id} | total=${total}`);
+
+  return {
+    creditNoteId: creditNoteDb.id,
+    cae,
+    caeVencimiento,
+    creditNoteNumber,
+    creditNoteType,
+    totalAmount: total,
+    items: creditNoteItemsDb.map((i) => ({ invoiceItemId: i.invoiceItemId, concept: i.concept, amount: i.amount })),
+  };
+};
+
+/**
+ * Resuelve una nota de crédito ya emitida (con su factura y alumno asociados) para
+ * regenerar el PDF o reenviarla por email.
+ */
+export const resolveCreditNoteById = async (creditNoteId) => {
+  const creditNoteDb = await creditNote.findByPk(creditNoteId, {
+    include: [{ model: creditNoteItem }, { model: invoice, include: [{ model: student }] }],
+  });
+  if (!creditNoteDb) return null;
+  return {
+    creditNoteDb,
+    invoiceDb: creditNoteDb.invoice,
+    items: creditNoteDb.creditNoteItems.map((i) => ({ concept: i.concept, amount: i.amount })),
+    total: creditNoteDb.totalAmount,
   };
 };
